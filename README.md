@@ -32,4 +32,9 @@ Oasis only has basic elements like multiplayer and one skill so far.
 [World](https://opengameart.org/content/zelda-like-tilesets-and-sprites)
 [Temporary Humanoids](https://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181)
 
+### Characters
+[OpenGameArt](https://opengameart.org/content/antifareas-rpg-sprite-set-1-enlarged-w-transparent-background-fixed)
+
+**Author: Antifarea**
+
 - Temporary Humanoids by DawnBringer and DragonDePlatino
