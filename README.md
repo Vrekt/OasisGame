@@ -1,4 +1,4 @@
-![demo](https://i.imgur.com/zy29Z8M.gif)
+![demo](demo.gif)
 
 *don't mind the UI bug ;)*
 
