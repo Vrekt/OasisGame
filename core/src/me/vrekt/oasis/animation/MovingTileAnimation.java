@@ -33,6 +33,10 @@ public final class MovingTileAnimation extends Anim {
         this.y = start.y;
     }
 
+    public void setSpeed(float x, float y) {
+        this.speed.set(x, y);
+    }
+
     @Override
     public void reset() {
         x = start.x;

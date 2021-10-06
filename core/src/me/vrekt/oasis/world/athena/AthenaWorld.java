@@ -60,7 +60,16 @@ public final class AthenaWorld extends AbstractWorld {
 
         this.interactions = assets.getAtlas("ui/interaction/Interactions.atlas");
         this.screen = new AthenaWorldScreen(game, game.getBatch(), this);
-        Gdx.app.log(ATHENA, "Finished loading Athena.");
+        loadAnimations();
+
+        Gdx.app.log(ATHENA, "Finished loading World: Athena");
+    }
+
+    /**
+     * Load animations in this world.
+     */
+    private void loadAnimations() {
+
     }
 
     @Override
@@ -70,8 +79,6 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     public void update(float d) {
-        super.update(d);
-
         if (this.allotment != null) {
             // ensure we are still close to this allotment.
             if (thePlayer.getPosition().dst2(allotment.getCenter()) >= 11.5) {
@@ -80,23 +87,22 @@ public final class AthenaWorld extends AbstractWorld {
                 this.allotment = null;
                 this.allotmentInteractionOption = null;
                 this.interactionTexture = null;
+                this.screen.hideInteraction();
             }
         } else {
             final FarmingAllotment allotment = getClosestAllotment();
             if (allotment != null && !allotment.isInteractingWith()) {
                 this.allotment = allotment;
                 this.allotmentInteractionOption = allotment.getInteraction();
-                if (allotmentInteractionOption.getRegion() == null) return;
+                // no interaction can be done (placeholder)
+                if (this.allotmentInteractionOption == AllotmentInteractionOption.NONE) return;
 
-                this.interactionTexture = interactions.findRegion(allotmentInteractionOption.getRegion());
+                this.interactionTexture = interactions.findRegion(allotmentInteractionOption.getAsset());
                 this.screen.showInteractionTexture(interactionTexture);
             }
         }
-    }
 
-    @Override
-    public void renderWorld(SpriteBatch batch, float delta) {
-        super.renderWorld(batch, delta);
+        super.update(d);
     }
 
     public void checkInteraction() {

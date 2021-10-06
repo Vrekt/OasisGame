@@ -1,0 +1,13 @@
+
+farm_particle.png
+size: 16, 16
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+particle
+  rotate: false
+  xy: 2, 2
+  size: 9, 9
+  orig: 9, 9
+  offset: 0, 0
+  index: -1

@@ -8,7 +8,7 @@ public enum AllotmentStatus {
     /**
      * Plot is empty and plants/herbs are allowed to be planted.
      */
-    EMPTY(true, false, "farm/emptyplot.png") {
+    EMPTY(true, false, "emptyplot") {
         @Override
         public AllotmentStatus getNextStage() {
             return AllotmentStatus.PLANTED;
@@ -18,7 +18,7 @@ public enum AllotmentStatus {
     /**
      * Plot is not farmable yet.
      */
-    OVERGROWN_1(false, false, "farm/overgrownplot1.png") {
+    OVERGROWN_1(false, false, "overgrownplot1") {
         @Override
         public AllotmentStatus getNextStage() {
             return AllotmentStatus.EMPTY;
@@ -28,7 +28,7 @@ public enum AllotmentStatus {
     /**
      * Plot is not farmable yet.
      */
-    OVERGROWN_2(false, false, "farm/overgrownplot2.png") {
+    OVERGROWN_2(false, false, "overgrownplot2") {
         @Override
         public AllotmentStatus getNextStage() {
             return AllotmentStatus.OVERGROWN_1;
@@ -38,7 +38,7 @@ public enum AllotmentStatus {
     /**
      * Plot is not farmable yet.
      */
-    OVERGROWN_3(false, false, "farm/overgrownplot3.png") {
+    OVERGROWN_3(false, false, "overgrownplot3") {
         @Override
         public AllotmentStatus getNextStage() {
             return AllotmentStatus.OVERGROWN_2;

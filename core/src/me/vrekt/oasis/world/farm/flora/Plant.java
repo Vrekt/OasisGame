@@ -1,9 +1,9 @@
 package me.vrekt.oasis.world.farm.flora;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import me.vrekt.oasis.animation.Anim;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
@@ -25,8 +25,7 @@ public abstract class Plant {
     protected BasicFloraAnimation animation;
     protected TextureRegion[] growthStages;
 
-    protected Texture plantTexture;
-    protected TextureRegion region;
+    protected TextureRegion plantTexture;
     protected boolean isComplete, shouldUpdate;
     protected ParticleEffect particleEffect;
 
@@ -65,8 +64,9 @@ public abstract class Plant {
      * Update this plant
      *
      * @param player the player
+     * @param anim   the plants animation if any
      */
-    public abstract void update(Player player);
+    public abstract void update(Player player, Anim anim);
 
     public abstract void render(SpriteBatch batch, float x, float y, float scale);
 
@@ -89,15 +89,8 @@ public abstract class Plant {
 
     }
 
-    /**
-     * @return the drawing texture of this plant.
-     */
-    public Texture getTexture() {
-        return plantTexture;
-    }
-
-    public TextureRegion getRegion() {
-        return region;
+    public ParticleEffect getParticleEffect() {
+        return particleEffect;
     }
 
     /**

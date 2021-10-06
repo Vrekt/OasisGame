@@ -1,6 +1,9 @@
 package me.vrekt.oasis.world.farm.flora.brush;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import me.vrekt.oasis.animation.Anim;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
@@ -23,8 +26,12 @@ public final class OvergrownBrushPlant extends Plant {
     public OvergrownBrushPlant(FarmingAllotment owner, WorldAsset assets, float x, float y) {
         super(owner, assets, x, y);
 
-        this.plantTexture = assets.getTexture(stage.getAsset());
+        this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
         this.animation = new BasicFloraAnimation(1000);
+        this.particleEffect = new ParticleEffect();
+        this.particleEffect.load(Gdx.files.internal("farm/effects/farm_particle.p"),
+                Gdx.files.internal("farm/effects/"));
+        this.particleEffect.start();
     }
 
     @Override
@@ -38,7 +45,9 @@ public final class OvergrownBrushPlant extends Plant {
     }
 
     @Override
-    public void update(Player player) {
+    public void update(Player player, Anim anim) {
+        if (!this.wasInteractedWith) return;
+
         if (interactionX == 0 && interactionY == 0) {
             interactionX = player.getPosition().x;
             interactionY = player.getPosition().y;
@@ -54,6 +63,7 @@ public final class OvergrownBrushPlant extends Plant {
             this.interactionX = 0;
             this.interactionY = 0;
             this.owner.setInteractingWith(false);
+            anim.reset();
             return;
         }
 
@@ -73,7 +83,12 @@ public final class OvergrownBrushPlant extends Plant {
 
     @Override
     public void render(SpriteBatch batch, float x, float y, float scale) {
-        batch.draw(plantTexture, x, y, plantTexture.getWidth() * scale, plantTexture.getHeight() * scale);
+        batch.draw(plantTexture, x, y, plantTexture.getRegionWidth() * scale, plantTexture.getRegionHeight() * scale);
+    }
+
+    @Override
+    public void renderParticleEffect(SpriteBatch batch) {
+        particleEffect.draw(batch, Gdx.graphics.getDeltaTime());
     }
 
     /**
@@ -85,11 +100,11 @@ public final class OvergrownBrushPlant extends Plant {
                 stage = OvergrownBrushStage.OVERGROWN_2;
                 break;
             case OVERGROWN_2:
-                this.plantTexture = assets.getTexture(stage.getAsset());
+                this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
                 stage = OvergrownBrushStage.OVERGROWN_1;
                 break;
             case OVERGROWN_1:
-                this.plantTexture = assets.getTexture(stage.getAsset());
+                this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
                 stage = OvergrownBrushStage.FINISHED;
                 break;
         }

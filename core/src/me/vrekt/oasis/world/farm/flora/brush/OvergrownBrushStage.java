@@ -5,10 +5,10 @@ package me.vrekt.oasis.world.farm.flora.brush;
  */
 public enum OvergrownBrushStage {
 
-    OVERGROWN_1("farm/overgrownplot1.png"),
-    OVERGROWN_2("farm/overgrownplot2.png"),
-    OVERGROWN_3("farm/overgrownplot3.png"),
-    FINISHED("farm/emptyplot.png");
+    OVERGROWN_1("overgrownplot1"),
+    OVERGROWN_2("overgrownplot2"),
+    OVERGROWN_3("overgrownplot3"),
+    FINISHED("emptyplot");
 
     private final String asset;
 

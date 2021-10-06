@@ -1,9 +1,11 @@
 package me.vrekt.oasis.world.farm;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.animation.MovingTileAnimation;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.flora.Plant;
@@ -22,13 +24,15 @@ public final class FarmingAllotment {
     private AllotmentStatus status = AllotmentStatus.OVERGROWN_3;
 
     // texture to draw when this allotment is empty.
-    private Texture emptyAllotment;
+    private TextureRegion emptyAllotment;
 
     // current growing plant
     private Plant growingPlant;
-    private Vector2 center = new Vector2();
+    private final Vector2 center = new Vector2();
 
     private boolean interactingWith;
+    // animation used for clearing allotments
+    private MovingTileAnimation rakingAnimation;
 
     public FarmingAllotment(Rectangle bounds) {
         this.bounds = bounds;
@@ -41,51 +45,22 @@ public final class FarmingAllotment {
         this.assets = assets;
 
         this.growingPlant = new OvergrownBrushPlant(this, assets, bounds.x, bounds.y);
-        this.emptyAllotment = assets.getTexture(AllotmentStatus.EMPTY.getAsset());
+        this.emptyAllotment = assets.getAtlas(WorldAsset.PLANTS).findRegion(AllotmentStatus.EMPTY.getAsset());
+        bounds.getCenter(center);
+
+        growingPlant.setParticleEffectAt(center.x, center.y);
+
+        // initialize the animation for this allot.
+        // TODO: Is direction based, will probably need to be changed.
+        this.rakingAnimation = new MovingTileAnimation(
+                new Vector2(0.0f, 0.0f),
+                center,
+                new Vector2(bounds.x + (bounds.width - 1.5f), center.y),
+                assets.get(WorldAsset.RAKE));
     }
 
     public Vector2 getCenter() {
         return bounds.getCenter(center);
-    }
-
-    public boolean isInteractingWith() {
-        return interactingWith;
-    }
-
-    public void setInteractingWith(boolean interactingWith) {
-        this.interactingWith = interactingWith;
-    }
-
-    /**
-     * Update the allotment
-     */
-    public void update(Player player) {
-        if (growingPlant != null && growingPlant.getShouldUpdate()) {
-            growingPlant.update(player);
-        }
-    }
-
-    public void render(SpriteBatch batch, float scale) {
-        for (float x = bounds.x; x < (bounds.x + bounds.width); x++) {
-            for (float y = bounds.y; y < (bounds.y + bounds.height); y++) {
-                if (growingPlant == null) {
-                    // plot is empty.
-                    batch.draw(emptyAllotment, x, y, emptyAllotment.getWidth() * scale, emptyAllotment.getHeight() * scale);
-                } else {
-                    growingPlant.render(batch, x, y, scale);
-                }
-            }
-        }
-    }
-
-    public void complete() {
-        this.interactingWith = false;
-
-        if (growingPlant instanceof OvergrownBrushPlant) {
-            // set this plot to empty now.
-            status = AllotmentStatus.EMPTY;
-            growingPlant = null;
-        }
     }
 
     /**
@@ -98,7 +73,62 @@ public final class FarmingAllotment {
             return AllotmentInteractionOption.RAKE;
         }
 
-        return AllotmentInteractionOption.PLANT;
+        return AllotmentInteractionOption.NONE;
+    }
+
+    public boolean isInteractingWith() {
+        return interactingWith;
+    }
+
+    public void setInteractingWith(boolean interactingWith) {
+        this.interactingWith = interactingWith;
+    }
+
+    // update plants or animations within the allotment
+    public void update(Player player) {
+        if (growingPlant != null && growingPlant.getShouldUpdate()) {
+            growingPlant.update(player, rakingAnimation);
+        }
+
+        // update rake animation
+        if (growingPlant instanceof OvergrownBrushPlant && growingPlant.getShouldUpdate()) {
+            rakingAnimation.setSpeed(Gdx.graphics.getDeltaTime(), 0.0f);
+            rakingAnimation.update();
+        }
+
+    }
+
+    // render animations and plants
+    public void render(SpriteBatch batch, float scale) {
+        for (float x = bounds.x; x < (bounds.x + bounds.width); x++) {
+            for (float y = bounds.y; y < (bounds.y + bounds.height); y++) {
+                if (growingPlant == null) {
+                    batch.draw(emptyAllotment, x, y, emptyAllotment.getRegionWidth() * scale, emptyAllotment.getRegionHeight() * scale);
+                } else {
+                    growingPlant.render(batch, x, y, scale);
+                }
+            }
+        }
+
+        // check if we are clearing an allotment, if so render the animation
+        if (growingPlant instanceof OvergrownBrushPlant
+                && !growingPlant.isComplete() && growingPlant.wasInteractedWith()) {
+            // player is clearing field.
+            rakingAnimation.render(batch, scale);
+            growingPlant.renderParticleEffect(batch);
+        }
+
+    }
+
+    public void complete() {
+        this.interactingWith = false;
+
+        if (growingPlant instanceof OvergrownBrushPlant) {
+            // set this plot to empty now.
+            status = AllotmentStatus.EMPTY;
+            growingPlant = null;
+            rakingAnimation.reset();
+        }
     }
 
     /**
@@ -114,8 +144,6 @@ public final class FarmingAllotment {
             case RAKE:
                 rakeAllotment(player);
                 break;
-            case PLANT:
-                break;
         }
     }
 
@@ -125,8 +153,7 @@ public final class FarmingAllotment {
                 || growingPlant.wasInteractedWith())
             return;
 
-        final OvergrownBrushPlant plant = (OvergrownBrushPlant) growingPlant;
-        plant.interactWith(player);
+        growingPlant.interactWith(player);
     }
 
 }

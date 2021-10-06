@@ -28,12 +28,18 @@ public final class AthenaWorldAssets extends WorldAsset {
     private void loadFont() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/sdss.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        // big text for context or titles
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
         fontBig = generator.generateFont(parameter);
 
+        // generate a smaller text for sub title information
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
         fontSmall = generator.generateFont(parameter);
 
         generator.dispose();
     }
+
+
+
 }

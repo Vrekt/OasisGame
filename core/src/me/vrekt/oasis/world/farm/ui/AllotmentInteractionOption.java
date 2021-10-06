@@ -1,28 +1,19 @@
 package me.vrekt.oasis.world.farm.ui;
 
 /**
- * Options for when interacting with an allotment
+ * Interaction options and their textures
  */
 public enum AllotmentInteractionOption {
 
-    /**
-     * Clear this allotment for planting
-     */
-    RAKE("raking_interaction"),
+    RAKE("raking_interaction"), NONE(null);
 
-    /**
-     * Plant something here.
-     */
-    PLANT(null);
+    private final String asset;
 
-    private final String region;
-
-    AllotmentInteractionOption(String region) {
-        this.region = region;
+    AllotmentInteractionOption(String asset) {
+        this.asset = asset;
     }
 
-    public String getRegion() {
-        return region;
+    public String getAsset() {
+        return asset;
     }
-
 }

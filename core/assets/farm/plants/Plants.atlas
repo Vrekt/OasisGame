@@ -4,45 +4,31 @@ size: 128, 32
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-mango_stage
+emptyplot
   rotate: false
   xy: 2, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
-  index: 4
-mango_stage
+  index: -1
+overgrownplot1
   rotate: false
   xy: 20, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
-  index: 1
-mango_stage
-  rotate: false
-  xy: 38, 2
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: 6
-mango_stage
-  rotate: false
-  xy: 38, 2
-  size: 16, 16
-  orig: 16, 16
-  offset: 0, 0
-  index: 5
-mango_stage
+  index: -1
+overgrownplot2
   rotate: false
   xy: 56, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
-  index: 3
-mango_stage
+  index: -1
+overgrownplot3
   rotate: false
-  xy: 74, 2
+  xy: 38, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
-  index: 2
+  index: -1

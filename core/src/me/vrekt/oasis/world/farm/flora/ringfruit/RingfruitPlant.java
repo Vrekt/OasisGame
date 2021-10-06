@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.farm.flora.ringfruit;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import me.vrekt.oasis.animation.Anim;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
@@ -24,7 +25,7 @@ public final class RingfruitPlant extends Plant {
     }
 
     @Override
-    public void update(Player player) {
+    public void update(Player player, Anim anim) {
 
     }
 
