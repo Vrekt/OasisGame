@@ -1,3 +1,7 @@
+![demo](https://i.imgur.com/zy29Z8M.gif)
+
+*don't mind the UI bug ;)*
+
 # Oasis
 
 ### What is Oasis?
