@@ -1,6 +1,4 @@
-![demo](demo.gif)
-
-*don't mind the UI bug ;)*
+![demo](demo2.gif)
 
 # Oasis
 
