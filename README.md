@@ -13,3 +13,19 @@ Oasis only has basic elements like multiplayer and one skill so far.
 [LunarGdx For Multiplayer](https://github.com/Vrekt/LunarGdx)
 
 ... and of-course LibGDX.
+
+### Features
+
+- Multiplayer
+- Unique UI inspired by [DevDuck](https://www.youtube.com/devduck)
+- Worlds
+- Farming Skill
+- etc.
+
+# Assets credits
+
+[Font](https://opengameart.org/content/pixel-fonts-by-pix3m)
+[World](https://opengameart.org/content/zelda-like-tilesets-and-sprites)
+[Temporary Humanoids](https://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181)
+
+- Temporary Humanoids by DawnBringer and DragonDePlatino
