@@ -1,0 +1,20 @@
+
+Interactions.png
+size: 1024, 64
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+interaction
+  rotate: false
+  xy: 360, 6
+  size: 356, 32
+  orig: 356, 32
+  offset: 0, 0
+  index: -1
+raking_interaction
+  rotate: false
+  xy: 2, 2
+  size: 356, 36
+  orig: 356, 36
+  offset: 0, 0
+  index: -1

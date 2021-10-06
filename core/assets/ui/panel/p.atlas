@@ -1,0 +1,34 @@
+
+p.png
+size: 2048, 256
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+collection_panel
+  rotate: false
+  xy: 260, 2
+  size: 256, 186
+  orig: 256, 186
+  offset: 0, 0
+  index: -1
+green_panel
+  rotate: false
+  xy: 518, 2
+  size: 256, 186
+  orig: 256, 186
+  offset: 0, 0
+  index: -1
+purple_panel
+  rotate: false
+  xy: 776, 2
+  size: 256, 186
+  orig: 256, 186
+  offset: 0, 0
+  index: -1
+quests_panel
+  rotate: false
+  xy: 2, 2
+  size: 256, 186
+  orig: 256, 186
+  offset: 0, 0
+  index: -1

@@ -33,7 +33,7 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
     private final Table bookTable;
     // handles mouse clicking
     private final Vector3 vector3 = new Vector3();
-    
+
     public AthenaWorldScreen(OasisGame game, SpriteBatch batch, AthenaWorld world) {
         super(game, world.getAssets());
 

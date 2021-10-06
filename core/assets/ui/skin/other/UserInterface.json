@@ -1,0 +1,80 @@
+{
+com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	alagard: {
+		file: Font2.fnt
+	}
+}
+com.badlogic.gdx.graphics.Color: {
+	LightGray: {
+		r: 0.67333335
+		g: 0.65313333
+		b: 0.65313333
+		a: 1
+	}
+	White: {
+		r: 1
+		g: 1
+		b: 1
+		a: 1
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+	radio: {
+		up: button_unchecked
+		down: button_unchecked
+		checked: button_checked
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+	default: {
+		checkboxOn: checked
+		checkboxOff: checked_off
+		font: alagard
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: alagard
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
+	default-horizontal: {
+		background: pbar_background
+		knob: knob
+		knobBefore: pbar_knob_before
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+	default: {
+		font: alagard
+		disabledFontColor: LightGray
+		up: up
+		down: down
+		disabled: down
+	}
+	radio: {
+		font: alagard
+		up: button_unchecked
+		down: button_checked
+		checked: button_checked
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+	default: {
+		font: alagard
+		fontColor: White
+		background: empty_field
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
+	default: {
+		background: down1
+		titleFont: alagard
+	}
+}
+}

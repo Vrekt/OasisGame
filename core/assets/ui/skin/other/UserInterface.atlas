@@ -1,0 +1,107 @@
+
+UserInterface.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+alagard_by_pix3m-d6awiwp
+  rotate: false
+  xy: 1, 473
+  size: 504, 30
+  orig: 504, 30
+  offset: 0, 0
+  index: -1
+button_checked
+  rotate: false
+  xy: 1, 429
+  size: 66, 20
+  split: 30, 10, 6, 6
+  pad: 27, 12, 3, 3
+  orig: 66, 20
+  offset: 0, 0
+  index: -1
+button_unchecked
+  rotate: false
+  xy: 1, 451
+  size: 66, 20
+  split: 30, 10, 6, 6
+  pad: 27, 12, 3, 3
+  orig: 66, 20
+  offset: 0, 0
+  index: -1
+checked
+  rotate: false
+  xy: 69, 433
+  size: 22, 18
+  orig: 22, 18
+  offset: 0, 0
+  index: -1
+checked_off
+  rotate: false
+  xy: 129, 453
+  size: 22, 18
+  orig: 22, 18
+  offset: 0, 0
+  index: -1
+empty_field
+  rotate: false
+  xy: 1, 393
+  size: 18, 18
+  split: 6, 6, 6, 6
+  pad: 7, 7, 5, 5
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+down
+  rotate: false
+  xy: 1, 393
+  size: 18, 18
+  split: 6, 6, 6, 6
+  pad: 6, 6, 8, 8
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+down1
+  rotate: false
+  xy: 1, 393
+  size: 18, 18
+  split: 6, 6, 6, 6
+  pad: 6, 6, 17, 0
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+knob
+  rotate: false
+  xy: 1, 413
+  size: 27, 14
+  split: 2, 5, 4, 3
+  pad: 2, 5, 4, 4
+  orig: 27, 14
+  offset: 0, 0
+  index: -1
+pbar_background
+  rotate: false
+  xy: 69, 453
+  size: 58, 18
+  split: 2, 2, 6, 6
+  orig: 58, 18
+  offset: 0, 0
+  index: -1
+pbar_knob_before
+  rotate: false
+  xy: 30, 413
+  size: 6, 14
+  split: 4, 1, 4, 4
+  pad: 4, 1, 5, 4
+  orig: 6, 14
+  offset: 0, 0
+  index: -1
+up
+  rotate: false
+  xy: 93, 433
+  size: 18, 18
+  split: 6, 6, 6, 6
+  pad: 6, 6, 8, 8
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
