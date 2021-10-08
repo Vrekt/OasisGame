@@ -1,6 +1,4 @@
-![demo](demo.gif)
-
-*don't mind the UI bug ;)*
+![demo](demo2.gif)
 
 # Oasis
 
@@ -31,6 +29,7 @@ Oasis only has basic elements like multiplayer and one skill so far.
 [Font](https://opengameart.org/content/pixel-fonts-by-pix3m)
 [World](https://opengameart.org/content/zelda-like-tilesets-and-sprites)
 [Temporary Humanoids](https://opengameart.org/content/dawnlike-16x16-universal-rogue-like-tileset-v181)
+[Font2](https://opengameart.org/content/pixel-block-font)
 
 ### Characters
 [OpenGameArt](https://opengameart.org/content/antifareas-rpg-sprite-set-1-enlarged-w-transparent-background-fixed)
