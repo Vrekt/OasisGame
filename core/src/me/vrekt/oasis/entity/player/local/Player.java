@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.impl.LunarPlayer;
+import me.vrekt.oasis.inventory.PlayerInventory;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class Player extends LunarPlayer {
 
     private final List<Integer> inputsDisabled = new CopyOnWriteArrayList<>();
+    private final PlayerInventory inventory;
 
     public Player(int entityId, float playerScale, float playerWidth, float playerHeight, Rotation rotation) {
         super(entityId, playerScale, playerWidth, playerHeight, rotation);
@@ -21,6 +23,7 @@ public final class Player extends LunarPlayer {
         setVelocitySendRate(100);
         setPositionSendRate(250);
         setMoveSpeed(6.0f);
+        this.inventory = new PlayerInventory(18);
     }
 
     @Override
@@ -70,6 +73,10 @@ public final class Player extends LunarPlayer {
      */
     private boolean isInputDisabled(int key) {
         return inputsDisabled.contains(key);
+    }
+
+    public PlayerInventory getInventory() {
+        return inventory;
     }
 
     @Override

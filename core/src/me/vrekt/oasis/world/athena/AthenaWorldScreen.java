@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -33,6 +34,7 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
     private final Table bookTable;
     // handles mouse clicking
     private final Vector3 vector3 = new Vector3();
+    private ShapeRenderer debugRenderer;
 
     public AthenaWorldScreen(OasisGame game, SpriteBatch batch, AthenaWorld world) {
         super(game, world.getAssets());
@@ -40,6 +42,7 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
         this.world = world;
         this.batch = batch;
         this.book = new PlayerBook(game, world.getAssets());
+        this.debugRenderer = new ShapeRenderer();
 
         final TextureRegion emptyInteraction = asset.getAtlas("ui/interaction/Interactions.atlas").findRegion("interaction");
         this.interaction = new Image();
@@ -77,9 +80,9 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
         uiBatch.begin();
 
         stage.getRoot().draw(uiBatch, 1);
-        if (showPlayerBook) {
-            book.render(uiBatch, world.getAssets().fontBig, world.getAssets().fontSmall, bookTable.getOriginX(), bookTable.getOriginY());
-        }
+
+        if (showPlayerBook)
+            book.render(uiBatch, world.getAssets().getRomulusBig(), world.getAssets().getRomulusSmall());
 
         uiBatch.end();
     }
@@ -88,7 +91,7 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
     public void resize(int width, int height) {
         world.getRenderer().resize(width, height);
         stage.getViewport().update(width, height, true);
-        book.resetState();
+        book.resize();
     }
 
     /**
@@ -117,7 +120,7 @@ public final class AthenaWorldScreen extends AbstractWorldScreen {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (pointer == Input.Buttons.LEFT) {
             vector3.set(screenX, screenY, 0.0f);
-            stage.getCamera().unproject(vector3);
+            vector3.set(stage.getCamera().unproject(vector3));
             if (showPlayerBook) {
                 book.handleClick(vector3.x, vector3.y);
                 return true;

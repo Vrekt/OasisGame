@@ -1,9 +1,9 @@
 package me.vrekt.oasis.world.farm.flora.brush;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.animation.Anim;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
@@ -23,15 +23,12 @@ public final class OvergrownBrushPlant extends Plant {
     private float interactionX, interactionY;
     private boolean reset;
 
-    public OvergrownBrushPlant(FarmingAllotment owner, WorldAsset assets, float x, float y) {
+    public OvergrownBrushPlant(FarmingAllotment owner, Asset assets, float x, float y) {
         super(owner, assets, x, y);
 
         this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
         this.animation = new BasicFloraAnimation(1000);
-        this.particleEffect = new ParticleEffect();
-        this.particleEffect.load(Gdx.files.internal("farm/effects/farm_particle.p"),
-                Gdx.files.internal("farm/effects/"));
-        this.particleEffect.start();
+        this.particleEffect = assets.get(Asset.PARTICLE_FILE);
     }
 
     @Override

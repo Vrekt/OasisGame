@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.item.items.RingfruitSeedItem;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
@@ -18,7 +19,6 @@ import me.vrekt.oasis.world.renderer.WorldRenderer;
  */
 public final class AthenaWorld extends AbstractWorld {
 
-    private final AthenaWorldAssets assets = new AthenaWorldAssets();
     private final OasisGame game;
 
     private FarmingAllotment allotment;
@@ -29,7 +29,7 @@ public final class AthenaWorld extends AbstractWorld {
     private TextureAtlas interactions;
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
-        super(player, world, batch);
+        super(player, world, batch, game.asset);
         this.game = game;
 
         setHandlePhysics(true);
@@ -37,10 +37,6 @@ public final class AthenaWorld extends AbstractWorld {
         setUpdateNetworkPlayers(true);
         this.updateEntities = true;
         this.worldScale = WorldRenderer.SCALE;
-    }
-
-    public AthenaWorldAssets getAssets() {
-        return assets;
     }
 
     public Player getPlayer() {
@@ -51,14 +47,18 @@ public final class AthenaWorld extends AbstractWorld {
         return screen;
     }
 
+
     @Override
     protected void loadWorld(TiledMap worldMap, float worldScale) {
-        this.assets.loadAssets();
         for (FarmingAllotment allotment : this.allotments) {
-            allotment.loadAllotment(assets);
+            allotment.loadAllotment(asset);
         }
 
-        this.interactions = assets.getAtlas("ui/interaction/Interactions.atlas");
+        // give player a few items
+        game.getItems().load(asset);
+        this.thePlayer.getInventory().addItem(game.getItems().createNewItem(new RingfruitSeedItem(), 6));
+
+        this.interactions = asset.getAtlas("ui/interaction/Interactions.atlas");
         this.screen = new AthenaWorldScreen(game, game.getBatch(), this);
         loadAnimations();
 

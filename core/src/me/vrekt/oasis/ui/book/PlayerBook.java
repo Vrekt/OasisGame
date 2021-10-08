@@ -3,46 +3,105 @@ package me.vrekt.oasis.ui.book;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.ui.book.pages.InventoryBookPage;
 import me.vrekt.oasis.ui.book.pages.QuestBookPage;
 import me.vrekt.oasis.world.asset.WorldAsset;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents the players book.
  */
 public final class PlayerBook {
 
+    // margins to tabs/buttons
+    private final float marginToButtonsX = 29 * 1.5f;
+    private final float marginToButtonsY = 24 * 1.5f;
+    // sizes
+    private final float buttonSizeX = 15 * 1.5f;
+    private final float buttonSizeY = 32 * 1.5f;
+    private final float buttonSpacingY = 9 * 1.5f;
+
+    // pages sorted by their button bounds.
+    private final Map<Rectangle, BookPage> pageButtons = new HashMap<>();
+
+    // used for translating stage coordinates
+    private final Vector2 stageCoordinates = new Vector2(0, 0);
+
     // atlas of all textures
+    private final OasisGame game;
     private final TextureAtlas bookAtlas;
     private final Image image;
 
     // current page player is on
     private BookPage currentPage;
+    private boolean buttonsInitialized;
 
-    public PlayerBook(OasisGame game, WorldAsset asset) {
+    public PlayerBook(OasisGame game, Asset asset) {
+        this.game = game;
         this.bookAtlas = asset.get(WorldAsset.BOOK);
         this.currentPage = new QuestBookPage(game, bookAtlas);
         this.image = new Image(currentPage.currentTabTexture);
+        resize();
     }
 
     public Image getImage() {
         return image;
     }
 
-    // render player book page
-    public void render(Batch batch, BitmapFont big, BitmapFont small, float x, float y) {
-        currentPage.render(batch, big, small, x, y);
+    /**
+     * Initialize buttons
+     */
+    private void initializeButtons(float x, float y) {
+        x += image.getWidth() - marginToButtonsX;
+        y -= marginToButtonsY;
+
+        pageButtons.put(new Rectangle(x - buttonSizeX, y - buttonSizeY, buttonSizeX, buttonSizeY), currentPage);
+        y -= (buttonSizeY + buttonSpacingY);
+        pageButtons.put(new Rectangle(x - buttonSizeX, y - buttonSizeY, buttonSizeX, buttonSizeY), new InventoryBookPage(game, bookAtlas));
     }
 
-    // reset state when resizing or changing book pages
-    public void resetState() {
-        currentPage.resetState();
+    /**
+     * Render the player book
+     *
+     * @param batch batch
+     * @param big   big font
+     * @param small small font
+     */
+    public void render(Batch batch, BitmapFont big, BitmapFont small) {
+        // ensure buttons are initialized once to get right coordinates
+        if (!buttonsInitialized) {
+            this.image.localToStageCoordinates(stageCoordinates);
+            buttonsInitialized = true;
+            initializeButtons(stageCoordinates.x, stageCoordinates.y + image.getHeight());
+        } else {
+            this.image.localToStageCoordinates(stageCoordinates);
+        }
+        currentPage.render(batch, big, small, stageCoordinates.x, stageCoordinates.y + image.getHeight());
+        stageCoordinates.set(0, 0);
     }
 
-    // handle clicking within the page UI
+    /**
+     * Handle resizing of the window to update elements positions.
+     */
+    public void resize() {
+        this.image.localToStageCoordinates(stageCoordinates);
+    }
+
+    /**
+     * Handle clicking within the book UI
+     *
+     * @param x x
+     * @param y y
+     */
     public void handleClick(float x, float y) {
-        currentPage.handleClick(x, y);
+
     }
 
 }

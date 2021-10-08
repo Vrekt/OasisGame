@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.Lunar;
@@ -14,10 +13,13 @@ import gdx.lunar.entity.contact.PlayerCollisionListener;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.prop.PlayerProperties;
 import gdx.lunar.network.PlayerConnection;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.item.ItemManager;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.server.LocalOasisServer;
 import me.vrekt.oasis.ui.InterfaceAssets;
+import me.vrekt.oasis.ui.loading.MainLoadingScreen;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
 import me.vrekt.oasis.world.athena.AthenaWorld;
@@ -27,31 +29,31 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class OasisGame extends Game implements Taggable {
 
-    private SpriteBatch batch;
+    public final ItemManager items = new ItemManager();
 
-    private InterfaceAssets interfaceAssets;
-    private WorldManager worldManager;
+    public SpriteBatch batch;
 
-    private Player thePlayer;
+    public InterfaceAssets interfaceAssets;
+    public WorldManager worldManager;
 
-    private LunarClientServer server;
-    private TextureAtlas characterAnimations;
+    public Player thePlayer;
 
-    private LocalOasisServer localServer;
-    private QuestManager questManager;
+    public LunarClientServer server;
+    public TextureAtlas characterAnimations;
+
+    public LocalOasisServer localServer;
+    public QuestManager questManager;
+
+    public Asset asset;
 
     @Override
     public void create() {
-        Logging.info(GAME, "Loading components...");
-        loadAssets();
+        this.interfaceAssets = new InterfaceAssets();
+        this.batch = new SpriteBatch();
+        this.asset = new Asset();
 
-        this.localServer = new LocalOasisServer();
 
-        registerQuests();
-        createLocalPlayer();
-        loadWorlds();
-        connect();
-        start();
+        setScreen(new MainLoadingScreen(this));
 
         Logging.info(GAME, "Ready");
     }
@@ -74,30 +76,27 @@ public final class OasisGame extends Game implements Taggable {
         return questManager;
     }
 
+    public ItemManager getItems() {
+        return items;
+    }
+
     public SpriteBatch getBatch() {
         return batch;
     }
 
-    /**
-     * Load general assets and UI stuff.
-     */
-    private void loadAssets() {
-        this.interfaceAssets = new InterfaceAssets();
-        this.batch = new SpriteBatch();
-    }
 
-    private void registerQuests() {
+    public void registerQuests() {
         questManager = new QuestManager();
     }
 
-    private void createLocalPlayer() {
+    public void createLocalPlayer() {
         thePlayer = new Player(-1, (1 / 16.0f), 16.0f, 16.0f, Rotation.FACING_UP);
 
         characterAnimations = new TextureAtlas("character/character.atlas");
         thePlayer.initializePlayerRendererAndLoad(characterAnimations, true);
     }
 
-    private void loadWorlds() {
+    public void loadWorlds() {
         this.worldManager = new WorldManager();
         final World world = new World(Vector2.Zero, true);
         world.setContactListener(new PlayerCollisionListener());
@@ -108,7 +107,7 @@ public final class OasisGame extends Game implements Taggable {
         worldManager.registerWorld("Athena", athenaWorld);
     }
 
-    private void connect() {
+    public void connect() {
         final Lunar lunar = new Lunar();
         lunar.setGdxInitialized(true);
         lunar.setPlayerProperties(new PlayerProperties((1 / 16.0f), 16.0f, 16.0f));
@@ -125,18 +124,19 @@ public final class OasisGame extends Game implements Taggable {
         connection.sendJoinWorld("Athena");
     }
 
-    private void start() {
+    public void loadWorld() {
         final AthenaWorld world = worldManager.getWorld("Athena");
         worldManager.setWorld(world);
 
-        world.loadIntoWorld(new TmxMapLoader().load("worlds\\athena\\Athena.tmx"), (1 / 16.0f));
+        // load athena world map
+    }
+
+    public void finish() {
         thePlayer.getConnection().sendWorldLoaded();
 
         Pixmap pm = new Pixmap(Gdx.files.internal("ui/cursor.png"));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
-
-        setScreen(world.getScreen());
     }
 
 }

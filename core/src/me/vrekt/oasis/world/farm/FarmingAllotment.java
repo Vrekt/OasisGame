@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.animation.MovingTileAnimation;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.flora.Plant;
@@ -19,7 +20,7 @@ public final class FarmingAllotment {
 
     private final Rectangle bounds;
 
-    private WorldAsset assets;
+    private Asset assets;
     // all allotments start out as over-grown.
     private AllotmentStatus status = AllotmentStatus.OVERGROWN_3;
 
@@ -41,7 +42,7 @@ public final class FarmingAllotment {
     /**
      * Load this allotment and get it ready for in-game use.
      */
-    public void loadAllotment(WorldAsset assets) {
+    public void loadAllotment(Asset assets) {
         this.assets = assets;
 
         this.growingPlant = new OvergrownBrushPlant(this, assets, bounds.x, bounds.y);

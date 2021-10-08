@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import gdx.lunar.world.LunarWorld;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
@@ -37,17 +38,20 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
 
     protected final Array<FarmingAllotment> allotments = new Array<>();
 
+    protected final Asset asset;
+
     protected final Vector2 spawn = new Vector2();
     protected WorldRenderer renderer;
     protected Player thePlayer;
     protected SpriteBatch batch;
     protected float scale;
 
-    public AbstractWorld(Player player, World world, SpriteBatch batch) {
+    public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
 
         this.batch = batch;
         this.thePlayer = player;
+        this.asset = asset;
     }
 
     public WorldRenderer getRenderer() {
@@ -56,6 +60,10 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
 
     public Player getPlayer() {
         return thePlayer;
+    }
+
+    public Asset getAssets() {
+        return asset;
     }
 
     /**

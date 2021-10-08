@@ -16,7 +16,7 @@ public final class InterfaceAssets implements Disposable {
     private final Skin defaultUiSkin;
 
     public InterfaceAssets() {
-        this.defaultUiSkin = new Skin(Gdx.files.internal("ui/skin/default/uiskin.json"), new TextureAtlas("ui/skin/default/uiskin.atlas"));
+        this.defaultUiSkin = new Skin(Gdx.files.internal("ui/skin/other/UserInterface.json"), new TextureAtlas("ui/skin/other/UserInterface.atlas"));
     }
 
     public Skin getDefaultUiSkin() {

@@ -5,11 +5,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.quest.Quest;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.ui.book.BookPage;
-import me.vrekt.oasis.ui.components.BasicButton;
 import org.apache.commons.text.WordUtils;
 
 import java.util.Map;
@@ -22,8 +22,8 @@ public final class QuestBookPage extends BookPage {
     private final QuestManager quests;
     private GlyphLayout layout;
 
+    // render current quest information
     private String questInformation;
-    private String questDifficulty;
 
     public QuestBookPage(OasisGame game, TextureAtlas atlas) {
         super(1, "Quests");
@@ -35,66 +35,48 @@ public final class QuestBookPage extends BookPage {
     @Override
     public void render(Batch batch, BitmapFont big, BitmapFont small, float x, float y) {
         if (layout == null) layout = new GlyphLayout(big, title);
+        small.setColor(Color.GRAY);
 
-        big.setColor(Color.GRAY);
-        big.draw(batch, title, bookCenterX * 1.5f, currentTabTexture.getRegionHeight() * 1.7f);
-        big.draw(batch, "Prog.", bookCenterX * 2.65f, currentTabTexture.getRegionHeight() * 1.7f);
+        // margins
+        x += marginX;
+        y -= marginY;
 
-        //  font.getData().setScale(0.11f);
-        float qy = currentTabTexture.getRegionHeight() * 1.7f - (layout.height / 2f);
-        final float sqy = qy - layout.height;
-        // draw all quests
-        for (Map.Entry<String, Quest> entry : quests.getQuests().entrySet()) {
-            // set color depending on if the quest is start/completed.
-            if (entry.getValue().isStarted()) {
+        // draw quest information before Y is modified
+        if (questInformation != null) {
+            layout.setText(small, questInformation);
+            small.draw(batch, questInformation, ((x - marginX) + innerMargin) + (layout.width / 2f), y);
+        }
+
+        // draw each quest
+        for (Map.Entry<String, Quest> e : quests.getQuests().entrySet()) {
+            if (e.getValue().isStarted()) {
                 small.setColor(Color.YELLOW);
             } else {
                 small.setColor(Color.RED);
             }
 
-            layout.setText(small, entry.getKey());
-            qy -= layout.height;
+            layout.setText(small, e.getKey());
+            small.draw(batch, e.getKey(), x + (layout.width / 2f), y);
 
-            small.draw(batch, entry.getKey(), bookCenterX * 1.5f, qy);
-
-            // set button for the quest.
-            if (entry.getValue().getButton() == null) {
-                entry.getValue().setButton(new BasicButton(bookCenterX * 1.35f, qy - layout.height, layout.width, layout.height));
-            }
+            // add button.
+            this.buttons.put(new Rectangle(x + (layout.width / 2f), y - layout.height, layout.width, layout.height), e.getKey());
+            y += layout.height;
         }
 
-        // draw quest information
-        if (questInformation != null) {
-            //   font.getData().setScale(0.12f);
-            small.setColor(Color.DARK_GRAY);
-            small.draw(batch, questInformation, bookCenterX * 2.6f, sqy);
+    }
 
-            // draw quest difficulty
-            small.draw(batch, "Difficulty: \n" + questDifficulty, bookCenterX * 2.6f, currentTabTexture.getRegionHeight());
+    @Override
+    public void handleClick(float x, float y) {
+        // check if we clicked on a quest.
+        final String clicked = getButtonClicked(x, y);
+        if (clicked != null) {
+            // split information to fit within page.
+            this.questInformation = WordUtils.wrap(quests.getQuests().get(clicked).getQuestInformation(), 10);
         }
     }
 
     @Override
     public void hide() {
-        this.questInformation = null;
-        this.questDifficulty = null;
-    }
 
-    @Override
-    public void handleClick(float x, float y) {
-        for (Quest quest : quests.getQuests().values()) {
-            if (quest.getButton().wasClicked(x, y)) {
-                this.questInformation = WordUtils.wrap(quest.getQuestInformation(), 10);
-                this.questDifficulty = quest.getDifficulty().getName();
-            }
-        }
-    }
-
-    @Override
-    public void resetState() {
-        // reset button states
-        for (Quest quest : quests.getQuests().values()) {
-            quest.setButton(null);
-        }
     }
 }

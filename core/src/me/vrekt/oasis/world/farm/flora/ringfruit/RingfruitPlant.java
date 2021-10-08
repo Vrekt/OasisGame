@@ -2,8 +2,8 @@ package me.vrekt.oasis.world.farm.flora.ringfruit;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.animation.Anim;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.farm.flora.Plant;
 import me.vrekt.oasis.world.farm.flora.effect.PlantEffect;
@@ -13,7 +13,7 @@ import me.vrekt.oasis.world.farm.flora.effect.PlantEffect;
  */
 public final class RingfruitPlant extends Plant {
 
-    public RingfruitPlant(FarmingAllotment owner, WorldAsset assets, float x, float y) {
+    public RingfruitPlant(FarmingAllotment owner, Asset assets, float x, float y) {
         super(owner, assets, x, y);
 
         this.effect = PlantEffect.RESISTANCE;

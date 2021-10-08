@@ -6,18 +6,23 @@ import gdx.lunar.server.LunarServer;
 import gdx.lunar.server.game.utilities.Disposable;
 import gdx.lunar.server.world.impl.LunarWorldAdapter;
 
+import java.util.concurrent.CompletableFuture;
+
 public final class LocalOasisServer implements Disposable {
 
-    private final LunarNettyServer server;
-    private final LunarServer gameServer;
+    private LunarNettyServer server;
+    private LunarServer gameServer;
 
     public LocalOasisServer() {
-        server = new LunarNettyServer("localhost", 6969);
-        server.bind();
+        CompletableFuture.runAsync(() -> {
+            server = new LunarNettyServer("localhost", 6969);
+            server.bind();
 
-        gameServer = new LunarGameServer();
-        gameServer.getWorldManager().addWorld("Athena", new LunarWorldAdapter());
-        gameServer.start();
+        }).whenComplete((v, e) -> {
+            gameServer = new LunarGameServer();
+            gameServer.getWorldManager().addWorld("Athena", new LunarWorldAdapter());
+            gameServer.start();
+        });
     }
 
     @Override

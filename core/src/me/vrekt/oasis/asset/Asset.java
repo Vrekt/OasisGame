@@ -1,16 +1,18 @@
-package me.vrekt.oasis.world.asset;
+package me.vrekt.oasis.asset;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
-/**
- * Load assets required for a world.
- */
-public abstract class WorldAsset {
+public final class Asset {
 
     public static final String INTERACTIONS = "ui/interaction/Interactions.atlas";
     public static final String BOOK = "ui/book/Book.atlas";
@@ -21,38 +23,59 @@ public abstract class WorldAsset {
     public static final String PLANTS = "farm/plants/Plants.atlas";
     public static final String SEED_ITEMS = "items/seeds/Seeds.atlas";
 
-    protected ParticleEffect farmParticles;
+    private final AssetManager assetManager = new AssetManager();
 
-    protected final AssetManager assetManager = new AssetManager();
+    private BitmapFont romulusBig, romulusSmall;
 
     /**
-     * Loads general assets used by all worlds.
+     * Load general assets needed by each world.
      */
-    public void loadAssets() {
+    public void load() {
         assetManager.load(INTERACTIONS, TextureAtlas.class);
         assetManager.load(BOOK, TextureAtlas.class);
         assetManager.load(RAKE, Texture.class);
         assetManager.load(PLANTS, TextureAtlas.class);
         assetManager.load(SEED_ITEMS, TextureAtlas.class);
 
+        // particle effect handler
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
-        assetManager.finishLoading();
+        loadParticleEffects();
+        loadFonts();
 
+        assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+        assetManager.load("worlds/athena/Athena.tmx", TiledMap.class, new TmxMapLoader.Parameters());
+    }
+
+    /**
+     * Load all particle effects
+     */
+    private void loadParticleEffects() {
         final ParticleEffectLoader.ParticleEffectParameter parameters = new ParticleEffectLoader.ParticleEffectParameter();
         parameters.atlasFile = PARTICLE_ATLAS;
 
         assetManager.load(PARTICLE_FILE, ParticleEffect.class, parameters);
-        assetManager.finishLoading();
-        farmParticles = assetManager.get(PARTICLE_FILE);
-        farmParticles.start();
-
-        loadAssets0();
     }
 
     /**
-     * Load required assets.
+     * Load fonts
      */
-    protected abstract void loadAssets0();
+    private void loadFonts() {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/sdss.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        // big text for context or titles
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
+        romulusBig = generator.generateFont(parameter);
+
+        // generate a smaller text for sub title information
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
+        romulusSmall = generator.generateFont(parameter);
+        generator.dispose();
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
 
     public <T> T get(String name) {
         return assetManager.get(name);
@@ -66,7 +89,11 @@ public abstract class WorldAsset {
         return assetManager.get(name);
     }
 
-    public ParticleEffect getFarmParticles() {
-        return farmParticles;
+    public BitmapFont getRomulusBig() {
+        return romulusBig;
+    }
+
+    public BitmapFont getRomulusSmall() {
+        return romulusSmall;
     }
 }

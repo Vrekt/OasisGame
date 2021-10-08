@@ -4,7 +4,7 @@ size: 16, 16
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-particle
+farm_particle
   rotate: false
   xy: 2, 2
   size: 9, 9

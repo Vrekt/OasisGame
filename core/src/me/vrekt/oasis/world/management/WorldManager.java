@@ -19,7 +19,7 @@ public final class WorldManager implements Disposable {
         this.worlds.put(name, world);
     }
 
-    public <T> T getWorld(String name) {
+    public <T extends AbstractWorld> T getWorld(String name) {
         return (T) worlds.get(name);
     }
 

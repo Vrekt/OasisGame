@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.animation.Anim;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.farm.animation.BasicFloraAnimation;
 import me.vrekt.oasis.world.farm.flora.effect.PlantEffect;
@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public abstract class Plant {
 
-    protected final WorldAsset assets;
+    protected final Asset assets;
     protected final FarmingAllotment owner;
 
     protected float x, y;
@@ -35,7 +35,7 @@ public abstract class Plant {
 
     protected PlantEffect effect;
 
-    public Plant(FarmingAllotment owner, WorldAsset assets, float x, float y) {
+    public Plant(FarmingAllotment owner, Asset assets, float x, float y) {
         this.owner = owner;
         this.assets = assets;
         this.x = x;

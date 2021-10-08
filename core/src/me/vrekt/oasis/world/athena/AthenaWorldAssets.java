@@ -36,10 +36,8 @@ public final class AthenaWorldAssets extends WorldAsset {
         // generate a smaller text for sub title information
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
         fontSmall = generator.generateFont(parameter);
-
         generator.dispose();
     }
-
 
 
 }
