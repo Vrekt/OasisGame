@@ -22,6 +22,7 @@ public final class Asset {
     public static final String PARTICLE_FILE = "farm/effects/farm_particle.p";
     public static final String PLANTS = "farm/plants/Plants.atlas";
     public static final String SEED_ITEMS = "items/seeds/Seeds.atlas";
+    public static final String MAVIA_NPC = "npc/mavia/Mavia.atlas";
 
     private final AssetManager assetManager = new AssetManager();
 
@@ -36,6 +37,7 @@ public final class Asset {
         assetManager.load(RAKE, Texture.class);
         assetManager.load(PLANTS, TextureAtlas.class);
         assetManager.load(SEED_ITEMS, TextureAtlas.class);
+        assetManager.load(MAVIA_NPC, TextureAtlas.class);
 
         // particle effect handler
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));

@@ -2,7 +2,6 @@ package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.world.asset.WorldAsset;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,7 @@ public final class ItemManager {
      * @param asset the asset
      */
     public void load(Asset asset) {
-        this.itemAssets.put(ItemAtlasType.SEEDS, asset.getAtlas(WorldAsset.SEED_ITEMS));
+        this.itemAssets.put(ItemAtlasType.SEEDS, asset.getAtlas(Asset.SEED_ITEMS));
     }
 
     /**

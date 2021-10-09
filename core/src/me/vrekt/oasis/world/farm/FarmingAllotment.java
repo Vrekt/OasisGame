@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.animation.MovingTileAnimation;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.flora.Plant;
 import me.vrekt.oasis.world.farm.flora.brush.OvergrownBrushPlant;
 import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
@@ -20,7 +19,6 @@ public final class FarmingAllotment {
 
     private final Rectangle bounds;
 
-    private Asset assets;
     // all allotments start out as over-grown.
     private AllotmentStatus status = AllotmentStatus.OVERGROWN_3;
 
@@ -43,10 +41,8 @@ public final class FarmingAllotment {
      * Load this allotment and get it ready for in-game use.
      */
     public void loadAllotment(Asset assets) {
-        this.assets = assets;
-
         this.growingPlant = new OvergrownBrushPlant(this, assets, bounds.x, bounds.y);
-        this.emptyAllotment = assets.getAtlas(WorldAsset.PLANTS).findRegion(AllotmentStatus.EMPTY.getAsset());
+        this.emptyAllotment = assets.getAtlas(Asset.PLANTS).findRegion(AllotmentStatus.EMPTY.getAsset());
         bounds.getCenter(center);
 
         growingPlant.setParticleEffectAt(center.x, center.y);
@@ -57,7 +53,7 @@ public final class FarmingAllotment {
                 new Vector2(0.0f, 0.0f),
                 center,
                 new Vector2(bounds.x + (bounds.width - 1.5f), center.y),
-                assets.get(WorldAsset.RAKE));
+                assets.get(Asset.RAKE));
     }
 
     public Vector2 getCenter() {

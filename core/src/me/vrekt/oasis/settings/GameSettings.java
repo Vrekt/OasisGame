@@ -12,7 +12,7 @@ public final class GameSettings {
     // interact with something
     public static final int INTERACTION_KEY = Input.Keys.E;
     // vsync
-    public static final boolean USE_VSYNC = true;
+    public static final boolean USE_VSYNC = false;
     // OpenGL 3.0+
     public static final boolean IS_GL_30 = true;
     // pause game in background or minimized

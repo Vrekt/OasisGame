@@ -1,6 +1,6 @@
 package me.vrekt.oasis.quest;
 
-import me.vrekt.oasis.quest.quests.beginner.AntiferasRingfruitQuest;
+import me.vrekt.oasis.quest.quests.beginner.MaviasRingfruitQuest;
 
 import java.text.Collator;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public final class QuestManager {
     private final List<String> questsByAbbreviatedName;
 
     public QuestManager() {
-        registerQuest(new AntiferasRingfruitQuest());
+        registerQuest(new MaviasRingfruitQuest());
 
         // set list
         questsByAbbreviatedName = quests

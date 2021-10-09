@@ -12,7 +12,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import gdx.lunar.world.LunarWorld;
+import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.entity.npc.EntityNPC;
+import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
@@ -20,6 +23,8 @@ import me.vrekt.oasis.utilities.logging.Taggable;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -37,14 +42,17 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
     }
 
     protected final Array<FarmingAllotment> allotments = new Array<>();
+    protected final Map<String, EntityNPC> npcs = new HashMap<>();
 
     protected final Asset asset;
-
     protected final Vector2 spawn = new Vector2();
     protected WorldRenderer renderer;
     protected Player thePlayer;
     protected SpriteBatch batch;
     protected float scale;
+
+    // the npc player is near
+    protected EntityNPC npc;
 
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
@@ -85,10 +93,11 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
     /**
      * Load the local player into this world.
      *
+     * @param game       the game
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
      */
-    public void loadIntoWorld(TiledMap worldMap, float worldScale) {
+    public void loadIntoWorld(OasisGame game, TiledMap worldMap, float worldScale) {
         this.scale = worldScale;
 
         loadMapActions(worldMap, worldScale);
@@ -98,6 +107,7 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
         this.renderer = new WorldRenderer(worldMap, worldScale, spawn, batch, thePlayer);
 
         loadWorldAllotments(worldMap, worldScale);
+        loadWorldNPC(game, worldMap, worldScale);
         loadWorld(worldMap, worldScale);
 
         // initialize player in this world.
@@ -193,6 +203,38 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
     }
 
     /**
+     * Load world NPCs
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    protected void loadWorldNPC(OasisGame game, TiledMap worldMap, float worldScale) {
+        final MapLayer npc = worldMap.getLayers().get("NPC");
+        if (npc == null) {
+            Logging.warn(WORLD, "Failed to find npc(s) in world.");
+        } else {
+            for (MapObject object : npc.getObjects()) {
+                if (object instanceof RectangleMapObject) {
+                    final RectangleMapObject point = (RectangleMapObject) object;
+                    // create the NPC type.
+                    final EntityNPCType type = EntityNPCType.valueOf(object.getProperties().get("type", String.class));
+                    final EntityNPC load = type.create(
+                            point.getRectangle().x * worldScale,
+                            point.getRectangle().y * worldScale,
+                            game,
+                            this);
+
+                    // load NPC assets
+                    load.loadNPC(asset);
+
+                    this.npcs.put(object.getName(), load);
+                }
+            }
+        }
+        Logging.info(WORLD, "Loaded " + (npcs.size()) + " NPCs.");
+    }
+
+    /**
      * Create a static body from shape
      *
      * @param shape the shape
@@ -202,10 +244,29 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
         shape.dispose();
     }
 
+    public void setNpcSpeakable(EntityNPC npc) {
+        this.npc = npc;
+    }
+
+    /**
+     * Handle NPCs changing their dialog.
+     */
+    public abstract void dialogChanged();
+
+    /**
+     * Advance the NPC dialog
+     *
+     * @param option the option clicked
+     */
+    public void advanceNPCDialog(String option) {
+        if (this.npc != null) npc.nextDialog(option);
+    }
+
     @Override
     public void update(float d) {
         super.update(d);
         for (FarmingAllotment allotment : allotments) allotment.update(thePlayer);
+        for (EntityNPC npc : npcs.values()) npc.update(thePlayer, d);
     }
 
     @Override
@@ -215,6 +276,7 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
 
         renderer.render(delta, batch, this.players.values());
         for (FarmingAllotment allotment : allotments) allotment.render(batch, worldScale);
+        for (EntityNPC npc : npcs.values()) npc.render(batch, worldScale);
 
         thePlayer.render(batch, delta);
     }

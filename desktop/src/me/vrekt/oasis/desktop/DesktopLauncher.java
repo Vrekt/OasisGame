@@ -13,8 +13,8 @@ public class DesktopLauncher {
         config.useGL30 = GameSettings.IS_GL_30;
         config.pauseWhenBackground = GameSettings.PAUSE_IN_BACKGROUND;
         config.pauseWhenMinimized = GameSettings.PAUSE_IN_BACKGROUND;
-        config.height = 600;
         config.width = 800;
+        config.height = 600;
 
         new LwjglApplication(new OasisGame(), config);
     }

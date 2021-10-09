@@ -47,7 +47,6 @@ public final class AthenaWorld extends AbstractWorld {
         return screen;
     }
 
-
     @Override
     protected void loadWorld(TiledMap worldMap, float worldScale) {
         for (FarmingAllotment allotment : this.allotments) {
@@ -60,16 +59,8 @@ public final class AthenaWorld extends AbstractWorld {
 
         this.interactions = asset.getAtlas("ui/interaction/Interactions.atlas");
         this.screen = new AthenaWorldScreen(game, game.getBatch(), this);
-        loadAnimations();
 
         Gdx.app.log(ATHENA, "Finished loading World: Athena");
-    }
-
-    /**
-     * Load animations in this world.
-     */
-    private void loadAnimations() {
-
     }
 
     @Override
@@ -102,6 +93,11 @@ public final class AthenaWorld extends AbstractWorld {
             }
         }
 
+        // hide dialog if needed
+        if (this.npc == null && this.screen.isShowingDialog()) {
+            this.screen.hideDialogInteraction();
+        }
+
         super.update(d);
     }
 
@@ -116,6 +112,21 @@ public final class AthenaWorld extends AbstractWorld {
             this.allotment = null;
             this.allotmentInteractionOption = null;
             this.interactionTexture = null;
+        }
+
+        // check speakable entity
+        if (this.npc != null && this.npc.getSpeakingRotation()
+                == thePlayer.getRotation()) {
+            this.screen.showDialogInteraction();
+            this.screen.setCurrentDialogToRender(npc.getCurrentDialog());
+        }
+
+    }
+
+    @Override
+    public void dialogChanged() {
+        if (this.npc != null) {
+            this.screen.setCurrentDialogToRender(npc.getCurrentDialog());
         }
     }
 

@@ -1,7 +1,6 @@
 package me.vrekt.oasis.quest;
 
 import me.vrekt.oasis.quest.quests.QuestDifficulty;
-import me.vrekt.oasis.ui.components.BasicButton;
 
 /**
  * Represents a base quest within the game
@@ -13,7 +12,6 @@ public abstract class Quest {
     protected final QuestDifficulty difficulty;
 
     protected boolean completed, started;
-    protected BasicButton button;
 
     // current quest information like steps or how to start.
     protected String questInformation;
@@ -26,14 +24,6 @@ public abstract class Quest {
 
     public void setQuestInformation(String questInformation) {
         this.questInformation = questInformation;
-    }
-
-    public void setButton(BasicButton button) {
-        this.button = button;
-    }
-
-    public BasicButton getButton() {
-        return button;
     }
 
     public String getQuestInformation() {

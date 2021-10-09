@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.animation.Anim;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.world.asset.WorldAsset;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.farm.animation.BasicFloraAnimation;
 import me.vrekt.oasis.world.farm.flora.Plant;
@@ -26,9 +25,10 @@ public final class OvergrownBrushPlant extends Plant {
     public OvergrownBrushPlant(FarmingAllotment owner, Asset assets, float x, float y) {
         super(owner, assets, x, y);
 
-        this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
+        this.plantTexture = assets.getAtlas(Asset.PLANTS).findRegion(stage.getAsset());
         this.animation = new BasicFloraAnimation(1000);
         this.particleEffect = assets.get(Asset.PARTICLE_FILE);
+        this.particleEffect.start();
     }
 
     @Override
@@ -97,11 +97,11 @@ public final class OvergrownBrushPlant extends Plant {
                 stage = OvergrownBrushStage.OVERGROWN_2;
                 break;
             case OVERGROWN_2:
-                this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
+                this.plantTexture = assets.getAtlas(Asset.PLANTS).findRegion(stage.getAsset());
                 stage = OvergrownBrushStage.OVERGROWN_1;
                 break;
             case OVERGROWN_1:
-                this.plantTexture = assets.getAtlas(WorldAsset.PLANTS).findRegion(stage.getAsset());
+                this.plantTexture = assets.getAtlas(Asset.PLANTS).findRegion(stage.getAsset());
                 stage = OvergrownBrushStage.FINISHED;
                 break;
         }

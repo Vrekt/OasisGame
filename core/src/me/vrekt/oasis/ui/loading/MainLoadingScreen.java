@@ -49,12 +49,12 @@ public final class MainLoadingScreen extends MenuUserInterface {
             // done
 
             final AthenaWorld world = game.worldManager.getWorld("Athena");
-            world.loadIntoWorld(game.asset.get("worlds/athena/Athena.tmx"), (1 / 16.0f));
+            world.loadIntoWorld(game,game.asset.get("worlds/athena/Athena.tmx"), (1 / 16.0f));
             game.finish();
 
             game.setScreen(world.getScreen());
         } else {
-            progressBar.setValue(progressBar.getValue() + progressBar.getStepSize());
+            progressBar.setValue(progressBar.getValue() + (progressBar.getStepSize()));
         }
     }
 
