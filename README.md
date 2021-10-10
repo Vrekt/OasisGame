@@ -1,3 +1,5 @@
+![demo3](demo3.gif)
+
 ![demo](demo2.gif)
 
 # Oasis
