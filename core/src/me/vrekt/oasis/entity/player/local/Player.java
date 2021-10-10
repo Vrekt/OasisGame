@@ -22,7 +22,7 @@ public final class Player extends LunarPlayer {
 
         setVelocitySendRate(100);
         setPositionSendRate(250);
-        setMoveSpeed(6.0f);
+        setMoveSpeed(12.0f);
         this.inventory = new PlayerInventory(18);
     }
 

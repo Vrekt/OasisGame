@@ -10,6 +10,7 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.dialog.EntityDialog;
 import me.vrekt.oasis.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
@@ -22,6 +23,9 @@ public abstract class EntityNPC implements Disposable {
     protected final OasisGame game;
     protected final String name;
 
+    // the quest this NPC could be related to.
+    protected QuestType questRelatedTo;
+
     protected EntityDialog dialog;
     protected EntityDialogSection dialogSection;
 
@@ -31,6 +35,9 @@ public abstract class EntityNPC implements Disposable {
     protected boolean speakable;
     // required player rotation to talk to this npc
     protected Rotation speakingRotation;
+
+    // display face
+    protected TextureRegion display;
 
     public EntityNPC(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
         this.position.set(x, y);
@@ -53,6 +60,10 @@ public abstract class EntityNPC implements Disposable {
 
     public EntityDialogSection getDialogSection() {
         return dialogSection;
+    }
+
+    public TextureRegion getDisplay() {
+        return display;
     }
 
     /**

@@ -99,7 +99,7 @@ public final class PlayerBook {
      * @param y y
      */
     public void handleClick(float x, float y) {
-
+        currentPage.handleClick(x, y);
     }
 
 }

@@ -58,7 +58,7 @@ public final class AthenaWorld extends AbstractWorld {
 
         // check speakable entity
         if (this.closestNpc != null && this.closestNpc.getSpeakingRotation() == thePlayer.getRotation()) {
-            ui.showDialog(closestNpc, closestNpc.getDialogSection());
+            ui.showDialog(closestNpc, closestNpc.getDialogSection(), closestNpc.getDisplay());
         }
     }
 

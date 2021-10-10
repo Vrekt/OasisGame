@@ -5,6 +5,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityNPC;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
@@ -21,19 +22,24 @@ public final class EntityMavia extends EntityNPC {
 
         this.dialogSection = this.dialog.getStarting();
         this.speakingRotation = Rotation.FACING_UP;
+        this.questRelatedTo = QuestType.MAVIA_RINGFRUIT_QUEST;
+
+        this.display = game.asset.getAtlas(Asset.MAVIA_NPC).findRegion("mavia_face");
     }
 
     @Override
     public void nextDialog(String option) {
         if (dialog.isEnd(option)) {
-            // TODO: start quest
             worldIn.getUi().hideDialog();
-            this.dialogSection = this.dialog.getStarting();
+            dialogSection = this.dialog.getStarting();
+
+            // start the mavia quest
+            game.getQuestManager().getQuest(questRelatedTo).setStarted(true);
             return;
         }
 
         dialogSection = dialog.sections.get(option);
-        this.worldIn.getUi().showDialog(this, dialogSection);
+        this.worldIn.getUi().showDialog(this, dialogSection, display);
     }
 
     @Override

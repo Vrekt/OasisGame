@@ -1,9 +1,16 @@
 
 Mavia.png
-size: 32, 64
+size: 128, 128
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+mavia_face
+  rotate: false
+  xy: 2, 34
+  size: 61, 78
+  orig: 61, 78
+  offset: 0, 0
+  index: -1
 mavia_idle
   rotate: false
   xy: 2, 2

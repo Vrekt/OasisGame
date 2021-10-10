@@ -88,7 +88,7 @@ public class GameWorldInterface extends InputAdapter {
         this.layout = new GlyphLayout(font, "");
 
         this.book = new PlayerBook(game, asset);
-        this.dialogHandler = new DialogHandler(font, stage.getCamera(), world);
+        this.dialogHandler = new DialogHandler(font, stage.getCamera());
         this.multiplexer.addProcessor(dialogHandler);
 
         final TextureAtlas interactions = asset.getAtlas(Asset.INTERACTIONS);
@@ -104,10 +104,10 @@ public class GameWorldInterface extends InputAdapter {
 
         // add interactions in general
         this.stack.add(addElementToTable(this.interaction, .5f * Gdx.graphics.getWidth(), interaction.getRegionHeight(),
-                (Gdx.graphics.getHeight() + (interaction.getRegionHeight() * 2f)) / 2f, 0.0f));
+                (Gdx.graphics.getHeight() + (interaction.getRegionHeight() * 2f)) / 2f));
         // add dialog interactions
         this.stack.add(addElementToTable(dialogInteraction, dialog.getRegionWidth(), dialog.getRegionHeight(),
-                Gdx.graphics.getHeight() - (dialog.getRegionHeight() * 2.5f), 0.0f));
+                Gdx.graphics.getHeight() - (dialog.getRegionHeight() * 2.5f)));
         // add any other UI interaction element
         this.stack.add(addElementToTable(otherInteraction, .25f * Gdx.graphics.getWidth(), .25f * Gdx.graphics.getHeight()));
         // add player book UI
@@ -177,8 +177,8 @@ public class GameWorldInterface extends InputAdapter {
         interaction.localToStageCoordinates(interactionCoordinates);
     }
 
-    public void showDialog(EntityNPC entity, EntityDialogSection dialog) {
-        this.dialogHandler.setDialogToUse(entity, dialog);
+    public void showDialog(EntityNPC entity, EntityDialogSection dialog, TextureRegion display) {
+        this.dialogHandler.setDialogToUse(entity, dialog, display);
         this.renderDialog = true;
         this.dialogInteraction.setVisible(true);
     }
@@ -266,12 +266,11 @@ public class GameWorldInterface extends InputAdapter {
      * @param sizeX x
      * @param sizeY y
      * @param pt    pad top
-     * @param pb    pad bottom
      * @return the new table
      */
-    private Table addElementToTable(Image image, float sizeX, float sizeY, float pt, float pb) {
+    private Table addElementToTable(Image image, float sizeX, float sizeY, float pt) {
         final Table table = new Table();
-        table.add(image).size(sizeX, sizeY).padTop(pt).padBottom(pb);
+        table.add(image).size(sizeX, sizeY).padTop(pt);
         return table;
     }
 
@@ -284,7 +283,7 @@ public class GameWorldInterface extends InputAdapter {
      * @return the new table
      */
     private Table addElementToTable(Image image, float sizeX, float sizeY) {
-        return addElementToTable(image, sizeX, sizeY, 0.0f, 0.0f);
+        return addElementToTable(image, sizeX, sizeY, 0.0f);
     }
 
 }

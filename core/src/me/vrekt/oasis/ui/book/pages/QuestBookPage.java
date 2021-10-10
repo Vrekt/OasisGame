@@ -9,10 +9,9 @@ import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.quest.Quest;
 import me.vrekt.oasis.quest.QuestManager;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.ui.book.BookPage;
 import org.apache.commons.text.WordUtils;
-
-import java.util.Map;
 
 /**
  * A players quest book.
@@ -44,22 +43,24 @@ public final class QuestBookPage extends BookPage {
         // draw quest information before Y is modified
         if (questInformation != null) {
             layout.setText(font, questInformation);
-            font.draw(batch, questInformation, ((x - marginX) + innerMargin) + (layout.width / 2f), y);
+            font.draw(batch, questInformation, x - marginX + innerMargin + (layout.width / 2f), y);
         }
 
         // draw each quest
-        for (Map.Entry<String, Quest> e : quests.getQuests().entrySet()) {
-            if (e.getValue().isStarted()) {
+        for (Quest quest : quests.getQuests().values()) {
+            if (quest.isStarted()) {
                 font.setColor(Color.YELLOW);
-            } else {
+            } else if (!quest.isStarted() && !quest.isCompleted()) {
                 font.setColor(Color.RED);
+            } else if (quest.isCompleted()) {
+                font.setColor(Color.GREEN);
             }
 
-            layout.setText(font, e.getKey());
-            font.draw(batch, e.getKey(), x + (layout.width / 2f), y);
+            layout.setText(font, quest.getName());
+            font.draw(batch, quest.getName(), x + (layout.width / 2f), y);
 
             // add button.
-            this.buttons.put(new Rectangle(x + (layout.width / 2f), y - layout.height, layout.width, layout.height), e.getKey());
+            this.buttons.put(new Rectangle(x + (layout.width / 2f), y - layout.height, layout.width, layout.height), quest.getType());
             y += layout.height;
         }
 
@@ -68,7 +69,7 @@ public final class QuestBookPage extends BookPage {
     @Override
     public void handleClick(float x, float y) {
         // check if we clicked on a quest.
-        final String clicked = getButtonClicked(x, y);
+        final QuestType clicked = getButtonClicked(x, y);
         if (clicked != null) {
             // split information to fit within page.
             this.questInformation = WordUtils.wrap(quests.getQuests().get(clicked).getQuestInformation(), 10);
