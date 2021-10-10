@@ -5,11 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.Lunar;
 import gdx.lunar.LunarClientServer;
-import gdx.lunar.entity.contact.PlayerCollisionListener;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.prop.PlayerProperties;
 import gdx.lunar.network.PlayerConnection;
@@ -96,17 +93,6 @@ public final class OasisGame extends Game implements Taggable {
         thePlayer.initializePlayerRendererAndLoad(characterAnimations, true);
     }
 
-    public void loadWorlds() {
-        this.worldManager = new WorldManager();
-        final World world = new World(Vector2.Zero, true);
-        world.setContactListener(new PlayerCollisionListener());
-
-        final AthenaWorld athenaWorld = new AthenaWorld(this, thePlayer, world, batch);
-        thePlayer.spawnEntityInWorld(athenaWorld, 0.0f, 0.0f);
-
-        worldManager.registerWorld("Athena", athenaWorld);
-    }
-
     public void connect() {
         final Lunar lunar = new Lunar();
         lunar.setGdxInitialized(true);
@@ -124,12 +110,6 @@ public final class OasisGame extends Game implements Taggable {
         connection.sendJoinWorld("Athena");
     }
 
-    public void loadWorld() {
-        final AthenaWorld world = worldManager.getWorld("Athena");
-        worldManager.setWorld(world);
-
-        // load athena world map
-    }
 
     public void finish() {
         thePlayer.getConnection().sendWorldLoaded();

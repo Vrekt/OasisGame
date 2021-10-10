@@ -39,6 +39,7 @@ public final class PlayerBook {
         this.bookAtlas = asset.get(Asset.BOOK);
         this.currentPage = new QuestBookPage(game, bookAtlas);
         this.image = new Image(currentPage.currentTabTexture);
+        this.image.setVisible(false);
         resize();
     }
 
@@ -69,10 +70,9 @@ public final class PlayerBook {
      * Render the player book
      *
      * @param batch batch
-     * @param big   big font
-     * @param small small font
+     * @param font  the font
      */
-    public void render(Batch batch, BitmapFont big, BitmapFont small) {
+    public void render(Batch batch, BitmapFont font) {
         // ensure buttons are initialized once to get right coordinates
         if (!buttonsInitialized) {
             this.image.localToStageCoordinates(stageCoordinates);
@@ -81,7 +81,7 @@ public final class PlayerBook {
         } else {
             this.image.localToStageCoordinates(stageCoordinates);
         }
-        currentPage.render(batch, big, small, stageCoordinates.x, stageCoordinates.y + image.getHeight());
+        currentPage.render(batch, font, stageCoordinates.x, stageCoordinates.y + image.getHeight());
         stageCoordinates.set(0, 0);
     }
 

@@ -1,10 +1,15 @@
 package me.vrekt.oasis.ui.loading;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import gdx.lunar.entity.contact.PlayerCollisionListener;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.server.LocalOasisServer;
 import me.vrekt.oasis.ui.menu.MenuUserInterface;
 import me.vrekt.oasis.world.athena.AthenaWorld;
+import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,7 +29,6 @@ public final class MainLoadingScreen extends MenuUserInterface {
         game.registerQuests();
         game.localServer = new LocalOasisServer();
         game.createLocalPlayer();
-        game.loadWorlds();
 
         CompletableFuture.runAsync(() -> {
             game.connect();
@@ -32,7 +36,6 @@ public final class MainLoadingScreen extends MenuUserInterface {
             ready = true;
         });
 
-        game.loadWorld();
         this.r = true;
     }
 
@@ -48,11 +51,18 @@ public final class MainLoadingScreen extends MenuUserInterface {
         if (game.asset.getAssetManager().update() && ready) {
             // done
 
-            final AthenaWorld world = game.worldManager.getWorld("Athena");
-            world.loadIntoWorld(game,game.asset.get("worlds/athena/Athena.tmx"), (1 / 16.0f));
-            game.finish();
+            game.worldManager = new WorldManager();
+            final World world1 = new World(Vector2.Zero, true);
+            world1.setContactListener(new PlayerCollisionListener());
 
-            game.setScreen(world.getScreen());
+            final AthenaWorld world = new AthenaWorld(game, game.thePlayer, world1, game.batch);
+            game.thePlayer.spawnEntityInWorld(world, 0.0f, 0.0f);
+            game.worldManager.registerWorld("Athena", world);
+            game.worldManager.setWorld(world);
+
+            world.loadIntoWorld(game, game.asset.get(Asset.ATHENA_WORLD), (1 / 16.0f));
+            game.finish();
+            game.setScreen(world);
         } else {
             progressBar.setValue(progressBar.getValue() + (progressBar.getStepSize()));
         }

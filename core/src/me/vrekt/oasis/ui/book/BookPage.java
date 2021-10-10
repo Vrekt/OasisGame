@@ -60,12 +60,11 @@ public abstract class BookPage {
      * Render this page
      *
      * @param batch batch
-     * @param big   big font
-     * @param small small font
+     * @param font  the font
      * @param x     X
      * @param y     Y
      */
-    public abstract void render(Batch batch, BitmapFont big, BitmapFont small, float x, float y);
+    public abstract void render(Batch batch, BitmapFont font, float x, float y);
 
     /**
      * Handle a click within this page.

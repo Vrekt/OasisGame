@@ -33,9 +33,9 @@ public final class QuestBookPage extends BookPage {
     }
 
     @Override
-    public void render(Batch batch, BitmapFont big, BitmapFont small, float x, float y) {
-        if (layout == null) layout = new GlyphLayout(big, title);
-        small.setColor(Color.GRAY);
+    public void render(Batch batch, BitmapFont font, float x, float y) {
+        if (layout == null) layout = new GlyphLayout(font, title);
+        font.setColor(Color.GRAY);
 
         // margins
         x += marginX;
@@ -43,20 +43,20 @@ public final class QuestBookPage extends BookPage {
 
         // draw quest information before Y is modified
         if (questInformation != null) {
-            layout.setText(small, questInformation);
-            small.draw(batch, questInformation, ((x - marginX) + innerMargin) + (layout.width / 2f), y);
+            layout.setText(font, questInformation);
+            font.draw(batch, questInformation, ((x - marginX) + innerMargin) + (layout.width / 2f), y);
         }
 
         // draw each quest
         for (Map.Entry<String, Quest> e : quests.getQuests().entrySet()) {
             if (e.getValue().isStarted()) {
-                small.setColor(Color.YELLOW);
+                font.setColor(Color.YELLOW);
             } else {
-                small.setColor(Color.RED);
+                font.setColor(Color.RED);
             }
 
-            layout.setText(small, e.getKey());
-            small.draw(batch, e.getKey(), x + (layout.width / 2f), y);
+            layout.setText(font, e.getKey());
+            font.draw(batch, e.getKey(), x + (layout.width / 2f), y);
 
             // add button.
             this.buttons.put(new Rectangle(x + (layout.width / 2f), y - layout.height, layout.width, layout.height), e.getKey());

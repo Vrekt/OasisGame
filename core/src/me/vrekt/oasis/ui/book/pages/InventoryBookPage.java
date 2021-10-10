@@ -1,6 +1,5 @@
 package me.vrekt.oasis.ui.book.pages;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -32,11 +31,7 @@ public final class InventoryBookPage extends BookPage {
     }
 
     @Override
-    public void render(Batch batch, BitmapFont big, BitmapFont small, float x, float y) {
-        if (layout == null) layout = new GlyphLayout(big, title);
-        big.setColor(Color.GRAY);
-        //  big.draw(batch, title, bookEdgeX * 1.5f, currentTabTexture.getRegionHeight() * 1.7f);
-
+    public void render(Batch batch, BitmapFont font, float x, float y) {
 
     }
 

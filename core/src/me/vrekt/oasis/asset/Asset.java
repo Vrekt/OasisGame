@@ -24,6 +24,8 @@ public final class Asset {
     public static final String SEED_ITEMS = "items/seeds/Seeds.atlas";
     public static final String MAVIA_NPC = "npc/mavia/Mavia.atlas";
 
+    public static final String ATHENA_WORLD = "worlds/athena/Athena.tmx";
+
     private final AssetManager assetManager = new AssetManager();
 
     private BitmapFont romulusBig, romulusSmall;
@@ -45,7 +47,7 @@ public final class Asset {
         loadFonts();
 
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
-        assetManager.load("worlds/athena/Athena.tmx", TiledMap.class, new TmxMapLoader.Parameters());
+        assetManager.load(ATHENA_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
     }
 
     /**

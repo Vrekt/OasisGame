@@ -18,6 +18,13 @@ interaction_dialog
   orig: 356, 128
   offset: 0, 0
   index: -1
+plant_cure_recipe
+  rotate: false
+  xy: 360, 45
+  size: 85, 157
+  orig: 85, 157
+  offset: 0, 0
+  index: -1
 raking_interaction
   rotate: false
   xy: 2, 36

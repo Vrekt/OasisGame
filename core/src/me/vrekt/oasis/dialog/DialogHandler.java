@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import me.vrekt.oasis.entity.npc.NPCDialog;
+import me.vrekt.oasis.entity.npc.EntityNPC;
 import me.vrekt.oasis.world.AbstractWorld;
 import org.apache.commons.text.WordUtils;
 
@@ -32,7 +32,8 @@ public final class DialogHandler extends InputAdapter {
     private final Map<Rectangle, String> options = new HashMap<>();
 
     // current dialog
-    private NPCDialog.DialogLink dialog;
+    private EntityNPC entity;
+    private EntityDialogSection dialog;
 
     // current highlighted option
     private String highlightedOption;
@@ -45,7 +46,13 @@ public final class DialogHandler extends InputAdapter {
         this.world = world;
     }
 
-    public void setDialog(NPCDialog.DialogLink dialog) {
+    /**
+     * Set current dialog set to use
+     *
+     * @param dialog dialog
+     */
+    public void setDialogToUse(EntityNPC entity, EntityDialogSection dialog) {
+        this.entity = entity;
         this.dialog = dialog;
     }
 
@@ -110,10 +117,13 @@ public final class DialogHandler extends InputAdapter {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (pointer == Input.Buttons.LEFT) {
             if (this.highlightedOption != null) {
-                this.world.advanceNPCDialog(highlightedOption);
-                this.highlightedOption = null;
-                this.optionsPopulated = false;
-                this.options.clear();
+                // advance to next dialog stage
+                entity.nextDialog(highlightedOption);
+
+                // reset current stage
+                highlightedOption = null;
+                optionsPopulated = false;
+                options.clear();
                 return true;
             }
         }

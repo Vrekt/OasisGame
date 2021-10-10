@@ -7,6 +7,8 @@ import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.server.game.utilities.Disposable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.dialog.EntityDialog;
+import me.vrekt.oasis.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.AbstractWorld;
 
@@ -19,10 +21,9 @@ public abstract class EntityNPC implements Disposable {
     protected final AbstractWorld worldIn;
     protected final OasisGame game;
     protected final String name;
-    protected NPCDialog dialog;
 
-    // current dialog
-    protected NPCDialog.DialogLink currentDialog;
+    protected EntityDialog dialog;
+    protected EntityDialogSection dialogSection;
 
     // texture for this NPC.
     protected TextureRegion entityTexture;
@@ -46,8 +47,12 @@ public abstract class EntityNPC implements Disposable {
         return speakingRotation;
     }
 
-    public NPCDialog.DialogLink getCurrentDialog() {
-        return currentDialog;
+    public boolean isSpeakable() {
+        return speakable;
+    }
+
+    public EntityDialogSection getDialogSection() {
+        return dialogSection;
     }
 
     /**
@@ -77,12 +82,11 @@ public abstract class EntityNPC implements Disposable {
             batch.draw(entityTexture, position.x, position.y, width * scale, height * scale);
     }
 
-    public boolean isSpeakable() {
-        return speakable;
-    }
-
     @Override
     public void dispose() {
         entityTexture = null;
+        this.dialog.dispose();
+        this.dialog = null;
+        this.dialogSection = null;
     }
 }

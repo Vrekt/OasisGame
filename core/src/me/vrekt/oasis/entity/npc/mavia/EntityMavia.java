@@ -16,29 +16,32 @@ public final class EntityMavia extends EntityNPC {
         super("Mavia", x, y, game, worldIn);
 
         this.dialog = new MaviaDialog();
-        this.currentDialog = dialog.links.get("mavia_option_1");
+        this.dialog.starting = "mavia_option_1";
+        this.dialog.ending = "mavia_option_0";
+
+        this.dialogSection = this.dialog.getStarting();
         this.speakingRotation = Rotation.FACING_UP;
     }
 
     @Override
     public void nextDialog(String option) {
-        if (option.contains("0")) {
-            // indicates dialog is finished.
-            this.worldIn.setNpcSpeakable(null);
-            // TODO: Start quest
+        if (dialog.isEnd(option)) {
+            // TODO: start quest
+            worldIn.getUi().hideDialog();
+            this.dialogSection = this.dialog.getStarting();
+            return;
         }
-        this.currentDialog = dialog.links.get(option);
-        this.worldIn.dialogChanged();
+
+        dialogSection = dialog.sections.get(option);
+        this.worldIn.getUi().showDialog(this, dialogSection);
     }
 
     @Override
     public void update(Player player, float delta) {
         if (player.getPosition().dst2(position.x, position.y) <= 5) {
             this.speakable = true;
-            this.worldIn.setNpcSpeakable(this);
         } else {
             this.speakable = false;
-            this.worldIn.setNpcSpeakable(null);
         }
     }
 

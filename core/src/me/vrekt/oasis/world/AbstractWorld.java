@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world;
 
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -17,6 +18,7 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityNPC;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.ui.world.GameWorldInterface;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
@@ -30,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A game world, extended from Lunar
  */
-public abstract class AbstractWorld extends LunarWorld implements Taggable {
+public abstract class AbstractWorld extends LunarWorld implements Screen, Taggable {
 
     /**
      * Static body
@@ -52,7 +54,7 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
     protected float scale;
 
     // the npc player is near
-    protected EntityNPC npc;
+    protected EntityNPC closestNpc;
 
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
@@ -91,6 +93,23 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
     protected abstract void preLoadWorld(TiledMap worldMap, float worldScale);
 
     /**
+     * The interaction key was pressed.
+     */
+    public abstract void handleInteractionKeyPressed();
+
+    /**
+     * Render UI
+     */
+    public abstract void renderUi();
+
+    /**
+     * Local world UI
+     *
+     * @return the UI
+     */
+    public abstract GameWorldInterface getUi();
+
+    /**
      * Load the local player into this world.
      *
      * @param game       the game
@@ -99,6 +118,7 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
      */
     public void loadIntoWorld(OasisGame game, TiledMap worldMap, float worldScale) {
         this.scale = worldScale;
+        this.preLoadWorld(worldMap, worldScale);
 
         loadMapActions(worldMap, worldScale);
         loadMapCollision(worldMap, worldScale);
@@ -244,29 +264,18 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
         shape.dispose();
     }
 
-    public void setNpcSpeakable(EntityNPC npc) {
-        this.npc = npc;
-    }
-
-    /**
-     * Handle NPCs changing their dialog.
-     */
-    public abstract void dialogChanged();
-
-    /**
-     * Advance the NPC dialog
-     *
-     * @param option the option clicked
-     */
-    public void advanceNPCDialog(String option) {
-        if (this.npc != null) npc.nextDialog(option);
-    }
-
     @Override
     public void update(float d) {
         super.update(d);
-        for (FarmingAllotment allotment : allotments) allotment.update(thePlayer);
-        for (EntityNPC npc : npcs.values()) npc.update(thePlayer, d);
+        closestNpc = null;
+
+        for (EntityNPC npc : npcs.values()) {
+            npc.update(thePlayer, d);
+            if (npc.isSpeakable()) {
+                // indicates player is close.
+                closestNpc = npc;
+            }
+        }
     }
 
     @Override
@@ -275,9 +284,36 @@ public abstract class AbstractWorld extends LunarWorld implements Taggable {
         batch.begin();
 
         renderer.render(delta, batch, this.players.values());
-        for (FarmingAllotment allotment : allotments) allotment.render(batch, worldScale);
         for (EntityNPC npc : npcs.values()) npc.render(batch, worldScale);
+    }
 
-        thePlayer.render(batch, delta);
+    @Override
+    public void render(float delta) {
+        this.update(delta);
+        this.renderWorld(batch, delta);
+        this.thePlayer.render(batch, delta);
+        batch.end();
+
+        renderUi();
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
     }
 }

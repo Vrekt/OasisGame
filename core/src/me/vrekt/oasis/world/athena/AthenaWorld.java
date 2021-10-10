@@ -2,16 +2,14 @@ package me.vrekt.oasis.world.athena;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.item.items.RingfruitSeedItem;
+import me.vrekt.oasis.ui.world.GameWorldInterface;
 import me.vrekt.oasis.world.AbstractWorld;
+import me.vrekt.oasis.world.farm.FarmAllotmentManager;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
-import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
 
 /**
@@ -20,17 +18,15 @@ import me.vrekt.oasis.world.renderer.WorldRenderer;
 public final class AthenaWorld extends AbstractWorld {
 
     private final OasisGame game;
+    private final GameWorldInterface ui;
 
-    private FarmingAllotment allotment;
-    private AllotmentInteractionOption allotmentInteractionOption;
-    private TextureRegion interactionTexture;
-
-    private AthenaWorldScreen screen;
-    private TextureAtlas interactions;
+    // farming management
+    private FarmAllotmentManager farmManager;
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
         this.game = game;
+        this.ui = new GameWorldInterface(game, game.asset, this);
 
         setHandlePhysics(true);
         setUpdatePlayer(true);
@@ -43,99 +39,57 @@ public final class AthenaWorld extends AbstractWorld {
         return thePlayer;
     }
 
-    public AthenaWorldScreen getScreen() {
-        return screen;
-    }
-
-    @Override
-    protected void loadWorld(TiledMap worldMap, float worldScale) {
-        for (FarmingAllotment allotment : this.allotments) {
-            allotment.loadAllotment(asset);
-        }
-
-        // give player a few items
-        game.getItems().load(asset);
-        this.thePlayer.getInventory().addItem(game.getItems().createNewItem(new RingfruitSeedItem(), 6));
-
-        this.interactions = asset.getAtlas("ui/interaction/Interactions.atlas");
-        this.screen = new AthenaWorldScreen(game, game.getBatch(), this);
-
-        Gdx.app.log(ATHENA, "Finished loading World: Athena");
-    }
-
     @Override
     protected void preLoadWorld(TiledMap worldMap, float worldScale) {
         Gdx.app.log(ATHENA, "Finished pre-loading Athena.");
     }
 
     @Override
-    public void update(float d) {
-        if (this.allotment != null) {
-            // ensure we are still close to this allotment.
-            if (thePlayer.getPosition().dst2(allotment.getCenter()) >= 11.5) {
-                // player is too far away.
-                this.screen.hideInteraction();
-                this.allotment = null;
-                this.allotmentInteractionOption = null;
-                this.interactionTexture = null;
-                this.screen.hideInteraction();
-            }
-        } else {
-            final FarmingAllotment allotment = getClosestAllotment();
-            if (allotment != null && !allotment.isInteractingWith()) {
-                this.allotment = allotment;
-                this.allotmentInteractionOption = allotment.getInteraction();
-                // no interaction can be done (placeholder)
-                if (this.allotmentInteractionOption == AllotmentInteractionOption.NONE) return;
+    protected void loadWorld(TiledMap worldMap, float worldScale) {
+        for (FarmingAllotment allotment : this.allotments) allotment.loadAllotment(asset);
+        this.farmManager = new FarmAllotmentManager(allotments, thePlayer, ui);
 
-                this.interactionTexture = interactions.findRegion(allotmentInteractionOption.getAsset());
-                this.screen.showInteractionTexture(interactionTexture);
-            }
-        }
-
-        // hide dialog if needed
-        if (this.npc == null && this.screen.isShowingDialog()) {
-            this.screen.hideDialogInteraction();
-        }
-
-        super.update(d);
-    }
-
-    public void checkInteraction() {
-        if (this.allotment != null
-                && this.allotmentInteractionOption != null) {
-            // interact
-            this.allotment.interact(allotmentInteractionOption, thePlayer);
-
-            // reset interaction
-            this.screen.hideInteraction();
-            this.allotment = null;
-            this.allotmentInteractionOption = null;
-            this.interactionTexture = null;
-        }
-
-        // check speakable entity
-        if (this.npc != null && this.npc.getSpeakingRotation()
-                == thePlayer.getRotation()) {
-            this.screen.showDialogInteraction();
-            this.screen.setCurrentDialogToRender(npc.getCurrentDialog());
-        }
-
+        Gdx.app.log(ATHENA, "Finished loading World: Athena");
     }
 
     @Override
-    public void dialogChanged() {
-        if (this.npc != null) {
-            this.screen.setCurrentDialogToRender(npc.getCurrentDialog());
+    public void handleInteractionKeyPressed() {
+        farmManager.interact();
+
+        // check speakable entity
+        if (this.closestNpc != null && this.closestNpc.getSpeakingRotation() == thePlayer.getRotation()) {
+            ui.showDialog(closestNpc, closestNpc.getDialogSection());
         }
     }
 
-    private FarmingAllotment getClosestAllotment() {
-        for (FarmingAllotment allotment : allotments) {
-            if (thePlayer.getPosition().dst2(allotment.getCenter()) <= 11) {
-                return allotment;
-            }
-        }
-        return null;
+    @Override
+    public GameWorldInterface getUi() {
+        return ui;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        renderer.resize(width, height);
+        ui.resize(width, height);
+    }
+
+    @Override
+    public void renderWorld(SpriteBatch batch, float delta) {
+        super.renderWorld(batch, delta);
+        this.farmManager.render(batch, worldScale);
+    }
+
+    @Override
+    public void renderUi() {
+        ui.render();
+    }
+
+    @Override
+    public void update(float d) {
+        this.farmManager.update();
+        super.update(d);
+
+        // remove dialog interaction
+        if (ui.isShowingDialog() && (closestNpc == null || !closestNpc.isSpeakable())) ui.hideDialog();
     }
 }
