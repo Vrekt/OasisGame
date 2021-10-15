@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.ui.book.pages.InventoryBookPage;
@@ -47,6 +48,10 @@ public final class PlayerBook {
         return image;
     }
 
+    public BookPage getCurrentPage() {
+        return currentPage;
+    }
+
     /**
      * Initialize buttons
      */
@@ -60,10 +65,10 @@ public final class PlayerBook {
         // sizes
         float buttonSizeX = 15 * 1.5f;
         float buttonSizeY = 32 * 1.5f;
-        pageButtons.put(new Rectangle(x - buttonSizeX, y - buttonSizeY, buttonSizeX, buttonSizeY), currentPage);
+        pageButtons.put(new Rectangle(x, y - buttonSizeY, buttonSizeX, buttonSizeY), currentPage);
         float buttonSpacingY = 9 * 1.5f;
         y -= (buttonSizeY + buttonSpacingY);
-        pageButtons.put(new Rectangle(x - buttonSizeX, y - buttonSizeY, buttonSizeX, buttonSizeY), new InventoryBookPage(game, bookAtlas));
+        pageButtons.put(new Rectangle(x, y - buttonSizeY, buttonSizeX, buttonSizeY), new InventoryBookPage(game, bookAtlas));
     }
 
     /**
@@ -99,6 +104,15 @@ public final class PlayerBook {
      * @param y y
      */
     public void handleClick(float x, float y) {
+        pageButtons.forEach((bounds, page) -> {
+            if (bounds.contains(x, y)) {
+                // given page was clicked on.
+                this.currentPage.hide();
+                this.currentPage = page;
+                this.image.setDrawable(new TextureRegionDrawable(currentPage.currentTabTexture));
+            }
+        });
+
         currentPage.handleClick(x, y);
     }
 

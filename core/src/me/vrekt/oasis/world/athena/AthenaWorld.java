@@ -11,13 +11,13 @@ import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.farm.FarmAllotmentManager;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
+import me.vrekt.oasis.world.shop.Shop;
 
 /**
  * The world of Athena.
  */
 public final class AthenaWorld extends AbstractWorld {
 
-    private final OasisGame game;
     private final GameWorldInterface ui;
 
     // farming management
@@ -25,13 +25,13 @@ public final class AthenaWorld extends AbstractWorld {
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
-        this.game = game;
         this.ui = new GameWorldInterface(game, game.asset, this);
 
         setHandlePhysics(true);
-        setUpdatePlayer(true);
         setUpdateNetworkPlayers(true);
-        this.updateEntities = true;
+        setUpdatePlayer(false);
+        setUpdateEntities(false);
+
         this.worldScale = WorldRenderer.SCALE;
     }
 
@@ -56,10 +56,14 @@ public final class AthenaWorld extends AbstractWorld {
     public void handleInteractionKeyPressed() {
         farmManager.interact();
 
-        // check speakable entity
-        if (this.closestNpc != null && this.closestNpc.getSpeakingRotation() == thePlayer.getRotation()) {
-            ui.showDialog(closestNpc, closestNpc.getDialogSection(), closestNpc.getDisplay());
+        for (Shop shop : shops) {
+            shop.interact(thePlayer, ui);
         }
+
+        // check speakable entity
+        //    if (this.closestNpc != null && this.closestNpc.getSpeakingRotation() == thePlayer.getRotation()) {
+        //       ui.showDialog(closestNpc, closestNpc.getDialogSection(), closestNpc.getDisplay());
+        //   }
     }
 
     @Override
@@ -74,9 +78,14 @@ public final class AthenaWorld extends AbstractWorld {
     }
 
     @Override
+    public void pause() {
+        ui.pause();
+    }
+
+    @Override
     public void renderWorld(SpriteBatch batch, float delta) {
         super.renderWorld(batch, delta);
-        this.farmManager.render(batch, worldScale);
+        this.farmManager.render(batch, worldScale, renderer.getCamera());
     }
 
     @Override
@@ -90,6 +99,7 @@ public final class AthenaWorld extends AbstractWorld {
         super.update(d);
 
         // remove dialog interaction
-        if (ui.isShowingDialog() && (closestNpc == null || !closestNpc.isSpeakable())) ui.hideDialog();
+        //if (ui.isShowingDialog() && (closestNpc == null || !closestNpc.isSpeakable())) ui.hideDialog();
+
     }
 }

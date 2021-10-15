@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.farm;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.entity.player.local.Player;
@@ -53,8 +54,10 @@ public final class FarmAllotmentManager {
      * @param batch      batch
      * @param worldScale scale
      */
-    public void render(SpriteBatch batch, float worldScale) {
-        for (FarmingAllotment allotment : allotments) allotment.render(batch, worldScale);
+    public void render(SpriteBatch batch, float worldScale, Camera camera) {
+        for (FarmingAllotment allotment : allotments) {
+            if (allotment.isInView(camera)) allotment.render(batch, worldScale);
+        }
     }
 
     /**

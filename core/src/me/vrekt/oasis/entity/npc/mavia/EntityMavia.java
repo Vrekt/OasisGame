@@ -3,15 +3,17 @@ package me.vrekt.oasis.entity.npc.mavia;
 import gdx.lunar.entity.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.entity.npc.EntityNPC;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.item.items.RingfruitSeedItem;
+import me.vrekt.oasis.item.items.mavia.MaviaIngredientsScrollItem;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
  * Mavia quest NPC
  */
-public final class EntityMavia extends EntityNPC {
+public final class EntityMavia extends EntityInteractable {
 
     public EntityMavia(float x, float y, OasisGame game, AbstractWorld worldIn) {
         super("Mavia", x, y, game, worldIn);
@@ -31,10 +33,16 @@ public final class EntityMavia extends EntityNPC {
     public void nextDialog(String option) {
         if (dialog.isEnd(option)) {
             worldIn.getUi().hideDialog();
-            dialogSection = this.dialog.getStarting();
+
+            // give the player the ingredients scroll.
+            game.thePlayer.getInventory().addItem(new MaviaIngredientsScrollItem());
+            game.thePlayer.getInventory().addItem(new RingfruitSeedItem(3));
 
             // start the mavia quest
+            dialogSection = dialog.sections.get("mavia_option_16");
             game.getQuestManager().getQuest(questRelatedTo).setStarted(true);
+            game.getQuestManager().getQuest(questRelatedTo).
+                    setQuestInformation("Collect all the ingredients from the list Mavia gave you.");
             return;
         }
 
@@ -44,15 +52,11 @@ public final class EntityMavia extends EntityNPC {
 
     @Override
     public void update(Player player, float delta) {
-        if (player.getPosition().dst2(position.x, position.y) <= 5) {
-            this.speakable = true;
-        } else {
-            this.speakable = false;
-        }
+        this.speakable = player.getPosition().dst2(position.x, position.y) <= 5;
     }
 
     @Override
-    public void loadNPC(Asset asset) {
+    public void load(Asset asset) {
         this.entityTexture = asset.getAtlas(Asset.MAVIA_NPC).findRegion("mavia_idle");
         this.width = entityTexture.getRegionWidth();
         this.height = entityTexture.getRegionHeight();

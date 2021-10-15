@@ -2,7 +2,7 @@ package me.vrekt.oasis.dialog;
 
 import gdx.lunar.server.game.utilities.Disposable;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -13,7 +13,7 @@ public abstract class EntityDialog implements Disposable {
     /**
      * Entity dialog stored by sections
      */
-    public final Map<String, EntityDialogSection> sections = new HashMap<>();
+    public final Map<String, EntityDialogSection> sections = new LinkedHashMap<>();
 
     // start and end dialog
     public String starting, ending;
@@ -34,6 +34,10 @@ public abstract class EntityDialog implements Disposable {
         this.section = new EntityDialogSection();
         this.section.title = title;
         this.option = option;
+    }
+
+    public void save() {
+        this.sections.put(this.option, section);
     }
 
     /**

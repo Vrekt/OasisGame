@@ -18,19 +18,18 @@ public final class ItemManager {
      */
     public void load(Asset asset) {
         this.itemAssets.put(ItemAtlasType.SEEDS, asset.getAtlas(Asset.SEED_ITEMS));
+        this.itemAssets.put(ItemAtlasType.ITEMS, asset.getAtlas(Asset.ITEMS));
     }
 
     /**
      * Create a new item
      *
      * @param item   the type
-     * @param amount the amount
      * @param <T>    T
      * @return the item
      */
     @SuppressWarnings("unchecked")
-    public <T extends Item> T createNewItem(Item item, int amount) {
-        item.amount = amount;
+    public <T extends Item> T createNewItem(Item item) {
         item.texture = itemAssets.get(item.type).findRegion(item.textureName);
         return (T) item;
     }

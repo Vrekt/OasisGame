@@ -11,6 +11,8 @@ public abstract class Item {
     protected final String textureName;
     protected final ItemAtlasType type;
 
+    protected String description;
+
     // amount of item
     protected int amount = 1;
     protected TextureRegion texture;
@@ -19,5 +21,21 @@ public abstract class Item {
         this.name = name;
         this.textureName = textureName;
         this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public TextureRegion getTexture() {
+        return texture;
     }
 }

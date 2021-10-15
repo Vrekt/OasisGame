@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.farm;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,6 +11,7 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.world.farm.flora.Plant;
 import me.vrekt.oasis.world.farm.flora.brush.OvergrownBrushPlant;
+import me.vrekt.oasis.world.farm.flora.ringfruit.RingfruitPlant;
 import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
 
 /**
@@ -18,6 +20,7 @@ import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
 public final class FarmingAllotment {
 
     private final Rectangle bounds;
+    private final Vector2 center = new Vector2();
 
     // all allotments start out as over-grown.
     private AllotmentStatus status = AllotmentStatus.OVERGROWN_3;
@@ -27,20 +30,32 @@ public final class FarmingAllotment {
 
     // current growing plant
     private Plant growingPlant;
-    private final Vector2 center = new Vector2();
 
     private boolean interactingWith;
     // animation used for clearing allotments
     private MovingTileAnimation rakingAnimation;
+    private Asset asset;
 
     public FarmingAllotment(Rectangle bounds) {
         this.bounds = bounds;
     }
 
     /**
+     * Check if this allotment is in view, if so render it.
+     *
+     * @param camera the camera
+     * @return {@code true} if in view
+     */
+    public boolean isInView(Camera camera) {
+        return camera.frustum.pointInFrustum(bounds.x + bounds.width, bounds.y + bounds.height, 0.0f);
+    }
+
+    /**
      * Load this allotment and get it ready for in-game use.
      */
     public void loadAllotment(Asset assets) {
+        this.asset = assets;
+
         this.growingPlant = new OvergrownBrushPlant(this, assets, bounds.x, bounds.y);
         this.emptyAllotment = assets.getAtlas(Asset.PLANTS).findRegion(AllotmentStatus.EMPTY.getAsset());
         bounds.getCenter(center);
@@ -68,6 +83,12 @@ public final class FarmingAllotment {
     public AllotmentInteractionOption getInteraction() {
         if (status.isOvergrown()) {
             return AllotmentInteractionOption.RAKE;
+        } else if (status == AllotmentStatus.EMPTY) {
+            return AllotmentInteractionOption.PLANT;
+        } else if (status == AllotmentStatus.PLANTED) {
+            return AllotmentInteractionOption.INSPECT;
+        } else if (status == AllotmentStatus.HARVESTABLE) {
+            return AllotmentInteractionOption.HARVEST;
         }
 
         return AllotmentInteractionOption.NONE;
@@ -99,11 +120,11 @@ public final class FarmingAllotment {
     public void render(SpriteBatch batch, float scale) {
         for (float x = bounds.x; x < (bounds.x + bounds.width); x++) {
             for (float y = bounds.y; y < (bounds.y + bounds.height); y++) {
-                if (growingPlant == null) {
+                if (!(growingPlant instanceof OvergrownBrushPlant)) {
                     batch.draw(emptyAllotment, x, y, emptyAllotment.getRegionWidth() * scale, emptyAllotment.getRegionHeight() * scale);
-                } else {
-                    growingPlant.render(batch, x, y, scale);
                 }
+
+                if (growingPlant != null) growingPlant.render(batch, x, y, scale);
             }
         }
 
@@ -114,7 +135,6 @@ public final class FarmingAllotment {
             rakingAnimation.render(batch, scale);
             growingPlant.renderParticleEffect(batch);
         }
-
     }
 
     public void complete() {
@@ -125,7 +145,10 @@ public final class FarmingAllotment {
             status = AllotmentStatus.EMPTY;
             growingPlant = null;
             rakingAnimation.reset();
+        } else {
+            status = AllotmentStatus.HARVESTABLE;
         }
+
     }
 
     /**
@@ -141,6 +164,9 @@ public final class FarmingAllotment {
             case RAKE:
                 rakeAllotment(player);
                 break;
+            case PLANT:
+                plantSeeds(player);
+                break;
         }
     }
 
@@ -151,6 +177,11 @@ public final class FarmingAllotment {
             return;
 
         growingPlant.interactWith(player);
+    }
+
+    private void plantSeeds(Player player) {
+        status = AllotmentStatus.PLANTED;
+        growingPlant = new RingfruitPlant(this, asset, bounds.x, bounds.y);
     }
 
 }

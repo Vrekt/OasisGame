@@ -25,7 +25,7 @@ public final class QuestBookPage extends BookPage {
     private String questInformation;
 
     public QuestBookPage(OasisGame game, TextureAtlas atlas) {
-        super(1, "Quests");
+        super(1);
 
         this.quests = game.getQuestManager();
         this.currentTabTexture = atlas.findRegion("book_tab", 1);
@@ -33,7 +33,7 @@ public final class QuestBookPage extends BookPage {
 
     @Override
     public void render(Batch batch, BitmapFont font, float x, float y) {
-        if (layout == null) layout = new GlyphLayout(font, title);
+        if (layout == null) layout = new GlyphLayout(font, "");
         font.setColor(Color.GRAY);
 
         // margins

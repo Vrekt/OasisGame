@@ -4,6 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.impl.LunarPlayer;
+import gdx.lunar.network.AbstractConnection;
+import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.inventory.PlayerInventory;
 
 import java.util.List;
@@ -14,16 +18,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class Player extends LunarPlayer {
 
+    private final OasisGame game;
+
     private final List<Integer> inputsDisabled = new CopyOnWriteArrayList<>();
     private final PlayerInventory inventory;
 
-    public Player(int entityId, float playerScale, float playerWidth, float playerHeight, Rotation rotation) {
+    public Player(OasisGame game, int entityId, float playerScale, float playerWidth, float playerHeight, Rotation rotation) {
         super(entityId, playerScale, playerWidth, playerHeight, rotation);
+        this.game = game;
 
         setVelocitySendRate(100);
         setPositionSendRate(250);
         setMoveSpeed(12.0f);
-        this.inventory = new PlayerInventory(18);
+        this.inventory = new PlayerInventory(game.items, 18);
     }
 
     @Override
@@ -45,6 +52,22 @@ public final class Player extends LunarPlayer {
             velocity.set(0f, -moveSpeed);
             rotation = Rotation.FACING_DOWN;
         }
+    }
+
+    @Override
+    public void setConnection(AbstractConnection connection) {
+        super.setConnection(connection);
+
+        // TODO: Multiplayer is broken
+        // handle incoming network players
+        connection.setCreatePlayerHandler(packet -> {
+            final NetworkPlayer player = new NetworkPlayer(packet.getEntityId(), (1 / 16.0f),
+                    16.0f, 18.0f, Rotation.FACING_UP);
+            player.setName(packet.getUsername());
+
+            player.spawnEntityInWorld(worldIn, packet.getX(), packet.getY());
+            player.initializePlayerRendererAndLoad(game.asset.getAtlas(Asset.CHARACTER), true);
+        });
     }
 
     /**

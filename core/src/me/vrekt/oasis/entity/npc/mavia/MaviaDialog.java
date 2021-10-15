@@ -31,6 +31,11 @@ final class MaviaDialog extends EntityDialog {
         createOption("mavia_option_7", "Well, is there anything I can do?");
         createOption("mavia_option_0", "Well, good luck then.");
 
+        // #5
+        createSection("mavia_option_5", "Yes, but I'm having trouble finding the ingredients.. Maybe you could help me?");
+        createOption("mavia_option_8", "Of course.");
+        createOption("mavia_option_0", "No.");
+
         // #6
         createSection("mavia_option_6", "I don't believe in revenge. I just want my plants to be healthy again.");
         createOption("mavia_option_7", "Well, is there anything I can do?");
@@ -79,5 +84,11 @@ final class MaviaDialog extends EntityDialog {
         createSection("mavia_option_15", "Great! I need some ingredients for the plant cure, could you help me find them?");
         createOption("mavia_option_8", "Of course!");
         createOption("mavia_option_0", "No thank you, good luck though.");
+
+        // # 16
+        createSection("mavia_option_16", "How are the ingredients coming along?");
+        createOption("mavia_option_0", "Still looking.");
+
+        save();
     }
 }

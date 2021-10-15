@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import me.vrekt.oasis.entity.npc.EntityNPC;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import org.apache.commons.text.WordUtils;
 
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public final class DialogHandler extends InputAdapter {
     private final Map<Rectangle, String> options = new HashMap<>();
 
     // current dialog
-    private EntityNPC entity;
+    private EntityInteractable entity;
     private EntityDialogSection dialog;
 
     // current highlighted option
@@ -56,7 +56,7 @@ public final class DialogHandler extends InputAdapter {
      *
      * @param dialog dialog
      */
-    public void setDialogToUse(EntityNPC entity, EntityDialogSection dialog, TextureRegion texture) {
+    public void setDialogToUse(EntityInteractable entity, EntityDialogSection dialog, TextureRegion texture) {
         this.entity = entity;
         this.dialog = dialog;
         this.display = texture;
@@ -95,7 +95,7 @@ public final class DialogHandler extends InputAdapter {
         } else {
             // title and options should be drawn.
             this.layout.setText(font, dialog.title);
-            if (layout.width > width) {
+            if (layout.width > width - 16f) {
                 dialog.title = WordUtils.wrap(dialog.title, 30);
             }
 

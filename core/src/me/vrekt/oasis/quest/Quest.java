@@ -31,6 +31,10 @@ public abstract class Quest {
         return questInformation;
     }
 
+    public void setQuestInformation(String questInformation) {
+        this.questInformation = questInformation;
+    }
+
     public QuestDifficulty getDifficulty() {
         return difficulty;
     }

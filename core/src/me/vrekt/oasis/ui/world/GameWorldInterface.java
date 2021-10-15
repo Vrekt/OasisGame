@@ -5,7 +5,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -18,9 +22,10 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.dialog.DialogHandler;
 import me.vrekt.oasis.dialog.EntityDialogSection;
-import me.vrekt.oasis.entity.npc.EntityNPC;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.ui.book.PlayerBook;
+import me.vrekt.oasis.ui.book.pages.InventoryBookPage;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
@@ -43,13 +48,16 @@ public class GameWorldInterface extends InputAdapter {
     private final GlyphLayout layout;
 
     // UI elements like interactions and dialog.
-    protected Image interaction, dialogInteraction, otherInteraction;
+    protected Image interaction, dialogInteraction, otherInteraction, shop, pause, p2;
 
     // stage batch
     protected Batch batch;
 
     // if various elements should be rendered
     private boolean renderPlayerBook, renderDialog, renderInteraction, renderOther;
+
+    private Sprite sprite;
+    private Texture t;
 
     private final Vector2 interactionCoordinates = new Vector2(0, 0);
     private boolean interactionHidden, interactionInitialized;
@@ -61,6 +69,7 @@ public class GameWorldInterface extends InputAdapter {
 
     // unprojection
     private final Vector3 vector3 = new Vector3();
+    private ShapeRenderer renderer;
 
     /**
      * Initializes all UI elements
@@ -76,6 +85,7 @@ public class GameWorldInterface extends InputAdapter {
 
         this.root.setFillParent(true);
         this.stage.addActor(root);
+        this.renderer = new ShapeRenderer();
 
         // input processing
         multiplexer.addProcessor(stage);
@@ -94,13 +104,30 @@ public class GameWorldInterface extends InputAdapter {
         final TextureAtlas interactions = asset.getAtlas(Asset.INTERACTIONS);
         final TextureRegion interaction = interactions.findRegion("interaction");
         final TextureRegion dialog = interactions.findRegion("interaction_dialog");
+        final TextureRegion shop = asset.getAtlas(Asset.SHOP).findRegion("shop_buy_tab");
+        t = new Texture("ui/pause.png");
 
         this.interaction = new Image(interaction);
         this.dialogInteraction = new Image(dialog);
         this.otherInteraction = new Image();
+        this.shop = new Image(shop);
         this.interaction.setVisible(false);
         this.dialogInteraction.setVisible(false);
         this.otherInteraction.setVisible(false);
+        this.shop.setVisible(false);
+        this.pause = new Image(t);
+        this.pause.setVisible(false);
+
+        Pixmap pixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB888);
+        pixmap.setColor(160 / 255f, 160 / 255f, 160 / 255f, 0f);
+        pixmap.fill();
+
+        sprite = new Sprite(new Texture(pixmap));
+        sprite.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        sprite.setColor(160 / 255f, 160 / 255f, 160 / 255f, 170 / 255f);
+
+        p2 = new Image();
+        p2.setVisible(false);
 
         // add interactions in general
         this.stack.add(addElementToTable(this.interaction, .5f * Gdx.graphics.getWidth(), interaction.getRegionHeight(),
@@ -112,7 +139,10 @@ public class GameWorldInterface extends InputAdapter {
         this.stack.add(addElementToTable(otherInteraction, .25f * Gdx.graphics.getWidth(), .25f * Gdx.graphics.getHeight()));
         // add player book UI
         this.stack.add(addElementToTable(book.getImage(), .5f * Gdx.graphics.getWidth(), .5f * Gdx.graphics.getHeight()));
-
+        // add shop UI
+        this.stack.add(addElementToTable(this.shop, .5f * Gdx.graphics.getWidth(), .5f * Gdx.graphics.getHeight()));
+        // pause menu
+        this.stack.add(addElementToTable(this.pause, .5f * Gdx.graphics.getWidth(), .5f * Gdx.graphics.getHeight()));
         // done
         this.root.add(stack);
         this.batch = stage.getBatch();
@@ -155,7 +185,26 @@ public class GameWorldInterface extends InputAdapter {
             bigFont.draw(batch, interactionText, interactionCoordinates.x + (interaction.getWidth() - layout.width) / 2f, interactionCoordinates.y + (interaction.getHeight() - (layout.height / 2f)));
         }
 
+        if (p2.isVisible()) {
+            //   batch.draw(t, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        }
+
         batch.end();
+        //    if (renderPlayerBook) renderDebug();
+    }
+
+    private void renderDebug() {
+        renderer.setProjectionMatrix(stage.getCamera().combined);
+        renderer.begin(ShapeRenderer.ShapeType.Line);
+
+        if (book.getCurrentPage() instanceof InventoryBookPage) {
+            for (Rectangle value : game.thePlayer.getInventory().getItemLocations().values()) {
+                renderer.rect(value.x, value.y, value.width, value.height);
+            }
+
+        }
+
+        renderer.end();
     }
 
     /**
@@ -177,7 +226,15 @@ public class GameWorldInterface extends InputAdapter {
         interaction.localToStageCoordinates(interactionCoordinates);
     }
 
-    public void showDialog(EntityNPC entity, EntityDialogSection dialog, TextureRegion display) {
+    public void pause() {
+
+    }
+
+    public void unpause() {
+        this.pause.setVisible(false);
+    }
+
+    public void showDialog(EntityInteractable entity, EntityDialogSection dialog, TextureRegion display) {
         this.dialogHandler.setDialogToUse(entity, dialog, display);
         this.renderDialog = true;
         this.dialogInteraction.setVisible(true);
@@ -219,6 +276,10 @@ public class GameWorldInterface extends InputAdapter {
         this.otherInteraction.setVisible(true);
     }
 
+    public void showShop() {
+        this.shop.setVisible(true);
+    }
+
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (pointer == Input.Buttons.LEFT) {
@@ -255,6 +316,8 @@ public class GameWorldInterface extends InputAdapter {
             return true;
         } else if (keycode == GameSettings.INTERACTION_KEY) {
             world.handleInteractionKeyPressed();
+        } else if (keycode == Input.Keys.ESCAPE) {
+            this.pause();
         }
         return false;
     }

@@ -5,8 +5,10 @@ import me.vrekt.oasis.item.ItemAtlasType;
 
 public final class RingfruitSeedItem extends Item {
 
-    public RingfruitSeedItem() {
-        super("Ringfruit Seed", "ringfruit_seed", ItemAtlasType.SEEDS);
+    public RingfruitSeedItem(int amount) {
+        super("Ringfruit Seed", "ringfruit_seeds", ItemAtlasType.SEEDS);
+        this.description = "Seeds to a Ringfruit plant.";
+        this.amount = amount;
     }
 
 }

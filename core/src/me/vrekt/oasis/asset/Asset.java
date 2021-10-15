@@ -14,15 +14,18 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public final class Asset {
 
+    public static final String CHARACTER = "character/character.atlas";
+
     public static final String INTERACTIONS = "ui/interaction/Interactions.atlas";
     public static final String BOOK = "ui/book/Book.atlas";
     public static final String RAKE = "farm/animations/rake.png";
-    public static final String PARTICLE_DIR = "farm/effects";
     public static final String PARTICLE_ATLAS = "farm/effects/farm_particle.atlas";
     public static final String PARTICLE_FILE = "farm/effects/farm_particle.p";
     public static final String PLANTS = "farm/plants/Plants.atlas";
     public static final String SEED_ITEMS = "items/seeds/Seeds.atlas";
+    public static final String ITEMS = "items/Items.atlas";
     public static final String MAVIA_NPC = "npc/mavia/Mavia.atlas";
+    public static final String SHOP = "ui/shop/Shop.atlas";
 
     public static final String ATHENA_WORLD = "worlds/athena/Athena.tmx";
 
@@ -34,12 +37,15 @@ public final class Asset {
      * Load general assets needed by each world.
      */
     public void load() {
+        assetManager.load(CHARACTER, TextureAtlas.class);
         assetManager.load(INTERACTIONS, TextureAtlas.class);
         assetManager.load(BOOK, TextureAtlas.class);
         assetManager.load(RAKE, Texture.class);
         assetManager.load(PLANTS, TextureAtlas.class);
         assetManager.load(SEED_ITEMS, TextureAtlas.class);
+        assetManager.load(ITEMS, TextureAtlas.class);
         assetManager.load(MAVIA_NPC, TextureAtlas.class);
+        assetManager.load(SHOP, TextureAtlas.class);
 
         // particle effect handler
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));

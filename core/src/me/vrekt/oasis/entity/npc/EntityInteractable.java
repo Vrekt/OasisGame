@@ -1,5 +1,6 @@
 package me.vrekt.oasis.entity.npc;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -11,12 +12,13 @@ import me.vrekt.oasis.dialog.EntityDialog;
 import me.vrekt.oasis.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.type.QuestType;
+import me.vrekt.oasis.utilities.render.Viewable;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityNPC implements Disposable {
+public abstract class EntityInteractable implements Disposable, Viewable {
 
     protected final Vector2 position = new Vector2();
     protected final AbstractWorld worldIn;
@@ -39,7 +41,7 @@ public abstract class EntityNPC implements Disposable {
     // display face
     protected TextureRegion display;
 
-    public EntityNPC(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
+    public EntityInteractable(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
         this.position.set(x, y);
         this.name = name;
         this.game = game;
@@ -86,11 +88,20 @@ public abstract class EntityNPC implements Disposable {
      *
      * @param asset assets
      */
-    public abstract void loadNPC(Asset asset);
+    public abstract void load(Asset asset);
+
+    public float dst2(Player player) {
+        return player.getPosition().dst2(position.x, position.y);
+    }
 
     public void render(SpriteBatch batch, float scale) {
         if (entityTexture != null)
             batch.draw(entityTexture, position.x, position.y, width * scale, height * scale);
+    }
+
+    @Override
+    public boolean isInView(Camera camera) {
+        return camera.frustum.pointInFrustum(position.x, position.y, 0.0f);
     }
 
     @Override

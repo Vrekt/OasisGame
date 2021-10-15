@@ -13,22 +13,15 @@ interaction
   index: -1
 interaction_dialog
   rotate: false
-  xy: 2, 74
+  xy: 2, 36
   size: 356, 128
   orig: 356, 128
   offset: 0, 0
   index: -1
 plant_cure_recipe
   rotate: false
-  xy: 360, 45
+  xy: 360, 7
   size: 85, 157
   orig: 85, 157
-  offset: 0, 0
-  index: -1
-raking_interaction
-  rotate: false
-  xy: 2, 36
-  size: 356, 36
-  orig: 356, 36
   offset: 0, 0
   index: -1

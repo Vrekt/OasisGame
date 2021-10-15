@@ -12,22 +12,27 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
+import gdx.lunar.entity.player.LunarNetworkEntityPlayer;
 import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.entity.npc.EntityNPC;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.ui.world.GameWorldInterface;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
+import me.vrekt.oasis.world.shop.Shop;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 
 /**
  * A game world, extended from Lunar
@@ -43,18 +48,23 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
         STATIC_BODY.type = BodyDef.BodyType.StaticBody;
     }
 
+    protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
     protected final Array<FarmingAllotment> allotments = new Array<>();
-    protected final Map<String, EntityNPC> npcs = new HashMap<>();
+
+    // all NPCs
+    protected final Map<String, EntityInteractable> entities = new HashMap<>();
+    // entities close to the player
+    protected final Map<EntityInteractable, Float> entitiesInVicinity = new ConcurrentHashMap<>();
+
+    protected final Array<Shop> shops = new Array<>();
 
     protected final Asset asset;
-    protected final Vector2 spawn = new Vector2();
+    protected final Vector2 spawn = new Vector2(0, 0);
+
     protected WorldRenderer renderer;
     protected Player thePlayer;
     protected SpriteBatch batch;
     protected float scale;
-
-    // the npc player is near
-    protected EntityNPC closestNpc;
 
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
@@ -62,18 +72,12 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
         this.batch = batch;
         this.thePlayer = player;
         this.asset = asset;
-    }
 
-    public WorldRenderer getRenderer() {
-        return renderer;
+        setPlayersCollection(networkPlayers);
     }
 
     public Player getPlayer() {
         return thePlayer;
-    }
-
-    public Asset getAssets() {
-        return asset;
     }
 
     /**
@@ -128,10 +132,43 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
         loadWorldAllotments(worldMap, worldScale);
         loadWorldNPC(game, worldMap, worldScale);
+        loadWorldShops(worldMap, worldScale);
         loadWorld(worldMap, worldScale);
 
         // initialize player in this world.
         thePlayer.spawnEntityInWorld(this, spawn.x, spawn.y);
+    }
+
+    /**
+     * General functions for collecting rectangle objects and handling them
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     * @param layerName  layer to get
+     * @param handler    handler
+     * @return the result (if the layer was found)
+     */
+    protected boolean loadMapObjects(TiledMap worldMap, float worldScale, String layerName, BiConsumer<MapObject, Rectangle> handler) {
+        final MapLayer layer = worldMap.getLayers().get(layerName);
+        if (layer == null) {
+            Logging.warn(WORLD, "Failed to load layer: " + layerName);
+            return false;
+        }
+
+        for (MapObject object : layer.getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                final Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+                rectangle.x = rectangle.x * worldScale;
+                rectangle.y = rectangle.y * worldScale;
+                rectangle.width = rectangle.width * worldScale;
+                rectangle.height = rectangle.height * worldScale;
+                handler.accept(object, rectangle);
+            } else {
+                Logging.warn(WORLD, "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -141,22 +178,16 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
      * @param worldScale the scale of the world
      */
     protected void loadMapActions(TiledMap worldMap, float worldScale) {
-        final MapLayer layer = worldMap.getLayers().get("Actions");
-        if (layer == null) {
-            Logging.warn(WORLD, "Failed to load actions layer for a world map.");
-            return;
-        }
+        final boolean result = loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
+            if (object.getName().equalsIgnoreCase("WorldSpawn")) {
+                // world spawn
+                spawn.set(rectangle.x, rectangle.y);
+            }
 
-        // load world spawn.
-        final RectangleMapObject worldSpawn = (RectangleMapObject) layer.getObjects().get("WorldSpawn");
-        if (worldSpawn == null) {
-            Logging.warn(WORLD, "Failed to find world spawn.");
-            spawn.set(0.0f, 0.0f);
-            return;
-        }
+            // others...
+        });
 
-        // set spawn, scale vec by world scale to correctly set.
-        spawn.set(worldSpawn.getRectangle().x, worldSpawn.getRectangle().y).scl(worldScale);
+        if (!result) Logging.warn(WORLD, "Failed to find world spawn.");
     }
 
     /**
@@ -172,8 +203,8 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
             return;
         }
 
-        final AtomicInteger objectsLoaded = new AtomicInteger();
-        layer.getObjects().forEach(object -> {
+        int loaded = 0;
+        for (MapObject object : layer.getObjects()) {
             if (object instanceof PolylineMapObject) {
                 final ChainShape shape = CollisionShapeCreator.createPolylineShape((PolylineMapObject) object, worldScale);
                 createStaticBody(shape);
@@ -187,10 +218,10 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
                 Logging.warn(WORLD, "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
             }
 
-            objectsLoaded.addAndGet(1);
-        });
+            loaded++;
+        }
 
-        Logging.info(WORLD, "Loaded a total of " + objectsLoaded.get() + " collision objects.");
+        Logging.info(WORLD, "Loaded a total of " + loaded + " collision objects.");
     }
 
     /**
@@ -200,26 +231,8 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
      * @param worldScale scale
      */
     protected void loadWorldAllotments(TiledMap worldMap, float worldScale) {
-        final MapLayer farmLayer = worldMap.getLayers().get("Allotments");
-        if (farmLayer == null) {
-            Logging.warn(WORLD, "Failed to find farm allotments in world.");
-        } else {
-            for (MapObject object : farmLayer.getObjects()) {
-                if (object instanceof RectangleMapObject) {
-                    // ensure we have a valid land of plot.
-                    final RectangleMapObject rectangleMapObject = (RectangleMapObject) object;
-                    final Rectangle bounds = new Rectangle();
-
-                    bounds.x = rectangleMapObject.getRectangle().x * worldScale;
-                    bounds.y = rectangleMapObject.getRectangle().y * worldScale;
-                    bounds.width = rectangleMapObject.getRectangle().width * worldScale;
-                    bounds.height = rectangleMapObject.getRectangle().height * worldScale;
-                    this.allotments.add(new FarmingAllotment(bounds));
-                }
-            }
-        }
-
-        Logging.info(WORLD, "Loaded " + (allotments.size) + " allotments.");
+        final boolean result = loadMapObjects(worldMap, worldScale, "Allotments", (o, rectangle) -> this.allotments.add(new FarmingAllotment(rectangle)));
+        if (result) Logging.info(WORLD, "Loaded " + (allotments.size) + " allotments.");
     }
 
     /**
@@ -229,29 +242,27 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
      * @param worldScale scale
      */
     protected void loadWorldNPC(OasisGame game, TiledMap worldMap, float worldScale) {
-        final MapLayer npc = worldMap.getLayers().get("NPC");
-        if (npc == null) {
-            Logging.warn(WORLD, "Failed to find npc(s) in world.");
-        } else {
-            for (MapObject object : npc.getObjects()) {
-                if (object instanceof RectangleMapObject) {
-                    final RectangleMapObject point = (RectangleMapObject) object;
-                    // create the NPC type.
-                    final EntityNPCType type = EntityNPCType.valueOf(object.getProperties().get("type", String.class));
-                    final EntityNPC load = type.create(
-                            point.getRectangle().x * worldScale,
-                            point.getRectangle().y * worldScale,
-                            game,
-                            this);
+        final boolean result = loadMapObjects(worldMap, worldScale, "NPC", (object, rectangle) -> {
+            // find who this NPC is.
+            final EntityNPCType type = EntityNPCType.valueOf(object.getName().toUpperCase());
+            // create it and load
+            final EntityInteractable entity = type.create(rectangle.x, rectangle.y, game, this);
+            entity.load(asset);
 
-                    // load NPC assets
-                    load.loadNPC(asset);
+            this.entities.put(object.getName(), entity);
+        });
+        if (result) Logging.info(WORLD, "Loaded " + (entities.size()) + " NPCs.");
+    }
 
-                    this.npcs.put(object.getName(), load);
-                }
-            }
-        }
-        Logging.info(WORLD, "Loaded " + (npcs.size()) + " NPCs.");
+    /**
+     * Load shops within this world
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    protected void loadWorldShops(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Shop", (o, rectangle) -> this.shops.add(new Shop(rectangle)));
+        if (result) Logging.info(WORLD, "Loaded " + (this.shops.size) + " Shops.");
     }
 
     /**
@@ -265,55 +276,82 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     }
 
     @Override
+    public void setPlayerInWorld(LunarNetworkEntityPlayer player) {
+        networkPlayers.put(player.getEntityId(), (NetworkPlayer) player);
+    }
+
+    @Override
     public void update(float d) {
         super.update(d);
-        closestNpc = null;
 
-        for (EntityNPC npc : npcs.values()) {
-            npc.update(thePlayer, d);
-            if (npc.isSpeakable()) {
-                // indicates player is close.
-                closestNpc = npc;
+        // update our player
+        thePlayer.update(d);
+        thePlayer.interpolate(0.5f);
+
+        for (EntityInteractable entity : entities.values()) {
+            entity.update(thePlayer, d);
+
+            final float dstTo = entity.dst2(thePlayer);
+            if (dstTo <= 10f) {
+                entitiesInVicinity.put(entity, dstTo);
+            } else {
+                entitiesInVicinity.remove(entity);
             }
         }
+
+        for (Shop shop : shops) shop.update(thePlayer);
     }
 
     @Override
     public void renderWorld(SpriteBatch batch, float delta) {
-        renderer.prepareBatchWithCamera(batch);
+        batch.setProjectionMatrix(renderer.getCamera().combined);
         batch.begin();
 
-        renderer.render(delta, batch, this.players.values());
-        for (EntityNPC npc : npcs.values()) npc.render(batch, worldScale);
+        // map
+        renderer.render();
+        // networked players
+        for (NetworkPlayer player : networkPlayers.values())
+            if (player.isInView(renderer.getCamera())) player.render(batch, delta);
+
+
+        // entities
+        for (EntityInteractable entity : entities.values())
+            if (entity.isInView(renderer.getCamera())) entity.render(batch, scale);
     }
 
     @Override
     public void render(float delta) {
-        this.update(delta);
-        this.renderWorld(batch, delta);
-        this.thePlayer.render(batch, delta);
-        batch.end();
+        update(delta);
 
+        renderWorld(batch, delta);
+        thePlayer.render(batch, delta);
+
+        batch.end();
         renderUi();
     }
 
     @Override
     public void show() {
-
+        Logging.info(WORLD, "Showing world...");
     }
 
     @Override
     public void pause() {
-
+        Logging.info(WORLD, "Pausing world...");
     }
 
     @Override
     public void resume() {
-
+        Logging.info(WORLD, "Resuming world...");
     }
 
     @Override
     public void hide() {
 
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose(); // TODO
     }
 }

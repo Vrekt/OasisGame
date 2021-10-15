@@ -5,7 +5,7 @@ package me.vrekt.oasis.world.farm.ui;
  */
 public enum AllotmentInteractionOption {
 
-    RAKE("raking_interaction"), NONE(null);
+    RAKE("raking_interaction"), PLANT(null), INSPECT("null"), HARVEST(null), NONE(null);
 
     private final String asset;
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import gdx.lunar.entity.contact.PlayerCollisionListener;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.server.LocalOasisServer;
 import me.vrekt.oasis.ui.menu.MenuUserInterface;
 import me.vrekt.oasis.world.athena.AthenaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
@@ -27,7 +26,6 @@ public final class MainLoadingScreen extends MenuUserInterface {
     public void show() {
         game.asset.load();
         game.registerQuests();
-        game.localServer = new LocalOasisServer();
         game.createLocalPlayer();
 
         CompletableFuture.runAsync(() -> {
@@ -48,8 +46,11 @@ public final class MainLoadingScreen extends MenuUserInterface {
         super.render(delta);
         if (!r) return;
 
+
         if (game.asset.getAssetManager().update() && ready) {
             // done
+
+            game.items.load(game.asset);
 
             game.worldManager = new WorldManager();
             final World world1 = new World(Vector2.Zero, true);
@@ -59,6 +60,7 @@ public final class MainLoadingScreen extends MenuUserInterface {
             game.thePlayer.spawnEntityInWorld(world, 0.0f, 0.0f);
             game.worldManager.registerWorld("Athena", world);
             game.worldManager.setWorld(world);
+
 
             world.loadIntoWorld(game, game.asset.get(Asset.ATHENA_WORLD), (1 / 16.0f));
             game.finish();

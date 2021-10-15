@@ -10,6 +10,7 @@ import gdx.lunar.LunarClientServer;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.prop.PlayerProperties;
 import gdx.lunar.network.PlayerConnection;
+import gdx.lunar.protocol.LunarProtocol;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.item.ItemManager;
@@ -19,7 +20,6 @@ import me.vrekt.oasis.ui.InterfaceAssets;
 import me.vrekt.oasis.ui.loading.MainLoadingScreen;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
-import me.vrekt.oasis.world.athena.AthenaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -48,7 +48,6 @@ public final class OasisGame extends Game implements Taggable {
         this.interfaceAssets = new InterfaceAssets();
         this.batch = new SpriteBatch();
         this.asset = new Asset();
-
 
         setScreen(new MainLoadingScreen(this));
 
@@ -87,29 +86,32 @@ public final class OasisGame extends Game implements Taggable {
     }
 
     public void createLocalPlayer() {
-        thePlayer = new Player(-1, (1 / 16.0f), 16.0f, 16.0f, Rotation.FACING_UP);
+        thePlayer = new Player(this, -1, (1 / 16.0f), 16.0f, 18.0f, Rotation.FACING_UP);
 
+
+        // TODO: dirtyyyy
         characterAnimations = new TextureAtlas("character/character.atlas");
         thePlayer.initializePlayerRendererAndLoad(characterAnimations, true);
     }
 
     public void connect() {
         final Lunar lunar = new Lunar();
-        lunar.setGdxInitialized(true);
+        lunar.setUseGdxLogging(false);
+
         lunar.setPlayerProperties(new PlayerProperties((1 / 16.0f), 16.0f, 16.0f));
 
-        server = new LunarClientServer(lunar, "localhost", 6969);
+        final LunarProtocol protocol = new LunarProtocol(true);
+
+        server = new LunarClientServer(lunar, protocol, "localhost", 6969);
         server.connect().join();
 
         final PlayerConnection connection = (PlayerConnection) server.getConnection();
         thePlayer.setConnection(connection);
         connection.setPlayer(thePlayer);
 
-        connection.setJoinWorldListener(networkPlayer -> networkPlayer.initializePlayerRendererAndLoad(characterAnimations, true));
-        connection.sendSetUsername("OasisPlayer" + (ThreadLocalRandom.current().nextInt(111, 999)));
+        thePlayer.setName("OasisPlayer" + (ThreadLocalRandom.current().nextInt(111, 999)));
         connection.sendJoinWorld("Athena");
     }
-
 
     public void finish() {
         thePlayer.getConnection().sendWorldLoaded();

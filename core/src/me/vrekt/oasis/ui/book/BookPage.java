@@ -18,27 +18,21 @@ public abstract class BookPage {
     protected final float marginX = 44 * 1.5f;
     protected final float marginY = 37 * 1.5f;
 
+    protected final float inventoryMarginX = 52 * 1.5f;
+    protected final float inventoryMarginY = 31 * 1.5f;
+
     // next page
     protected final float innerMargin = 131 * 1.5f;
+    protected final float pageSize = 82 * 1.5f;
 
     protected final int tabNumber;
-    protected final String title;
     protected TextureRegion currentTabTexture;
 
     // button registry
     protected Map<Rectangle, QuestType> buttons = new HashMap<>();
 
-    public BookPage(int tabNumber, String title) {
+    public BookPage(int tabNumber) {
         this.tabNumber = tabNumber;
-        this.title = title;
-    }
-
-    public int getTabNumber() {
-        return tabNumber;
-    }
-
-    public TextureRegion getTabTexture() {
-        return currentTabTexture;
     }
 
     /**
