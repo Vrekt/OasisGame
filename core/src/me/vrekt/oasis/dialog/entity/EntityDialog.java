@@ -1,4 +1,4 @@
-package me.vrekt.oasis.dialog;
+package me.vrekt.oasis.dialog.entity;
 
 import gdx.lunar.server.game.utilities.Disposable;
 

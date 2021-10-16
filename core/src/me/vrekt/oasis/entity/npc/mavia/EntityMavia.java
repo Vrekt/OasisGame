@@ -52,7 +52,7 @@ public final class EntityMavia extends EntityInteractable {
 
     @Override
     public void update(Player player, float delta) {
-        this.speakable = player.getPosition().dst2(position.x, position.y) <= 5;
+        this.speakable = player.getPosition().dst2(position.x, position.y) <= 5f;
     }
 
     @Override

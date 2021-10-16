@@ -66,6 +66,9 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     protected SpriteBatch batch;
     protected float scale;
 
+    protected Runnable worldLoadedCallback;
+    protected EntityInteractable entityInteractingWith;
+
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
 
@@ -78,6 +81,10 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
     public Player getPlayer() {
         return thePlayer;
+    }
+
+    public void setWorldLoadedCallback(Runnable action) {
+        this.worldLoadedCallback = action;
     }
 
     /**
@@ -137,6 +144,7 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
         // initialize player in this world.
         thePlayer.spawnEntityInWorld(this, spawn.x, spawn.y);
+        this.worldLoadedCallback.run();
     }
 
     /**
@@ -273,6 +281,19 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     private void createStaticBody(Shape shape) {
         world.createBody(STATIC_BODY).createFixture(shape, 1.0f);
         shape.dispose();
+    }
+
+    public EntityInteractable getClosestEntity() {
+        float min = 10f;
+        EntityInteractable entity = null;
+        for (Map.Entry<EntityInteractable, Float> e : entitiesInVicinity.entrySet()) {
+            if (e.getValue() <= min) {
+                min = e.getValue();
+                entity = e.getKey();
+            }
+        }
+
+        return entity;
     }
 
     @Override

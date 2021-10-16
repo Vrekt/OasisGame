@@ -8,8 +8,8 @@ import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.server.game.utilities.Disposable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.dialog.EntityDialog;
-import me.vrekt.oasis.dialog.EntityDialogSection;
+import me.vrekt.oasis.dialog.entity.EntityDialog;
+import me.vrekt.oasis.dialog.entity.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.utilities.render.Viewable;
@@ -34,7 +34,7 @@ public abstract class EntityInteractable implements Disposable, Viewable {
     // texture for this NPC.
     protected TextureRegion entityTexture;
     protected float width, height;
-    protected boolean speakable;
+    protected boolean speakingTo, speakable;
     // required player rotation to talk to this npc
     protected Rotation speakingRotation;
 
@@ -56,16 +56,24 @@ public abstract class EntityInteractable implements Disposable, Viewable {
         return speakingRotation;
     }
 
-    public boolean isSpeakable() {
-        return speakable;
-    }
-
     public EntityDialogSection getDialogSection() {
         return dialogSection;
     }
 
     public TextureRegion getDisplay() {
         return display;
+    }
+
+    public boolean isSpeakable() {
+        return speakable;
+    }
+
+    public boolean isSpeakingTo() {
+        return speakingTo;
+    }
+
+    public void setSpeakingTo(boolean speakingTo) {
+        this.speakingTo = speakingTo;
     }
 
     /**

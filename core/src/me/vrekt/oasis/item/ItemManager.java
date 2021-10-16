@@ -1,12 +1,13 @@
 package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.asset.Asset;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class ItemManager {
+public final class ItemManager implements Disposable {
 
     // all items sorted by type
     private final Map<ItemAtlasType, TextureAtlas> itemAssets = new HashMap<>();
@@ -34,4 +35,8 @@ public final class ItemManager {
         return (T) item;
     }
 
+    @Override
+    public void dispose() {
+        itemAssets.clear();
+    }
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.ui.world.GameWorldInterface;
 import me.vrekt.oasis.world.AbstractWorld;
@@ -59,11 +60,14 @@ public final class AthenaWorld extends AbstractWorld {
         for (Shop shop : shops) {
             shop.interact(thePlayer, ui);
         }
+        final EntityInteractable interactable = getClosestEntity();
+        if (interactable != null && !interactable.isSpeakingTo()) {
+            interactable.setSpeakingTo(true);
+            thePlayer.setRotation(interactable.getSpeakingRotation());
+            ui.showDialog(interactable, interactable.getDialogSection(), interactable.getDisplay());
 
-        // check speakable entity
-        //    if (this.closestNpc != null && this.closestNpc.getSpeakingRotation() == thePlayer.getRotation()) {
-        //       ui.showDialog(closestNpc, closestNpc.getDialogSection(), closestNpc.getDisplay());
-        //   }
+            this.entityInteractingWith = interactable;
+        }
     }
 
     @Override
@@ -95,11 +99,23 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     public void update(float d) {
-        this.farmManager.update();
         super.update(d);
 
-        // remove dialog interaction
-        //if (ui.isShowingDialog() && (closestNpc == null || !closestNpc.isSpeakable())) ui.hideDialog();
-
+        farmManager.update();
+        updateDialogState();
     }
+
+    private void updateDialogState() {
+        if (ui.isShowingDialog()) {
+            if (entityInteractingWith == null
+                    || !entityInteractingWith.isSpeakingTo()
+                    || !entityInteractingWith.isSpeakable()) {
+                if (entityInteractingWith != null) entityInteractingWith.setSpeakingTo(false);
+
+                entityInteractingWith = null;
+                ui.hideDialog();
+            }
+        }
+    }
+
 }

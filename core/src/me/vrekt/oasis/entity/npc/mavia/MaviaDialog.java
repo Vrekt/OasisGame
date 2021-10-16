@@ -1,6 +1,6 @@
 package me.vrekt.oasis.entity.npc.mavia;
 
-import me.vrekt.oasis.dialog.EntityDialog;
+import me.vrekt.oasis.dialog.entity.EntityDialog;
 
 final class MaviaDialog extends EntityDialog {
 

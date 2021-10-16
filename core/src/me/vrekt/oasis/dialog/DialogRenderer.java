@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import me.vrekt.oasis.dialog.entity.EntityDialogSection;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import org.apache.commons.text.WordUtils;
 
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * Handles rendering and updating dialog within the game
  */
-public final class DialogHandler extends InputAdapter {
+public final class DialogRenderer extends InputAdapter {
 
     // drawing font
     private final BitmapFont font;
@@ -45,7 +46,7 @@ public final class DialogHandler extends InputAdapter {
     private Rectangle nextButton;
     private boolean hasNextPage, hoverNextPage, renderDialogOptions;
 
-    public DialogHandler(BitmapFont font, Camera stageCamera) {
+    public DialogRenderer(BitmapFont font, Camera stageCamera) {
         this.font = font;
         this.layout = new GlyphLayout(font, "");
         this.stageCamera = stageCamera;

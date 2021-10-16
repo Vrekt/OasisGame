@@ -20,8 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.dialog.DialogHandler;
-import me.vrekt.oasis.dialog.EntityDialogSection;
+import me.vrekt.oasis.dialog.DialogRenderer;
+import me.vrekt.oasis.dialog.entity.EntityDialogSection;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.ui.book.PlayerBook;
@@ -63,7 +63,7 @@ public class GameWorldInterface extends InputAdapter {
     private boolean interactionHidden, interactionInitialized;
     private String interactionText;
 
-    private final DialogHandler dialogHandler;
+    private final DialogRenderer dialogRenderer;
     private final Vector2 dialogCoordinates = new Vector2(0, 0);
     private boolean dialogInitialized;
 
@@ -98,8 +98,8 @@ public class GameWorldInterface extends InputAdapter {
         this.layout = new GlyphLayout(font, "");
 
         this.book = new PlayerBook(game, asset);
-        this.dialogHandler = new DialogHandler(font, stage.getCamera());
-        this.multiplexer.addProcessor(dialogHandler);
+        this.dialogRenderer = new DialogRenderer(font, stage.getCamera());
+        this.multiplexer.addProcessor(dialogRenderer);
 
         final TextureAtlas interactions = asset.getAtlas(Asset.INTERACTIONS);
         final TextureRegion interaction = interactions.findRegion("interaction");
@@ -170,7 +170,7 @@ public class GameWorldInterface extends InputAdapter {
                 dialogInitialized = true;
             }
 
-            this.dialogHandler.renderDialog(batch, dialogCoordinates.x, dialogCoordinates.y, dialogInteraction.getWidth(), dialogInteraction.getHeight());
+            this.dialogRenderer.renderDialog(batch, dialogCoordinates.x, dialogCoordinates.y, dialogInteraction.getWidth(), dialogInteraction.getHeight());
         }
 
         // interaction text
@@ -235,7 +235,7 @@ public class GameWorldInterface extends InputAdapter {
     }
 
     public void showDialog(EntityInteractable entity, EntityDialogSection dialog, TextureRegion display) {
-        this.dialogHandler.setDialogToUse(entity, dialog, display);
+        this.dialogRenderer.setDialogToUse(entity, dialog, display);
         this.renderDialog = true;
         this.dialogInteraction.setVisible(true);
     }
