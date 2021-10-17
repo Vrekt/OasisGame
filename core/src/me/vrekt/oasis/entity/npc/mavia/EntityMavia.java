@@ -30,10 +30,8 @@ public final class EntityMavia extends EntityInteractable {
     }
 
     @Override
-    public void nextDialog(String option) {
+    public boolean nextDialog(String option) {
         if (dialog.isEnd(option)) {
-            worldIn.getUi().hideDialog();
-
             // give the player the ingredients scroll.
             game.thePlayer.getInventory().addItem(new MaviaIngredientsScrollItem());
             game.thePlayer.getInventory().addItem(new RingfruitSeedItem(3));
@@ -43,11 +41,11 @@ public final class EntityMavia extends EntityInteractable {
             game.getQuestManager().getQuest(questRelatedTo).setStarted(true);
             game.getQuestManager().getQuest(questRelatedTo).
                     setQuestInformation("Collect all the ingredients from the list Mavia gave you.");
-            return;
+            return true;
         }
 
         dialogSection = dialog.sections.get(option);
-        this.worldIn.getUi().showDialog(this, dialogSection, display);
+        return false;
     }
 
     @Override

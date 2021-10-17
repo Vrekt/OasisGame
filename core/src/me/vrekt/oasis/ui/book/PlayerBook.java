@@ -80,12 +80,14 @@ public final class PlayerBook {
     public void render(Batch batch, BitmapFont font) {
         // ensure buttons are initialized once to get right coordinates
         if (!buttonsInitialized) {
+            stageCoordinates.set(0, 0);
             this.image.localToStageCoordinates(stageCoordinates);
             buttonsInitialized = true;
             initializeButtons(stageCoordinates.x, stageCoordinates.y + image.getHeight());
         } else {
             this.image.localToStageCoordinates(stageCoordinates);
         }
+
         currentPage.render(batch, font, stageCoordinates.x, stageCoordinates.y + image.getHeight());
         stageCoordinates.set(0, 0);
     }

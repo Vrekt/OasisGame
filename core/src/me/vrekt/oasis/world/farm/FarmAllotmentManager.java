@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.ui.world.GameWorldInterface;
+import me.vrekt.oasis.ui.world.WorldGui;
 import me.vrekt.oasis.world.farm.ui.AllotmentInteractionOption;
 
 /**
@@ -15,16 +15,16 @@ public final class FarmAllotmentManager {
     private final Array<FarmingAllotment> allotments;
 
     private final Player thePlayer;
-    private final GameWorldInterface ui;
+    private final WorldGui gui;
 
     // current allotment near or interacting with
     private AllotmentInteractionOption interaction;
     private FarmingAllotment allotment;
 
-    public FarmAllotmentManager(Array<FarmingAllotment> allotments, Player thePlayer, GameWorldInterface ui) {
+    public FarmAllotmentManager(Array<FarmingAllotment> allotments, Player thePlayer, WorldGui gui) {
         this.allotments = allotments;
         this.thePlayer = thePlayer;
-        this.ui = ui;
+        this.gui = gui;
     }
 
     public void update() {
@@ -40,7 +40,7 @@ public final class FarmAllotmentManager {
                 interaction = allotment.getInteraction();
 
                 if (interaction == AllotmentInteractionOption.RAKE)
-                    ui.showInteraction("Press >>E<< to rake allotment.");
+                    gui.getInteractions().show("Press [E] to rake allotment.");
             }
         }
 
@@ -88,7 +88,7 @@ public final class FarmAllotmentManager {
      * Reset interaction
      */
     private void reset() {
-        ui.hideInteraction();
+        gui.getInteractions().hide();
         allotment = null;
         interaction = null;
     }

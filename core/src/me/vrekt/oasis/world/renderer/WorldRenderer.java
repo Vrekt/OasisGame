@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.renderer;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -11,7 +10,7 @@ import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import me.vrekt.oasis.entity.player.local.Player;
 
 /**
@@ -33,7 +32,7 @@ public final class WorldRenderer implements Disposable {
     private final Array<TiledMapTileLayer> layers;
 
     private final Player thePlayer;
-    private final ExtendViewport viewport;
+    private final StretchViewport viewport;
 
     /**
      * Initialize a new renderer instance
@@ -51,7 +50,7 @@ public final class WorldRenderer implements Disposable {
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / (SCALE / 2.0f), Gdx.graphics.getHeight() / (SCALE / 2.0f));
-        viewport = new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        viewport = new StretchViewport(Gdx.graphics.getWidth() / (SCALE / 2.0f), Gdx.graphics.getHeight() / (SCALE / 2.0f));
 
         camera.position.set(worldSpawn.x, worldSpawn.y, 0f);
         camera.update();
@@ -63,9 +62,6 @@ public final class WorldRenderer implements Disposable {
     public void render() {
         update();
 
-        Gdx.gl.glClearColor(160 / 255f, 160 / 255f, 160 / 255f, 170 / 255f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         // update animations and render map.
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
@@ -74,6 +70,10 @@ public final class WorldRenderer implements Disposable {
 
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    public StretchViewport getViewport() {
+        return viewport;
     }
 
     /**

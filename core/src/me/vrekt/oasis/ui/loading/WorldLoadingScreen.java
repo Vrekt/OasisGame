@@ -16,6 +16,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.QuestManager;
+import me.vrekt.oasis.server.LocalOasisServer;
 import me.vrekt.oasis.ui.menu.MenuUserInterface;
 import me.vrekt.oasis.world.athena.AthenaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
@@ -54,6 +55,8 @@ public final class WorldLoadingScreen extends MenuUserInterface {
     }
 
     private void connect() {
+        game.localServer = new LocalOasisServer();
+
         final Lunar lunar = new Lunar();
         lunar.setUseGdxLogging(false);
         lunar.setPlayerProperties(new PlayerProperties((1 / 16.0f), 16.0f, 16.0f));

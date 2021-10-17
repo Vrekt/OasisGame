@@ -11,6 +11,8 @@ public final class GameSettings {
     public static final int BOOK_KEY = Input.Keys.B;
     // interact with something
     public static final int INTERACTION_KEY = Input.Keys.E;
+    // pause game
+    public static final int PAUSE_GAME_KEY = Input.Keys.ESCAPE;
     // vsync
     public static final boolean USE_VSYNC = false;
     // OpenGL 3.0+

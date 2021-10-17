@@ -80,8 +80,9 @@ public abstract class EntityInteractable implements Disposable, Viewable {
      * Advance to the next dialog
      *
      * @param option the option
+     * @return {@code true} if dialog is complete.
      */
-    public abstract void nextDialog(String option);
+    public abstract boolean nextDialog(String option);
 
     /**
      * Update this NPC

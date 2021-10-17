@@ -1,7 +1,10 @@
 package me.vrekt.oasis.world;
 
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
@@ -10,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import gdx.lunar.entity.player.LunarNetworkEntityPlayer;
@@ -20,7 +24,8 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
-import me.vrekt.oasis.ui.world.GameWorldInterface;
+import me.vrekt.oasis.settings.GameSettings;
+import me.vrekt.oasis.ui.world.WorldGui;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
@@ -37,7 +42,7 @@ import java.util.function.BiConsumer;
 /**
  * A game world, extended from Lunar
  */
-public abstract class AbstractWorld extends LunarWorld implements Screen, Taggable {
+public abstract class AbstractWorld extends LunarWorld implements InputProcessor, Screen, Taggable {
 
     /**
      * Static body
@@ -47,6 +52,9 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     static {
         STATIC_BODY.type = BodyDef.BodyType.StaticBody;
     }
+
+    protected final Vector3 unproject = new Vector3(0, 0, 0);
+    protected final InputMultiplexer multiplexer = new InputMultiplexer();
 
     protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
     protected final Array<FarmingAllotment> allotments = new Array<>();
@@ -61,6 +69,8 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     protected final Asset asset;
     protected final Vector2 spawn = new Vector2(0, 0);
 
+    protected WorldGui gui;
+
     protected WorldRenderer renderer;
     protected Player thePlayer;
     protected SpriteBatch batch;
@@ -69,13 +79,17 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     protected Runnable worldLoadedCallback;
     protected EntityInteractable entityInteractingWith;
 
+    protected final FrameBuffer fbo;
+    protected boolean paused, fboSet;
+
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
 
         this.batch = batch;
         this.thePlayer = player;
         this.asset = asset;
-
+        this.multiplexer.addProcessor(this);
+        this.fbo = new FrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
         setPlayersCollection(networkPlayers);
     }
 
@@ -106,19 +120,14 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
     /**
      * The interaction key was pressed.
      */
-    public abstract void handleInteractionKeyPressed();
+    protected void handleInteractionKeyPressed() {
+
+    }
 
     /**
      * Render UI
      */
     public abstract void renderUi();
-
-    /**
-     * Local world UI
-     *
-     * @return the UI
-     */
-    public abstract GameWorldInterface getUi();
 
     /**
      * Load the local player into this world.
@@ -330,10 +339,10 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
         // map
         renderer.render();
+
         // networked players
         for (NetworkPlayer player : networkPlayers.values())
             if (player.isInView(renderer.getCamera())) player.render(batch, delta);
-
 
         // entities
         for (EntityInteractable entity : entities.values())
@@ -342,27 +351,107 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
     @Override
     public void render(float delta) {
-        update(delta);
+        Gdx.gl.glClearColor(160 / 255f, 160 / 255f, 160 / 255f, 170 / 255f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        renderer.getViewport().apply();
+
+        update(delta);
         renderWorld(batch, delta);
         thePlayer.render(batch, delta);
-
         batch.end();
+
         renderUi();
     }
 
     @Override
+    public boolean keyDown(int keycode) {
+        if (keycode == GameSettings.INTERACTION_KEY) {
+            handleInteractionKeyPressed();
+            return true;
+        } else if (keycode == GameSettings.PAUSE_GAME_KEY && !gui.getPause().isShowing()) {
+            pause();
+            return true;
+        } else if (keycode == GameSettings.PAUSE_GAME_KEY && gui.getPause().isShowing()) {
+            resume();
+            return true;
+        } else if (keycode == GameSettings.BOOK_KEY) {
+            final boolean render = !gui.getBook().isShowing();
+            if (render) {
+                gui.getBook().show();
+            } else {
+                gui.getBook().hide();
+            }
+
+            if (render) {
+                thePlayer.disableInputs(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, GameSettings.INTERACTION_KEY);
+                gui.getInteractions().hide();
+            } else {
+                thePlayer.enableInputs(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, GameSettings.INTERACTION_KEY);
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (pointer == Input.Buttons.LEFT) {
+            unproject.set(screenX, screenY, 0.0f);
+            unproject.set(gui.getStage().getCamera().unproject(unproject));
+            gui.click(unproject.x, unproject.y);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        return false;
+    }
+
+    @Override
     public void show() {
+        Gdx.input.setInputProcessor(multiplexer);
         Logging.info(WORLD, "Showing world...");
     }
 
     @Override
     public void pause() {
+        this.paused = true;
+        gui.getPause().show();
         Logging.info(WORLD, "Pausing world...");
     }
 
     @Override
     public void resume() {
+        this.paused = false;
+        gui.getPause().hide();
         Logging.info(WORLD, "Resuming world...");
     }
 
@@ -373,6 +462,6 @@ public abstract class AbstractWorld extends LunarWorld implements Screen, Taggab
 
     @Override
     public void dispose() {
-        super.dispose(); // TODO
+        super.dispose();
     }
 }

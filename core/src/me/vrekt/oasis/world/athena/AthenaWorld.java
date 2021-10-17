@@ -7,26 +7,23 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.ui.world.GameWorldInterface;
+import me.vrekt.oasis.ui.world.WorldGui;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.farm.FarmAllotmentManager;
 import me.vrekt.oasis.world.farm.FarmingAllotment;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
-import me.vrekt.oasis.world.shop.Shop;
 
 /**
  * The world of Athena.
  */
 public final class AthenaWorld extends AbstractWorld {
 
-    private final GameWorldInterface ui;
-
     // farming management
     private FarmAllotmentManager farmManager;
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
-        this.ui = new GameWorldInterface(game, game.asset, this);
+        this.gui = new WorldGui(game, game.asset, this, multiplexer);
 
         setHandlePhysics(true);
         setUpdateNetworkPlayers(true);
@@ -48,42 +45,32 @@ public final class AthenaWorld extends AbstractWorld {
     @Override
     protected void loadWorld(TiledMap worldMap, float worldScale) {
         for (FarmingAllotment allotment : this.allotments) allotment.loadAllotment(asset);
-        this.farmManager = new FarmAllotmentManager(allotments, thePlayer, ui);
+        this.farmManager = new FarmAllotmentManager(allotments, thePlayer, gui);
 
         Gdx.app.log(ATHENA, "Finished loading World: Athena");
     }
 
     @Override
-    public void handleInteractionKeyPressed() {
+    protected void handleInteractionKeyPressed() {
         farmManager.interact();
 
-        for (Shop shop : shops) {
-            shop.interact(thePlayer, ui);
-        }
         final EntityInteractable interactable = getClosestEntity();
         if (interactable != null && !interactable.isSpeakingTo()) {
             interactable.setSpeakingTo(true);
             thePlayer.setRotation(interactable.getSpeakingRotation());
-            ui.showDialog(interactable, interactable.getDialogSection(), interactable.getDisplay());
+
+            // show dialog
+            gui.getDialog().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
+            gui.getDialog().show();
 
             this.entityInteractingWith = interactable;
         }
     }
 
     @Override
-    public GameWorldInterface getUi() {
-        return ui;
-    }
-
-    @Override
     public void resize(int width, int height) {
         renderer.resize(width, height);
-        ui.resize(width, height);
-    }
-
-    @Override
-    public void pause() {
-        ui.pause();
+        gui.resize(width, height);
     }
 
     @Override
@@ -94,7 +81,7 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     public void renderUi() {
-        ui.render();
+        gui.render();
     }
 
     @Override
@@ -106,14 +93,14 @@ public final class AthenaWorld extends AbstractWorld {
     }
 
     private void updateDialogState() {
-        if (ui.isShowingDialog()) {
+        if (gui.getDialog().isShowing()) {
             if (entityInteractingWith == null
                     || !entityInteractingWith.isSpeakingTo()
                     || !entityInteractingWith.isSpeakable()) {
                 if (entityInteractingWith != null) entityInteractingWith.setSpeakingTo(false);
 
                 entityInteractingWith = null;
-                ui.hideDialog();
+                gui.getDialog().hide();
             }
         }
     }
