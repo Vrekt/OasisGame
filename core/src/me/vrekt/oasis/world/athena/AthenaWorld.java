@@ -1,7 +1,9 @@
 package me.vrekt.oasis.world.athena;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
@@ -69,6 +71,10 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     public void resize(int width, int height) {
+        this.fbo = new FrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+        this.fboTexture = null;
+        this.hasFbo = false;
+
         renderer.resize(width, height);
         gui.resize(width, height);
     }

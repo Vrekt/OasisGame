@@ -4,6 +4,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
@@ -79,8 +80,10 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     protected Runnable worldLoadedCallback;
     protected EntityInteractable entityInteractingWith;
 
-    protected final FrameBuffer fbo;
-    protected boolean paused, fboSet;
+    // pause state
+    protected FrameBuffer fbo;
+    protected TextureRegion fboTexture;
+    protected boolean paused, hasFbo;
 
     public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
@@ -90,6 +93,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         this.asset = asset;
         this.multiplexer.addProcessor(this);
         this.fbo = new FrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+
         setPlayersCollection(networkPlayers);
     }
 
@@ -351,11 +355,43 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
     @Override
     public void render(float delta) {
+        if (paused && !hasFbo) fbo.begin();
         Gdx.gl.glClearColor(160 / 255f, 160 / 255f, 160 / 255f, 170 / 255f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        renderer.getViewport().apply();
+        if (paused && !hasFbo) {
+            // capture fbo.
+            renderInternal(delta);
+            hasFbo = true;
+        } else if (paused) {
+            // draw fbo.
+            gui.getStage().getViewport().apply();
+            batch.setProjectionMatrix(gui.getStage().getCamera().combined);
+            batch.begin();
 
+            // TODO: Fix FBO mess up when resizing.
+            if (fboTexture == null) {
+                fboTexture = new TextureRegion(fbo.getColorBufferTexture());
+                fboTexture.flip(false, true);
+            } else if (fboTexture.getTexture() == null) {
+                fboTexture.setTexture(fbo.getColorBufferTexture());
+            }
+
+            // draw FBO
+            batch.draw(fboTexture, 0, 0);
+        } else {
+            if (fboTexture != null) fboTexture.setTexture(null);
+            renderer.getViewport().apply();
+            // no pause state, render normally.
+            renderInternal(delta);
+        }
+
+        // end
+        if (paused && hasFbo) fbo.end();
+        if (paused && batch.isDrawing()) batch.end();
+    }
+
+    private void renderInternal(float delta) {
         update(delta);
         renderWorld(batch, delta);
         thePlayer.render(batch, delta);
@@ -457,11 +493,13 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
     @Override
     public void hide() {
-
+        Logging.info(WORLD, "Hiding world...");
     }
 
     @Override
     public void dispose() {
+        fbo.dispose();
+        fboTexture = null;
         super.dispose();
     }
 }
