@@ -61,16 +61,19 @@ public final class CollisionShapeCreator {
      *
      * @param object the object
      * @param scale  the scale
+     * @param ds     if should scale
      * @return the shape
      */
-    public static PolygonShape createPolygonShape(RectangleMapObject object, float scale) {
+    public static PolygonShape createPolygonShape(RectangleMapObject object, float scale, boolean ds) {
         final PolygonShape shape = new PolygonShape();
         final Rectangle rectangle = object.getRectangle();
 
-        rectangle.x *= scale;
-        rectangle.y *= scale;
-        rectangle.width *= scale;
-        rectangle.height *= scale;
+        if (ds) {
+            rectangle.x *= scale;
+            rectangle.y *= scale;
+            rectangle.width *= scale;
+            rectangle.height *= scale;
+        }
 
         final Vector2 center = new Vector2(rectangle.x + rectangle.width / 2f, rectangle.y + rectangle.height / 2f);
         shape.setAsBox(rectangle.width / 2, rectangle.height / 2, center, 0.0f);

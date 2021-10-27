@@ -1,6 +1,5 @@
 package me.vrekt.oasis.quest;
 
-import me.vrekt.oasis.quest.quests.beginner.MaviasRingfruitQuest;
 import me.vrekt.oasis.quest.type.QuestType;
 
 import java.util.HashMap;
@@ -14,7 +13,7 @@ public final class QuestManager {
     private final Map<QuestType, Quest> quests = new HashMap<>();
 
     public QuestManager() {
-        registerQuest(new MaviasRingfruitQuest());
+
     }
 
     private void registerQuest(Quest quest) {

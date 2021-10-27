@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -14,38 +13,20 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public final class Asset {
 
-    public static final String CHARACTER = "character/character.atlas";
-
-    public static final String INTERACTIONS = "ui/interaction/Interactions.atlas";
-    public static final String BOOK = "ui/book/Book.atlas";
-    public static final String RAKE = "farm/animations/rake.png";
+    public static final String ASSETS = "items/Assets.atlas";
     public static final String PARTICLE_ATLAS = "farm/effects/farm_particle.atlas";
     public static final String PARTICLE_FILE = "farm/effects/farm_particle.p";
-    public static final String PLANTS = "farm/plants/Plants.atlas";
-    public static final String SEED_ITEMS = "items/seeds/Seeds.atlas";
-    public static final String ITEMS = "items/Items.atlas";
-    public static final String MAVIA_NPC = "npc/mavia/Mavia.atlas";
-    public static final String SHOP = "ui/shop/Shop.atlas";
-
     public static final String ATHENA_WORLD = "worlds/athena/Athena.tmx";
 
     private final AssetManager assetManager = new AssetManager();
 
-    private BitmapFont romulusBig, romulusSmall;
+    private BitmapFont romulusBig, romulusSmall, romulusClone;
 
     /**
      * Load general assets needed by each world.
      */
     public void load() {
-        assetManager.load(CHARACTER, TextureAtlas.class);
-        assetManager.load(INTERACTIONS, TextureAtlas.class);
-        assetManager.load(BOOK, TextureAtlas.class);
-        assetManager.load(RAKE, Texture.class);
-        assetManager.load(PLANTS, TextureAtlas.class);
-        assetManager.load(SEED_ITEMS, TextureAtlas.class);
-        assetManager.load(ITEMS, TextureAtlas.class);
-        assetManager.load(MAVIA_NPC, TextureAtlas.class);
-        assetManager.load(SHOP, TextureAtlas.class);
+        assetManager.load(ASSETS, TextureAtlas.class);
 
         // particle effect handler
         assetManager.setLoader(ParticleEffect.class, new ParticleEffectLoader(new InternalFileHandleResolver()));
@@ -74,13 +55,18 @@ public final class Asset {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         // big text for context or titles
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.06);
         romulusBig = generator.generateFont(parameter);
 
         // generate a smaller text for sub title information
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
         romulusSmall = generator.generateFont(parameter);
+        romulusClone = generator.generateFont(parameter);
         generator.dispose();
+    }
+
+    public TextureAtlas getAssets() {
+        return assetManager.get(ASSETS);
     }
 
     public AssetManager getAssetManager() {
@@ -88,10 +74,6 @@ public final class Asset {
     }
 
     public <T> T get(String name) {
-        return assetManager.get(name);
-    }
-
-    public Texture getTexture(String name) {
         return assetManager.get(name);
     }
 
@@ -105,5 +87,9 @@ public final class Asset {
 
     public BitmapFont getRomulusSmall() {
         return romulusSmall;
+    }
+
+    public BitmapFont getRomulusClone() {
+        return romulusClone;
     }
 }

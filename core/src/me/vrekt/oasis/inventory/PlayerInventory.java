@@ -6,7 +6,6 @@ import me.vrekt.oasis.item.ItemManager;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 /**
  * Players inventory
@@ -22,6 +21,12 @@ public final class PlayerInventory {
     private final Map<Integer, Item> slotItems = new HashMap<>();
     private final Map<Integer, Rectangle> itemLocations = new HashMap<>();
 
+    // current slot player has equipped
+    private int equippedSlot = 0;
+
+    // if the inventory GUI should be updated.
+    private boolean invalid;
+
     public PlayerInventory(ItemManager manager, int size) {
         this.size = size;
         this.manager = manager;
@@ -33,37 +38,39 @@ public final class PlayerInventory {
         }
     }
 
+    public boolean isInvalid() {
+        return invalid;
+    }
+
+    public void setInvalid(boolean invalid) {
+        this.invalid = invalid;
+    }
+
     // add an item to any available slot.
-    public void addItem(Item item) {
+    public void giveItem(Item item) {
         for (int i = 0; i < size; i++) {
             if (slotItems.get(i) == null) {
                 slotItems.put(i, manager.createNewItem(item));
                 break;
             }
         }
-    }
 
-    public void setItemLocation(int i, Rectangle rectangle) {
-        itemLocations.get(i).set(rectangle);
+        invalid = true;
     }
 
     public boolean hasItemAt(int i) {
         return slotItems.get(i) != null;
     }
 
-    public void getItemAt(int i, BiConsumer<Item, Rectangle> supplier) {
-        supplier.accept(slotItems.get(i), itemLocations.get(i));
-    }
-
-    public Map<Integer, Item> getSlotItems() {
-        return slotItems;
-    }
-
-    public Map<Integer, Rectangle> getItemLocations() {
-        return itemLocations;
+    public Item getItemAt(int index) {
+        return slotItems.get(index);
     }
 
     public int getSize() {
         return size;
+    }
+
+    public int getEquippedSlot() {
+        return equippedSlot;
     }
 }

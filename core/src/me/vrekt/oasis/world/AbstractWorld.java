@@ -1,6 +1,9 @@
 package me.vrekt.oasis.world;
 
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,7 +17,6 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import gdx.lunar.entity.player.LunarNetworkEntityPlayer;
@@ -26,16 +28,15 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.settings.GameSettings;
-import me.vrekt.oasis.ui.world.WorldGui;
+import me.vrekt.oasis.ui.gui.GameGui;
+import me.vrekt.oasis.utilities.array.EntityComparableArray;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
-import me.vrekt.oasis.world.farm.FarmingAllotment;
+import me.vrekt.oasis.world.obj.InteractableWorldObject;
+import me.vrekt.oasis.world.region.WorldRegion;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
-import me.vrekt.oasis.world.shop.Shop;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -48,29 +49,30 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     /**
      * Static body
      */
-    private static final BodyDef STATIC_BODY = new BodyDef();
+    public static final BodyDef STATIC_BODY = new BodyDef();
 
     static {
         STATIC_BODY.type = BodyDef.BodyType.StaticBody;
     }
 
-    protected final Vector3 unproject = new Vector3(0, 0, 0);
     protected final InputMultiplexer multiplexer = new InputMultiplexer();
 
     protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
-    protected final Array<FarmingAllotment> allotments = new Array<>();
+    protected final Array<WorldRegion> regions = new Array<>();
 
-    // all NPCs
-    protected final Map<String, EntityInteractable> entities = new HashMap<>();
-    // entities close to the player
-    protected final Map<EntityInteractable, Float> entitiesInVicinity = new ConcurrentHashMap<>();
+    // world objects sorted by the entity the object could be related to.
+    protected final ConcurrentMap<String, InteractableWorldObject> objectsByRelation = new ConcurrentHashMap<>();
+    protected final Array<InteractableWorldObject> objects = new Array<>();
 
-    protected final Array<Shop> shops = new Array<>();
+    protected final Array<EntityInteractable> entities = new Array<>();
+    protected final EntityComparableArray entitiesInVicinity = new EntityComparableArray();
+
+    protected WorldRegion regionIn;
 
     protected final Asset asset;
     protected final Vector2 spawn = new Vector2(0, 0);
 
-    protected WorldGui gui;
+    protected GameGui gui;
 
     protected WorldRenderer renderer;
     protected Player thePlayer;
@@ -101,6 +103,18 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         return thePlayer;
     }
 
+    public GameGui getGui() {
+        return gui;
+    }
+
+    public Array<InteractableWorldObject> getObjects() {
+        return objects;
+    }
+
+    public InteractableWorldObject getObjectByRelation(String relation) {
+        return objectsByRelation.get(relation);
+    }
+
     public void setWorldLoadedCallback(Runnable action) {
         this.worldLoadedCallback = action;
     }
@@ -129,6 +143,13 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     }
 
     /**
+     * Player is clicking
+     */
+    protected void clicked() {
+
+    }
+
+    /**
      * Render UI
      */
     public abstract void renderUi();
@@ -150,9 +171,9 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         this.worldScale = worldScale;
         this.renderer = new WorldRenderer(worldMap, worldScale, spawn, batch, thePlayer);
 
-        loadWorldAllotments(worldMap, worldScale);
         loadWorldNPC(game, worldMap, worldScale);
-        loadWorldShops(worldMap, worldScale);
+        loadWorldRegions(worldMap, worldScale);
+        loadWorldObjects(worldMap, worldScale);
         loadWorld(worldMap, worldScale);
 
         // initialize player in this world.
@@ -233,7 +254,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
                 final PolygonShape shape = CollisionShapeCreator.createPolygonShape((PolygonMapObject) object, worldScale);
                 createStaticBody(shape);
             } else if (object instanceof RectangleMapObject) {
-                final PolygonShape shape = CollisionShapeCreator.createPolygonShape((RectangleMapObject) object, worldScale);
+                final PolygonShape shape = CollisionShapeCreator.createPolygonShape((RectangleMapObject) object, worldScale, true);
                 createStaticBody(shape);
             } else {
                 Logging.warn(WORLD, "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
@@ -243,17 +264,6 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         }
 
         Logging.info(WORLD, "Loaded a total of " + loaded + " collision objects.");
-    }
-
-    /**
-     * Load all farm allotments within this world
-     *
-     * @param worldMap   map
-     * @param worldScale scale
-     */
-    protected void loadWorldAllotments(TiledMap worldMap, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Allotments", (o, rectangle) -> this.allotments.add(new FarmingAllotment(rectangle)));
-        if (result) Logging.info(WORLD, "Loaded " + (allotments.size) + " allotments.");
     }
 
     /**
@@ -270,20 +280,32 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             final EntityInteractable entity = type.create(rectangle.x, rectangle.y, game, this);
             entity.load(asset);
 
-            this.entities.put(object.getName(), entity);
+            this.entities.add(entity);
         });
-        if (result) Logging.info(WORLD, "Loaded " + (entities.size()) + " NPCs.");
+        if (result) Logging.info(WORLD, "Loaded " + (entities.size) + " NPCs.");
     }
 
     /**
-     * Load shops within this world
+     * Load world regions
      *
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void loadWorldShops(TiledMap worldMap, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Shop", (o, rectangle) -> this.shops.add(new Shop(rectangle)));
-        if (result) Logging.info(WORLD, "Loaded " + (this.shops.size) + " Shops.");
+    protected void loadWorldRegions(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Region", (o, rectangle) -> this.regions.add(new WorldRegion(o.getName(), rectangle)));
+        if (result) Logging.info(WORLD, "Loaded " + (this.regions.size) + " Regions.");
+    }
+
+    protected void loadWorldObjects(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Objects", (o, rectangle) -> {
+            final InteractableWorldObject object = new InteractableWorldObject(o, rectangle, asset, world, worldScale);
+            if (object.getRelatedTo() != null) {
+                objectsByRelation.put(object.getRelatedTo(), object);
+            }
+
+            objects.add(object);
+        });
+        if (result) Logging.info(WORLD, "Loaded " + (this.objects.size) + " Objects.");
     }
 
     /**
@@ -296,17 +318,23 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         shape.dispose();
     }
 
+    /**
+     * Retrieve the closest entity to the player
+     * Minimum distance if 40.0f;
+     *
+     * @return the entity, or {@code null} if not found.
+     */
     public EntityInteractable getClosestEntity() {
-        float min = 10f;
-        EntityInteractable entity = null;
-        for (Map.Entry<EntityInteractable, Float> e : entitiesInVicinity.entrySet()) {
-            if (e.getValue() <= min) {
-                min = e.getValue();
-                entity = e.getKey();
+        float min = 40.0f;
+
+        EntityInteractable closest = null;
+        for (EntityInteractable entity : entitiesInVicinity) {
+            if (entity.getDistance() <= min) {
+                min = entity.getDistance();
+                closest = entity;
             }
         }
-
-        return entity;
+        return closest;
     }
 
     @Override
@@ -322,18 +350,42 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         thePlayer.update(d);
         thePlayer.interpolate(0.5f);
 
-        for (EntityInteractable entity : entities.values()) {
-            entity.update(thePlayer, d);
+        // update all entities within the world, that the player can see.
+        for (EntityInteractable entity : entities) {
+            final double distance = entity.getDistance();
+            if (distance <= GameSettings.ENTITY_UPDATE_DISTANCE) {
+                entity.update(thePlayer, d);
 
-            final float dstTo = entity.dst2(thePlayer);
-            if (dstTo <= 10f) {
-                entitiesInVicinity.put(entity, dstTo);
+                if (entity.isInView()) {
+                    // is in view, so do rendering updates.
+                    entity.setDrawDialogAnimationTile(entity.isSpeakable());
+                } else {
+                    entity.setDrawDialogAnimationTile(false);
+                }
+
+                if (!entitiesInVicinity.contains(entity))
+                    entitiesInVicinity.add(entity);
             } else {
-                entitiesInVicinity.remove(entity);
+                // entity is not near us, remove them and invalidate their state.
+                entity.setDrawDialogAnimationTile(false);
+                entity.setSpeakingTo(false);
+
+                if (entitiesInVicinity.contains(entity))
+                    entitiesInVicinity.removeValue(entity);
             }
         }
 
-        for (Shop shop : shops) shop.update(thePlayer);
+        // update world objects
+        final Array.ArrayIterator<InteractableWorldObject> iterator = objects.iterator();
+        while (iterator.hasNext()) {
+            final InteractableWorldObject object = iterator.next();
+            if (object.isFinished()) {
+                iterator.remove(); // remove from list
+                world.destroyBody(object.getBody()); // destroy collision
+                if (object.getRelatedTo() != null) objectsByRelation.remove(object.getRelatedTo());
+            }
+        }
+
     }
 
     @Override
@@ -349,8 +401,13 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             if (player.isInView(renderer.getCamera())) player.render(batch, delta);
 
         // entities
-        for (EntityInteractable entity : entities.values())
+        for (EntityInteractable entity : entities)
             if (entity.isInView(renderer.getCamera())) entity.render(batch, scale);
+
+        // objects
+        for (InteractableWorldObject object : objects) {
+            if (object.isRender()) object.render(batch);
+        }
     }
 
     @Override
@@ -365,8 +422,8 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             hasFbo = true;
         } else if (paused) {
             // draw fbo.
-            gui.getStage().getViewport().apply();
-            batch.setProjectionMatrix(gui.getStage().getCamera().combined);
+            gui.apply();
+            batch.setProjectionMatrix(gui.getCamera().combined);
             batch.begin();
 
             // TODO: Fix FBO mess up when resizing.
@@ -405,28 +462,15 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         if (keycode == GameSettings.INTERACTION_KEY) {
             handleInteractionKeyPressed();
             return true;
-        } else if (keycode == GameSettings.PAUSE_GAME_KEY && !gui.getPause().isShowing()) {
-            pause();
+        } else if (keycode == GameSettings.PAUSE_GAME_KEY) {
+            //   pause();
             return true;
-        } else if (keycode == GameSettings.PAUSE_GAME_KEY && gui.getPause().isShowing()) {
-            resume();
+        } else if (keycode == GameSettings.PAUSE_GAME_KEY) {
+            //    resume();
             return true;
         } else if (keycode == GameSettings.BOOK_KEY) {
-            final boolean render = !gui.getBook().isShowing();
-            if (render) {
-                gui.getBook().show();
-            } else {
-                gui.getBook().hide();
-            }
 
-            if (render) {
-                thePlayer.disableInputs(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, GameSettings.INTERACTION_KEY);
-                gui.getInteractions().hide();
-            } else {
-                thePlayer.enableInputs(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, GameSettings.INTERACTION_KEY);
-            }
         }
-
         return false;
     }
 
@@ -442,12 +486,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (pointer == Input.Buttons.LEFT) {
-            unproject.set(screenX, screenY, 0.0f);
-            unproject.set(gui.getStage().getCamera().unproject(unproject));
-            gui.click(unproject.x, unproject.y);
-            return true;
-        }
+        clicked();
         return false;
     }
 
@@ -480,14 +519,12 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     @Override
     public void pause() {
         this.paused = true;
-        gui.getPause().show();
         Logging.info(WORLD, "Pausing world...");
     }
 
     @Override
     public void resume() {
         this.paused = false;
-        gui.getPause().hide();
         Logging.info(WORLD, "Resuming world...");
     }
 

@@ -98,13 +98,9 @@ public final class WorldLoadingScreen extends MenuUserInterface {
         }
 
         if (game.asset.getAssetManager().update() && !assetLoaded) {
-            // assets done, load default world.
-            while (!itemsLoaded) {
-                game.items.load(game.asset);
-                this.itemsLoaded = true;
-            }
 
-            game.thePlayer.initializePlayerRendererAndLoad(game.asset.getAtlas(Asset.CHARACTER), true);
+            game.thePlayer.loadAnimations();
+            game.thePlayer.initializePlayerRendererAndLoad(game.asset.getAssets(), true);
             game.worldManager = new WorldManager();
             final World boxWorld = new World(Vector2.Zero, true);
             boxWorld.setContactListener(new PlayerCollisionListener());
@@ -119,7 +115,7 @@ public final class WorldLoadingScreen extends MenuUserInterface {
         }
 
         // screen is ready
-        if (assetLoaded && connected && itemsLoaded && worldLoaded) {
+        if (assetLoaded && connected && worldLoaded) {
             game.thePlayer.getConnection().sendWorldLoaded();
             game.setScreen((AthenaWorld) game.thePlayer.getWorldIn());
         }

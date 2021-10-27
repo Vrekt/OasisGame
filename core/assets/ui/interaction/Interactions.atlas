@@ -4,23 +4,58 @@ size: 512, 256
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
-interaction
+arrow
+  rotate: false
+  xy: 462, 193
+  size: 14, 9
+  orig: 14, 9
+  offset: 0, 0
+  index: -1
+dialog
+  rotate: false
+  xy: 447, 190
+  size: 13, 12
+  orig: 13, 12
+  offset: 0, 0
+  index: 3
+dialog
   rotate: false
   xy: 2, 2
+  size: 13, 12
+  orig: 13, 12
+  offset: 0, 0
+  index: 2
+dialog
+  rotate: false
+  xy: 132, 26
+  size: 13, 12
+  orig: 13, 12
+  offset: 0, 0
+  index: 1
+interaction
+  rotate: false
+  xy: 2, 40
   size: 356, 32
   orig: 356, 32
   offset: 0, 0
   index: -1
 interaction_dialog
   rotate: false
-  xy: 2, 36
+  xy: 2, 74
   size: 356, 128
   orig: 356, 128
   offset: 0, 0
   index: -1
+interaction_hint
+  rotate: false
+  xy: 2, 16
+  size: 128, 22
+  orig: 128, 22
+  offset: 0, 0
+  index: 2
 plant_cure_recipe
   rotate: false
-  xy: 360, 7
+  xy: 360, 45
   size: 85, 157
   orig: 85, 157
   offset: 0, 0

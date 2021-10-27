@@ -21,6 +21,6 @@ public final class GameSettings {
     public static final boolean PAUSE_IN_BACKGROUND = true;
 
     // entities within this range will be constantly updated
-    public static int ENTITY_UPDATE_DISTANCE = 50;
+    public static int ENTITY_UPDATE_DISTANCE = 100;
 
 }

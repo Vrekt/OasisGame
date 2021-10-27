@@ -1,43 +1,91 @@
 package me.vrekt.oasis.ui.world;
 
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.ui.gui.GameGui;
 
-public abstract class Gui extends InputAdapter implements Disposable {
+/**
+ * Represents a basic gui element.
+ */
+public abstract class Gui {
 
-    protected final WorldGui gui;
+    protected final GameGui gui;
+    protected final Asset asset;
+    protected final Skin skin;
 
-    public Gui(WorldGui gui) {
+    protected final GlyphLayout layout;
+    protected final BitmapFont romulusSmall, romulusBig;
+
+    protected boolean isShowing;
+
+    public Gui(GameGui gui) {
         this.gui = gui;
+
+        this.asset = gui.getAsset();
+        this.skin = gui.getSkin();
+        this.layout = gui.getLayout();
+        this.romulusSmall = gui.getRomulusSmall();
+        this.romulusBig = gui.getRomulusBig();
     }
 
-    public void show(String text) {
-
-    }
-
-    public void show() {
-
-    }
-
-    public void clicked(float x, float y) {
-
-    }
-
-    public abstract void render(BitmapFont font, BitmapFont big, Batch batch, GlyphLayout layout);
-
-    public void resize() {
+    public void showText(String text) {
 
     }
 
-    public abstract void hide();
+    /**
+     * Render this GUI element
+     *
+     * @param batch the ui batch
+     */
+    public void render(Batch batch) {
 
-    public abstract boolean isShowing();
+    }
 
-    @Override
-    public void dispose() {
+    /**
+     * Update this GUI element
+     */
+    public void update() {
 
+    }
+
+    /**
+     * Resize the element
+     */
+    public void resize(int width, int height) {
+
+    }
+
+    /**
+     * Show this GUI element
+     */
+    public void showGui() {
+        isShowing = true;
+    }
+
+    /**
+     * Hide this GUI element
+     */
+    public void hideGui() {
+        isShowing = false;
+    }
+
+    /**
+     * @return if this element is visible.
+     */
+    public boolean isVisible() {
+        return isShowing;
+    }
+
+    /**
+     * Handle touch input
+     *
+     * @param x X
+     * @param y Y
+     */
+    public boolean handleTouch(float x, float y) {
+        return false;
     }
 }

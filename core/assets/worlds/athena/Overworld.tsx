@@ -24,6 +24,27 @@
    <frame tileid="125" duration="325"/>
   </animation>
  </tile>
+ <tile id="377">
+  <animation>
+   <frame tileid="377" duration="350"/>
+   <frame tileid="417" duration="350"/>
+   <frame tileid="458" duration="350"/>
+  </animation>
+ </tile>
+ <tile id="378">
+  <animation>
+   <frame tileid="378" duration="350"/>
+   <frame tileid="418" duration="350"/>
+   <frame tileid="459" duration="350"/>
+  </animation>
+ </tile>
+ <tile id="379">
+  <animation>
+   <frame tileid="379" duration="350"/>
+   <frame tileid="419" duration="350"/>
+   <frame tileid="460" duration="350"/>
+  </animation>
+ </tile>
  <tile id="382">
   <animation>
    <frame tileid="382" duration="300"/>

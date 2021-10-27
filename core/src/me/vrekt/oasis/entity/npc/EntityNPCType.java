@@ -1,7 +1,7 @@
 package me.vrekt.oasis.entity.npc;
 
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.entity.npc.mavia.EntityMavia;
+import me.vrekt.oasis.entity.npc.ino.EntityIno;
 import me.vrekt.oasis.world.AbstractWorld;
 
 /**
@@ -9,10 +9,10 @@ import me.vrekt.oasis.world.AbstractWorld;
  */
 public enum EntityNPCType {
 
-    MAVIA {
+    INO {
         @Override
         public <T extends EntityInteractable> T create(float x, float y, OasisGame game, AbstractWorld worldIn) {
-            return (T) new EntityMavia(x, y, game, worldIn);
+            return (T) new EntityIno(x, y, game, worldIn);
         }
     };
 

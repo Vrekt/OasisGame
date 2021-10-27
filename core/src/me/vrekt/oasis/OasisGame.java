@@ -16,7 +16,7 @@ import me.vrekt.oasis.world.management.WorldManager;
 
 public final class OasisGame extends Game implements Taggable {
 
-    public final ItemManager items = new ItemManager();
+    public ItemManager items;
     public SpriteBatch batch;
     public InterfaceAssets interfaceAssets;
     public WorldManager worldManager;
@@ -33,6 +33,8 @@ public final class OasisGame extends Game implements Taggable {
         this.batch = new SpriteBatch();
         this.asset = new Asset();
 
+        items = new ItemManager(asset);
+
         setScreen(new WorldLoadingScreen(this));
         Logging.info(GAME, "Ready");
     }
@@ -41,7 +43,6 @@ public final class OasisGame extends Game implements Taggable {
     public void dispose() {
         batch.dispose();
         interfaceAssets.dispose();
-        items.dispose();
         worldManager.dispose();
         thePlayer.dispose();
         server.dispose();
