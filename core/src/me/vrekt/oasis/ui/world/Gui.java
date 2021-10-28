@@ -1,6 +1,5 @@
 package me.vrekt.oasis.ui.world;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -29,19 +28,6 @@ public abstract class Gui {
         this.layout = gui.getLayout();
         this.romulusSmall = gui.getRomulusSmall();
         this.romulusBig = gui.getRomulusBig();
-    }
-
-    public void showText(String text) {
-
-    }
-
-    /**
-     * Render this GUI element
-     *
-     * @param batch the ui batch
-     */
-    public void render(Batch batch) {
-
     }
 
     /**
@@ -77,15 +63,5 @@ public abstract class Gui {
      */
     public boolean isVisible() {
         return isShowing;
-    }
-
-    /**
-     * Handle touch input
-     *
-     * @param x X
-     * @param y Y
-     */
-    public boolean handleTouch(float x, float y) {
-        return false;
     }
 }

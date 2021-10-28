@@ -35,7 +35,9 @@ public final class AthenaWorld extends AbstractWorld {
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
+
         this.gui = new GameGui(game, game.asset, this, multiplexer);
+        multiplexer.addProcessor(player.getInventory());
 
         setHandlePhysics(true);
         setUpdateNetworkPlayers(true);
@@ -75,8 +77,8 @@ public final class AthenaWorld extends AbstractWorld {
             interactable.setSpeakingTo(true);
             thePlayer.setRotation(interactable.getSpeakingRotation());
 
-            gui.getDialogGui().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
-            gui.getDialogGui().showGui();
+            gui.getDialog().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
+            gui.getDialog().showGui();
 
             this.entityInteractingWith = interactable;
         }
@@ -84,12 +86,13 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     protected void clicked() {
-        if (!gui.getDialogGui().isVisible()) {
+        if (!gui.getDialog().isVisible()) {
 
             for (InteractableWorldObject object : objects) {
                 if (object.isNear(thePlayer)
                         && object.isBreakable()
-                        && !thePlayer.isPickaxeLocked()) {
+                        && !thePlayer.isPickaxeLocked()
+                        && thePlayer.getInventory().getEquippedItem() instanceof CommonPickaxeItem) {
                     thePlayer.getAnimations().tickAnimation(PlayerAnimations.MINING, true, 1f);
                     object.interact();
 
@@ -170,12 +173,12 @@ public final class AthenaWorld extends AbstractWorld {
     }
 
     private void updateDialogState() {
-        if (gui.getDialogGui().isVisible()
+        if (gui.getDialog().isVisible()
                 && entityInteractingWith != null
                 && entityInteractingWith.isSpeakingTo()
                 && !entityInteractingWith.isSpeakable()) {
 
-            gui.getDialogGui().hideGui();
+            gui.getDialog().hideGui();
             entityInteractingWith.setSpeakingTo(false);
             entityInteractingWith = null;
         }

@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class NotificationGui extends Gui {
 
+    public static final int ID = 1;
+
     private final Map<Table, Pair<Float, Long>> notifications = new ConcurrentHashMap<>();
     private final Table rootTable = new Table();
 

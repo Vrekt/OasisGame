@@ -17,6 +17,8 @@ import me.vrekt.oasis.ui.world.Gui;
  */
 public final class PlayerInventoryHudGui extends Gui {
 
+    public static final int ID = 4;
+
     private final Table root;
 
     private final Array<InventoryImageSlot> slots = new Array<>();

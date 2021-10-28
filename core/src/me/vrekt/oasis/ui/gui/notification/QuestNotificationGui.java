@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class QuestNotificationGui extends Gui {
 
+    public static final int ID = 5;
+
     private final Map<Table, Pair<Float, Long>> notifications = new ConcurrentHashMap<>();
     private final Table rootTable = new Table();
 
@@ -39,8 +41,8 @@ public final class QuestNotificationGui extends Gui {
 
         table.add(new Label("Quest Complete: " + name, skin, "small", Color.BLACK))
                 .center()
-                .padLeft(6f)
-                .padRight(6f)
+                .padLeft(16f)
+                .padRight(16f)
                 .padTop(6f);
 
         table.row();

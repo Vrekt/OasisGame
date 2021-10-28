@@ -1,7 +1,6 @@
 package me.vrekt.oasis.ui.gui.dialog;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -12,10 +11,13 @@ import me.vrekt.oasis.entity.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.ui.gui.GameGui;
 import me.vrekt.oasis.ui.gui.elements.LabeledGuiButton;
+import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
 import me.vrekt.oasis.ui.world.Gui;
 import org.apache.commons.text.WordUtils;
 
 public final class DialogGui extends Gui {
+
+    public static final int ID = 2;
 
     private final Table rootTable;
 
@@ -119,26 +121,16 @@ public final class DialogGui extends Gui {
     }
 
     @Override
-    public void render(Batch batch) {
-
-    }
-
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
     public void showGui() {
         rootTable.setVisible(true);
-        gui.getInventoryHudGui().hideGui();
+        gui.hideGui(PlayerInventoryHudGui.ID);
         isShowing = true;
     }
 
     @Override
     public void hideGui() {
         rootTable.setVisible(false);
-        gui.getInventoryHudGui().showGui();
+        gui.showGui(PlayerInventoryHudGui.ID);
         isShowing = false;
     }
 

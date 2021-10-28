@@ -1,17 +1,17 @@
 package me.vrekt.oasis.entity.npc.ino;
 
+import com.badlogic.gdx.Input;
 import gdx.lunar.entity.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.quest.type.QuestRewards;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 
 public final class EntityIno extends EntityInteractable {
 
     private boolean hasPlayerClearedRocks, hasPushedNotification;
-    private boolean hasAwardedBeginnerQuest;
 
     public EntityIno(float x, float y, OasisGame game, AbstractWorld worldIn) {
         super("Ino", x, y, game, worldIn);
@@ -33,22 +33,12 @@ public final class EntityIno extends EntityInteractable {
             if (worldIn.getPlayer().isPickaxeLocked()) worldIn.getPlayer().setPickaxeLocked(false);
 
             if (!hasPlayerClearedRocks) {
-                if (!hasPushedNotification) {
-                    // push a notification to have the player equip their pickaxe.
-                    this.hasPushedNotification = true;
-                    worldIn.getGui()
-                            .getNotificationGui()
-                            .sendPlayerNotification("Press 1 to equip your pickaxe", 4.0f);
-                }
-
+                // player hasn't cleared section yet, so reverse dialog
                 dialogSection = dialog.sections.get("ino_option_2");
             } else {
-                if (!hasAwardedBeginnerQuest) {
-                    hasAwardedBeginnerQuest = true;
-
-                    worldIn.getPlayer().givePlayerQuestReward(QuestRewards.ETHE, 1000);
-                    worldIn.getPlayer().givePlayerQuestReward(QuestRewards.COMMON_XP_BOOK, 10);
-                    worldIn.getPlayer().award("Hunnewell");
+                // award the player for their first beginner quest.
+                if (!questManager.isQuestCompleted(QuestType.HUNNEWELL)) {
+                    questManager.getQuest(QuestType.HUNNEWELL).awardPlayer(game.thePlayer);
                 }
 
                 dialogSection = dialog.sections.get("ino_option_10");
@@ -62,16 +52,28 @@ public final class EntityIno extends EntityInteractable {
 
     @Override
     public void update(Player player, float delta) {
-        this.speakable = player.getPosition().dst2(position.x, position.y) <= 35f;
+        this.speakable = distance <= 35f;
 
-        // check if rocks were cleared for first part of dialog
-        if (worldIn.getObjectByRelation("ino") == null && !hasPlayerClearedRocks) {
-            // rocks were clear, advance dialog.
-            setSpeakingTo(false);
-            this.dialogSection = dialog.sections.get("ino_option_3");
-            this.hasPlayerClearedRocks = true;
+        if (speakingTo) {
+            player.disableInputs(Input.Keys.A, Input.Keys.D, Input.Keys.W, Input.Keys.S, Input.Keys.E);
+        } else if (!player.hasDisabledInputs()) {
+            player.enableInputs(Input.Keys.A, Input.Keys.D, Input.Keys.W, Input.Keys.S, Input.Keys.E);
         }
 
+        // check if rocks were cleared for first part of dialog
+        if (worldIn.getObjectByRelation("ino") == null
+                && !hasPlayerClearedRocks) {
+            // rocks were clear, advance dialog.
+            setSpeakingTo(true);
+            this.dialogSection = dialog.sections.get("ino_option_3");
+            this.hasPlayerClearedRocks = true;
+
+            // automatically talk once rocks have been cleared.
+            worldIn.getGui().getDialog().setDialogToRender(this, dialogSection, display);
+            worldIn.getGui().getDialog().showGui();
+        }
+
+        super.update(player, delta);
     }
 
     @Override

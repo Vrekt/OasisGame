@@ -75,7 +75,7 @@ public final class Player extends LunarPlayer {
     }
 
     public void award(String questName) {
-        abstractWorldIn.getGui().getQuestNotificationGui().showQuestReward(questName, rewards);
+        abstractWorldIn.getGui().showQuestRewards(questName, rewards);
         this.rewards.clear();
     }
 
@@ -135,6 +135,10 @@ public final class Player extends LunarPlayer {
      */
     public void disableInputs(int... keys) {
         for (int key : keys) inputsDisabled.add(key);
+    }
+
+    public boolean hasDisabledInputs() {
+        return inputsDisabled.isEmpty();
     }
 
     /**

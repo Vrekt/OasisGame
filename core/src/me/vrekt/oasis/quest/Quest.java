@@ -1,7 +1,12 @@
 package me.vrekt.oasis.quest;
 
+import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.quests.QuestDifficulty;
+import me.vrekt.oasis.quest.type.QuestRewards;
 import me.vrekt.oasis.quest.type.QuestType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a base quest within the game
@@ -17,10 +22,24 @@ public abstract class Quest {
     // current quest information like steps or how to start.
     protected String questInformation;
 
+    protected Map<QuestRewards, Integer> rewards = new HashMap<>();
+
     public Quest(String name, QuestType type, QuestDifficulty difficulty) {
         this.name = name;
         this.type = type;
         this.difficulty = difficulty;
+    }
+
+    /**
+     * Award the player for completing this quest
+     *
+     * @param player the player
+     */
+    public void awardPlayer(Player player) {
+        rewards.forEach(player::givePlayerQuestReward);
+        player.award(name);
+
+        setCompleted(true);
     }
 
     public String getName() {

@@ -1,5 +1,6 @@
 package me.vrekt.oasis.quest;
 
+import me.vrekt.oasis.quest.quests.beginner.HunnewellQuest;
 import me.vrekt.oasis.quest.type.QuestType;
 
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public final class QuestManager {
     private final Map<QuestType, Quest> quests = new HashMap<>();
 
     public QuestManager() {
-
+        registerQuest(new HunnewellQuest());
     }
 
     private void registerQuest(Quest quest) {
@@ -22,6 +23,10 @@ public final class QuestManager {
 
     public Quest getQuest(QuestType type) {
         return quests.get(type);
+    }
+
+    public boolean isQuestCompleted(QuestType type) {
+        return quests.get(type).isCompleted();
     }
 
     public Map<QuestType, Quest> getQuests() {

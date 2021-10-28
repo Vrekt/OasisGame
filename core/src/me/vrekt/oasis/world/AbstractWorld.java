@@ -296,6 +296,12 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         if (result) Logging.info(WORLD, "Loaded " + (this.regions.size) + " Regions.");
     }
 
+    /**
+     * Load interactable objects within this world
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
     protected void loadWorldObjects(TiledMap worldMap, float worldScale) {
         final boolean result = loadMapObjects(worldMap, worldScale, "Objects", (o, rectangle) -> {
             final InteractableWorldObject object = new InteractableWorldObject(o, rectangle, asset, world, worldScale);
@@ -352,7 +358,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
         // update all entities within the world, that the player can see.
         for (EntityInteractable entity : entities) {
-            final double distance = entity.getDistance();
+            final double distance = entity.getDistance(thePlayer);
             if (distance <= GameSettings.ENTITY_UPDATE_DISTANCE) {
                 entity.update(thePlayer, d);
 

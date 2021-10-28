@@ -20,7 +20,7 @@ public final class Asset {
 
     private final AssetManager assetManager = new AssetManager();
 
-    private BitmapFont romulusBig, romulusSmall, romulusClone;
+    private BitmapFont romulusBig, romulusSmall;
 
     /**
      * Load general assets needed by each world.
@@ -61,7 +61,6 @@ public final class Asset {
         // generate a smaller text for sub title information
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
         romulusSmall = generator.generateFont(parameter);
-        romulusClone = generator.generateFont(parameter);
         generator.dispose();
     }
 
@@ -87,9 +86,5 @@ public final class Asset {
 
     public BitmapFont getRomulusSmall() {
         return romulusSmall;
-    }
-
-    public BitmapFont getRomulusClone() {
-        return romulusClone;
     }
 }

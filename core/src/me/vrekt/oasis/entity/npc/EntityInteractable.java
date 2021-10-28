@@ -14,6 +14,7 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.dialog.EntityDialog;
 import me.vrekt.oasis.entity.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.utilities.render.Viewable;
 import me.vrekt.oasis.world.AbstractWorld;
@@ -55,7 +56,9 @@ public abstract class EntityInteractable implements Disposable, Viewable {
     // display face
     protected TextureRegion display;
     protected boolean drawDialogAnimationTile, inView;
-    protected float distance;
+    protected float distance = 100f;
+
+    protected final QuestManager questManager;
 
     public EntityInteractable(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
         this.position.set(x, y);
@@ -63,6 +66,7 @@ public abstract class EntityInteractable implements Disposable, Viewable {
         this.game = game;
         this.worldIn = worldIn;
         this.uniqueId = ThreadLocalRandom.current().nextInt(1567, 28141);
+        this.questManager = game.questManager;
     }
 
     public String getName() {
@@ -125,6 +129,10 @@ public abstract class EntityInteractable implements Disposable, Viewable {
     /**
      * @return dst2 to the player
      */
+    public float getDistance(Player player) {
+        return distance = player.getPosition().dst2(position);
+    }
+
     public float getDistance() {
         return distance;
     }

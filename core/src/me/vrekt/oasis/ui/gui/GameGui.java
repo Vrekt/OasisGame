@@ -1,7 +1,6 @@
 package me.vrekt.oasis.ui.gui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -15,17 +14,27 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
+import me.vrekt.oasis.quest.type.QuestRewards;
 import me.vrekt.oasis.ui.gui.dialog.DialogGui;
+import me.vrekt.oasis.ui.gui.hud.PlayerHudGui;
 import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
 import me.vrekt.oasis.ui.gui.notification.NotificationGui;
 import me.vrekt.oasis.ui.gui.notification.QuestNotificationGui;
+import me.vrekt.oasis.ui.world.Gui;
 import me.vrekt.oasis.world.AbstractWorld;
 
-public final class GameGui extends InputAdapter {
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Handles all GUI elements
+ */
+public final class GameGui {
 
     // root table
     private final Stage stage;
     private final Stack stack = new Stack();
+    private final Batch batch;
 
     // world in
     private final Asset asset;
@@ -37,12 +46,7 @@ public final class GameGui extends InputAdapter {
     private final GlyphLayout layout;
 
     private final Vector3 touch = new Vector3(0, 0, 0);
-    private final PlayerInventoryHudGui inventoryHudGui;
-    private final QuestNotificationGui questNotificationGui;
-    private final NotificationGui notificationGui;
-    private final DialogGui dialogGui;
-
-    private Batch batch;
+    private final Map<Integer, Gui> guis = new HashMap<>();
 
     public GameGui(OasisGame game, Asset asset, AbstractWorld world, InputMultiplexer multiplexer) {
         this.stage = new Stage(new ScreenViewport());
@@ -60,16 +64,21 @@ public final class GameGui extends InputAdapter {
         this.romulusBig = asset.getRomulusBig();
         this.layout = new GlyphLayout(romulusSmall, "");
 
-        skin.add("small", asset.getRomulusClone());
+        skin.add("small", asset.getRomulusSmall());
         skin.add("big", romulusBig);
         batch = stage.getBatch();
 
-        multiplexer.addProcessor(this);
         multiplexer.addProcessor(stage);
-        notificationGui = new NotificationGui(this);
-        dialogGui = new DialogGui(this);
-        inventoryHudGui = new PlayerInventoryHudGui(this, game);
-        questNotificationGui = new QuestNotificationGui(this);
+
+        createGui(NotificationGui.ID, new NotificationGui(this));
+        createGui(DialogGui.ID, new DialogGui(this));
+        createGui(PlayerHudGui.ID, new PlayerHudGui(this));
+        createGui(PlayerInventoryHudGui.ID, new PlayerInventoryHudGui(this, game));
+        createGui(QuestNotificationGui.ID, new QuestNotificationGui(this));
+    }
+
+    private void createGui(int id, Gui any) {
+        guis.put(id, any);
     }
 
     public Camera getCamera() {
@@ -104,20 +113,36 @@ public final class GameGui extends InputAdapter {
         stage.getViewport().apply();
     }
 
-    public NotificationGui getNotificationGui() {
-        return notificationGui;
+    /**
+     * Send a notification to the player
+     *
+     * @param text     text
+     * @param duration time on screen
+     */
+    public void sendPlayerNotification(String text, float duration) {
+        ((NotificationGui) guis.get(NotificationGui.ID)).sendPlayerNotification(text, duration);
     }
 
-    public DialogGui getDialogGui() {
-        return dialogGui;
+    /**
+     * Show quest rewards player received
+     *
+     * @param name    the name
+     * @param rewards rewards
+     */
+    public void showQuestRewards(String name, Map<QuestRewards, Integer> rewards) {
+        ((QuestNotificationGui) guis.get(QuestNotificationGui.ID)).showQuestReward(name, rewards);
     }
 
-    public PlayerInventoryHudGui getInventoryHudGui() {
-        return inventoryHudGui;
+    public void showGui(int id) {
+        guis.get(id).showGui();
     }
 
-    public QuestNotificationGui getQuestNotificationGui() {
-        return questNotificationGui;
+    public void hideGui(int id) {
+        guis.get(id).hideGui();
+    }
+
+    public DialogGui getDialog() {
+        return ((DialogGui) guis.get(DialogGui.ID));
     }
 
     /**
@@ -129,17 +154,12 @@ public final class GameGui extends InputAdapter {
         stage.act();
         stage.getCamera().update();
 
-        notificationGui.update();
-        inventoryHudGui.update();
+        for (Gui gui : guis.values()) gui.update();
 
         batch.setProjectionMatrix(stage.getCamera().combined);
         batch.begin();
 
         stage.getRoot().draw(batch, 1);
-
-        if (notificationGui.isVisible()) notificationGui.render(batch);
-        if (dialogGui.isVisible()) dialogGui.render(batch);
-
         batch.end();
     }
 
@@ -147,7 +167,7 @@ public final class GameGui extends InputAdapter {
         stage.getViewport().update(width, height, true);
         stage.getCamera().update();
 
-        dialogGui.resize(width, height);
+        for (Gui gui : guis.values()) gui.resize(width, height);
     }
 
     /**
@@ -161,19 +181,5 @@ public final class GameGui extends InputAdapter {
         final Container<T> container = new Container<>(actor);
         stack.addActor(container);
         return container;
-    }
-
-    public Table addTableElement() {
-        final Table table = new Table();
-        final Container<Table> container = new Container<>(table);
-        container.top().left().padTop(Gdx.graphics.getHeight() / 4f).padLeft(16f);
-        stack.addActor(container);
-        return table;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        stage.getCamera().unproject(touch.set(screenX, screenY, 0.0f));
-        return false;
     }
 }
