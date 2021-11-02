@@ -103,13 +103,12 @@ public final class Player extends LunarPlayer {
     @Override
     public void update(float delta) {
         super.update(delta);
-
-        animationManager.update(delta);
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (!animationManager.render(batch)) super.render(batch, delta);
+        animationManager.render(batch);
+        super.render(batch, delta);
     }
 
     @Override

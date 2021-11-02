@@ -3,7 +3,9 @@ package me.vrekt.oasis.entity.player.animation;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
+import gdx.lunar.entity.drawing.Rotation;
+import me.vrekt.oasis.animation.channel.AnimationChannel;
+import me.vrekt.oasis.animation.channel.AnimationChannelType;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 
@@ -15,10 +17,7 @@ import java.util.Map;
  */
 public final class PlayerAnimationManager {
 
-    private final Map<PlayerAnimations, PlayerAnimation> animations = new HashMap<>();
-    private float globalAnimationTime;
-
-    private final Vector2 position = new Vector2();
+    private final Map<AnimationChannelType, AnimationChannel> channels = new HashMap<>();
     private final Player player;
 
     public PlayerAnimationManager(Player player) {
@@ -26,66 +25,51 @@ public final class PlayerAnimationManager {
     }
 
     public void loadAnimations(Asset asset) {
-        final Animation<TextureRegion> commonMiningAnimation = new Animation<>(1f,
+        loadPlayerMiningAnimations(asset);
+    }
+
+    /**
+     * Load mining animations
+     *
+     * @param asset assets
+     */
+    private void loadPlayerMiningAnimations(Asset asset) {
+        final Animation<TextureRegion> left = new Animation<>(1f,
                 asset.getAssets().findRegion("mining_animation", 1),
                 asset.getAssets().findRegion("mining_animation", 2));
-        commonMiningAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        left.setPlayMode(Animation.PlayMode.LOOP);
 
-        animations.put(PlayerAnimations.MINING, new PlayerAnimation(commonMiningAnimation));
+        final Animation<TextureRegion> right = new Animation<>(1f,
+                asset.getAssets().findRegion("mining_animation_right", 1),
+                asset.getAssets().findRegion("mining_animation_right", 2));
+        right.setPlayMode(Animation.PlayMode.LOOP);
+
+        final Animation<TextureRegion> up = new Animation<>(1f,
+                asset.getAssets().findRegion("mining_animation_up", 1),
+                asset.getAssets().findRegion("mining_animation_up", 2));
+        up.setPlayMode(Animation.PlayMode.LOOP);
+
+        final AnimationChannel channel = new AnimationChannel(1.0f);
+        channel.registerAnimation(Rotation.FACING_LEFT.ordinal(), left);
+        channel.registerAnimation(Rotation.FACING_UP.ordinal(), up);
+        channel.registerAnimation(Rotation.FACING_RIGHT.ordinal(), right);
+        this.channels.put(AnimationChannelType.MINING, channel);
     }
 
-    /**
-     * Play an animation
-     *
-     * @param animation         the animation
-     * @param invalidOnMovement if the animation should be cancelled if the player moves
-     */
-    public void playAnimation(PlayerAnimations animation, boolean invalidOnMovement) {
-        animations.get(animation).set(true, invalidOnMovement);
-        position.set(player.getPosition());
+    public void playAnimation(AnimationChannelType type, int id, boolean cancel) {
+        this.channels.get(type).startPlayingAnimation(player, id, cancel);
     }
 
-    public void tickAnimation(PlayerAnimations animation, boolean invalidOnMovement, float amount) {
-        globalAnimationTime += amount;
-        position.set(player.getPosition());
-
-        if (!animations.get(animation).isPlaying()) playAnimation(animation, invalidOnMovement);
-    }
-
-    /**
-     * Stop an animation
-     *
-     * @param animation the animation
-     */
-    public void stopAnimation(PlayerAnimations animation) {
-        animations.get(animation).set(false, false);
+    public void stopAnimation(AnimationChannelType type, int id) {
+        this.channels.get(type).stopPlayingAnimation(id);
     }
 
     public void update(float delta) {
-        for (PlayerAnimation animation : animations.values()) {
-            if (animation.isPlaying() && animation.isInvalidOnMovement()) {
-                if (player.getPosition().dst2(position) >= 1f) {
-                    animation.set(false, false);
-                }
-            }
-        }
+        for (AnimationChannel channel : channels.values()) channel.update(player, delta);
     }
 
-    public boolean render(SpriteBatch batch) {
-        boolean animating = false;
-        for (PlayerAnimation animation : animations.values()) {
-            if (animation.isPlaying()) {
-                animating = true;
-
-                final TextureRegion frame = animation.getFrame(globalAnimationTime);
-                batch.draw(frame,
-                        position.x - (frame.getRegionWidth() * (1 / 16.0f)) / 2f,
-                        position.y - (frame.getRegionHeight() * (1 / 16.0f)) / 2f,
-                        frame.getRegionWidth() * (1 / 16.0f),
-                        frame.getRegionHeight() * (1 / 16.0f));
-            }
-        }
-        return animating;
+    public void render(SpriteBatch batch) {
+        for (AnimationChannel channel : channels.values()) channel.render(player, batch);
     }
 
 }

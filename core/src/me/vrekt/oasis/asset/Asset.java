@@ -20,7 +20,7 @@ public final class Asset {
 
     private final AssetManager assetManager = new AssetManager();
 
-    private BitmapFont romulusBig, romulusSmall;
+    private BitmapFont romulusBig, romulusSmall, romulusSmaller;
 
     /**
      * Load general assets needed by each world.
@@ -55,13 +55,17 @@ public final class Asset {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         // big text for context or titles
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.06);
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.08);
         romulusBig = generator.generateFont(parameter);
 
         // generate a smaller text for sub title information
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
         romulusSmall = generator.generateFont(parameter);
+
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
+        romulusSmaller = generator.generateFont(parameter);
         generator.dispose();
+
     }
 
     public TextureAtlas getAssets() {
@@ -86,5 +90,9 @@ public final class Asset {
 
     public BitmapFont getRomulusSmall() {
         return romulusSmall;
+    }
+
+    public BitmapFont getRomulusSmaller() {
+        return romulusSmaller;
     }
 }

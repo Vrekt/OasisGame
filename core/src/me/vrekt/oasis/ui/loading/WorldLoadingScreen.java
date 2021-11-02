@@ -18,6 +18,7 @@ import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.server.LocalOasisServer;
 import me.vrekt.oasis.ui.menu.MenuUserInterface;
+import me.vrekt.oasis.ui.scene.FirstTimeIntroductionScene;
 import me.vrekt.oasis.world.athena.AthenaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 
@@ -116,8 +117,7 @@ public final class WorldLoadingScreen extends MenuUserInterface {
 
         // screen is ready
         if (assetLoaded && connected && worldLoaded) {
-            game.thePlayer.getConnection().sendWorldLoaded();
-            game.setScreen((AthenaWorld) game.thePlayer.getWorldIn());
+            game.setScreen(new FirstTimeIntroductionScene(game));
         }
 
     }

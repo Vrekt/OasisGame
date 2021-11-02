@@ -9,6 +9,7 @@ public final class GameSettings {
 
     // open player book
     public static final int BOOK_KEY = Input.Keys.B;
+    public static final int QUEST_KEY = Input.Keys.J;
     // interact with something
     public static final int INTERACTION_KEY = Input.Keys.E;
     // pause game

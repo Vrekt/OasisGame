@@ -29,6 +29,7 @@ import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.ui.gui.GameGui;
+import me.vrekt.oasis.ui.gui.quest.QuestGui;
 import me.vrekt.oasis.utilities.array.EntityComparableArray;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
@@ -105,10 +106,6 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
     public GameGui getGui() {
         return gui;
-    }
-
-    public Array<InteractableWorldObject> getObjects() {
-        return objects;
     }
 
     public InteractableWorldObject getObjectByRelation(String relation) {
@@ -419,7 +416,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     @Override
     public void render(float delta) {
         if (paused && !hasFbo) fbo.begin();
-        Gdx.gl.glClearColor(160 / 255f, 160 / 255f, 160 / 255f, 170 / 255f);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused && !hasFbo) {
@@ -432,7 +429,6 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             batch.setProjectionMatrix(gui.getCamera().combined);
             batch.begin();
 
-            // TODO: Fix FBO mess up when resizing.
             if (fboTexture == null) {
                 fboTexture = new TextureRegion(fbo.getColorBufferTexture());
                 fboTexture.flip(false, true);
@@ -469,13 +465,17 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             handleInteractionKeyPressed();
             return true;
         } else if (keycode == GameSettings.PAUSE_GAME_KEY) {
-            //   pause();
-            return true;
-        } else if (keycode == GameSettings.PAUSE_GAME_KEY) {
-            //    resume();
-            return true;
-        } else if (keycode == GameSettings.BOOK_KEY) {
-
+            if (paused) {
+                resume();
+            } else {
+                pause();
+            }
+        } else if (keycode == GameSettings.QUEST_KEY) {
+            if (gui.isGuiVisible(QuestGui.ID)) {
+                gui.hideGui(QuestGui.ID);
+            } else {
+                gui.showGui(QuestGui.ID);
+            }
         }
         return false;
     }
@@ -531,6 +531,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     @Override
     public void resume() {
         this.paused = false;
+        this.hasFbo = false;
         Logging.info(WORLD, "Resuming world...");
     }
 

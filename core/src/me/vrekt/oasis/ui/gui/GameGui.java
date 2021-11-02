@@ -3,8 +3,10 @@ package me.vrekt.oasis.ui.gui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -20,6 +22,7 @@ import me.vrekt.oasis.ui.gui.hud.PlayerHudGui;
 import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
 import me.vrekt.oasis.ui.gui.notification.NotificationGui;
 import me.vrekt.oasis.ui.gui.notification.QuestNotificationGui;
+import me.vrekt.oasis.ui.gui.quest.QuestGui;
 import me.vrekt.oasis.ui.world.Gui;
 import me.vrekt.oasis.world.AbstractWorld;
 
@@ -34,7 +37,6 @@ public final class GameGui {
     // root table
     private final Stage stage;
     private final Stack stack = new Stack();
-    private final Batch batch;
 
     // world in
     private final Asset asset;
@@ -45,7 +47,6 @@ public final class GameGui {
     private final BitmapFont romulusSmall, romulusBig;
     private final GlyphLayout layout;
 
-    private final Vector3 touch = new Vector3(0, 0, 0);
     private final Map<Integer, Gui> guis = new HashMap<>();
 
     public GameGui(OasisGame game, Asset asset, AbstractWorld world, InputMultiplexer multiplexer) {
@@ -65,8 +66,9 @@ public final class GameGui {
         this.layout = new GlyphLayout(romulusSmall, "");
 
         skin.add("small", asset.getRomulusSmall());
+        skin.add("smaller", asset.getRomulusSmaller());
         skin.add("big", romulusBig);
-        batch = stage.getBatch();
+
 
         multiplexer.addProcessor(stage);
 
@@ -75,6 +77,7 @@ public final class GameGui {
         createGui(PlayerHudGui.ID, new PlayerHudGui(this));
         createGui(PlayerInventoryHudGui.ID, new PlayerInventoryHudGui(this, game));
         createGui(QuestNotificationGui.ID, new QuestNotificationGui(this));
+        createGui(QuestGui.ID, new QuestGui(this));
     }
 
     private void createGui(int id, Gui any) {
@@ -141,6 +144,10 @@ public final class GameGui {
         guis.get(id).hideGui();
     }
 
+    public boolean isGuiVisible(int id) {
+        return guis.get(id).isVisible();
+    }
+
     public DialogGui getDialog() {
         return ((DialogGui) guis.get(DialogGui.ID));
     }
@@ -156,11 +163,7 @@ public final class GameGui {
 
         for (Gui gui : guis.values()) gui.update();
 
-        batch.setProjectionMatrix(stage.getCamera().combined);
-        batch.begin();
-
-        stage.getRoot().draw(batch, 1);
-        batch.end();
+        stage.draw();
     }
 
     public void resize(int width, int height) {

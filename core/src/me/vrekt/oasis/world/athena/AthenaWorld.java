@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.animation.channel.AnimationChannelType;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
-import me.vrekt.oasis.entity.player.animation.PlayerAnimations;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.item.items.tools.CommonPickaxeItem;
 import me.vrekt.oasis.ui.gui.GameGui;
@@ -32,6 +32,7 @@ public final class AthenaWorld extends AbstractWorld {
     // dialog animation above entities heads.
     private float dialogAnimationTime;
     private Animation<TextureRegion> dialogAnimation;
+    private long lastClickInteraction;
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
@@ -88,15 +89,18 @@ public final class AthenaWorld extends AbstractWorld {
     protected void clicked() {
         if (!gui.getDialog().isVisible()) {
 
+            lastClickInteraction = System.currentTimeMillis();
+            thePlayer.getAnimations().update(Gdx.graphics.getDeltaTime());
+
             for (InteractableWorldObject object : objects) {
                 if (object.isNear(thePlayer)
                         && object.isBreakable()
                         && !thePlayer.isPickaxeLocked()
                         && thePlayer.getInventory().getEquippedItem() instanceof CommonPickaxeItem) {
-                    thePlayer.getAnimations().tickAnimation(PlayerAnimations.MINING, true, 1f);
                     object.interact();
 
-                    if (object.isFinished()) thePlayer.getAnimations().stopAnimation(PlayerAnimations.MINING);
+                    if (object.isFinished())
+                        thePlayer.getAnimations().stopAnimation(AnimationChannelType.MINING, thePlayer.getRotation().ordinal());
                 }
             }
         }
@@ -138,6 +142,10 @@ public final class AthenaWorld extends AbstractWorld {
 
         updateDialogState();
         updateRegions();
+
+        if (System.currentTimeMillis() - lastClickInteraction >= 500) {
+            //   thePlayer.getAnimations().stopAnimation(AnimationChannelType.MINING, thePlayer.getRotation().ordinal());
+        }
     }
 
     private void updateRegions() {
