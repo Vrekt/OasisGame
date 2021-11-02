@@ -7,9 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import me.vrekt.oasis.quest.Quest;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.ui.gui.GameGui;
 import me.vrekt.oasis.ui.world.Gui;
-import org.apache.commons.text.WordUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Players quest log
@@ -17,10 +21,16 @@ import org.apache.commons.text.WordUtils;
 public final class QuestGui extends Gui {
 
     public static final int ID = 6;
-    private final Table root, questChapterContent1, questChapterContent2;
+    private final Table root;
+    private final Table content;
+    private final Table right;
 
     // active colors
     private final TextureRegionDrawable base, darker;
+
+    // quest elements tracked
+    // TODO: Remove these elements
+    private final Map<QuestType, QuestElement> elements = new HashMap<>();
 
     public QuestGui(GameGui gui) {
         super(gui);
@@ -37,7 +47,7 @@ public final class QuestGui extends Gui {
         gui.createContainer(left);
 
         // right table content, quest information.
-        final Table right = new Table();
+        right = new Table();
         right.top().padTop(32f);
 
         right.setBackground(new TextureRegionDrawable(gui.getAsset("quest_background")));
@@ -48,78 +58,60 @@ public final class QuestGui extends Gui {
         root.add(right).grow();
 
         // Root table
-        final Table questChapter = new Table();
+        content = new Table();
 
         base = new TextureRegionDrawable(gui.getAsset("quest_chapter"));
         darker = new TextureRegionDrawable(gui.getAsset("quest_chapter_dark"));
 
-        // First active quest
-        questChapterContent1 = new Table();
-        questChapterContent1.addListener(new QuestChapterHandler(questChapterContent1));
-        questChapterContent1.setBackground(base);
-        questChapterContent1.add(new Label("Origins of Hunnewell", gui.getSkin(), "small", Color.WHITE))
-                .padLeft(16f)
-                .padRight(16f);
-        questChapterContent1.row();
-        questChapterContent1.add(new Label("Chapter I: Act I", gui.getSkin(), "smaller", Color.BLACK)).padTop(6f);
-        questChapterContent1.row();
-
-        // Basic title
-        final Table questChapterTitle1 = new Table();
-        questChapterTitle1.setBackground(new TextureRegionDrawable(gui.getAsset("quest_title")));
-        questChapterTitle1.add(new Label("Welcome to Hunnewell", gui.getSkin(), "smaller", Color.BLACK))
-                .padLeft(16f)
-                .padRight(16f)
-                .padTop(8f);
-
-        final Table questChapterTitle2 = new Table();
-        questChapterTitle2.setBackground(new TextureRegionDrawable(gui.getAsset("quest_title")));
-        questChapterTitle2.add(new Label("Exploring the Domains", gui.getSkin(), "smaller", Color.BLACK))
-                .padLeft(16f)
-                .padRight(16f)
-                .padTop(8f);
-
-        // Second active quest
-        questChapterContent2 = new Table();
-        questChapterContent2.setBackground(base);
-        questChapterContent2.addListener(new QuestChapterHandler(questChapterContent2));
-        questChapterContent2.add(new Label("Origins of Hunnewell", gui.getSkin(), "small", Color.WHITE))
-                .padLeft(16f)
-                .padRight(16f);
-        questChapterContent2.row();
-        questChapterContent2.add(new Label("Chapter I: Act II", gui.getSkin(), "smaller", Color.BLACK)).padTop(6f);
-        questChapterContent2.row();
-
-        questChapter.add(questChapterContent1);
-        questChapter.row();
-        questChapter.add(questChapterTitle1);
-        questChapter.row().padTop(32f);
-        questChapter.add(questChapterContent2);
-        questChapter.row();
-        questChapter.add(questChapterTitle2);
-
-        // Quest information table
-        final Table information = new Table();
-        final Table navigation = new Table();
-        navigation.center();
-
-        information.add(new Label(WordUtils.wrap("Start by talking to Ino to learn about Hunnewell and its origins.", 20),
-                gui.getSkin(),
-                "small",
-                Color.WHITE));
-        information.padLeft(32f);
-        information.row();
-
-        // navigation button
-        navigation.setBackground(new TextureRegionDrawable(gui.getAsset("green_button")));
-        navigation.add(new Label("Navigate", gui.getSkin(), "small", Color.BLACK)).center();
-        information.add(navigation).padTop(96f).center();
-
         left.add(new Label("Quests", gui.getSkin(), "big", Color.WHITE));
         left.row();
-        left.add(questChapter);
-        right.add(information);
+        left.add(content);
+    }
 
+    /**
+     * Start tracking a quest in the GUI
+     *
+     * @param quest the quest
+     */
+    public void startTrackingQuest(Quest quest) {
+        setQuestTracked(quest.getChapter(), quest.getSection(), quest.getName(), quest.getQuestInformation(), quest.getType());
+    }
+
+    private void setQuestTracked(String chapter, String section, String title, String information, QuestType type) {
+        final QuestElement element = new QuestElement(gui, chapter, section, title, information);
+        final Table table = new Table();
+        element.setContent(table);
+
+        table.addListener(new QuestChapterHandler(table));
+        table.setBackground(base);
+
+        table.add(element.getQuestChapter()).padLeft(16f).padRight(16f);
+        table.row();
+        table.add(element.getQuestSection()).padTop(6f);
+
+        final Table titleTable = new Table();
+        element.setTitleContent(titleTable);
+
+        titleTable.setBackground(new TextureRegionDrawable(gui.getAsset("quest_title")));
+        titleTable.add(element.getQuestTitle()).padLeft(16f).padRight(16f).padTop(8f);
+
+        final Table informationTable = new Table();
+        informationTable.add(element.getQuestInformation());
+        informationTable.padLeft(32f);
+        informationTable.row();
+
+        final Table navigationTable = new Table();
+        navigationTable.setBackground(new TextureRegionDrawable(gui.getAsset("green_button")));
+        navigationTable.add(new Label("Navigate", gui.getSkin(), "small", Color.BLACK));
+        informationTable.add(navigationTable).padTop(96f).center();
+
+        content.add(table);
+        content.row();
+        content.add(titleTable);
+        content.row().padTop(32f);
+        right.add(informationTable);
+
+        elements.put(type, element);
     }
 
     @Override
@@ -127,7 +119,6 @@ public final class QuestGui extends Gui {
         super.showGui();
         root.setVisible(true);
     }
-
 
     @Override
     public void hideGui() {

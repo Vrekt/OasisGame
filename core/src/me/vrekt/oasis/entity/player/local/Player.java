@@ -62,23 +62,6 @@ public final class Player extends LunarPlayer {
         return animationManager;
     }
 
-    public boolean isPickaxeLocked() {
-        return pickaxeLocked;
-    }
-
-    public void setPickaxeLocked(boolean pickaxeLocked) {
-        this.pickaxeLocked = pickaxeLocked;
-    }
-
-    public void givePlayerQuestReward(QuestRewards reward, int amount) {
-        this.rewards.put(reward, amount);
-    }
-
-    public void award(String questName) {
-        abstractWorldIn.getGui().showQuestRewards(questName, rewards);
-        this.rewards.clear();
-    }
-
     @Override
     protected void pollInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.A)

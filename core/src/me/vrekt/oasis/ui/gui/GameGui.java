@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.quest.type.QuestRewards;
 import me.vrekt.oasis.ui.gui.dialog.DialogGui;
 import me.vrekt.oasis.ui.gui.hud.PlayerHudGui;
 import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
@@ -127,13 +126,10 @@ public final class GameGui {
     }
 
     /**
-     * Show quest rewards player received
-     *
-     * @param name    the name
-     * @param rewards rewards
+     * Show that a quest has started tracking.
      */
-    public void showQuestRewards(String name, Map<QuestRewards, Integer> rewards) {
-        ((QuestNotificationGui) guis.get(QuestNotificationGui.ID)).showQuestReward(name, rewards);
+    public void showQuestTracking() {
+        ((QuestNotificationGui) guis.get(QuestNotificationGui.ID)).showQuestTracking();
     }
 
     public void showGui(int id) {
@@ -150,6 +146,10 @@ public final class GameGui {
 
     public DialogGui getDialog() {
         return ((DialogGui) guis.get(DialogGui.ID));
+    }
+
+    public QuestGui getQuest() {
+        return ((QuestGui) guis.get(QuestGui.ID));
     }
 
     /**

@@ -10,14 +10,11 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.animation.channel.AnimationChannelType;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.item.items.tools.CommonPickaxeItem;
 import me.vrekt.oasis.ui.gui.GameGui;
 import me.vrekt.oasis.world.AbstractWorld;
-import me.vrekt.oasis.world.obj.InteractableWorldObject;
-import me.vrekt.oasis.world.region.WorldRegion;
 import me.vrekt.oasis.world.renderer.WorldRenderer;
 
 /**
@@ -25,14 +22,9 @@ import me.vrekt.oasis.world.renderer.WorldRenderer;
  */
 public final class AthenaWorld extends AbstractWorld {
 
-    // regions
-    private long regionTimer, lastRegionEnter;
-    private boolean updateRegionTimer;
-
     // dialog animation above entities heads.
     private float dialogAnimationTime;
     private Animation<TextureRegion> dialogAnimation;
-    private long lastClickInteraction;
 
     public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
         super(player, world, batch, game.asset);
@@ -68,6 +60,7 @@ public final class AthenaWorld extends AbstractWorld {
 
         this.dialogAnimation.setPlayMode(Animation.PlayMode.LOOP);
         this.thePlayer.getInventory().giveItem(new CommonPickaxeItem());
+
         Gdx.app.log(ATHENA, "Finished loading World: Athena");
     }
 
@@ -76,7 +69,6 @@ public final class AthenaWorld extends AbstractWorld {
         final EntityInteractable interactable = getClosestEntity();
         if (interactable != null && !interactable.isSpeakingTo()) {
             interactable.setSpeakingTo(true);
-            thePlayer.setRotation(interactable.getSpeakingRotation());
 
             gui.getDialog().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
             gui.getDialog().showGui();
@@ -87,23 +79,7 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     protected void clicked() {
-        if (!gui.getDialog().isVisible()) {
-
-            lastClickInteraction = System.currentTimeMillis();
-            thePlayer.getAnimations().update(Gdx.graphics.getDeltaTime());
-
-            for (InteractableWorldObject object : objects) {
-                if (object.isNear(thePlayer)
-                        && object.isBreakable()
-                        && !thePlayer.isPickaxeLocked()
-                        && thePlayer.getInventory().getEquippedItem() instanceof CommonPickaxeItem) {
-                    object.interact();
-
-                    if (object.isFinished())
-                        thePlayer.getAnimations().stopAnimation(AnimationChannelType.MINING, thePlayer.getRotation().ordinal());
-                }
-            }
-        }
+        // TODO: World interactions
     }
 
     @Override
@@ -141,43 +117,6 @@ public final class AthenaWorld extends AbstractWorld {
         super.update(d);
 
         updateDialogState();
-        updateRegions();
-
-        if (System.currentTimeMillis() - lastClickInteraction >= 500) {
-            //   thePlayer.getAnimations().stopAnimation(AnimationChannelType.MINING, thePlayer.getRotation().ordinal());
-        }
-    }
-
-    private void updateRegions() {
-        final long now = System.currentTimeMillis();
-
-        // update entering new regions within the world
-        boolean hasNewRegion = false;
-        for (WorldRegion region : regions) {
-            if (regionIn != region && region.isIn(thePlayer.getX(), thePlayer.getY())) {
-                this.regionIn = region;
-                hasNewRegion = true;
-
-                // prevent subtitle spam basically
-                if (now - lastRegionEnter >= 15000) {
-                    this.updateRegionTimer = true;
-                    this.lastRegionEnter = now;
-                    this.regionTimer = now;
-
-                    //    gui.getRegion().enterRegion("Entering " + region.getRegionName());
-                    //     gui.getRegion().show();
-                }
-            }
-        }
-
-        if (!hasNewRegion && regionIn != null && !regionIn.isIn(thePlayer.getX(), thePlayer.getY())) {
-            regionIn = null;
-        }
-
-        if (updateRegionTimer && (now - regionTimer) >= 2500) {
-            updateRegionTimer = false;
-            //   gui.getRegion().hide();
-        }
     }
 
     private void updateDialogState() {

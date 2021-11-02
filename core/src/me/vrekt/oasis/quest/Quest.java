@@ -1,6 +1,5 @@
 package me.vrekt.oasis.quest;
 
-import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.quest.quests.QuestDifficulty;
 import me.vrekt.oasis.quest.type.QuestRewards;
 import me.vrekt.oasis.quest.type.QuestType;
@@ -13,10 +12,11 @@ import java.util.Map;
  */
 public abstract class Quest {
 
-    protected final String name;
+    protected final String name, chapter, section;
     protected final QuestType type;
     protected final QuestDifficulty difficulty;
 
+    // id for tracking
     protected boolean completed, started;
 
     // current quest information like steps or how to start.
@@ -24,26 +24,24 @@ public abstract class Quest {
 
     protected Map<QuestRewards, Integer> rewards = new HashMap<>();
 
-    public Quest(String name, QuestType type, QuestDifficulty difficulty) {
+    public Quest(String name, String chapter, String section, QuestType type, QuestDifficulty difficulty) {
         this.name = name;
+        this.chapter = chapter;
+        this.section = section;
         this.type = type;
         this.difficulty = difficulty;
     }
 
-    /**
-     * Award the player for completing this quest
-     *
-     * @param player the player
-     */
-    public void awardPlayer(Player player) {
-        rewards.forEach(player::givePlayerQuestReward);
-        player.award(name);
-
-        setCompleted(true);
-    }
-
     public String getName() {
         return name;
+    }
+
+    public String getChapter() {
+        return chapter;
+    }
+
+    public String getSection() {
+        return section;
     }
 
     public String getQuestInformation() {

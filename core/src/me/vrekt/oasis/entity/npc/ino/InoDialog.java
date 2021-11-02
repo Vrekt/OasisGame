@@ -5,13 +5,7 @@ import me.vrekt.oasis.entity.dialog.EntityDialog;
 public final class InoDialog extends EntityDialog {
 
     public InoDialog() {
-        createSection("ino_option_1", "Hey you! Could you help me clear these rocks?");
-        createOption("ino_option_0", "Sure.");
-
-        createSection("ino_option_2", "Take out your pickaxe and clear those rocks.");
-        createOption("ino_option_0", "Ok.");
-
-        createSection("ino_option_3", "Hey thanks! People love to grief our little village we have here.");
+        createSection("ino_option_1", "Hello, welcome traveler.");
         createOption("ino_option_4", "What is this place?");
         createOption("ino_option_5", "Why's that?");
 
@@ -38,8 +32,8 @@ public final class InoDialog extends EntityDialog {
         createOption("ino_option_6", "I'll just take a look around here instead.");
 
         createSection("ino_option_10", "How was your visit?");
-        createOption("ino_option_6", "I have a question");
-        createOption("ino_option_0", "Good.");
+        createOption("ino_option_6", "I have a question.");
+        createOption("ino_option_0", "Good!");
 
         save();
     }
