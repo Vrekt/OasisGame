@@ -12,6 +12,15 @@ public final class NetworkPlayer extends LunarNetworkPlayer implements Viewable 
 
     public NetworkPlayer(int entityId, float playerScale, float playerWidth, float playerHeight, Rotation rotation) {
         super(entityId, playerScale, playerWidth, playerHeight, rotation);
+
+        setInterpolateDesyncDistance(1.0f);
+        setSnapToPositionIfDesync(true);
+    }
+
+    @Override
+    public void setPosition(float x, float y) {
+        body.setTransform(x, y, 0.0f);
+        super.setPosition(x, y);
     }
 
     @Override

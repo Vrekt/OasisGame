@@ -52,7 +52,7 @@ public final class PlayerInventory extends InputAdapter {
     public void giveItem(Item item) {
         for (int i = 0; i < size; i++) {
             if (slotItems.get(i) == null) {
-                slotItems.put(i, manager.createNewItem(item));
+
                 break;
             }
         }

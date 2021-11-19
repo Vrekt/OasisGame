@@ -74,6 +74,7 @@ public final class QuestGui extends Gui {
      * @param quest the quest
      */
     public void startTrackingQuest(Quest quest) {
+        clearElements();
         setQuestTracked(quest.getChapter(), quest.getSection(), quest.getName(), quest.getQuestInformation(), quest.getType());
     }
 
@@ -104,6 +105,7 @@ public final class QuestGui extends Gui {
         navigationTable.setBackground(new TextureRegionDrawable(gui.getAsset("green_button")));
         navigationTable.add(new Label("Navigate", gui.getSkin(), "small", Color.BLACK));
         informationTable.add(navigationTable).padTop(96f).center();
+        element.setInformationTable(informationTable);
 
         content.add(table);
         content.row();
@@ -112,6 +114,12 @@ public final class QuestGui extends Gui {
         right.add(informationTable);
 
         elements.put(type, element);
+    }
+
+    private void clearElements() {
+        for (QuestElement value : elements.values()) {
+            right.removeActor(value.getInformationTable());
+        }
     }
 
     @Override

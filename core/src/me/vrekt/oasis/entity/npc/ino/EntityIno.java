@@ -4,8 +4,9 @@ import gdx.lunar.entity.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.quest.quests.beginner.FirstHunnewellQuest;
+import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 
 public final class EntityIno extends EntityInteractable {
@@ -20,8 +21,8 @@ public final class EntityIno extends EntityInteractable {
         this.dialog.ending = "ino_option_0";
 
         this.dialogSection = this.dialog.getStarting();
-        this.speakingDialogName = "ino_dialog";
-        this.display = game.asset.getAssets().findRegion("ino_face");
+        this.display = game.getAsset().getAssets().findRegion("ino_face");
+        this.type = EntityNPCType.INO;
     }
 
     @Override
@@ -32,7 +33,8 @@ public final class EntityIno extends EntityInteractable {
             if (!questAssigned) {
                 // assign the players first quest.
                 worldIn.getGui().showQuestTracking();
-                worldIn.getGui().getQuest().startTrackingQuest(new FirstHunnewellQuest());
+                worldIn.getGui().getQuest().startTrackingQuest(questManager.getQuest(QuestType.HUNNEWELL));
+                questAssigned = true;
             }
 
             // advance too afterwards.

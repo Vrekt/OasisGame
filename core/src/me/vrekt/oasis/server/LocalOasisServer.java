@@ -1,33 +1,27 @@
 package me.vrekt.oasis.server;
 
+import gdx.lunar.Lunar;
+import gdx.lunar.LunarClientServer;
 import gdx.lunar.protocol.LunarProtocol;
-import gdx.lunar.server.LunarGameServer;
-import gdx.lunar.server.LunarNettyServer;
 import gdx.lunar.server.LunarServer;
 import gdx.lunar.server.game.utilities.Disposable;
-import gdx.lunar.server.world.impl.LunarWorldAdapter;
-
-import java.util.concurrent.CompletableFuture;
 
 public final class LocalOasisServer implements Disposable {
 
-    private LunarNettyServer server;
+    private LunarClientServer server;
     private LunarServer gameServer;
 
     public LocalOasisServer() {
-        CompletableFuture.runAsync(() -> {
-            server = new LunarNettyServer("localhost", 6969, new LunarProtocol(true));
-            server.bind();
+        server = new LunarClientServer(new Lunar(), new LunarProtocol(true), "localhost", 6969);
+        server.connect().join();
+    }
 
-        }).whenComplete((v, e) -> {
-            gameServer = new LunarGameServer();
-            gameServer.getWorldManager().addWorld("Athena", new LunarWorldAdapter());
-            gameServer.start();
-        });
+    public LunarClientServer getServer() {
+        return server;
     }
 
     @Override
     public void dispose() {
-        gameServer.stop();
+
     }
 }

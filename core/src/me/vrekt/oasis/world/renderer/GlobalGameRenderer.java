@@ -7,53 +7,73 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import me.vrekt.oasis.entity.player.local.Player;
 
 /**
- * Handles rendering of worlds.
+ * Handles rendering of worlds, interiors and anything else that requires TiledMaps.
  */
-public final class WorldRenderer implements Disposable {
+public final class GlobalGameRenderer implements Disposable {
 
     /**
      * Default scaling for all rendering
      */
     public static final float SCALE = 1 / 16.0f;
-
-    /**
-     * The camera for this level.
-     */
     private OrthographicCamera camera;
 
     private OrthogonalTiledMapRenderer renderer;
     private final Array<TiledMapTileLayer> layers;
 
     private final Player thePlayer;
+    private final SpriteBatch batch;
     private final StretchViewport viewport;
 
     /**
      * Initialize a new renderer instance
      *
-     * @param worldMap   the map
-     * @param worldScale the scale
-     * @param worldSpawn the spawning location
-     * @param player     local player
+     * @param batch  drawing batch
+     * @param player local player
      */
-    public WorldRenderer(TiledMap worldMap, float worldScale, Vector2 worldSpawn, SpriteBatch batch, Player player) {
-        this.layers = new Array<>(worldMap.getLayers().getByType(TiledMapTileLayer.class));
+    public GlobalGameRenderer(SpriteBatch batch, Player player) {
+        this.layers = new Array<>();
         this.thePlayer = player;
-
-        renderer = new OrthogonalTiledMapRenderer(worldMap, worldScale, batch);
+        this.batch = batch;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth() / (SCALE / 2.0f), Gdx.graphics.getHeight() / (SCALE / 2.0f));
         viewport = new StretchViewport(Gdx.graphics.getWidth() / (SCALE / 2.0f), Gdx.graphics.getHeight() / (SCALE / 2.0f));
+    }
 
-        camera.position.set(worldSpawn.x, worldSpawn.y, 0f);
+    /**
+     * Change the map to render
+     *
+     * @param map the map
+     */
+    public void setDrawingMap(TiledMap map, float x, float y) {
+        if (renderer == null) {
+            renderer = new OrthogonalTiledMapRenderer(map, SCALE, batch);
+        }
+
+        camera.position.set(x, y, 0f);
         camera.update();
+
+        this.layers.clear();
+        this.layers.addAll(map.getLayers().getByType(TiledMapTileLayer.class));
+    }
+
+    /**
+     * Prepare the local sprite batch
+     */
+    public void beginRendering() {
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
     }
 
     /**
@@ -65,7 +85,9 @@ public final class WorldRenderer implements Disposable {
         // update animations and render map.
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
-        for (TiledMapTileLayer layer : layers) renderer.renderTileLayer(layer);
+        for (TiledMapTileLayer layer : layers) {
+            renderer.renderTileLayer(layer);
+        }
     }
 
     public OrthographicCamera getCamera() {
@@ -80,7 +102,10 @@ public final class WorldRenderer implements Disposable {
      * Update camera position
      */
     private void update() {
-        camera.position.set(thePlayer.getInterpolated().x, thePlayer.getInterpolated().y, 0f);
+        final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolated().x, 1f);
+        final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolated().y, 1f);
+
+        camera.position.set(x, y, 0f);
         camera.update();
     }
 

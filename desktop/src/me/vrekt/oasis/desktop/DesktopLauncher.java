@@ -15,6 +15,7 @@ public class DesktopLauncher {
         config.pauseWhenMinimized = GameSettings.PAUSE_IN_BACKGROUND;
         config.width = 800;
         config.height = 600;
+        config.foregroundFPS = 144;
 
         new LwjglApplication(new OasisGame(), config);
     }

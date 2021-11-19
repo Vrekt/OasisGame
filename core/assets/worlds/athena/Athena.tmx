@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="16" tileheight="16" infinite="0" nextlayerid="38" nextobjectid="130">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="16" tileheight="16" infinite="0" nextlayerid="39" nextobjectid="135">
  <tileset firstgid="1" name="Overworld" tilewidth="16" tileheight="16" tilecount="1440" columns="40">
   <image source="Overworld.png" width="640" height="576"/>
   <tile id="40">
@@ -590,6 +590,15 @@
 </data>
  </layer>
  <objectgroup id="37" name="Objects"/>
+ <objectgroup id="38" name="Interiors">
+  <object id="134" x="424" y="1928.5">
+   <properties>
+    <property name="enterable" type="bool" value="true"/>
+    <property name="interior" value="MAVIA_HOUSE"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
  <objectgroup id="31" name="Region"/>
  <objectgroup id="30" name="Collision">
   <object id="58" x="114.667" y="1376.67" width="128" height="32"/>
@@ -626,7 +635,7 @@
  </objectgroup>
  <objectgroup id="34" name="Allotments"/>
  <objectgroup id="33" name="NPC">
-  <object id="109" name="Ino" x="848" y="1840"/>
+  <object id="109" name="Ino" x="947" y="1826"/>
   <object id="118" name="Mavia" x="416" y="1936" width="16" height="16"/>
  </objectgroup>
  <objectgroup id="26" name="Movement"/>

@@ -18,6 +18,11 @@ public interface Logging {
     String WARN = "WARN: ";
 
     /**
+     * Error
+     */
+    String ERROR = "ERROR: ";
+
+    /**
      * Log info
      *
      * @param tag  the tag
@@ -36,5 +41,26 @@ public interface Logging {
     static void warn(String tag, String warn) {
         Gdx.app.log(tag, WARN + warn);
     }
+
+    /**
+     * Log an error
+     *
+     * @param tag   the tag
+     * @param error the error
+     */
+    static void error(String tag, String error) {
+        Gdx.app.log(tag, ERROR + error);
+    }
+
+    /**
+     * Log an error
+     *
+     * @param tag   the tag
+     * @param error the error
+     */
+    static void error(Object tag, String error) {
+        Gdx.app.log(tag.getClass().getSimpleName(), ERROR + error);
+    }
+
 
 }

@@ -10,6 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import me.vrekt.oasis.world.interior.Interior;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Asset {
 
@@ -21,11 +26,16 @@ public final class Asset {
     private final AssetManager assetManager = new AssetManager();
 
     private BitmapFont romulusBig, romulusSmall, romulusSmaller;
+    private Skin skin;
+
+    private final Map<Interior, TiledMap> cachedMaps = new HashMap<>();
+    private TmxMapLoader mapLoader;
 
     /**
      * Load general assets needed by each world.
      */
     public void load() {
+        mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
         assetManager.load(ASSETS, TextureAtlas.class);
 
         // particle effect handler
@@ -33,8 +43,16 @@ public final class Asset {
         loadParticleEffects();
         loadFonts();
 
-        assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
+        assetManager.setLoader(TiledMap.class, mapLoader);
         assetManager.load(ATHENA_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
+    }
+
+    public void setSkin(Skin skin) {
+        this.skin = skin;
+    }
+
+    public Skin getSkin() {
+        return skin;
     }
 
     /**
@@ -66,6 +84,22 @@ public final class Asset {
         romulusSmaller = generator.generateFont(parameter);
         generator.dispose();
 
+    }
+
+    /**
+     * Load an interior
+     *
+     * @param interior  the interior
+     * @param cacheTime the time to cache the map
+     * @return the tiled map.
+     */
+    public TiledMap loadInterior(Interior interior, float cacheTime) {
+        if (cachedMaps.containsKey(interior)) {
+            return cachedMaps.get(interior);
+        }
+        final TiledMap map = mapLoader.load(interior.getInteriorName());
+        this.cachedMaps.put(interior, map);
+        return map;
     }
 
     public TextureAtlas getAssets() {

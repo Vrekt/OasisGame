@@ -27,7 +27,7 @@ public final class PlayerInventoryHudGui extends Gui {
 
     public PlayerInventoryHudGui(GameGui gui, OasisGame game) {
         super(gui);
-        this.inventory = game.thePlayer.getInventory();
+        this.inventory = game.getPlayer().getInventory();
 
         // root container and positioning, bottom most of screen
         root = new Table();

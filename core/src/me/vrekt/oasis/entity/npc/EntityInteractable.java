@@ -14,6 +14,7 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.dialog.EntityDialog;
 import me.vrekt.oasis.entity.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.entity.render.EntityAnimationRenderer;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.utilities.render.Viewable;
@@ -48,10 +49,6 @@ public abstract class EntityInteractable implements Disposable, Viewable {
     protected TextureRegion entityTexture;
     protected float width, height;
     protected boolean speakingTo, speakable;
-    protected String speakingDialogName;
-
-    // required player rotation to talk to this npc
-    protected Rotation speakingRotation;
 
     // display face
     protected TextureRegion display;
@@ -59,6 +56,11 @@ public abstract class EntityInteractable implements Disposable, Viewable {
     protected float distance = 100f;
 
     protected final QuestManager questManager;
+    protected EntityAnimationRenderer renderer;
+    // if this entity is within update distance
+    protected boolean isMoving, withinDistance;
+
+    protected EntityNPCType type;
 
     public EntityInteractable(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
         this.position.set(x, y);
@@ -66,7 +68,7 @@ public abstract class EntityInteractable implements Disposable, Viewable {
         this.game = game;
         this.worldIn = worldIn;
         this.uniqueId = ThreadLocalRandom.current().nextInt(1567, 28141);
-        this.questManager = game.questManager;
+        this.questManager = game.getQuestManager();
     }
 
     public String getName() {
@@ -77,16 +79,16 @@ public abstract class EntityInteractable implements Disposable, Viewable {
         return uniqueId;
     }
 
-    public Rotation getSpeakingRotation() {
-        return speakingRotation;
-    }
-
     public EntityDialogSection getDialogSection() {
         return dialogSection;
     }
 
     public TextureRegion getDisplay() {
         return display;
+    }
+
+    public EntityNPCType getType() {
+        return type;
     }
 
     public boolean isSpeakable() {
@@ -102,10 +104,26 @@ public abstract class EntityInteractable implements Disposable, Viewable {
 
         // set rotation to face the player.
         if (speakingTo) {
-            this.entityTexture = game.asset.getAssets().findRegion(rotations.get(getOppositeRotation(game.thePlayer.getRotation())));
+            this.entityTexture = game.getAsset().getAssets().findRegion(rotations.get(getOppositeRotation(game.getPlayer().getRotation())));
             this.width = entityTexture.getRegionWidth();
             this.height = entityTexture.getRegionHeight();
         }
+    }
+
+    public void setWithinDistance(boolean withinDistance) {
+        this.withinDistance = withinDistance;
+    }
+
+    public boolean isWithinDistance() {
+        return withinDistance;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public void setMoving(boolean moving) {
+        isMoving = moving;
     }
 
     /**
@@ -113,6 +131,10 @@ public abstract class EntityInteractable implements Disposable, Viewable {
      */
     public Vector2 getPosition() {
         return position;
+    }
+
+    public void setPosition(float x, float y) {
+        position.set(x, y);
     }
 
     public void setDrawDialogAnimationTile(boolean drawDialogAnimationTile) {
@@ -142,6 +164,12 @@ public abstract class EntityInteractable implements Disposable, Viewable {
      */
     public boolean isInView() {
         return inView;
+    }
+
+    public void invalidate() {
+        setDrawDialogAnimationTile(false);
+        setSpeakingTo(false);
+        setWithinDistance(false);
     }
 
     /**
@@ -179,7 +207,12 @@ public abstract class EntityInteractable implements Disposable, Viewable {
      * @param delta  delta time
      */
     public void update(Player player, float delta) {
-        this.distance = player.getPosition().dst2(position.x, position.y);
+
+    }
+
+    public void updateWithDistance(Player player, float delta) {
+        getDistance(player);
+        this.update(player, delta);
     }
 
     /**

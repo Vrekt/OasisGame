@@ -22,7 +22,9 @@ public final class EntityComparableArray extends Array<EntityInteractable> {
     public void removeValue(EntityInteractable value) {
         EntityInteractable[] items = this.items;
         for (int i = 0, n = size; i < n; i++) {
-            if (value.getUniqueId() == (items[i].getUniqueId())) {
+            final EntityInteractable e = items[i];
+            if (value.getUniqueId() == (e.getUniqueId())
+                    || value.getType() == e.getType()) {
                 removeIndex(i);
                 return;
             }

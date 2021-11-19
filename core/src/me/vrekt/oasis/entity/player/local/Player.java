@@ -8,11 +8,13 @@ import gdx.lunar.entity.player.impl.LunarPlayer;
 import gdx.lunar.network.AbstractConnection;
 import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.animation.PlayerAnimationManager;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.inventory.PlayerInventory;
 import me.vrekt.oasis.quest.type.QuestRewards;
 import me.vrekt.oasis.world.AbstractWorld;
+import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +46,9 @@ public final class Player extends LunarPlayer {
 
         setVelocitySendRate(100);
         setPositionSendRate(250);
-        setMoveSpeed(12.0f);
-        this.inventory = new PlayerInventory(game.items, 18);
+        setMoveSpeed(15.0f);
+        setIgnoreOtherPlayerCollision(true);
+        this.inventory = new PlayerInventory(game.getItemManager(), 18);
     }
 
     @Override
@@ -54,8 +57,8 @@ public final class Player extends LunarPlayer {
         abstractWorldIn = (AbstractWorld) world;
     }
 
-    public void loadAnimations() {
-        animationManager.loadAnimations(game.asset);
+    public void loadAnimations(Asset asset) {
+        animationManager.loadAnimations(asset);
     }
 
     public PlayerAnimationManager getAnimations() {
@@ -98,15 +101,15 @@ public final class Player extends LunarPlayer {
     public void setConnection(AbstractConnection connection) {
         super.setConnection(connection);
 
-        // TODO: Multiplayer is broken
         // handle incoming network players
         connection.setCreatePlayerHandler(packet -> {
-            final NetworkPlayer player = new NetworkPlayer(packet.getEntityId(), (1 / 16.0f),
+            final NetworkPlayer player = new NetworkPlayer(packet.getEntityId(), GlobalGameRenderer.SCALE,
                     16.0f, 18.0f, Rotation.FACING_UP);
             player.setName(packet.getUsername());
+            player.setIgnoreOtherPlayerCollision(true);
 
             player.spawnEntityInWorld(worldIn, packet.getX(), packet.getY());
-            player.initializePlayerRendererAndLoad(game.asset.getAssets(), true);
+            player.initializePlayerRendererAndLoad(game.getAsset().getAssets(), true);
         });
     }
 

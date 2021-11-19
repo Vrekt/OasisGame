@@ -1,299 +1,348 @@
 
 Assets.png
-size: 921, 294
+size: 1032, 267
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 coin
   rotate: false
-  xy: 403, 53
+  xy: 804, 129
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
   index: -1
 dialog
   rotate: false
-  xy: 315, 196
+  xy: 774, 72
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 3
 dialog
   rotate: false
-  xy: 330, 196
+  xy: 774, 128
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 2
 dialog
   rotate: false
-  xy: 345, 196
+  xy: 789, 128
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 1
 equipped_inventory_slot
   rotate: false
-  xy: 411, 197
+  xy: 902, 143
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 ethe_display
   rotate: false
-  xy: 260, 269
+  xy: 774, 142
   size: 62, 23
   orig: 62, 23
   offset: 0, 0
   index: -1
+gear
+  rotate: false
+  xy: 670, 215
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
 green_button
   rotate: false
-  xy: 618, 89
+  xy: 518, 5
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 ino_face
   rotate: false
-  xy: 260, 196
+  xy: 976, 128
   size: 53, 71
   orig: 53, 71
   offset: 0, 0
   index: -1
 ino_facing_down
   rotate: false
-  xy: 260, 37
+  xy: 926, 138
   size: 16, 27
   orig: 16, 27
   offset: 0, 0
   index: -1
 ino_facing_left
   rotate: false
-  xy: 323, 38
+  xy: 875, 20
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 ino_facing_right
   rotate: false
-  xy: 296, 38
+  xy: 760, 139
   size: 12, 26
   orig: 12, 26
   offset: 0, 0
   index: -1
 ino_facing_up
   rotate: false
-  xy: 278, 38
+  xy: 944, 139
   size: 16, 26
   orig: 16, 26
   offset: 0, 0
   index: -1
 ino_idle
   rotate: false
-  xy: 310, 38
+  xy: 962, 139
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 interaction
   rotate: false
-  xy: 2, 2
+  xy: 618, 167
   size: 356, 32
   orig: 356, 32
   offset: 0, 0
   index: -1
 interaction_dialog
   rotate: false
-  xy: 260, 66
+  xy: 260, 137
   size: 356, 128
   orig: 356, 128
   offset: 0, 0
   index: -1
 inventory_slot
   rotate: false
-  xy: 387, 197
+  xy: 878, 143
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 mavia_face
   rotate: false
-  xy: 874, 221
+  xy: 828, 13
   size: 45, 71
   orig: 45, 71
   offset: 0, 0
   index: -1
 mavia_facing_down
   rotate: false
-  xy: 367, 197
+  xy: 838, 136
+  size: 18, 29
+  orig: 18, 29
+  offset: 0, 0
+  index: -1
+mavia_walking_up
+  rotate: false
+  xy: 720, 137
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 1
+mavia_walking_up
+  rotate: false
+  xy: 740, 137
+  size: 18, 28
+  orig: 18, 28
+  offset: 0, 0
+  index: 2
+mavia_walking_up_idle
+  rotate: false
+  xy: 858, 136
   size: 18, 29
   orig: 18, 29
   offset: 0, 0
   index: -1
 mining_animation
   rotate: false
-  xy: 354, 47
+  xy: 875, 67
   size: 24, 17
   orig: 24, 17
   offset: 0, 0
   index: 2
 mining_animation
   rotate: false
-  xy: 380, 47
+  xy: 875, 48
   size: 21, 17
   orig: 21, 17
   offset: 0, 0
   index: 1
+multiplayer
+  rotate: false
+  xy: 618, 215
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
 pickaxe
   rotate: false
-  xy: 349, 210
+  xy: 776, 2
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 quest_background
   rotate: false
-  xy: 2, 36
+  xy: 2, 9
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
 quest_bar
   rotate: false
-  xy: 360, 228
+  xy: 260, 71
   size: 512, 64
   orig: 512, 64
   offset: 0, 0
   index: -1
 quest_chapter
   rotate: false
-  xy: 633, 155
+  xy: 260, 5
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_chapter_dark
   rotate: false
-  xy: 618, 23
+  xy: 774, 201
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_title
   rotate: false
-  xy: 360, 5
+  xy: 774, 86
   size: 256, 40
   orig: 256, 40
   offset: 0, 0
   index: -1
 rock
   rotate: false
-  xy: 324, 266
+  xy: 618, 139
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 2
 rock
   rotate: false
-  xy: 315, 238
+  xy: 652, 139
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 1
 rock
   rotate: false
-  xy: 315, 210
+  xy: 686, 139
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 3
+video
+  rotate: false
+  xy: 722, 215
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
 walking_down
   rotate: false
-  xy: 561, 201
+  xy: 924, 46
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_down
   rotate: false
-  xy: 579, 201
+  xy: 937, 66
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_down_idle
   rotate: false
-  xy: 597, 201
+  xy: 924, 26
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_left
   rotate: false
-  xy: 453, 201
+  xy: 888, 8
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_left
   rotate: false
-  xy: 525, 201
+  xy: 906, 26
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_left_idle
   rotate: false
-  xy: 615, 201
+  xy: 924, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_right
   rotate: false
-  xy: 435, 201
+  xy: 888, 28
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_right
   rotate: false
-  xy: 543, 201
+  xy: 906, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_right_idle
   rotate: false
-  xy: 471, 201
+  xy: 901, 66
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_up
   rotate: false
-  xy: 507, 201
+  xy: 919, 66
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_up
   rotate: false
-  xy: 336, 46
+  xy: 942, 46
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_up_idle
   rotate: false
-  xy: 489, 201
+  xy: 906, 46
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
+wrench
+  rotate: false
+  xy: 776, 20
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
 xp_book_common
   rotate: false
-  xy: 349, 254
+  xy: 817, 130
   size: 8, 10
   orig: 8, 10
   offset: 0, 0

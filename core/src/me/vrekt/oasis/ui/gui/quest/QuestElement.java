@@ -9,7 +9,7 @@ import org.apache.commons.text.WordUtils;
 public final class QuestElement {
 
     private final Label questChapter, questSection, questTitle, questInformation;
-    private Table content, titleContent;
+    private Table content, titleContent, informationTable;
 
     public QuestElement(GameGui gui, String chapter, String section, String title, String information) {
         questChapter = new Label(chapter, gui.getSkin(), "small", Color.BLACK);
@@ -24,6 +24,22 @@ public final class QuestElement {
 
     public void setTitleContent(Table titleContent) {
         this.titleContent = titleContent;
+    }
+
+    public void setInformationTable(Table informationTable) {
+        this.informationTable = informationTable;
+    }
+
+    public Table getContent() {
+        return content;
+    }
+
+    public Table getTitleContent() {
+        return titleContent;
+    }
+
+    public Table getInformationTable() {
+        return informationTable;
     }
 
     public void setQuestChapter(String chapter) {

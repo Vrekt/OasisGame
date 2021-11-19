@@ -2,16 +2,15 @@ package me.vrekt.oasis.quest;
 
 import me.vrekt.oasis.quest.quests.beginner.FirstHunnewellQuest;
 import me.vrekt.oasis.quest.type.QuestType;
+import me.vrekt.oasis.utilities.loading.Loadable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Handles all quests witin the game
- */
-public final class QuestManager {
+public final class QuestManager implements Loadable {
 
     private final Map<QuestType, Quest> quests = new HashMap<>();
+    private boolean loaded;
 
     public QuestManager() {
         registerQuest(new FirstHunnewellQuest());
@@ -33,4 +32,13 @@ public final class QuestManager {
         return quests;
     }
 
+    @Override
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    @Override
+    public void setLoaded() {
+        loaded = true;
+    }
 }

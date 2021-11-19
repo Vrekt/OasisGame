@@ -2,7 +2,6 @@ package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -11,14 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
-import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.entity.player.LunarNetworkEntityPlayer;
 import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.OasisGame;
@@ -30,14 +26,17 @@ import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.ui.gui.GameGui;
 import me.vrekt.oasis.ui.gui.quest.QuestGui;
-import me.vrekt.oasis.utilities.array.EntityComparableArray;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.utilities.logging.Taggable;
-import me.vrekt.oasis.world.obj.InteractableWorldObject;
-import me.vrekt.oasis.world.region.WorldRegion;
-import me.vrekt.oasis.world.renderer.WorldRenderer;
+import me.vrekt.oasis.world.common.Enterable;
+import me.vrekt.oasis.world.common.InputHandler;
+import me.vrekt.oasis.world.common.Interactable;
+import me.vrekt.oasis.world.interior.Interior;
+import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -45,37 +44,21 @@ import java.util.function.BiConsumer;
 /**
  * A game world, extended from Lunar
  */
-public abstract class AbstractWorld extends LunarWorld implements InputProcessor, Screen, Taggable {
-
-    /**
-     * Static body
-     */
-    public static final BodyDef STATIC_BODY = new BodyDef();
-
-    static {
-        STATIC_BODY.type = BodyDef.BodyType.StaticBody;
-    }
-
-    protected final InputMultiplexer multiplexer = new InputMultiplexer();
+public abstract class AbstractWorld extends LunarWorld implements InputHandler, Interactable, Enterable, Screen, Taggable {
+    protected TiledMap map;
 
     protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
-    protected final Array<WorldRegion> regions = new Array<>();
 
-    // world objects sorted by the entity the object could be related to.
-    protected final ConcurrentMap<String, InteractableWorldObject> objectsByRelation = new ConcurrentHashMap<>();
-    protected final Array<InteractableWorldObject> objects = new Array<>();
-
-    protected final Array<EntityInteractable> entities = new Array<>();
-    protected final EntityComparableArray entitiesInVicinity = new EntityComparableArray();
-
-    protected WorldRegion regionIn;
+    protected final Map<Interior, AbstractInterior> interiors = new HashMap<>();
+    protected final ConcurrentMap<Integer, EntityInteractable> entities = new ConcurrentHashMap<>();
+    protected final Map<EntityNPCType, EntityInteractable> entityTypes = new HashMap<>();
 
     protected final Asset asset;
     protected final Vector2 spawn = new Vector2(0, 0);
 
     protected GameGui gui;
 
-    protected WorldRenderer renderer;
+    protected GlobalGameRenderer renderer;
     protected Player thePlayer;
     protected SpriteBatch batch;
     protected float scale;
@@ -88,13 +71,16 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     protected TextureRegion fboTexture;
     protected boolean paused, hasFbo;
 
-    public AbstractWorld(Player player, World world, SpriteBatch batch, Asset asset) {
+    protected OasisGame game;
+
+    public AbstractWorld(OasisGame game, Player player, World world, SpriteBatch batch, Asset asset) {
         super(player, world);
 
+        this.register(game.getMultiplexer());
+        this.gui = game.getGui();
         this.batch = batch;
         this.thePlayer = player;
         this.asset = asset;
-        this.multiplexer.addProcessor(this);
         this.fbo = new FrameBuffer(Pixmap.Format.RGB888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 
         setPlayersCollection(networkPlayers);
@@ -108,8 +94,8 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
         return gui;
     }
 
-    public InteractableWorldObject getObjectByRelation(String relation) {
-        return objectsByRelation.get(relation);
+    public TiledMap getMap() {
+        return map;
     }
 
     public void setWorldLoadedCallback(Runnable action) {
@@ -133,20 +119,6 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     protected abstract void preLoadWorld(TiledMap worldMap, float worldScale);
 
     /**
-     * The interaction key was pressed.
-     */
-    protected void handleInteractionKeyPressed() {
-
-    }
-
-    /**
-     * Player is clicking
-     */
-    protected void clicked() {
-
-    }
-
-    /**
      * Render UI
      */
     public abstract void renderUi();
@@ -160,17 +132,19 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
      */
     public void loadIntoWorld(OasisGame game, TiledMap worldMap, float worldScale) {
         this.scale = worldScale;
+        this.map = worldMap;
+        this.game = game;
         this.preLoadWorld(worldMap, worldScale);
 
         loadMapActions(worldMap, worldScale);
         loadMapCollision(worldMap, worldScale);
 
         this.worldScale = worldScale;
-        this.renderer = new WorldRenderer(worldMap, worldScale, spawn, batch, thePlayer);
+        this.renderer = game.getRenderer();
+        this.renderer.setDrawingMap(map, spawn.x, spawn.y);
 
-        loadWorldNPC(game, worldMap, worldScale);
-        loadWorldRegions(worldMap, worldScale);
-        loadWorldObjects(worldMap, worldScale);
+        loadWorldEntities(game, worldMap, worldScale);
+        loadWorldInteriors(worldMap, worldScale);
         loadWorld(worldMap, worldScale);
 
         // initialize player in this world.
@@ -244,19 +218,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
         int loaded = 0;
         for (MapObject object : layer.getObjects()) {
-            if (object instanceof PolylineMapObject) {
-                final ChainShape shape = CollisionShapeCreator.createPolylineShape((PolylineMapObject) object, worldScale);
-                createStaticBody(shape);
-            } else if (object instanceof PolygonMapObject) {
-                final PolygonShape shape = CollisionShapeCreator.createPolygonShape((PolygonMapObject) object, worldScale);
-                createStaticBody(shape);
-            } else if (object instanceof RectangleMapObject) {
-                final PolygonShape shape = CollisionShapeCreator.createPolygonShape((RectangleMapObject) object, worldScale, true);
-                createStaticBody(shape);
-            } else {
-                Logging.warn(WORLD, "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
-            }
-
+            CollisionShapeCreator.createCollisionInWorld(object, worldScale, world);
             loaded++;
         }
 
@@ -269,7 +231,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void loadWorldNPC(OasisGame game, TiledMap worldMap, float worldScale) {
+    protected void loadWorldEntities(OasisGame game, TiledMap worldMap, float worldScale) {
         final boolean result = loadMapObjects(worldMap, worldScale, "NPC", (object, rectangle) -> {
             // find who this NPC is.
             final EntityNPCType type = EntityNPCType.valueOf(object.getName().toUpperCase());
@@ -277,67 +239,81 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
             final EntityInteractable entity = type.create(rectangle.x, rectangle.y, game, this);
             entity.load(asset);
 
-            this.entities.add(entity);
+            this.entityTypes.put(type, entity);
+            this.entities.put(entity.getUniqueId(), entity);
         });
-        if (result) Logging.info(WORLD, "Loaded " + (entities.size) + " NPCs.");
+        if (result) Logging.info(WORLD, "Loaded " + (entities.size()) + " entities.");
     }
 
     /**
-     * Load world regions
+     * Load enterable houses and buildings within the world
      *
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void loadWorldRegions(TiledMap worldMap, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Region", (o, rectangle) -> this.regions.add(new WorldRegion(o.getName(), rectangle)));
-        if (result) Logging.info(WORLD, "Loaded " + (this.regions.size) + " Regions.");
-    }
-
-    /**
-     * Load interactable objects within this world
-     *
-     * @param worldMap   map
-     * @param worldScale scale
-     */
-    protected void loadWorldObjects(TiledMap worldMap, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Objects", (o, rectangle) -> {
-            final InteractableWorldObject object = new InteractableWorldObject(o, rectangle, asset, world, worldScale);
-            if (object.getRelatedTo() != null) {
-                objectsByRelation.put(object.getRelatedTo(), object);
+    protected void loadWorldInteriors(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Interiors", (object, rectangle) -> {
+            final boolean enterable = object.getProperties().get("enterable", false, Boolean.class);
+            final String name = object.getProperties().get("interior", null, String.class);
+            if (name != null && enterable) {
+                final Interior interior = Interior.valueOf(object.getProperties().get("interior", String.class));
+                this.interiors.put(interior, interior.createInterior(new Vector2(rectangle.x, rectangle.y), this));
+                Logging.info("Objects", "Loaded interior: " + interior);
+            } else {
+                Logging.warn(WORLD, "Failed to find interior for " + object.getName());
             }
-
-            objects.add(object);
         });
-        if (result) Logging.info(WORLD, "Loaded " + (this.objects.size) + " Objects.");
-    }
-
-    /**
-     * Create a static body from shape
-     *
-     * @param shape the shape
-     */
-    private void createStaticBody(Shape shape) {
-        world.createBody(STATIC_BODY).createFixture(shape, 1.0f);
-        shape.dispose();
+        if (result) Logging.info(WORLD, "Loaded " + (this.interiors.size()) + " interiors.");
     }
 
     /**
      * Retrieve the closest entity to the player
-     * Minimum distance if 40.0f;
+     * Minimum distance is 10.0f;
      *
      * @return the entity, or {@code null} if not found.
      */
     public EntityInteractable getClosestEntity() {
-        float min = 40.0f;
+        float min = 10.0f;
 
         EntityInteractable closest = null;
-        for (EntityInteractable entity : entitiesInVicinity) {
+        for (EntityInteractable entity : entities.values()) {
             if (entity.getDistance() <= min) {
                 min = entity.getDistance();
                 closest = entity;
             }
         }
         return closest;
+    }
+
+    public void removeInteractableEntityFromWorld(EntityInteractable entity) {
+        this.entities.remove(entity.getUniqueId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends EntityInteractable> T getEntity(EntityNPCType type) {
+        return (T) entityTypes.get(type);
+    }
+
+    public AbstractInterior getInterior(Interior interior) {
+        return interiors.get(interior);
+    }
+
+    @Override
+    public void register(InputMultiplexer multiplexer) {
+        multiplexer.addProcessor(this);
+    }
+
+    /**
+     * Unregister listeners and input stuff for this world.
+     */
+    @Override
+    public void unregister(InputMultiplexer multiplexer) {
+        multiplexer.removeProcessor(this);
+    }
+
+    @Override
+    public void exit() {
+        this.unregister(game.getMultiplexer());
     }
 
     @Override
@@ -351,44 +327,21 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
         // update our player
         thePlayer.update(d);
-        thePlayer.interpolate(0.5f);
+        thePlayer.interpolate(1.0f);
 
-        // update all entities within the world, that the player can see.
-        for (EntityInteractable entity : entities) {
+        // update all entities within the world, that are within ticking distance
+        for (EntityInteractable entity : entities.values()) {
             final double distance = entity.getDistance(thePlayer);
             if (distance <= GameSettings.ENTITY_UPDATE_DISTANCE) {
                 entity.update(thePlayer, d);
+                entity.setWithinDistance(true);
 
-                if (entity.isInView()) {
-                    // is in view, so do rendering updates.
-                    entity.setDrawDialogAnimationTile(entity.isSpeakable());
-                } else {
-                    entity.setDrawDialogAnimationTile(false);
-                }
-
-                if (!entitiesInVicinity.contains(entity))
-                    entitiesInVicinity.add(entity);
+                // draw interaction dialog animation if near and speakable.
+                entity.setDrawDialogAnimationTile(entity.isInView() && entity.isSpeakable());
             } else {
-                // entity is not near us, remove them and invalidate their state.
-                entity.setDrawDialogAnimationTile(false);
-                entity.setSpeakingTo(false);
-
-                if (entitiesInVicinity.contains(entity))
-                    entitiesInVicinity.removeValue(entity);
+                entity.invalidate();
             }
         }
-
-        // update world objects
-        final Array.ArrayIterator<InteractableWorldObject> iterator = objects.iterator();
-        while (iterator.hasNext()) {
-            final InteractableWorldObject object = iterator.next();
-            if (object.isFinished()) {
-                iterator.remove(); // remove from list
-                world.destroyBody(object.getBody()); // destroy collision
-                if (object.getRelatedTo() != null) objectsByRelation.remove(object.getRelatedTo());
-            }
-        }
-
     }
 
     @Override
@@ -401,22 +354,18 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
 
         // networked players
         for (NetworkPlayer player : networkPlayers.values())
-            if (player.isInView(renderer.getCamera())) player.render(batch, delta);
+            if (player.isInView(renderer.getCamera())) {
+                player.render(batch, delta);
+            }
 
         // entities
-        for (EntityInteractable entity : entities)
+        for (EntityInteractable entity : entities.values())
             if (entity.isInView(renderer.getCamera())) entity.render(batch, scale);
-
-        // objects
-        for (InteractableWorldObject object : objects) {
-            if (object.isRender()) object.render(batch);
-        }
     }
 
     @Override
     public void render(float delta) {
         if (paused && !hasFbo) fbo.begin();
-        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused && !hasFbo) {
@@ -481,44 +430,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputProcessor
     }
 
     @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        clicked();
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
-    }
-
-    @Override
     public void show() {
-        Gdx.input.setInputProcessor(multiplexer);
         Logging.info(WORLD, "Showing world...");
     }
 

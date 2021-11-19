@@ -10,12 +10,13 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
-import me.vrekt.oasis.item.items.tools.CommonPickaxeItem;
-import me.vrekt.oasis.ui.gui.GameGui;
+import me.vrekt.oasis.utilities.logging.Logging;
+import me.vrekt.oasis.world.AbstractInterior;
 import me.vrekt.oasis.world.AbstractWorld;
-import me.vrekt.oasis.world.renderer.WorldRenderer;
+import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
 /**
  * The world of Athena.
@@ -26,18 +27,16 @@ public final class AthenaWorld extends AbstractWorld {
     private float dialogAnimationTime;
     private Animation<TextureRegion> dialogAnimation;
 
-    public AthenaWorld(OasisGame game, Player player, World world, SpriteBatch batch) {
-        super(player, world, batch, game.asset);
-
-        this.gui = new GameGui(game, game.asset, this, multiplexer);
-        multiplexer.addProcessor(player.getInventory());
+    public AthenaWorld(OasisGame game, Asset asset, Player player, World world, SpriteBatch batch) {
+        super(game, player, world, batch, game.getAsset());
+        game.getMultiplexer().addProcessor(player.getInventory());
 
         setHandlePhysics(true);
         setUpdateNetworkPlayers(true);
         setUpdatePlayer(false);
         setUpdateEntities(false);
 
-        this.worldScale = WorldRenderer.SCALE;
+        this.worldScale = GlobalGameRenderer.SCALE;
     }
 
     public Player getPlayer() {
@@ -59,27 +58,43 @@ public final class AthenaWorld extends AbstractWorld {
                 interactions.findRegion("dialog", 3));
 
         this.dialogAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        this.thePlayer.getInventory().giveItem(new CommonPickaxeItem());
-
         Gdx.app.log(ATHENA, "Finished loading World: Athena");
     }
 
     @Override
-    protected void handleInteractionKeyPressed() {
+    public void handleInteractionKeyPressed() {
         final EntityInteractable interactable = getClosestEntity();
-        if (interactable != null && !interactable.isSpeakingTo()) {
+
+        if (interactable != null
+                && !interactable.isSpeakingTo()
+                && interactable.isSpeakable()) {
             interactable.setSpeakingTo(true);
 
             gui.getDialog().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
             gui.getDialog().showGui();
 
             this.entityInteractingWith = interactable;
+            return;
         }
+
+        enterInteriorIfPossible();
     }
 
-    @Override
-    protected void clicked() {
-        // TODO: World interactions
+    /**
+     * Enter an interior if possible
+     * TODO: Only iterate interiors in view?
+     */
+    private void enterInteriorIfPossible() {
+        for (AbstractInterior interior : interiors.values()) {
+            if (interior.isEnterable(thePlayer)) {
+                final boolean result = interior.enterInterior(asset, this, game, renderer, thePlayer);
+                if (result) {
+                    this.exit();
+                } else {
+                    Logging.error(this, "Failed to load into interior: " + interior);
+                }
+            }
+        }
     }
 
     @Override
@@ -99,12 +114,15 @@ public final class AthenaWorld extends AbstractWorld {
         // render dialog animations above entities
         dialogAnimationTime += delta;
         final TextureRegion frame = dialogAnimation.getKeyFrame(dialogAnimationTime);
-        for (EntityInteractable entity : entitiesInVicinity) {
-            if (entity.doDrawDialogAnimationTile()) {
-                batch.draw(frame, entity.getPosition().x, entity.getPosition().y + entity.getHeight(worldScale),
-                        frame.getRegionWidth() * worldScale, frame.getRegionHeight() * worldScale);
-            }
-        }
+
+        entities.values()
+                .stream()
+                .filter(EntityInteractable::isWithinDistance).forEach(entity -> {
+                    if (entity.doDrawDialogAnimationTile()) {
+                        batch.draw(frame, entity.getPosition().x, entity.getPosition().y + entity.getHeight(worldScale),
+                                frame.getRegionWidth() * worldScale, frame.getRegionHeight() * worldScale);
+                    }
+                });
     }
 
     @Override
@@ -115,18 +133,11 @@ public final class AthenaWorld extends AbstractWorld {
     @Override
     public void update(float d) {
         super.update(d);
-
         updateDialogState();
     }
 
     private void updateDialogState() {
-        if (gui.getDialog().isVisible()
-                && entityInteractingWith != null
-                && entityInteractingWith.isSpeakingTo()
-                && !entityInteractingWith.isSpeakable()) {
-
-            gui.getDialog().hideGui();
-            entityInteractingWith.setSpeakingTo(false);
+        if (gui.updateDialogState(entityInteractingWith)) {
             entityInteractingWith = null;
         }
     }
