@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui.quest;
+package me.vrekt.oasis.gui.quest;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -9,8 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.quest.Quest;
 import me.vrekt.oasis.quest.type.QuestType;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.Gui;
 
 import java.util.HashMap;
 import java.util.Map;

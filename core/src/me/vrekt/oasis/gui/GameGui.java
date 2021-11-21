@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui;
+package me.vrekt.oasis.gui;
 
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
@@ -15,14 +15,14 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
-import me.vrekt.oasis.ui.gui.dialog.DialogGui;
-import me.vrekt.oasis.ui.gui.hud.PlayerHudGui;
-import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
-import me.vrekt.oasis.ui.gui.notification.NotificationGui;
-import me.vrekt.oasis.ui.gui.notification.QuestNotificationGui;
-import me.vrekt.oasis.ui.gui.quest.QuestGui;
-import me.vrekt.oasis.ui.gui.settings.SettingsGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.dialog.DialogGui;
+import me.vrekt.oasis.gui.domain.DomainEntranceMenuGui;
+import me.vrekt.oasis.gui.hud.PlayerHudGui;
+import me.vrekt.oasis.gui.inventory.PlayerInventoryHudGui;
+import me.vrekt.oasis.gui.notification.NotificationGui;
+import me.vrekt.oasis.gui.notification.QuestNotificationGui;
+import me.vrekt.oasis.gui.quest.QuestGui;
+import me.vrekt.oasis.gui.settings.SettingsGui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,6 +69,7 @@ public final class GameGui {
         createGui(QuestNotificationGui.ID, new QuestNotificationGui(this));
         createGui(QuestGui.ID, new QuestGui(this));
         createGui(99, new SettingsGui(this));
+        createGui(98, new DomainEntranceMenuGui(this));
     }
 
     private void createGui(int id, Gui any) {

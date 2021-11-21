@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui.notification;
+package me.vrekt.oasis.gui.notification;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
@@ -8,8 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.Gui;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
@@ -60,7 +60,6 @@ public final class QuestNotificationGui extends Gui {
                     && ((AlphaAction) table.getActions().get(0)).isComplete();
 
             if (now - time.getValue() >= (time.getLeft() * 1000) && !isFaded) {
-                // fade this table out.
                 table.addAction(Actions.fadeOut(.6f, Interpolation.linear));
             } else if (isFaded) {
                 this.rootTable.removeActor(table);

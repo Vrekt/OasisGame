@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.world.AbstractInterior;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.interior.mavia.MaviaHouseInterior;
 
@@ -21,14 +20,14 @@ public enum Interior {
         }
     };
 
-    private final String interiorName;
+    private final String resource;
 
     Interior(String worldName) {
-        this.interiorName = worldName;
+        this.resource = worldName;
     }
 
-    public String getInteriorName() {
-        return interiorName;
+    public String getResource() {
+        return resource;
     }
 
     public abstract AbstractInterior createInterior(Vector2 entrance, AbstractWorld worldIn);

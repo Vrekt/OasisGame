@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui.dialog;
+package me.vrekt.oasis.gui.dialog;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,10 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.entity.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.gui.elements.LabeledGuiButton;
-import me.vrekt.oasis.ui.gui.inventory.PlayerInventoryHudGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.elements.LabeledGuiButton;
+import me.vrekt.oasis.gui.inventory.PlayerInventoryHudGui;
+import me.vrekt.oasis.gui.Gui;
 import org.apache.commons.text.WordUtils;
 
 public final class DialogGui extends Gui {
@@ -98,6 +98,9 @@ public final class DialogGui extends Gui {
 
         int index = 1;
 
+        dialogOption1.setText(null);
+        dialogOption2.setText(null);
+        dialogOption3.setText(null);
         for (String key : dialog.options.keySet()) {
             if (index == 1) {
                 dialogOption1.setOptionName(key);

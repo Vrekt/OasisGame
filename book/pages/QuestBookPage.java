@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.book.pages;
+package me.vrekt.oasis.gui.book.pages;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -10,7 +10,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.quest.Quest;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.quest.type.QuestType;
-import me.vrekt.oasis.ui.book.BookPage;
+import me.vrekt.oasis.gui.book.BookPage;
 import org.apache.commons.text.WordUtils;
 
 /**

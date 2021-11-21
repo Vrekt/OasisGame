@@ -16,7 +16,7 @@ public interface Enterable {
      *
      * @return {@code true} if successful.
      */
-    default boolean enterInterior(Asset asset, AbstractWorld worldIn, OasisGame game, GlobalGameRenderer renderer, Player thePlayer) {
+    default boolean enterInstance(Asset asset, AbstractWorld worldIn, OasisGame game, GlobalGameRenderer renderer, Player thePlayer) {
         return true;
     }
 

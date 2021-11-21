@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui.elements;
+package me.vrekt.oasis.gui.elements;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import me.vrekt.oasis.ui.gui.dialog.DialogGui;
+import me.vrekt.oasis.gui.dialog.DialogGui;
 
 /**
  * A labeled gui button with actions
@@ -39,6 +39,7 @@ public final class LabeledGuiButton extends ClickListener {
     }
 
     public void clicked(InputEvent event, float x, float y) {
+        if (this.label.getText().isEmpty()) return;
         gui.handleOptionClicked(optionName);
     }
 

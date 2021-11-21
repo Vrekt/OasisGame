@@ -14,7 +14,8 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.utilities.logging.Logging;
-import me.vrekt.oasis.world.AbstractInterior;
+import me.vrekt.oasis.world.domains.AbstractDomain;
+import me.vrekt.oasis.world.interior.AbstractInterior;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
@@ -45,7 +46,7 @@ public final class AthenaWorld extends AbstractWorld {
 
     @Override
     protected void preLoadWorld(TiledMap worldMap, float worldScale) {
-        Gdx.app.log(ATHENA, "Finished pre-loading Athena.");
+
     }
 
     @Override
@@ -58,7 +59,7 @@ public final class AthenaWorld extends AbstractWorld {
                 interactions.findRegion("dialog", 3));
 
         this.dialogAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        Gdx.app.log(ATHENA, "Finished loading World: Athena");
+        Logging.info(this, "Finished loading world.");
     }
 
     @Override
@@ -78,6 +79,10 @@ public final class AthenaWorld extends AbstractWorld {
         }
 
         enterInteriorIfPossible();
+        enterDomainIfPossible();
+    }
+
+    private void enterInstanceIfPossible() {
     }
 
     /**
@@ -87,12 +92,26 @@ public final class AthenaWorld extends AbstractWorld {
     private void enterInteriorIfPossible() {
         for (AbstractInterior interior : interiors.values()) {
             if (interior.isEnterable(thePlayer)) {
-                final boolean result = interior.enterInterior(asset, this, game, renderer, thePlayer);
+                final boolean result = interior.enterInstance(asset, this, game, renderer, thePlayer);
                 if (result) {
                     this.exit();
                 } else {
                     Logging.error(this, "Failed to load into interior: " + interior);
                 }
+            }
+        }
+    }
+
+    private void enterDomainIfPossible() {
+        for (AbstractDomain domain : domains.values()) {
+            if (!domain.isLocked()) {
+                gui.showGui(98);
+                //  final boolean result = domain.enterInstance(asset, this, game, renderer, thePlayer);
+                //    if (result) {
+                //        this.exit();
+                //     } else {
+                //         Logging.error(this, "Failed to load into domain: " + domain);
+                //    }
             }
         }
     }

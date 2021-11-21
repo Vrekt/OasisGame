@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="16" tileheight="16" infinite="0" nextlayerid="39" nextobjectid="135">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="16" tileheight="16" infinite="0" nextlayerid="40" nextobjectid="136">
  <tileset firstgid="1" name="Overworld" tilewidth="16" tileheight="16" tilecount="1440" columns="40">
   <image source="Overworld.png" width="640" height="576"/>
   <tile id="40">
@@ -591,10 +591,18 @@
  </layer>
  <objectgroup id="37" name="Objects"/>
  <objectgroup id="38" name="Interiors">
-  <object id="134" x="424" y="1928.5">
+  <object id="134" name="MaviaHouse" x="424" y="1928.5">
    <properties>
     <property name="enterable" type="bool" value="true"/>
     <property name="interior" value="MAVIA_HOUSE"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="39" name="Domains">
+  <object id="135" name="ChambersOfMist" x="167.5" y="1773.5">
+   <properties>
+    <property name="domain" value="chambers_of_mist"/>
    </properties>
    <point/>
   </object>

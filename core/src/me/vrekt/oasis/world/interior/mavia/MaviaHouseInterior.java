@@ -8,7 +8,7 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.mavia.EntityMavia;
 import me.vrekt.oasis.utilities.logging.Logging;
-import me.vrekt.oasis.world.AbstractInterior;
+import me.vrekt.oasis.world.interior.AbstractInterior;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
@@ -65,7 +65,6 @@ public final class MaviaHouseInterior extends AbstractInterior {
 
     @Override
     protected void update() {
-        System.err.println(mavia.isSpeakable());
         game.getGui().updateDialogState(mavia);
     }
 }

@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world;
+package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -27,10 +27,10 @@ import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
+import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.common.Enterable;
 import me.vrekt.oasis.world.common.InputHandler;
 import me.vrekt.oasis.world.common.Interactable;
-import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
 /**
@@ -124,7 +124,7 @@ public abstract class AbstractInterior extends LunarInstance implements Disposab
     }
 
     @Override
-    public boolean enterInterior(Asset asset, AbstractWorld worldIn, OasisGame game, GlobalGameRenderer renderer, Player thePlayer) {
+    public boolean enterInstance(Asset asset, AbstractWorld worldIn, OasisGame game, GlobalGameRenderer renderer, Player thePlayer) {
         this.player = thePlayer;
         this.renderer = renderer;
         this.game = game;

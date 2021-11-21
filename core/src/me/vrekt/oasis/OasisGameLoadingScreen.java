@@ -17,11 +17,10 @@ import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.network.PlayerConnection;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.item.ItemManager;
 import me.vrekt.oasis.quest.QuestManager;
 import me.vrekt.oasis.server.LocalOasisServer;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.scene.FirstTimeIntroductionScene;
 import me.vrekt.oasis.world.athena.AthenaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
@@ -132,7 +131,7 @@ public final class OasisGameLoadingScreen extends ScreenAdapter {
             this.show = true;
 
             progressBar.setValue(progressBar.getValue() + 20.0f);
-            game.setScreen(new FirstTimeIntroductionScene(game));
+            game.setScreen(game.worldManager.getWorld("Athena"));
         } else {
             progressBar.setValue(progressBar.getValue() + (progressBar.getStepSize() / 2f));
         }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import me.vrekt.oasis.world.domains.DomainType;
 import me.vrekt.oasis.world.interior.Interior;
 
 import java.util.HashMap;
@@ -28,8 +29,9 @@ public final class Asset {
     private BitmapFont romulusBig, romulusSmall, romulusSmaller;
     private Skin skin;
 
-    private final Map<Interior, TiledMap> cachedMaps = new HashMap<>();
+    private final Map<String, TiledMap> cachedInstances = new HashMap<>();
     private TmxMapLoader mapLoader;
+    private ParticleEffect test;
 
     /**
      * Load general assets needed by each world.
@@ -60,9 +62,23 @@ public final class Asset {
      */
     private void loadParticleEffects() {
         final ParticleEffectLoader.ParticleEffectParameter parameters = new ParticleEffectLoader.ParticleEffectParameter();
-        parameters.atlasFile = PARTICLE_ATLAS;
+        //   parameters.atlasFile = PARTICLE_ATLAS;
 
-        assetManager.load(PARTICLE_FILE, ParticleEffect.class, parameters);
+        //   assetManager.load(PARTICLE_FILE, ParticleEffect.class, parameters);
+
+        //    public static final String PARTICLE_ATLAS = "farm/effects/farm_particle.atlas";
+        //    public static final String PARTICLE_FILE = "farm/effects/farm_particle.p";
+
+        test = new ParticleEffect();
+        test.load(Gdx.files.internal("effects/mob/cicin/cicin_serpent_particle.p"), Gdx.files.internal("effects/mob/cicin"));
+
+       // parameters.atlasFile = "effects/mob/cicin/Particles.atlas";
+       // assetManager.load("effects/mob/cicin/cicin_serpent_particle.p", ParticleEffect.class, parameters);
+
+    }
+
+    public ParticleEffect getTest() {
+        return test;
     }
 
     /**
@@ -73,7 +89,7 @@ public final class Asset {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         // big text for context or titles
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.08);
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.06);
         romulusBig = generator.generateFont(parameter);
 
         // generate a smaller text for sub title information
@@ -94,11 +110,20 @@ public final class Asset {
      * @return the tiled map.
      */
     public TiledMap loadInterior(Interior interior, float cacheTime) {
-        if (cachedMaps.containsKey(interior)) {
-            return cachedMaps.get(interior);
+        if (cachedInstances.containsKey(interior.getResource())) {
+            return cachedInstances.get(interior.getResource());
         }
-        final TiledMap map = mapLoader.load(interior.getInteriorName());
-        this.cachedMaps.put(interior, map);
+        final TiledMap map = mapLoader.load(interior.getResource());
+        this.cachedInstances.put(interior.getResource(), map);
+        return map;
+    }
+
+    public TiledMap loadDomain(DomainType domainType, float cacheTime) {
+        if (cachedInstances.containsKey(domainType.getResource())) {
+            return cachedInstances.get(domainType.getResource());
+        }
+        final TiledMap map = mapLoader.load(domainType.getResource());
+        this.cachedInstances.put(domainType.getResource(), map);
         return map;
     }
 

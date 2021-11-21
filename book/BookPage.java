@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.book;
+package me.vrekt.oasis.gui.book;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;

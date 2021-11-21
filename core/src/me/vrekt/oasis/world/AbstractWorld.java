@@ -24,18 +24,21 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
 import me.vrekt.oasis.settings.GameSettings;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.gui.quest.QuestGui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.quest.QuestGui;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
-import me.vrekt.oasis.utilities.logging.Taggable;
 import me.vrekt.oasis.world.common.Enterable;
 import me.vrekt.oasis.world.common.InputHandler;
 import me.vrekt.oasis.world.common.Interactable;
+import me.vrekt.oasis.world.domains.AbstractDomain;
+import me.vrekt.oasis.world.domains.DomainType;
+import me.vrekt.oasis.world.interior.AbstractInterior;
 import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -44,12 +47,14 @@ import java.util.function.BiConsumer;
 /**
  * A game world, extended from Lunar
  */
-public abstract class AbstractWorld extends LunarWorld implements InputHandler, Interactable, Enterable, Screen, Taggable {
+public abstract class AbstractWorld extends LunarWorld implements InputHandler, Interactable, Enterable, Screen {
     protected TiledMap map;
 
     protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
 
     protected final Map<Interior, AbstractInterior> interiors = new HashMap<>();
+    protected final Map<DomainType, AbstractDomain> domains = new HashMap<>();
+
     protected final ConcurrentMap<Integer, EntityInteractable> entities = new ConcurrentHashMap<>();
     protected final Map<EntityNPCType, EntityInteractable> entityTypes = new HashMap<>();
 
@@ -145,6 +150,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
 
         loadWorldEntities(game, worldMap, worldScale);
         loadWorldInteriors(worldMap, worldScale);
+        loadWorldDomains(worldMap, worldScale);
         loadWorld(worldMap, worldScale);
 
         // initialize player in this world.
@@ -164,7 +170,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
     protected boolean loadMapObjects(TiledMap worldMap, float worldScale, String layerName, BiConsumer<MapObject, Rectangle> handler) {
         final MapLayer layer = worldMap.getLayers().get(layerName);
         if (layer == null) {
-            Logging.warn(WORLD, "Failed to load layer: " + layerName);
+            Logging.warn(this, "Failed to load layer: " + layerName);
             return false;
         }
 
@@ -177,7 +183,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
                 rectangle.height = rectangle.height * worldScale;
                 handler.accept(object, rectangle);
             } else {
-                Logging.warn(WORLD, "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
+                Logging.warn(this, "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
             }
         }
 
@@ -200,7 +206,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             // others...
         });
 
-        if (!result) Logging.warn(WORLD, "Failed to find world spawn.");
+        if (!result) Logging.warn(this, "Failed to find world spawn.");
     }
 
     /**
@@ -212,7 +218,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
     protected void loadMapCollision(TiledMap worldMap, float worldScale) {
         final MapLayer layer = worldMap.getLayers().get("Collision");
         if (layer == null) {
-            Logging.warn(WORLD, "Failed to find collision layer.");
+            Logging.warn(this, "Failed to find collision layer.");
             return;
         }
 
@@ -222,7 +228,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             loaded++;
         }
 
-        Logging.info(WORLD, "Loaded a total of " + loaded + " collision objects.");
+        Logging.info(this, "Loaded a total of " + loaded + " collision objects.");
     }
 
     /**
@@ -242,7 +248,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             this.entityTypes.put(type, entity);
             this.entities.put(entity.getUniqueId(), entity);
         });
-        if (result) Logging.info(WORLD, "Loaded " + (entities.size()) + " entities.");
+        if (result) Logging.info(this, "Loaded " + (entities.size()) + " entities.");
     }
 
     /**
@@ -256,14 +262,34 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             final boolean enterable = object.getProperties().get("enterable", false, Boolean.class);
             final String name = object.getProperties().get("interior", null, String.class);
             if (name != null && enterable) {
-                final Interior interior = Interior.valueOf(object.getProperties().get("interior", String.class));
+                final Interior interior = Interior.valueOf(name.toUpperCase(Locale.ROOT));
                 this.interiors.put(interior, interior.createInterior(new Vector2(rectangle.x, rectangle.y), this));
                 Logging.info("Objects", "Loaded interior: " + interior);
             } else {
-                Logging.warn(WORLD, "Failed to find interior for " + object.getName());
+                Logging.warn(this, "Failed to find interior for " + object.getName());
             }
         });
-        if (result) Logging.info(WORLD, "Loaded " + (this.interiors.size()) + " interiors.");
+        if (result) Logging.info(this, "Loaded " + (this.interiors.size()) + " interiors.");
+    }
+
+    /**
+     * Load domains within this world
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    protected void loadWorldDomains(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Domains", (object, rectangle) -> {
+            final String name = object.getProperties().get("domain", null, String.class);
+            if (name != null) {
+                final DomainType domainType = DomainType.valueOf(name.toUpperCase(Locale.ROOT));
+                this.domains.put(domainType, domainType.createDomain(game, new Vector2(rectangle.x, rectangle.y), this));
+                Logging.info("Objects", "Loaded domain: " + domainType);
+            } else {
+                Logging.warn(this, "Failed to find domain for " + object.getName());
+            }
+        });
+        if (result) Logging.info(this, "Loaded " + (this.domains.size()) + " domains.");
     }
 
     /**
@@ -431,25 +457,23 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
 
     @Override
     public void show() {
-        Logging.info(WORLD, "Showing world...");
+
     }
 
     @Override
     public void pause() {
         this.paused = true;
-        Logging.info(WORLD, "Pausing world...");
     }
 
     @Override
     public void resume() {
         this.paused = false;
         this.hasFbo = false;
-        Logging.info(WORLD, "Resuming world...");
     }
 
     @Override
     public void hide() {
-        Logging.info(WORLD, "Hiding world...");
+
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.AnimatedTiledMapTile;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -30,6 +31,9 @@ public final class GlobalGameRenderer implements Disposable {
     private final Player thePlayer;
     private final SpriteBatch batch;
     private final StretchViewport viewport;
+
+    private int width, height;
+    private float hx, hy;
 
     /**
      * Initialize a new renderer instance
@@ -56,6 +60,12 @@ public final class GlobalGameRenderer implements Disposable {
         if (renderer == null) {
             renderer = new OrthogonalTiledMapRenderer(map, SCALE, batch);
         }
+
+        this.width = map.getProperties().get("width", Integer.class);
+        this.height = map.getProperties().get("height", Integer.class);
+
+        this.hx = camera.viewportWidth / 2f;
+        this.hy = camera.viewportHeight / 2f;
 
         camera.position.set(x, y, 0f);
         camera.update();
@@ -105,7 +115,8 @@ public final class GlobalGameRenderer implements Disposable {
         final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolated().x, 1f);
         final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolated().y, 1f);
 
-        camera.position.set(x, y, 0f);
+        camera.position.x = MathUtils.clamp(x, hx, width - hx);
+        camera.position.y = MathUtils.clamp(y, hy, height - hy);
         camera.update();
     }
 
@@ -118,6 +129,9 @@ public final class GlobalGameRenderer implements Disposable {
     public void resize(int width, int height) {
         viewport.update(width, height, false);
         camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
+
+        hx = camera.viewportWidth / 2f;
+        hy = camera.viewportHeight / 2f;
     }
 
     @Override

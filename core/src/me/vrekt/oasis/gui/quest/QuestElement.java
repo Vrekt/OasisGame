@@ -1,9 +1,9 @@
-package me.vrekt.oasis.ui.gui.quest;
+package me.vrekt.oasis.gui.quest;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import me.vrekt.oasis.ui.gui.GameGui;
+import me.vrekt.oasis.gui.GameGui;
 import org.apache.commons.text.WordUtils;
 
 public final class QuestElement {

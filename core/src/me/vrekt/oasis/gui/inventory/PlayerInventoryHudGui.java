@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.gui.inventory;
+package me.vrekt.oasis.gui.inventory;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.inventory.PlayerInventory;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.Gui;
 
 /**
  * The players hud inventory

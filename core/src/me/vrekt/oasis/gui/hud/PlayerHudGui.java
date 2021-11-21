@@ -1,7 +1,7 @@
-package me.vrekt.oasis.ui.gui.hud;
+package me.vrekt.oasis.gui.hud;
 
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.Gui;
 
 /**
  * Ethe/Coins display

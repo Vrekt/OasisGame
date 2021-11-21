@@ -28,8 +28,8 @@ public interface Logging {
      * @param tag  the tag
      * @param info the info
      */
-    static void info(String tag, String info) {
-        Gdx.app.log(tag, INFO + info);
+    static void info(Object tag, String info) {
+        Gdx.app.log(tag.getClass().getSimpleName(), INFO + info);
     }
 
     /**
@@ -38,18 +38,8 @@ public interface Logging {
      * @param tag  the tag
      * @param warn the warning
      */
-    static void warn(String tag, String warn) {
-        Gdx.app.log(tag, WARN + warn);
-    }
-
-    /**
-     * Log an error
-     *
-     * @param tag   the tag
-     * @param error the error
-     */
-    static void error(String tag, String error) {
-        Gdx.app.log(tag, ERROR + error);
+    static void warn(Object tag, String warn) {
+        Gdx.app.log(tag.getClass().getSimpleName(), WARN + warn);
     }
 
     /**

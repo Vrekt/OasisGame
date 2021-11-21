@@ -1,12 +1,12 @@
-package me.vrekt.oasis.ui.gui.notification;
+package me.vrekt.oasis.gui.notification;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.ui.world.Gui;
+import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.Gui;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;

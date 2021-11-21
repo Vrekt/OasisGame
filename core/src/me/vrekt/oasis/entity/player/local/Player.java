@@ -46,7 +46,7 @@ public final class Player extends LunarPlayer {
 
         setVelocitySendRate(100);
         setPositionSendRate(250);
-        setMoveSpeed(15.0f);
+        setMoveSpeed(10.0f);
         setIgnoreOtherPlayerCollision(true);
         this.inventory = new PlayerInventory(game.getItemManager(), 18);
     }

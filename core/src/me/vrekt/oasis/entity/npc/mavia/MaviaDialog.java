@@ -46,6 +46,25 @@ public final class MaviaDialog extends EntityDialog {
         createOption("mavia_option_12", "A nice place you got here, for sure.");
         createOption("mavia_option_13", "It... could be better.");
 
+        createSection("mavia_option_12", "Thank you, I try to keep it cozy.");
+        createOption("mavia_option_14", "So, about those items.");
+
+        createSection("mavia_option_13", "I could say the same thing about your appearance! I joke... Lets talk about your items.");
+        createOption("mavia_option_14", "*gasp*");
+
+        createSection("mavia_option_14", "I'll be giving you my grandfathers handcrafted blade and some food for the journey.");
+        createOption("mavia_option_15", "The journey?");
+        createOption("mavia_option_16", "That's it?");
+
+        createSection("mavia_option_15", "Well, its only across the village, but it will be a challenge regardless.");
+        createOption("mavia_option_17", "Okay.");
+
+        createSection("mavia_option_16", "Don't worry, its one of the best blades of this village... and my cooking is top tier!");
+        createOption("mavia_option_17", "Well, sounds good I guess.");
+
+        createSection("mavia_option_17", "Right, take a look in the chest over there.. take anything you may think you need.");
+        createOption("mavia_option_next_0_1", "Sounds good.");
+
         save();
     }
 }

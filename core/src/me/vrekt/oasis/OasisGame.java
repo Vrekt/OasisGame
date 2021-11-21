@@ -7,14 +7,13 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.item.ItemManager;
 import me.vrekt.oasis.quest.QuestManager;
-import me.vrekt.oasis.ui.gui.GameGui;
-import me.vrekt.oasis.utilities.logging.Taggable;
+import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.common.InputHandler;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
-public final class OasisGame extends Game implements Taggable {
+public final class OasisGame extends Game {
 
     ItemManager itemManager;
     WorldManager worldManager;
@@ -66,6 +65,13 @@ public final class OasisGame extends Game implements Taggable {
         return renderer;
     }
 
+    /**
+     * Transition into another world.
+     *
+     * @param from   the input handler from
+     * @param player the player
+     * @param any    the world transitioning into
+     */
     public void transitionIntoWorld(InputHandler from, Player player, AbstractWorld any) {
         from.unregister(multiplexer);
         any.enterWorld();

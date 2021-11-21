@@ -1,348 +1,362 @@
 
 Assets.png
-size: 1032, 267
+size: 1313, 264
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
+cicin_serpent
+  rotate: false
+  xy: 987, 200
+  size: 42, 62
+  orig: 42, 62
+  offset: 0, 0
+  index: -1
 coin
   rotate: false
-  xy: 804, 129
+  xy: 973, 178
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
   index: -1
 dialog
   rotate: false
-  xy: 774, 72
+  xy: 958, 177
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 3
 dialog
   rotate: false
-  xy: 774, 128
+  xy: 876, 198
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 2
 dialog
   rotate: false
-  xy: 789, 128
+  xy: 891, 198
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 1
+domain_background
+  rotate: false
+  xy: 2, 6
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
 equipped_inventory_slot
   rotate: false
-  xy: 902, 143
+  xy: 1031, 174
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 ethe_display
   rotate: false
-  xy: 774, 142
+  xy: 876, 173
   size: 62, 23
   orig: 62, 23
   offset: 0, 0
   index: -1
 gear
   rotate: false
-  xy: 670, 215
+  xy: 1086, 9
   size: 50, 50
   orig: 50, 50
   offset: 0, 0
   index: -1
 green_button
   rotate: false
-  xy: 518, 5
+  xy: 776, 2
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 ino_face
   rotate: false
-  xy: 976, 128
+  xy: 1234, 125
   size: 53, 71
   orig: 53, 71
   offset: 0, 0
   index: -1
 ino_facing_down
   rotate: false
-  xy: 926, 138
+  xy: 1290, 89
   size: 16, 27
   orig: 16, 27
   offset: 0, 0
   index: -1
 ino_facing_left
   rotate: false
-  xy: 875, 20
+  xy: 1251, 48
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 ino_facing_right
   rotate: false
-  xy: 760, 139
+  xy: 1224, 48
   size: 12, 26
   orig: 12, 26
   offset: 0, 0
   index: -1
 ino_facing_up
   rotate: false
-  xy: 944, 139
+  xy: 1290, 61
   size: 16, 26
   orig: 16, 26
   offset: 0, 0
   index: -1
 ino_idle
   rotate: false
-  xy: 962, 139
+  xy: 1238, 48
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 interaction
   rotate: false
-  xy: 618, 167
+  xy: 876, 138
   size: 356, 32
   orig: 356, 32
   offset: 0, 0
   index: -1
 interaction_dialog
   rotate: false
-  xy: 260, 137
+  xy: 518, 134
   size: 356, 128
   orig: 356, 128
   offset: 0, 0
   index: -1
 inventory_slot
   rotate: false
-  xy: 878, 143
+  xy: 1289, 118
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 mavia_face
   rotate: false
-  xy: 828, 13
+  xy: 940, 191
   size: 45, 71
   orig: 45, 71
   offset: 0, 0
   index: -1
 mavia_facing_down
   rotate: false
-  xy: 838, 136
+  xy: 1290, 233
   size: 18, 29
   orig: 18, 29
   offset: 0, 0
   index: -1
 mavia_walking_up
   rotate: false
-  xy: 720, 137
+  xy: 1290, 172
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 1
 mavia_walking_up
   rotate: false
-  xy: 740, 137
+  xy: 1289, 142
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 2
 mavia_walking_up_idle
   rotate: false
-  xy: 858, 136
+  xy: 1290, 202
   size: 18, 29
   orig: 18, 29
   offset: 0, 0
   index: -1
 mining_animation
   rotate: false
-  xy: 875, 67
+  xy: 1032, 119
   size: 24, 17
   orig: 24, 17
   offset: 0, 0
   index: 2
 mining_animation
   rotate: false
-  xy: 875, 48
+  xy: 1058, 119
   size: 21, 17
   orig: 21, 17
   offset: 0, 0
   index: 1
 multiplayer
   rotate: false
-  xy: 618, 215
+  xy: 876, 212
   size: 50, 50
   orig: 50, 50
   offset: 0, 0
   index: -1
 pickaxe
   rotate: false
-  xy: 776, 2
+  xy: 940, 173
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 quest_background
   rotate: false
-  xy: 2, 9
+  xy: 260, 6
   size: 256, 256
   orig: 256, 256
   offset: 0, 0
   index: -1
 quest_bar
   rotate: false
-  xy: 260, 71
+  xy: 518, 68
   size: 512, 64
   orig: 512, 64
   offset: 0, 0
   index: -1
 quest_chapter
   rotate: false
-  xy: 260, 5
+  xy: 518, 2
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_chapter_dark
   rotate: false
-  xy: 774, 201
+  xy: 1032, 198
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_title
   rotate: false
-  xy: 774, 86
+  xy: 1032, 76
   size: 256, 40
   orig: 256, 40
   offset: 0, 0
   index: -1
 rock
   rotate: false
-  xy: 618, 139
+  xy: 987, 172
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 2
 rock
   rotate: false
-  xy: 652, 139
+  xy: 1190, 33
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 1
 rock
   rotate: false
-  xy: 686, 139
+  xy: 1190, 5
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 3
 video
   rotate: false
-  xy: 722, 215
+  xy: 1034, 9
   size: 50, 50
   orig: 50, 50
   offset: 0, 0
   index: -1
 walking_down
   rotate: false
-  xy: 924, 46
+  xy: 1207, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_down
   rotate: false
-  xy: 937, 66
+  xy: 1055, 178
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_down_idle
   rotate: false
-  xy: 924, 26
+  xy: 1073, 178
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_left
   rotate: false
-  xy: 888, 8
+  xy: 1081, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_left
   rotate: false
-  xy: 906, 26
+  xy: 1171, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_left_idle
   rotate: false
-  xy: 924, 6
+  xy: 1091, 178
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_right
   rotate: false
-  xy: 888, 28
+  xy: 1099, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_right
   rotate: false
-  xy: 906, 6
+  xy: 1189, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_right_idle
   rotate: false
-  xy: 901, 66
+  xy: 1117, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_up
   rotate: false
-  xy: 919, 66
+  xy: 1153, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_up
   rotate: false
-  xy: 942, 46
+  xy: 1109, 178
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_up_idle
   rotate: false
-  xy: 906, 46
+  xy: 1135, 118
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 wrench
   rotate: false
-  xy: 776, 20
+  xy: 1138, 9
   size: 50, 50
   orig: 50, 50
   offset: 0, 0
   index: -1
 xp_book_common
   rotate: false
-  xy: 817, 130
+  xy: 1021, 188
   size: 8, 10
   orig: 8, 10
   offset: 0, 0

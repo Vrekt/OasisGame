@@ -1,4 +1,4 @@
-package me.vrekt.oasis.ui.book;
+package me.vrekt.oasis.gui.book;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,8 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.ui.book.pages.InventoryBookPage;
-import me.vrekt.oasis.ui.book.pages.QuestBookPage;
+import me.vrekt.oasis.gui.book.pages.InventoryBookPage;
+import me.vrekt.oasis.gui.book.pages.QuestBookPage;
 
 import java.util.HashMap;
 import java.util.Map;
