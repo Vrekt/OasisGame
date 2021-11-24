@@ -5,6 +5,7 @@ public enum QuestRewards {
     ETHE("coin"), COMMON_XP_BOOK("xp_book_common");
 
     private final String texture;
+
     QuestRewards(String texture) {
         this.texture = texture;
     }

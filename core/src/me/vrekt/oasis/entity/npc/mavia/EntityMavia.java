@@ -12,6 +12,7 @@ import me.vrekt.oasis.entity.render.EntityAnimationRenderer;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.interior.Interior;
+import me.vrekt.oasis.world.interior.mavia.MaviaHouseInterior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
 /**
@@ -30,7 +31,7 @@ public final class EntityMavia extends EntityInteractable {
         this.dialog.ending = "mavia_option_0";
 
         this.dialogSection = this.dialog.getStarting();
-        this.display = game.getAsset().getAssets().findRegion("mavia_face");
+        this.displayTexture = game.getAsset().getAssets().findRegion("mavia_face");
         this.type = EntityNPCType.MAVIA;
     }
 
@@ -44,15 +45,21 @@ public final class EntityMavia extends EntityInteractable {
             setSpeakingTo(false);
             return true;
         } else if (option.equalsIgnoreCase("mavia_option_next_0")) {
-            // first stage, meet mavia inside, dialog is also finished.
-            questManager.getQuest(QuestType.HUNNEWELL).setQuestInformation("Follow Mavia inside her house.");
-            worldIn.getGui().getQuest().startTrackingQuest(questManager.getQuest(QuestType.HUNNEWELL));
+            // first quest, meet mavia inside, dialog is also finished.
+            game.getGui().showQuestAdded();
+            game.getGui().addQuest(questManager.getQuest(QuestType.A_WORLD_OF_DOMAINS));
 
             setSpeakingTo(false);
             isMoving = true;
 
             dialogSection = dialog.sections.get("mavia_option_11");
             this.drawDialogAnimationTile = false;
+            return true;
+        } else if (option.equalsIgnoreCase("mavia_option_next_0_1")) {
+            // player should collect their items
+            final MaviaHouseInterior interior = worldIn.getInterior(Interior.MAVIA_HOUSE);
+            interior.setChestUnlocked(true);
+            interior.setShowHint(true);
             return true;
         }
 
@@ -89,7 +96,7 @@ public final class EntityMavia extends EntityInteractable {
     }
 
     @Override
-    public void load(Asset asset) {
+    public void loadEntity(Asset asset) {
         this.entityTexture = asset.getAssets().findRegion("mavia_facing_down");
         this.width = entityTexture.getRegionWidth();
         this.height = entityTexture.getRegionHeight();

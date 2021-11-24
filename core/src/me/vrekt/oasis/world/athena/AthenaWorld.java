@@ -13,11 +13,15 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
+import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.items.weapons.PrototypeTimepiercerWeapon;
 import me.vrekt.oasis.utilities.logging.Logging;
+import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.domains.AbstractDomain;
 import me.vrekt.oasis.world.interior.AbstractInterior;
-import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * The world of Athena.
@@ -26,7 +30,17 @@ public final class AthenaWorld extends AbstractWorld {
 
     // dialog animation above entities heads.
     private float dialogAnimationTime;
-    private Animation<TextureRegion> dialogAnimation;
+    private Animation<TextureRegion> dialogAnimation, test;
+    private boolean anim, reset;
+    private long tim2e;
+    private int index;
+
+    private float y, c;
+    private boolean swing;
+
+    private TextureRegion[] regions = new TextureRegion[3];
+
+    private TextureRegion region;
 
     public AthenaWorld(OasisGame game, Asset asset, Player player, World world, SpriteBatch batch) {
         super(game, player, world, batch, game.getAsset());
@@ -57,8 +71,11 @@ public final class AthenaWorld extends AbstractWorld {
                 interactions.findRegion("dialog", 1),
                 interactions.findRegion("dialog", 2),
                 interactions.findRegion("dialog", 3));
-
         this.dialogAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        thePlayer.getInventory().giveItem(new PrototypeTimepiercerWeapon(game.getAsset()));
+        thePlayer.getInventory().equipItem(0);
+
         Logging.info(this, "Finished loading world.");
     }
 
@@ -71,18 +88,15 @@ public final class AthenaWorld extends AbstractWorld {
                 && interactable.isSpeakable()) {
             interactable.setSpeakingTo(true);
 
-            gui.getDialog().setDialogToRender(interactable, interactable.getDialogSection(), interactable.getDisplay());
-            gui.getDialog().showGui();
+            gui.showEntityDialog(interactable);
+            gui.showGui(GuiType.DIALOG);
 
             this.entityInteractingWith = interactable;
             return;
         }
 
         enterInteriorIfPossible();
-        enterDomainIfPossible();
-    }
-
-    private void enterInstanceIfPossible() {
+        //  enterDomainIfPossible();
     }
 
     /**
@@ -105,13 +119,12 @@ public final class AthenaWorld extends AbstractWorld {
     private void enterDomainIfPossible() {
         for (AbstractDomain domain : domains.values()) {
             if (!domain.isLocked()) {
-                gui.showGui(98);
-                //  final boolean result = domain.enterInstance(asset, this, game, renderer, thePlayer);
-                //    if (result) {
-                //        this.exit();
-                //     } else {
-                //         Logging.error(this, "Failed to load into domain: " + domain);
-                //    }
+                final boolean result = domain.enterInstance(asset, this, game, renderer, thePlayer);
+                if (result) {
+                    this.exit();
+                } else {
+                    Logging.error(this, "Failed to load into domain: " + domain);
+                }
             }
         }
     }
@@ -142,6 +155,18 @@ public final class AthenaWorld extends AbstractWorld {
                                 frame.getRegionWidth() * worldScale, frame.getRegionHeight() * worldScale);
                     }
                 });
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        tim2e = System.currentTimeMillis();
+        anim = true;
+        swing = true;
+        region = regions[ThreadLocalRandom.current().nextInt(0, 2)];
+        y = 0;
+        // index = 0;
+
+        return false;
     }
 
     @Override

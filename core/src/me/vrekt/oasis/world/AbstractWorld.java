@@ -23,9 +23,9 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.entity.player.network.NetworkPlayer;
-import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.gui.GameGui;
-import me.vrekt.oasis.gui.quest.QuestGui;
+import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.world.common.Enterable;
@@ -243,10 +243,10 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             final EntityNPCType type = EntityNPCType.valueOf(object.getName().toUpperCase());
             // create it and load
             final EntityInteractable entity = type.create(rectangle.x, rectangle.y, game, this);
-            entity.load(asset);
+            entity.loadEntity(asset);
 
             this.entityTypes.put(type, entity);
-            this.entities.put(entity.getUniqueId(), entity);
+            this.entities.put(entity.getEntityId(), entity);
         });
         if (result) Logging.info(this, "Loaded " + (entities.size()) + " entities.");
     }
@@ -312,7 +312,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
     }
 
     public void removeInteractableEntityFromWorld(EntityInteractable entity) {
-        this.entities.remove(entity.getUniqueId());
+        this.entities.remove(entity.getEntityId());
     }
 
     @SuppressWarnings("unchecked")
@@ -320,8 +320,8 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
         return (T) entityTypes.get(type);
     }
 
-    public AbstractInterior getInterior(Interior interior) {
-        return interiors.get(interior);
+    public <T extends AbstractInterior> T getInterior(Interior interior) {
+        return (T) interiors.get(interior);
     }
 
     @Override
@@ -379,14 +379,17 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
         renderer.render();
 
         // networked players
-        for (NetworkPlayer player : networkPlayers.values())
+        for (NetworkPlayer player : networkPlayers.values()) {
             if (player.isInView(renderer.getCamera())) {
                 player.render(batch, delta);
             }
+        }
 
         // entities
-        for (EntityInteractable entity : entities.values())
+        for (EntityInteractable entity : entities.values()) {
             if (entity.isInView(renderer.getCamera())) entity.render(batch, scale);
+        }
+
     }
 
     @Override
@@ -400,7 +403,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
             hasFbo = true;
         } else if (paused) {
             // draw fbo.
-            gui.apply();
+            gui.applyStageViewport();
             batch.setProjectionMatrix(gui.getCamera().combined);
             batch.begin();
 
@@ -446,10 +449,10 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
                 pause();
             }
         } else if (keycode == GameSettings.QUEST_KEY) {
-            if (gui.isGuiVisible(QuestGui.ID)) {
-                gui.hideGui(QuestGui.ID);
+            if (gui.isGuiVisible(GuiType.QUEST)) {
+                gui.hideGui(GuiType.QUEST);
             } else {
-                gui.showGui(QuestGui.ID);
+                gui.showGui(GuiType.QUEST);
             }
         }
         return false;

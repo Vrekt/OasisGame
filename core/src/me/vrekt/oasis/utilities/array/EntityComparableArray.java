@@ -14,7 +14,7 @@ public final class EntityComparableArray extends Array<EntityInteractable> {
         int i = size - 1;
 
         while (i >= 0) {
-            if (items[i--].getUniqueId() == value.getUniqueId()) return true;
+            if (items[i--].getEntityId() == value.getEntityId()) return true;
         }
         return false;
     }
@@ -23,7 +23,7 @@ public final class EntityComparableArray extends Array<EntityInteractable> {
         EntityInteractable[] items = this.items;
         for (int i = 0, n = size; i < n; i++) {
             final EntityInteractable e = items[i];
-            if (value.getUniqueId() == (e.getUniqueId())
+            if (value.getEntityId() == (e.getEntityId())
                     || value.getType() == e.getType()) {
                 removeIndex(i);
                 return;

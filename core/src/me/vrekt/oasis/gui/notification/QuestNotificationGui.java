@@ -32,22 +32,38 @@ public final class QuestNotificationGui extends Gui {
         container.top().padTop(96f);
     }
 
-    /**
-     * Show a quest has started tracking
-     */
-    public void showQuestTracking() {
+    public void updateQuestObjective(String objective) {
         final Table table = new Table();
         table.addAction(Actions.fadeIn(.6f, Interpolation.linear));
         table.getColor().a = 0f;
         table.center();
 
-        table.setBackground(new TextureRegionDrawable(gui.getAsset("quest_chapter")));
-        table.add(new Label("New quest added!", skin, "small", Color.WHITE))
+        table.setBackground(new TextureRegionDrawable(gui.getAsset().get("quest_chapter")));
+        table.add(new Label("Quest Updated: \n" + objective, skin, "small", Color.WHITE))
                 .padLeft(16f)
                 .padRight(16f);
 
         // stay on the screen for 1.5 seconds.
         this.fadeTables.put(table, Pair.of(1.5f, System.currentTimeMillis()));
+        this.rootTable.add(table);
+    }
+
+    /**
+     * Show a quest has started tracking
+     */
+    public void showQuestAdded() {
+        final Table table = new Table();
+        table.addAction(Actions.fadeIn(.6f, Interpolation.linear));
+        table.getColor().a = 0f;
+        table.center();
+
+        table.setBackground(new TextureRegionDrawable(gui.getAsset().get("quest_chapter")));
+        table.add(new Label("New quest added!", skin, "small", Color.WHITE))
+                .padLeft(16f)
+                .padRight(16f);
+
+        // stay on the screen for 1.5 seconds.
+        this.fadeTables.put(table, Pair.of(2.0f, System.currentTimeMillis()));
         this.rootTable.add(table);
     }
 

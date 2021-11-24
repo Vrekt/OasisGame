@@ -14,10 +14,7 @@ import me.vrekt.oasis.gui.dialog.DialogGui;
 public final class LabeledGuiButton extends ClickListener {
 
     private final DialogGui gui;
-
-    // internal label
     private final Label label;
-
     private String optionName;
 
     public LabeledGuiButton(DialogGui gui, Skin skin) {

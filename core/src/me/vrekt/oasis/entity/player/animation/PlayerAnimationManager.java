@@ -1,9 +1,6 @@
 package me.vrekt.oasis.entity.player.animation;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import gdx.lunar.entity.drawing.Rotation;
 import me.vrekt.oasis.animation.channel.AnimationChannel;
 import me.vrekt.oasis.animation.channel.AnimationChannelType;
 import me.vrekt.oasis.asset.Asset;
@@ -28,32 +25,17 @@ public final class PlayerAnimationManager {
         loadPlayerMiningAnimations(asset);
     }
 
+    private void loadSwordAnimations(Asset asset) {
+
+    }
+
     /**
      * Load mining animations
      *
      * @param asset assets
      */
     private void loadPlayerMiningAnimations(Asset asset) {
-        final Animation<TextureRegion> left = new Animation<>(1f,
-                asset.getAssets().findRegion("mining_animation", 1),
-                asset.getAssets().findRegion("mining_animation", 2));
-        left.setPlayMode(Animation.PlayMode.LOOP);
 
-        final Animation<TextureRegion> right = new Animation<>(1f,
-                asset.getAssets().findRegion("mining_animation_right", 1),
-                asset.getAssets().findRegion("mining_animation_right", 2));
-        right.setPlayMode(Animation.PlayMode.LOOP);
-
-        final Animation<TextureRegion> up = new Animation<>(1f,
-                asset.getAssets().findRegion("mining_animation_up", 1),
-                asset.getAssets().findRegion("mining_animation_up", 2));
-        up.setPlayMode(Animation.PlayMode.LOOP);
-
-        final AnimationChannel channel = new AnimationChannel(1.0f);
-        channel.registerAnimation(Rotation.FACING_LEFT.ordinal(), left);
-        channel.registerAnimation(Rotation.FACING_UP.ordinal(), up);
-        channel.registerAnimation(Rotation.FACING_RIGHT.ordinal(), right);
-        this.channels.put(AnimationChannelType.MINING, channel);
     }
 
     public void playAnimation(AnimationChannelType type, int id, boolean cancel) {

@@ -22,7 +22,7 @@ import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.instance.LunarInstance;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
@@ -44,10 +44,11 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
     protected final Vector2 entrance, spawn;
     protected final AbstractWorld worldIn;
 
-    protected final Array<EntityInteractable> entities = new Array<>();
+    protected final Array<Entity> entities = new Array<>();
 
     protected boolean enterable = true;
     protected Player player;
+    protected int level;
 
     public AbstractInstance(OasisGame game, Vector2 entrance, AbstractWorld worldIn) {
         super(new World(Vector2.Zero, true), 6, 6);
@@ -82,6 +83,10 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
                 }
             }
         }), 0.0f, 0.02f);
+    }
+
+    public void setDomainLevel(int level) {
+        this.level = level;
     }
 
     /**
@@ -156,7 +161,7 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
      *
      * @param entity the entity
      */
-    public void addEntityInInterior(EntityInteractable entity) {
+    public void addEntity(Entity entity) {
         this.entities.add(entity);
     }
 
@@ -188,7 +193,7 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
 
         game.getRenderer().getBatch().end();
 
-        game.getGui().apply();
+        game.getGui().applyStageViewport();
         game.getGui().render();
 
         stage.getViewport().apply();
@@ -225,7 +230,7 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
      * @param batch b
      */
     private void renderEntities(SpriteBatch batch) {
-        for (EntityInteractable entity : entities) entity.render(batch, GlobalGameRenderer.SCALE);
+        for (Entity entity : entities) entity.render(batch, GlobalGameRenderer.SCALE);
     }
 
     /**
@@ -234,7 +239,7 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
      * @param delta delta
      */
     private void updateEntities(float delta) {
-        for (EntityInteractable entity : entities) {
+        for (Entity entity : entities) {
             entity.updateWithDistance(player, delta);
         }
     }

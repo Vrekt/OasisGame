@@ -31,8 +31,9 @@ public final class PlayerInventoryHudGui extends Gui {
 
         // root container and positioning, bottom most of screen
         root = new Table();
-        final Container<Table> container = gui.createContainer(root);
-        container.bottom().padBottom(2f);
+        root.setVisible(false);
+        // gui.createContainer(root);
+        //  container.bottom().padBottom(2f);
 
         // basic inventory slot background texture.
         background = gui.getAsset().getAssets().findRegion("inventory_slot");

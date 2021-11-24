@@ -5,7 +5,7 @@ import me.vrekt.oasis.entity.dialog.EntityDialog;
 public final class MaviaDialog extends EntityDialog {
 
     public MaviaDialog() {
-        createSection("mavia_option_1", "Oh no no no... this can't be good.");
+        createSection("mavia_option_1", "Oh no no no... this can't be goois can't be goodOh can't be goodOh no no n t this can't b can't be goo. this can't be good");
         createOption("mavia_option_2", "Are you okay?");
         createOption("mavia_option_2", "What's wrong?");
 
@@ -37,7 +37,7 @@ public final class MaviaDialog extends EntityDialog {
 
         createSection("mavia_option_9", "Are you sure? I would need to give you some items first.");
         createOption("mavia_option_10", "Lets do it.");
-        createOption("mavia_option_0", "Nevermind, perhaps another time.");
+        createOption("mavia_option_0", "Nevermind.");
 
         createSection("mavia_option_10", "Great. Follow me inside, I'll give you the essentials.");
         createOption("mavia_option_next_0", "Let's go.");

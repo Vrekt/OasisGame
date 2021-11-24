@@ -7,10 +7,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import me.vrekt.oasis.quest.Quest;
-import me.vrekt.oasis.quest.type.QuestType;
+import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
+import me.vrekt.oasis.quest.Quest;
+import me.vrekt.oasis.quest.type.QuestSection;
+import org.apache.commons.text.WordUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,52 +22,67 @@ import java.util.Map;
  */
 public final class QuestGui extends Gui {
 
-    public static final int ID = 6;
     private final Table root;
-    private final Table content;
-    private final Table right;
+    private final Table left;
+
+    // table for when player has no quests.
+    private final Table noQuestsTable;
 
     // active colors
     private final TextureRegionDrawable base, darker;
 
-    // quest elements tracked
-    // TODO: Remove these elements
-    private final Map<QuestType, QuestElement> elements = new HashMap<>();
+    // quests tracking.
+    private final Array<Quest> quests = new Array<>();
+
+    // map of sections that contain the parent table where quests should go.
+    private final Map<QuestSection, Table> questTableSections = new HashMap<>();
+    // map of quests tracking under sections
+    private final Map<Quest, Table> questTables = new HashMap<>();
+
+    private final Label questTitle, questInformation;
+    private Quest selectedQuest;
 
     public QuestGui(GameGui gui) {
         super(gui);
 
         root = new Table();
-        root.setVisible(false);
+        root.setVisible(true);
         gui.createContainer(root).fill();
 
-        // left table content, quest chapters and titles.
-        final Table left = new Table();
-        left.top().padTop(32f);
+        left = new Table().top().padLeft(16f);
+        Table right = new Table().top();
 
-        left.setBackground(new TextureRegionDrawable(gui.getAsset("quest_background")));
-        gui.createContainer(left);
-
-        // right table content, quest information.
-        right = new Table();
-        right.top().padTop(32f);
-
-        right.setBackground(new TextureRegionDrawable(gui.getAsset("quest_background")));
-        gui.createContainer(right);
+        final TextureRegionDrawable background = new TextureRegionDrawable(gui.getAsset().get("quest_background"));
+        left.setBackground(background);
+        right.setBackground(background);
 
         // expand left and right to fill space.
-        root.add(left).grow();
+        root.add(left).growY();
         root.add(right).grow();
 
-        // Root table
-        content = new Table();
+        base = new TextureRegionDrawable(gui.getAsset().get("quest_title"));
+        darker = new TextureRegionDrawable(gui.getAsset().get("quest_title_dark"));
 
-        base = new TextureRegionDrawable(gui.getAsset("quest_chapter"));
-        darker = new TextureRegionDrawable(gui.getAsset("quest_chapter_dark"));
-
-        left.add(new Label("Quests", gui.getSkin(), "big", Color.WHITE));
+        left.add(new Label("Quests", gui.getSkin(), "big", Color.WHITE)).left();
         left.row();
-        left.add(content);
+
+        // player has no tracking quests at the moment
+        this.noQuestsTable = new Table();
+        noQuestsTable.add(new Label("No quests added yet!", gui.getSkin(), "big", Color.WHITE)).left();
+        noQuestsTable.row();
+        noQuestsTable.add(new Label("(Go out and see what the world of Athena has to offer!)",
+                gui.getSkin(), "smaller", Color.WHITE)).left();
+
+        this.questTitle = new Label("", gui.getSkin(), "big", Color.WHITE);
+        this.questInformation = new Label("", gui.getSkin(), "small", Color.WHITE);
+
+        final Table questInformation = new Table();
+        questInformation.add(this.questTitle).left();
+        questInformation.row();
+        questInformation.add(this.questInformation).left();
+        right.add(questInformation).padLeft(16).padTop(32).left();
+
+        left.add(noQuestsTable);
     }
 
     /**
@@ -73,57 +90,84 @@ public final class QuestGui extends Gui {
      *
      * @param quest the quest
      */
-    public void startTrackingQuest(Quest quest) {
-        clearElements();
-        setQuestTracked(quest.getChapter(), quest.getSection(), quest.getName(), quest.getQuestInformation(), quest.getType());
-    }
+    public void addQuest(Quest quest) {
+        this.quests.add(quest);
+        this.left.removeActor(noQuestsTable);
 
-    private void setQuestTracked(String chapter, String section, String title, String information, QuestType type) {
-        final QuestElement element = new QuestElement(gui, chapter, section, title, information);
-        final Table table = new Table();
-        element.setContent(table);
-
-        table.addListener(new QuestChapterHandler(table));
-        table.setBackground(base);
-
-        table.add(element.getQuestChapter()).padLeft(16f).padRight(16f);
-        table.row();
-        table.add(element.getQuestSection()).padTop(6f);
-
-        final Table titleTable = new Table();
-        element.setTitleContent(titleTable);
-
-        titleTable.setBackground(new TextureRegionDrawable(gui.getAsset("quest_title")));
-        titleTable.add(element.getQuestTitle()).padLeft(16f).padRight(16f).padTop(8f);
-
-        final Table informationTable = new Table();
-        informationTable.add(element.getQuestInformation());
-        informationTable.padLeft(32f);
-        informationTable.row();
-
-        final Table navigationTable = new Table();
-        navigationTable.setBackground(new TextureRegionDrawable(gui.getAsset("green_button")));
-        navigationTable.add(new Label("Navigate", gui.getSkin(), "small", Color.BLACK));
-        informationTable.add(navigationTable).padTop(96f).center();
-        element.setInformationTable(informationTable);
-
-        content.add(table);
-        content.row();
-        content.add(titleTable);
-        content.row().padTop(32f);
-        right.add(informationTable);
-
-        elements.put(type, element);
-    }
-
-    private void clearElements() {
-        for (QuestElement value : elements.values()) {
-            right.removeActor(value.getInformationTable());
+        if (!questTableSections.containsKey(quest.getSection())) {
+            startTrackingQuestSection(quest.getSection(), quest.getChapter());
         }
+        startTrackingQuestUnderSection(quest.getSection(), quest);
+    }
+
+    /**
+     * Start tracking a new quest section
+     *
+     * @param section section
+     */
+    private void startTrackingQuestSection(QuestSection section, String chapter) {
+        final Table parent = new Table();
+
+        final Table table = new Table();
+        table.setBackground(new TextureRegionDrawable(gui.getAsset().get("quest_chapter")));
+        table.add(new Label(section.getName(), gui.getSkin(), "small", Color.BLACK)).padLeft(16).padRight(16);
+        table.row();
+        table.add(new Label(chapter, gui.getSkin(), "smaller", Color.BLACK));
+
+        parent.add(table);
+
+        left.row();
+        left.add(parent).padTop(32);
+        this.questTableSections.put(section, parent);
+    }
+
+    /**
+     * Start tracking a quest under an existing section
+     *
+     * @param section section
+     */
+    private void startTrackingQuestUnderSection(QuestSection section, Quest quest) {
+        final Table parent = this.questTableSections.get(section);
+        final Table table = new Table();
+
+        table.setBackground(new TextureRegionDrawable(gui.getAsset().get("quest_title")));
+        table.add(new Label(quest.getName(), gui.getSkin(), "smaller", Color.BLACK))
+                .padLeft(16).padRight(16).padTop(8);
+        table.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                table.setBackground(darker);
+                table.invalidate();
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                table.setBackground(base);
+                table.invalidate();
+            }
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                questTitle.setText(quest.getName());
+                questInformation.setText(WordUtils.wrap(quest.getQuestInformation(), 25));
+                selectedQuest = quest;
+                return true;
+            }
+        });
+
+        parent.row();
+        parent.add(table);
+
+        this.questTables.put(quest, table);
     }
 
     @Override
     public void showGui() {
+        if (selectedQuest != null) {
+            questTitle.setText(selectedQuest.getName());
+            questInformation.setText(WordUtils.wrap(selectedQuest.getQuestInformation(), 25));
+        }
+
         super.showGui();
         root.setVisible(true);
     }
@@ -132,28 +176,6 @@ public final class QuestGui extends Gui {
     public void hideGui() {
         super.hideGui();
         root.setVisible(false);
-    }
-
-    /**
-     * Handles actions within the quest table.
-     */
-    private final class QuestChapterHandler extends ClickListener {
-
-        private final Table table;
-
-        public QuestChapterHandler(Table table) {
-            this.table = table;
-        }
-
-        @Override
-        public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            table.setBackground(darker);
-        }
-
-        @Override
-        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            table.setBackground(base);
-        }
     }
 
 }

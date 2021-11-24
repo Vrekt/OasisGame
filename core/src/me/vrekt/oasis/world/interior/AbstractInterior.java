@@ -114,6 +114,8 @@ public abstract class AbstractInterior extends LunarInstance implements Disposab
 
     protected abstract void update();
 
+    protected abstract void render(SpriteBatch batch);
+
     /**
      * Add an NPC within this interior
      *
@@ -200,10 +202,11 @@ public abstract class AbstractInterior extends LunarInstance implements Disposab
 
         player.render(renderer.getBatch(), delta);
         renderEntities(renderer.getBatch());
+        render(renderer.getBatch());
 
         renderer.getBatch().end();
 
-        game.getGui().apply();
+        game.getGui().applyStageViewport();
         game.getGui().render();
 
         interiorStage.getViewport().apply();

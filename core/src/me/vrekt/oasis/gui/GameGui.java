@@ -1,10 +1,10 @@
 package me.vrekt.oasis.gui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
@@ -16,13 +16,10 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
-import me.vrekt.oasis.gui.domain.DomainEntranceMenuGui;
-import me.vrekt.oasis.gui.hud.PlayerHudGui;
-import me.vrekt.oasis.gui.inventory.PlayerInventoryHudGui;
-import me.vrekt.oasis.gui.notification.NotificationGui;
+import me.vrekt.oasis.gui.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.notification.QuestNotificationGui;
 import me.vrekt.oasis.gui.quest.QuestGui;
-import me.vrekt.oasis.gui.settings.SettingsGui;
+import me.vrekt.oasis.quest.Quest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,20 +30,23 @@ import java.util.Map;
 public final class GameGui {
 
     private final Stage stage;
-    private final Stack stack = new Stack();
+    private final Stack stack;
     private final Asset asset;
     private final Skin skin;
     private final BitmapFont romulusSmall, romulusBig;
     private final GlyphLayout layout;
+    private final OasisGame game;
 
-    private final Map<Integer, Gui> guis = new HashMap<>();
+    private final Map<GuiType, Gui> guis = new HashMap<>();
 
     public GameGui(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.stage = new Stage(new ScreenViewport());
+        this.game = game;
         Table root = new Table();
         root.setFillParent(true);
         stage.addActor(root);
 
+        stack = new Stack();
         stack.setFillParent(true);
         root.add(stack).grow();
 
@@ -62,18 +62,16 @@ public final class GameGui {
 
         multiplexer.addProcessor(stage);
 
-        createGui(NotificationGui.ID, new NotificationGui(this));
-        createGui(DialogGui.ID, new DialogGui(this));
-        createGui(PlayerHudGui.ID, new PlayerHudGui(this));
-        createGui(PlayerInventoryHudGui.ID, new PlayerInventoryHudGui(this, game));
-        createGui(QuestNotificationGui.ID, new QuestNotificationGui(this));
-        createGui(QuestGui.ID, new QuestGui(this));
-        createGui(99, new SettingsGui(this));
-        createGui(98, new DomainEntranceMenuGui(this));
-    }
-
-    private void createGui(int id, Gui any) {
-        guis.put(id, any);
+        //   guis.put(NotificationGui.ID, new NotificationGui(this));
+        guis.put(GuiType.DIALOG, new DialogGui(this));
+        //guis.put(PlayerHudGui.ID, new PlayerHudGui(this));
+        // guis.put(PlayerInventoryHudGui.ID, new PlayerInventoryHudGui(this, game));
+        guis.put(GuiType.QUEST_NOTIFICATION, new QuestNotificationGui(this));
+        guis.put(GuiType.QUEST, new QuestGui(this));
+        //guis.put(99, new SettingsGui(this));
+        // guis.put(98, new DomainEntranceMenuGui(this));
+        //  guis.put(38, new PlayerInventoryGui(this));
+        guis.put(GuiType.CONTAINER, new ContainerInventoryGui(this));
     }
 
     public Camera getCamera() {
@@ -82,10 +80,6 @@ public final class GameGui {
 
     public Asset getAsset() {
         return asset;
-    }
-
-    public TextureRegion getAsset(String texture) {
-        return asset.getAssets().findRegion(texture);
     }
 
     public Skin getSkin() {
@@ -104,45 +98,53 @@ public final class GameGui {
         return layout;
     }
 
-    public void apply() {
-        stage.getViewport().apply();
+    public OasisGame getGame() {
+        return game;
     }
 
-    /**
-     * Send a notification to the player
-     *
-     * @param text     text
-     * @param duration time on screen
-     */
-    public void sendPlayerNotification(String text, float duration) {
-        ((NotificationGui) guis.get(NotificationGui.ID)).sendPlayerNotification(text, duration);
+    public void applyStageViewport() {
+        stage.getViewport().apply();
     }
 
     /**
      * Show that a quest has started tracking.
      */
-    public void showQuestTracking() {
-        ((QuestNotificationGui) guis.get(QuestNotificationGui.ID)).showQuestTracking();
+    public void showQuestAdded() {
+        ((QuestNotificationGui) guis.get(GuiType.QUEST_NOTIFICATION)).showQuestAdded();
     }
 
-    public void showGui(int id) {
-        guis.get(id).showGui();
+    /**
+     * Show dialog for an entity
+     *
+     * @param entity the entity
+     */
+    public void showEntityDialog(EntityInteractable entity) {
+        ((DialogGui) getGui(GuiType.DIALOG)).setDialogToRender(entity, entity.getDialogSection(), entity.getDisplay());
     }
 
-    public void hideGui(int id) {
-        guis.get(id).hideGui();
+    /**
+     * Start tracking a new quest
+     *
+     * @param quest the quest
+     */
+    public void addQuest(Quest quest) {
+        ((QuestGui) getGui(GuiType.QUEST)).addQuest(quest);
     }
 
-    public boolean isGuiVisible(int id) {
-        return guis.get(id).isVisible();
+    public void showGui(GuiType type) {
+        guis.get(type).showGui();
     }
 
-    public DialogGui getDialog() {
-        return ((DialogGui) guis.get(DialogGui.ID));
+    public void hideGui(GuiType type) {
+        guis.get(type).hideGui();
     }
 
-    public QuestGui getQuest() {
-        return ((QuestGui) guis.get(QuestGui.ID));
+    public boolean isGuiVisible(GuiType type) {
+        return guis.get(type).isVisible();
+    }
+
+    public <T extends Gui> T getGui(GuiType type) {
+        return (T) guis.get(type);
     }
 
     /**
@@ -151,7 +153,7 @@ public final class GameGui {
     public void render() {
         stage.getViewport().apply();
 
-        stage.act();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
         stage.getCamera().update();
 
         for (Gui gui : guis.values()) gui.update();
@@ -166,14 +168,19 @@ public final class GameGui {
         for (Gui gui : guis.values()) gui.resize(width, height);
     }
 
+    /**
+     * Update dialog rendering
+     *
+     * @param interactingWith the entity interacting with
+     * @return if the gui has been hidden
+     */
     public boolean updateDialogState(EntityInteractable interactingWith) {
-
-        if (getDialog().isVisible()
+        if (getGui(GuiType.DIALOG).isVisible()
                 && interactingWith != null
                 && interactingWith.isSpeakingTo()
                 && !interactingWith.isSpeakable()) {
 
-            getDialog().hideGui();
+            hideGui(GuiType.DIALOG);
             interactingWith.setSpeakingTo(false);
             return true;
         }

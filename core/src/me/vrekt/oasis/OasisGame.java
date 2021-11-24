@@ -28,9 +28,21 @@ public final class OasisGame extends Game {
 
     InputMultiplexer multiplexer;
 
+    long currentTick = 0;
+
     @Override
     public void create() {
         setScreen(new OasisGameLoadingScreen(this));
+    }
+
+    @Override
+    public void render() {
+        super.render();
+        currentTick++;
+    }
+
+    public long getCurrentTick() {
+        return currentTick;
     }
 
     public ItemManager getItemManager() {

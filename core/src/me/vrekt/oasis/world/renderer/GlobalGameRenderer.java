@@ -115,8 +115,15 @@ public final class GlobalGameRenderer implements Disposable {
         final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolated().x, 1f);
         final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolated().y, 1f);
 
-        camera.position.x = MathUtils.clamp(x, hx, width - hx);
-        camera.position.y = MathUtils.clamp(y, hy, height - hy);
+        if (width * 16 > Gdx.graphics.getWidth()) {
+            camera.position.x = MathUtils.clamp(x, hx, width - hx);
+        } else if (height * 16 > Gdx.graphics.getHeight()) {
+            camera.position.y = MathUtils.clamp(y, hy, height - hy);
+        } else {
+            camera.position.x = x;
+            camera.position.y = y;
+        }
+
         camera.update();
     }
 

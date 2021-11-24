@@ -2,6 +2,7 @@ package me.vrekt.oasis.quest;
 
 import me.vrekt.oasis.quest.quests.QuestDifficulty;
 import me.vrekt.oasis.quest.type.QuestRewards;
+import me.vrekt.oasis.quest.type.QuestSection;
 import me.vrekt.oasis.quest.type.QuestType;
 
 import java.util.HashMap;
@@ -12,9 +13,10 @@ import java.util.Map;
  */
 public abstract class Quest {
 
-    protected final String name, chapter, section;
+    protected final String name, chapter;
     protected final QuestType type;
     protected final QuestDifficulty difficulty;
+    protected final QuestSection section;
 
     // id for tracking
     protected boolean completed, started;
@@ -24,7 +26,11 @@ public abstract class Quest {
 
     protected Map<QuestRewards, Integer> rewards = new HashMap<>();
 
-    public Quest(String name, String chapter, String section, QuestType type, QuestDifficulty difficulty) {
+    public Quest(String name,
+                 String chapter,
+                 QuestSection section,
+                 QuestType type,
+                 QuestDifficulty difficulty) {
         this.name = name;
         this.chapter = chapter;
         this.section = section;
@@ -40,7 +46,7 @@ public abstract class Quest {
         return chapter;
     }
 
-    public String getSection() {
+    public QuestSection getSection() {
         return section;
     }
 

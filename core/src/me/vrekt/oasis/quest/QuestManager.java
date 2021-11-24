@@ -1,6 +1,6 @@
 package me.vrekt.oasis.quest;
 
-import me.vrekt.oasis.quest.quests.beginner.FirstHunnewellQuest;
+import me.vrekt.oasis.quest.quests.beginner.AWorldOfDomainsQuest;
 import me.vrekt.oasis.quest.type.QuestType;
 import me.vrekt.oasis.utilities.loading.Loadable;
 
@@ -13,7 +13,7 @@ public final class QuestManager implements Loadable {
     private boolean loaded;
 
     public QuestManager() {
-        registerQuest(new FirstHunnewellQuest());
+        registerQuest(new AWorldOfDomainsQuest());
     }
 
     private void registerQuest(Quest quest) {

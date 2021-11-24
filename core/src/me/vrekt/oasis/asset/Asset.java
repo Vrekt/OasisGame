@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -32,6 +33,8 @@ public final class Asset {
     private final Map<String, TiledMap> cachedInstances = new HashMap<>();
     private TmxMapLoader mapLoader;
     private ParticleEffect test;
+
+    private TextureAtlas mainAtlas;
 
     /**
      * Load general assets needed by each world.
@@ -72,8 +75,8 @@ public final class Asset {
         test = new ParticleEffect();
         test.load(Gdx.files.internal("effects/mob/cicin/cicin_serpent_particle.p"), Gdx.files.internal("effects/mob/cicin"));
 
-       // parameters.atlasFile = "effects/mob/cicin/Particles.atlas";
-       // assetManager.load("effects/mob/cicin/cicin_serpent_particle.p", ParticleEffect.class, parameters);
+        // parameters.atlasFile = "effects/mob/cicin/Particles.atlas";
+        // assetManager.load("effects/mob/cicin/cicin_serpent_particle.p", ParticleEffect.class, parameters);
 
     }
 
@@ -131,11 +134,18 @@ public final class Asset {
         return assetManager.get(ASSETS);
     }
 
+    public TextureRegion get(String name) {
+        if (mainAtlas == null) {
+            mainAtlas = getAssets();
+        }
+        return mainAtlas.findRegion(name);
+    }
+
     public AssetManager getAssetManager() {
         return assetManager;
     }
 
-    public <T> T get(String name) {
+    public <T> T getType(String name) {
         return assetManager.get(name);
     }
 

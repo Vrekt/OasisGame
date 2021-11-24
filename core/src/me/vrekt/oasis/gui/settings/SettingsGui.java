@@ -25,7 +25,7 @@ public final class SettingsGui extends Gui {
         rootTable = new Table();
         rootTable.setVisible(false);
         rootTable.top().padTop(8f);
-        rootTable.setBackground(new TextureRegionDrawable(gui.getAsset("quest_background")));
+        rootTable.setBackground(new TextureRegionDrawable(gui.getAsset().get("quest_background")));
 
         final Container<Table> container = gui.createContainer(rootTable);
         container.fill();
@@ -39,7 +39,7 @@ public final class SettingsGui extends Gui {
 
         final Table toolbar = new Table();
 
-        final Image gameSettingsImage = new Image(gui.getAsset("gear"));
+        final Image gameSettingsImage = new Image(gui.getAsset().get("gear"));
         gameSettingsImage.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -48,7 +48,7 @@ public final class SettingsGui extends Gui {
             }
         });
 
-        final Image graphicsSettingsImage = new Image(gui.getAsset("video"));
+        final Image graphicsSettingsImage = new Image(gui.getAsset().get("video"));
         graphicsSettingsImage.addListener(new ClickListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -59,8 +59,8 @@ public final class SettingsGui extends Gui {
 
         toolbar.add(gameSettingsImage).padLeft(8f);
         toolbar.add(graphicsSettingsImage).padLeft(8f);
-        toolbar.add(new Image(gui.getAsset("multiplayer"))).padLeft(8f);
-        toolbar.add(new Image(gui.getAsset("wrench"))).padLeft(8f);
+        toolbar.add(new Image(gui.getAsset().get("multiplayer"))).padLeft(8f);
+        toolbar.add(new Image(gui.getAsset().get("wrench"))).padLeft(8f);
         rootTable.add(toolbar).fillX();
 
         initializeGameSettings();

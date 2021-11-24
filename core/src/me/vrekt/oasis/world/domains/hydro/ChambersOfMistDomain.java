@@ -30,9 +30,23 @@ public final class ChambersOfMistDomain extends AbstractDomain {
     @Override
     protected void spawnEntities() {
         final CicinSerpentMob mob = new CicinSerpentMob("Placeholder", mobSpawn.x, mobSpawn.y, game, worldIn);
-        mob.load(game.getAsset());
+        mob.loadEntity(game.getAsset());
+        addEntity(mob);
 
-        addEntityInInterior(mob);
+        switch (level) {
+            case 1:
+                mob.setLevel(10);
+                mob.setHealth(100);
+                break;
+            case 2:
+                mob.setLevel(20);
+                mob.setHealth(400);
+                break;
+            case 3:
+                mob.setLevel(30);
+                mob.setHealth(800);
+                break;
+        }
     }
 
     @Override

@@ -52,7 +52,7 @@ public final class PlayerInventory extends InputAdapter {
     public void giveItem(Item item) {
         for (int i = 0; i < size; i++) {
             if (slotItems.get(i) == null) {
-
+                slotItems.put(i, item);
                 break;
             }
         }
@@ -76,6 +76,10 @@ public final class PlayerInventory extends InputAdapter {
         return equippedSlot;
     }
 
+    public void equipItem(int index) {
+        equippedSlot = index;
+    }
+
     /**
      * Get the item the player has equipped, this could return null,
      * indicating the player is not holding anything.
@@ -92,8 +96,8 @@ public final class PlayerInventory extends InputAdapter {
      * @param i i
      */
     public void handleNumberKeyPressed(int i) {
-        equippedSlot = i;
-        setInvalid(true);
+        //  equippedSlot = i;
+        //  setInvalid(true);
     }
 
     @Override

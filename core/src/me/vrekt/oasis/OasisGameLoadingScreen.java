@@ -89,6 +89,7 @@ public final class OasisGameLoadingScreen extends ScreenAdapter {
 
         if (game.player == null) {
             game.player = new Player(game, -1, (1 / 16.0f), 16.0f, 18.0f, Rotation.FACING_UP);
+            game.multiplexer.addProcessor(game.player);
         }
 
         if (!hasCursor) {
@@ -122,7 +123,7 @@ public final class OasisGameLoadingScreen extends ScreenAdapter {
             game.worldManager.setWorld(world);
 
             world.setWorldLoadedCallback(() -> this.worldLoaded = true);
-            world.loadIntoWorld(game, game.asset.get(Asset.ATHENA_WORLD), (1 / 16.0f));
+            world.loadIntoWorld(game, game.asset.getType(Asset.ATHENA_WORLD), (1 / 16.0f));
             this.assetLoaded = true;
         }
 
