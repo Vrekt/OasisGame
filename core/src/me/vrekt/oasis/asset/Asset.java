@@ -80,10 +80,6 @@ public final class Asset {
 
     }
 
-    public ParticleEffect getTest() {
-        return test;
-    }
-
     /**
      * Load fonts
      */

@@ -27,6 +27,7 @@ public final class PrototypeTimepiercerWeapon extends Item {
         // default attrs for this weapon.
         this.addAttribute(ItemAttributeType.ATK, 32);
         this.addAttribute(ItemAttributeType.LUCK, 1);
+        this.description = "A blade crafted from the ancestors of Hunnewell.";
     }
 
     @Override

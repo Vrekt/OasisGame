@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.local;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import gdx.lunar.entity.drawing.Rotation;
 import gdx.lunar.entity.player.impl.LunarPlayer;
@@ -39,7 +40,9 @@ public final class Player extends LunarPlayer implements InputProcessor {
     // pending quest rewards
     private final Map<QuestRewards, Integer> rewards = new HashMap<>();
 
-    private boolean isSwinging;
+    private ParticleEffect ult;
+
+    private boolean u;
     private long lastSwing;
 
     public Player(OasisGame game, int entityId, float playerScale, float playerWidth, float playerHeight, Rotation rotation) {
@@ -60,6 +63,9 @@ public final class Player extends LunarPlayer implements InputProcessor {
     }
 
     public void loadAnimations(Asset asset) {
+        this.ult = new ParticleEffect();
+        ult.load(Gdx.files.internal("effects/ult.p"), Gdx.files.internal("effects/"));
+        ult.start();
         animationManager.loadAnimations(asset);
     }
 
@@ -76,7 +82,7 @@ public final class Player extends LunarPlayer implements InputProcessor {
         if (button == Input.Buttons.LEFT) {
             final Item item = inventory.getEquippedItem();
             if (item != null && item.isAnimated()) {
-                inventory.getEquippedItem().setItemInUse(true, game.getCurrentTick(), 10);
+                inventory.getEquippedItem().setItemInUse(true, game.getTick(), 10);
             }
         }
     }
@@ -99,20 +105,27 @@ public final class Player extends LunarPlayer implements InputProcessor {
                 && !inputsDisabled.contains(Input.Keys.S)) {
             velocity.set(0f, -moveSpeed);
             rotation = Rotation.FACING_DOWN;
-        }
+        } else u = Gdx.input.isKeyPressed(Input.Keys.F);
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
 
+        if (u) ult.update(delta);
+
         final Item item = inventory.getEquippedItem();
-        if (item.isAnimated() && item.isUsing()) item.updateAnimation(game.getCurrentTick(), delta);
+        if (item.isAnimated() && item.isUsing()) item.updateAnimation(game.getTick(), delta);
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         super.render(batch, delta);
+
+        if (u) {
+            ult.setPosition(getX(), getY());
+            ult.draw(batch);
+        }
 
         final Item item = inventory.getEquippedItem();
         if (item.isAnimated() && item.isUsing()) item.renderAnimation(batch, this);

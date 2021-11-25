@@ -2,16 +2,21 @@ package me.vrekt.oasis.gui.inventory;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.items.ItemRarity;
 import me.vrekt.oasis.item.items.attr.ItemAttributeType;
+import me.vrekt.oasis.item.items.other.AmbitiousMedicsBox;
+import me.vrekt.oasis.item.items.other.BlessingOfAthena;
+import me.vrekt.oasis.item.items.other.EnchantedBandOfPower;
+import me.vrekt.oasis.item.items.other.WandOfEmbracing;
+import me.vrekt.oasis.item.items.weapons.BladeOfAverrWeapon;
+import me.vrekt.oasis.item.items.weapons.FrostbittenAvernicWeapon;
+import me.vrekt.oasis.item.items.weapons.PrototypeTimepiercerWeapon;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,72 +26,69 @@ import java.util.Map;
  */
 public final class PlayerInventoryGui extends Gui {
 
+    private Table itemAttributes, right, i;
+    private TextButton button;
+
+    // inventory slot backgrounds
+    private final TextureRegionDrawable slot, rare, epic, background;
+
     // slots
     private final Map<Integer, Image> slots = new HashMap<>();
 
-    // tabs
-    private InventoryTabState weapons, valueables, food;
-    // describes what the content is being sorted by
-    private Label tabHeader;
-
-    private Table itemAttributes;
     private Image itemHeaderImage;
-    private Label itemHeader;
+    private Label itemHeader, tabHeader, itemDesc;
 
     public PlayerInventoryGui(GameGui gui) {
         super(gui);
 
-        final Table root = new Table();
-        root.setVisible(false);
+        // debug
+        gui.getGame().getPlayer().getInventory().giveItem(new PrototypeTimepiercerWeapon(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new FrostbittenAvernicWeapon(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new BladeOfAverrWeapon(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new BlessingOfAthena(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new AmbitiousMedicsBox(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new EnchantedBandOfPower(gui.getAsset()));
+        gui.getGame().getPlayer().getInventory().giveItem(new WandOfEmbracing(gui.getAsset()));
+
+        // slot images
+        slot = new TextureRegionDrawable(gui.getAsset().get("inventory_slot"));
+        rare = new TextureRegionDrawable(gui.getAsset().get("inventory_slot_rare"));
+        epic = new TextureRegionDrawable(gui.getAsset().get("inventory_slot_epic"));
+        background = new TextureRegionDrawable(gui.getAsset().get("inventory_background"));
+
+        Table root = new Table();
+        root.setDebug(true, true);
+        root.setVisible(true);
+        root.setBackground(background);
         gui.createContainer(root).fill();
 
-        initializeNavigation();
-        // create navigation tabs at the top,
-        // initialize 2 here because there is a break for some reason
-        final Table tabs = new Table();
-        final Table tabs2 = new Table();
-        tabs.setBackground(new TextureRegionDrawable(gui.getAsset().get("inventory_color")));
-        tabs2.setBackground(new TextureRegionDrawable(gui.getAsset().get("inventory_color")));
-
-        // add weapon tab icons
-        tabs.add(weapons.actor).size(48, 48);
-        tabs.add(valueables.actor).size(48, 48);
-        tabs.add(food.actor).size(48, 48);
-        root.add(tabs).fill();
-        root.add(tabs2).fill();
-        root.row();
-
         // create right/left tables for content
-        final Table right = new Table().left().top();
+        right = new Table().left().top();
         final Table left = new Table().left().top();
-
-        left.setBackground(new TextureRegionDrawable(gui.getAsset().get("inventory_background")));
-        right.setBackground(new TextureRegionDrawable(gui.getAsset().get("inventory_background")));
+        itemAttributes = new Table().left();
+        itemDesc = new Label("", gui.getSkin(), "small", Color.BLACK);
+        itemDesc.setWrap(true);
 
         // expand left and right to fill space.
         root.add(left).growY();
         root.add(right).grow();
 
-        left.add(itemHeader = new Label("Weapons", gui.getSkin(), "big", Color.BLACK)).left();
+        left.add(tabHeader = new Label("Weapons", gui.getSkin(), "big", Color.BLACK)).left();
         left.row();
-        left.add(initializePlayerInventory()).left();
+        left.add(initializePlayerInventory());
 
-        right.add(initializeInformation()).left();
+        i = initializeInformation();
 
-    }
-
-    private void initializeNavigation() {
-        this.weapons = new InventoryTabState("weapon_icon", "weapon_icon_active");
-        this.valueables = new InventoryTabState("valueables_icon", "valueables_icon_active");
-        this.food = new InventoryTabState("food_icon", "food_icon_active");
+        right.add(i).padLeft(16).left();
+        right.row();
+        right.add(itemDesc).width(256).padLeft(16).left();
     }
 
     private Table initializePlayerInventory() {
         final Table inventory = new Table();
-        final TextureRegionDrawable slot = new TextureRegionDrawable(gui.getAsset().get("inventory_slot"));
-        final TextureRegionDrawable rare = new TextureRegionDrawable(gui.getAsset().get("inventory_slot_rare"));
 
         for (int i = 0; i < 24; i++) {
+            // row inventory every 6 slots.
             if (i % 6 == 0 && i != 0) inventory.row();
 
             final Stack stack = new Stack();
@@ -94,6 +96,9 @@ public final class PlayerInventoryGui extends Gui {
             if (item != null) {
                 switch (item.getRarity()) {
                     case EPIC:
+                        stack.add(new Image(epic));
+                        break;
+                    case RARE:
                         stack.add(new Image(rare));
                         break;
                     default:
@@ -104,23 +109,26 @@ public final class PlayerInventoryGui extends Gui {
                 stack.add(new Image(slot));
             }
 
-            stack.addListener(new ItemSlotClickHandler(i));
-            inventory.add(stack).size(64, 64).padLeft(2f).padBottom(2f);
-        }
 
+            stack.addListener(new ItemSlotClickHandler(i));
+            inventory.add(stack).size(64, 64).padLeft(1f).padBottom(1f);
+        }
         return inventory;
     }
 
     // initialize item information on the right side
     private Table initializeInformation() {
         final Table information = new Table();
-        this.itemAttributes = new Table();
         this.itemHeaderImage = new Image();
         this.itemHeader = new Label("", gui.getSkin(), "big", Color.WHITE);
+        this.itemHeader.setWrap(true);
 
-        information.left().padLeft(32f);
+        this.itemDesc = new Label("", gui.getSkin(), "small", Color.GREEN);
+        this.itemDesc.setWrap(true);
+
+        information.left();
         information.add(itemHeaderImage).size(64, 64).left();
-        information.add(itemHeader).left();
+        information.add(itemHeader).width(256).left();
         information.row();
         information.add(itemAttributes).left();
         return information;
@@ -170,6 +178,7 @@ public final class PlayerInventoryGui extends Gui {
         @Override
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             final Item item = gui.getGame().getPlayer().getInventory().getItemAt(index);
+
             if (item != null) {
                 itemAttributes.clear();
                 itemHeader.setText(item.getName());
@@ -177,20 +186,18 @@ public final class PlayerInventoryGui extends Gui {
                 itemAttributes.add(new Label(item.getRarity().name(), gui.getSkin(), "big", Color.PURPLE)).left();
                 itemAttributes.row();
 
-                boolean mainStat = true;
                 for (ItemAttributeType type : item.getAttributes().keySet()) {
                     final int level = item.getAttributeLevel(type);
-                    if (mainStat) {
-                        itemAttributes.add(new Label(type + " +" + level, gui.getSkin(), "small", Color.WHITE)).left();
-                        mainStat = false;
-                    } else {
-                        itemAttributes.add(new Label(type + " +" + level, gui.getSkin(), "smaller", Color.WHITE)).left();
-                    }
+                    final Color color = item.getRarity() == ItemRarity.EPIC ?
+                            Color.PURPLE : Color.CYAN;
+
+                    itemAttributes.add(new Label(type.getName() + " +" + level, gui.getSkin(), "small", color))
+                            .width(64).left();
                     itemAttributes.row();
                 }
-                return true;
+                itemDesc.setText(item.getDescription());
             }
-            return false;
+            return true;
         }
     }
 

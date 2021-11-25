@@ -46,7 +46,7 @@ public final class QuestGui extends Gui {
         super(gui);
 
         root = new Table();
-        root.setVisible(true);
+        root.setVisible(false);
         gui.createContainer(root).fill();
 
         left = new Table().top().padLeft(16f);

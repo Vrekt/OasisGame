@@ -1,6 +1,7 @@
 package me.vrekt.oasis.entity;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Frustum;
@@ -40,8 +41,10 @@ public abstract class Entity implements Disposable, Viewable {
 
     // if this entity is within update distance
     protected boolean isMoving, withinDistance;
-
     protected float health;
+
+    // the effect this entity could express
+    protected ParticleEffect effect;
 
     public Entity(String name, float x, float y, OasisGame game, AbstractWorld worldIn) {
         this.position.set(x, y);

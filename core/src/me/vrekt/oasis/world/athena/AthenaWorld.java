@@ -95,8 +95,8 @@ public final class AthenaWorld extends AbstractWorld {
             return;
         }
 
-        enterInteriorIfPossible();
-        //  enterDomainIfPossible();
+        //  enterInteriorIfPossible();
+        enterDomainIfPossible();
     }
 
     /**

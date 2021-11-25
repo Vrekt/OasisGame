@@ -28,7 +28,8 @@ public final class OasisGame extends Game {
 
     InputMultiplexer multiplexer;
 
-    long currentTick = 0;
+    // the last time a tick was counted.
+    private long lastTick = 0, tickCount;
 
     @Override
     public void create() {
@@ -38,11 +39,14 @@ public final class OasisGame extends Game {
     @Override
     public void render() {
         super.render();
-        currentTick++;
+        if (lastTick == 0
+                || (System.currentTimeMillis() - lastTick) >= 25) {
+            tickCount++;
+        }
     }
 
-    public long getCurrentTick() {
-        return currentTick;
+    public long getTick() {
+        return tickCount;
     }
 
     public ItemManager getItemManager() {
