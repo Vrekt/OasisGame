@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import me.vrekt.oasis.world.domains.DomainType;
+import me.vrekt.oasis.world.districts.DistrictType;
 import me.vrekt.oasis.world.interior.Interior;
 
 import java.util.HashMap;
@@ -117,12 +117,12 @@ public final class Asset {
         return map;
     }
 
-    public TiledMap loadDomain(DomainType domainType, float cacheTime) {
-        if (cachedInstances.containsKey(domainType.getResource())) {
-            return cachedInstances.get(domainType.getResource());
+    public TiledMap loadDomain(DistrictType districtType, float cacheTime) {
+        if (cachedInstances.containsKey(districtType.getResource())) {
+            return cachedInstances.get(districtType.getResource());
         }
-        final TiledMap map = mapLoader.load(domainType.getResource());
-        this.cachedInstances.put(domainType.getResource(), map);
+        final TiledMap map = mapLoader.load(districtType.getResource());
+        this.cachedInstances.put(districtType.getResource(), map);
         return map;
     }
 

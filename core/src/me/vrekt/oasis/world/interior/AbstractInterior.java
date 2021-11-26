@@ -2,6 +2,7 @@ package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,6 +28,7 @@ import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
+import me.vrekt.oasis.utilities.render.Viewable;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.common.Enterable;
 import me.vrekt.oasis.world.common.InputHandler;
@@ -36,7 +38,7 @@ import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 /**
  * Represents an interior within a world.
  */
-public abstract class AbstractInterior extends LunarInstance implements Disposable, Interactable, Enterable, InputHandler {
+public abstract class AbstractInterior extends LunarInstance implements Disposable, Interactable, Enterable, InputHandler, Viewable {
 
     protected final Timer timer = new Timer();
 
@@ -76,6 +78,11 @@ public abstract class AbstractInterior extends LunarInstance implements Disposab
 
     public void setEnterable(boolean enterable) {
         this.enterable = enterable;
+    }
+
+    @Override
+    public boolean isInView(Camera camera) {
+        return camera.frustum.pointInFrustum(entrance.x, entrance.y, 0.0f);
     }
 
     /**

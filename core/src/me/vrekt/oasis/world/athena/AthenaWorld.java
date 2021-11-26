@@ -14,10 +14,11 @@ import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.district.DistrictEntranceGui;
 import me.vrekt.oasis.item.items.weapons.PrototypeTimepiercerWeapon;
 import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.world.AbstractWorld;
-import me.vrekt.oasis.world.domains.AbstractDomain;
+import me.vrekt.oasis.world.districts.AbstractDistrict;
 import me.vrekt.oasis.world.interior.AbstractInterior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
@@ -95,8 +96,8 @@ public final class AthenaWorld extends AbstractWorld {
             return;
         }
 
-        //  enterInteriorIfPossible();
-        enterDomainIfPossible();
+        enterInteriorIfPossible();
+        showDomainEntranceGui();
     }
 
     /**
@@ -105,7 +106,8 @@ public final class AthenaWorld extends AbstractWorld {
      */
     private void enterInteriorIfPossible() {
         for (AbstractInterior interior : interiors.values()) {
-            if (interior.isEnterable(thePlayer)) {
+            if (interior.isInView(renderer.getCamera())
+                    && interior.isEnterable(thePlayer)) {
                 final boolean result = interior.enterInstance(asset, this, game, renderer, thePlayer);
                 if (result) {
                     this.exit();
@@ -116,15 +118,11 @@ public final class AthenaWorld extends AbstractWorld {
         }
     }
 
-    private void enterDomainIfPossible() {
-        for (AbstractDomain domain : domains.values()) {
-            if (!domain.isLocked()) {
-                final boolean result = domain.enterInstance(asset, this, game, renderer, thePlayer);
-                if (result) {
-                    this.exit();
-                } else {
-                    Logging.error(this, "Failed to load into domain: " + domain);
-                }
+    private void showDomainEntranceGui() {
+        for (AbstractDistrict district : domains.values()) {
+            if (district.isInView(renderer.getCamera()) && district.isEnterable(thePlayer)) {
+                ((DistrictEntranceGui) gui.getGui(GuiType.DISTRICT)).setDistrictTryingToEnter(district);
+                gui.showGui(GuiType.DISTRICT);
             }
         }
     }

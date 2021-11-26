@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public final class PlayerInventoryGui extends Gui {
 
-    private Table itemAttributes, right, i;
+    private Table root, itemAttributes, right, i;
     private TextButton button;
 
     // inventory slot backgrounds
@@ -56,9 +56,8 @@ public final class PlayerInventoryGui extends Gui {
         epic = new TextureRegionDrawable(gui.getAsset().get("inventory_slot_epic"));
         background = new TextureRegionDrawable(gui.getAsset().get("inventory_background"));
 
-        Table root = new Table();
-        root.setDebug(true, true);
-        root.setVisible(true);
+        root = new Table();
+        root.setVisible(false);
         root.setBackground(background);
         gui.createContainer(root).fill();
 
@@ -84,12 +83,24 @@ public final class PlayerInventoryGui extends Gui {
         right.add(itemDesc).width(256).padLeft(16).left();
     }
 
+    @Override
+    public void showGui() {
+        root.setVisible(true);
+        super.showGui();
+    }
+
+    @Override
+    public void hideGui() {
+        root.setVisible(false);
+        super.hideGui();
+    }
+
     private Table initializePlayerInventory() {
         final Table inventory = new Table();
 
         for (int i = 0; i < 24; i++) {
             // row inventory every 6 slots.
-            if (i % 6 == 0 && i != 0) inventory.row();
+            if (i % 4 == 0 && i != 0) inventory.row();
 
             final Stack stack = new Stack();
             final Item item = gui.getGame().getPlayer().getInventory().getItemAt(i);
@@ -120,10 +131,10 @@ public final class PlayerInventoryGui extends Gui {
     private Table initializeInformation() {
         final Table information = new Table();
         this.itemHeaderImage = new Image();
-        this.itemHeader = new Label("", gui.getSkin(), "big", Color.WHITE);
+        this.itemHeader = new Label("", gui.getSkin(), "big", Color.SLATE);
         this.itemHeader.setWrap(true);
 
-        this.itemDesc = new Label("", gui.getSkin(), "small", Color.GREEN);
+        this.itemDesc = new Label("", gui.getSkin(), "small", Color.BLACK);
         this.itemDesc.setWrap(true);
 
         information.left();
@@ -180,16 +191,17 @@ public final class PlayerInventoryGui extends Gui {
             final Item item = gui.getGame().getPlayer().getInventory().getItemAt(index);
 
             if (item != null) {
+                final Color color = item.getRarity() == ItemRarity.EPIC ?
+                        Color.PURPLE : Color.ROYAL;
+
                 itemAttributes.clear();
                 itemHeader.setText(item.getName());
                 itemHeaderImage.setDrawable(new TextureRegionDrawable(item.getTexture()));
-                itemAttributes.add(new Label(item.getRarity().name(), gui.getSkin(), "big", Color.PURPLE)).left();
+                itemAttributes.add(new Label(item.getRarity().name(), gui.getSkin(), "big", color)).left();
                 itemAttributes.row();
 
                 for (ItemAttributeType type : item.getAttributes().keySet()) {
                     final int level = item.getAttributeLevel(type);
-                    final Color color = item.getRarity() == ItemRarity.EPIC ?
-                            Color.PURPLE : Color.CYAN;
 
                     itemAttributes.add(new Label(type.getName() + " +" + level, gui.getSkin(), "small", color))
                             .width(64).left();

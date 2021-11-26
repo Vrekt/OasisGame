@@ -16,6 +16,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
+import me.vrekt.oasis.gui.district.DistrictEntranceGui;
 import me.vrekt.oasis.gui.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.notification.QuestNotificationGui;
@@ -70,10 +71,11 @@ public final class GameGui {
         guis.put(GuiType.QUEST_NOTIFICATION, new QuestNotificationGui(this));
         guis.put(GuiType.QUEST, new QuestGui(this));
         //guis.put(99, new SettingsGui(this));
-        // guis.put(98, new DomainEntranceMenuGui(this));
+        // guis.put(98, new DistrictEntranceGui(this));
         //  guis.put(38, new PlayerInventoryGui(this));
         guis.put(GuiType.CONTAINER, new ContainerInventoryGui(this));
         guis.put(GuiType.INVENTORY, new PlayerInventoryGui(this));
+        guis.put(GuiType.DISTRICT, new DistrictEntranceGui(this));
     }
 
     public Camera getCamera() {

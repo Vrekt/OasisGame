@@ -2,6 +2,7 @@ package me.vrekt.oasis.world.instance;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,12 +28,13 @@ import me.vrekt.oasis.entity.player.local.Player;
 import me.vrekt.oasis.settings.GameSettings;
 import me.vrekt.oasis.utilities.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utilities.logging.Logging;
+import me.vrekt.oasis.utilities.render.Viewable;
 import me.vrekt.oasis.world.AbstractWorld;
 import me.vrekt.oasis.world.common.Enterable;
 import me.vrekt.oasis.world.common.InputHandler;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
 
-public abstract class AbstractInstance extends LunarInstance implements Enterable, InputHandler {
+public abstract class AbstractInstance extends LunarInstance implements Enterable, InputHandler, Viewable {
 
     protected final Timer timer = new Timer();
 
@@ -68,6 +70,15 @@ public abstract class AbstractInstance extends LunarInstance implements Enterabl
 
         this.table.setBackground(new TextureRegionDrawable(new Texture(pixmap)));
         pixmap.dispose();
+    }
+
+    public boolean isEnterable(Player player) {
+        return player.getPosition().dst2(entrance) <= 2f;
+    }
+
+    @Override
+    public boolean isInView(Camera camera) {
+        return camera.frustum.pointInFrustum(entrance.x, entrance.y, 0.0f);
     }
 
     @Override

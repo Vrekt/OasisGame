@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -31,8 +32,8 @@ import me.vrekt.oasis.utilities.logging.Logging;
 import me.vrekt.oasis.world.common.Enterable;
 import me.vrekt.oasis.world.common.InputHandler;
 import me.vrekt.oasis.world.common.Interactable;
-import me.vrekt.oasis.world.domains.AbstractDomain;
-import me.vrekt.oasis.world.domains.DomainType;
+import me.vrekt.oasis.world.districts.AbstractDistrict;
+import me.vrekt.oasis.world.districts.DistrictType;
 import me.vrekt.oasis.world.interior.AbstractInterior;
 import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.renderer.GlobalGameRenderer;
@@ -53,7 +54,7 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
     protected final ConcurrentMap<Integer, NetworkPlayer> networkPlayers = new ConcurrentHashMap<>();
 
     protected final Map<Interior, AbstractInterior> interiors = new HashMap<>();
-    protected final Map<DomainType, AbstractDomain> domains = new HashMap<>();
+    protected final Map<DistrictType, AbstractDistrict> domains = new HashMap<>();
 
     protected final ConcurrentMap<Integer, EntityInteractable> entities = new ConcurrentHashMap<>();
     protected final Map<EntityNPCType, EntityInteractable> entityTypes = new HashMap<>();
@@ -282,9 +283,9 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
         final boolean result = loadMapObjects(worldMap, worldScale, "Domains", (object, rectangle) -> {
             final String name = object.getProperties().get("domain", null, String.class);
             if (name != null) {
-                final DomainType domainType = DomainType.valueOf(name.toUpperCase(Locale.ROOT));
-                this.domains.put(domainType, domainType.createDomain(game, new Vector2(rectangle.x, rectangle.y), this));
-                Logging.info("Objects", "Loaded domain: " + domainType);
+                final DistrictType districtType = DistrictType.valueOf(name.toUpperCase(Locale.ROOT));
+                this.domains.put(districtType, districtType.createDomain(game, new Vector2(rectangle.x, rectangle.y), this));
+                Logging.info("Objects", "Loaded domain: " + districtType);
             } else {
                 Logging.warn(this, "Failed to find domain for " + object.getName());
             }
@@ -453,6 +454,12 @@ public abstract class AbstractWorld extends LunarWorld implements InputHandler, 
                 gui.hideGui(GuiType.QUEST);
             } else {
                 gui.showGui(GuiType.QUEST);
+            }
+        } else if (keycode == Input.Keys.I) {
+            if (gui.isGuiVisible(GuiType.INVENTORY)) {
+                gui.hideGui(GuiType.INVENTORY);
+            } else {
+                gui.showGui(GuiType.INVENTORY);
             }
         }
         return false;
