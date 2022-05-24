@@ -1,9 +1,11 @@
-# OasisGame
-A multiplayer RPG built with LibGDX and Netty.
-
-There are two versions of Oasis, legacy, and main. Legacy versions contain old networking and engine code.
-
-# Legacy Oasis
-Legacy oasis was experimental and more of a test of getting things working.
-
-
+# Oasis
+Oasis is a multiplayer game built with [Lunar](https://github.com/Vrekt/LunarGdx) and LibGDX.
+  - Multiplayer game structure
+  - Worlds, entities, collision, etc.
+  - UI
+  - Local networking for singeplayer
+  - Robust entity system
+  - 
+<p align="center">
+  <img src="showcase.gif" alt="Size Limit CLI" width="738">
+</p>
