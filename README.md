@@ -5,7 +5,7 @@ Oasis is a multiplayer game built with [Lunar](https://github.com/Vrekt/LunarGdx
   - UI
   - Local networking for singeplayer
   - Robust entity system
-  - 
+
 <p align="center">
-  <img src="showcase.gif" alt="Size Limit CLI" width="738">
+  <img src="showcase.gif" alt="DIALOG UI">
 </p>
