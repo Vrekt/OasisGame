@@ -1,0 +1,1 @@
+include 'shared', 'lwjgl3', 'core', 'server'
