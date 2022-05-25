@@ -19,10 +19,10 @@ public abstract class Gui {
 
     protected boolean isShowing;
 
-    public Gui(GameGui gui) {
+    public Gui(GameGui gui, Asset asset) {
         this.gui = gui;
 
-        this.asset = Asset.get();
+        this.asset = asset;
         this.skin = gui.getSkin();
         this.layout = gui.getLayout();
         this.romulusSmall = gui.getMedium();

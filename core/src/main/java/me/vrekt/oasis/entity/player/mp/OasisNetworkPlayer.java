@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.parts.mp;
+package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import lunar.shared.entity.drawing.Rotation;
@@ -14,7 +14,7 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
 
     private EntityAnimationComponent animationComponent;
     private boolean rotationChanged;
-    private float oldRotation = rotation;
+    private float oldRotation = 0;
 
     public OasisNetworkPlayer(boolean initializeComponents) {
         super(initializeComponents);
@@ -44,21 +44,21 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (rotationChanged) {
+
+        if (oldRotation != rotation) {
             setIdleRegionState();
-            rotationChanged = false;
         }
+
+        oldRotation = rotation;
     }
 
     @Override
     public void updateServerPosition(float x, float y, float angle) {
-        rotationChanged = angle != rotation;
         super.updateServerPosition(x, y, angle);
     }
 
     @Override
     public void updateServerVelocity(float x, float y, float angle) {
-        rotationChanged = angle != rotation;
         super.updateServerVelocity(x, y, angle);
     }
 

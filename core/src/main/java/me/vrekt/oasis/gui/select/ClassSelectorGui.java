@@ -34,7 +34,7 @@ public final class ClassSelectorGui extends Gui {
     private final TypingLabel classDescription;
 
     public ClassSelectorGui(GameGui gui, Asset asset) {
-        super(gui);
+        super(gui, asset);
 
         rootTable = new Table();
         rootTable.setVisible(false);
@@ -165,12 +165,16 @@ public final class ClassSelectorGui extends Gui {
 
     @Override
     public void showGui() {
+        gui.hideGui(GuiType.HUD);
+
         rootTable.setVisible(true);
         isShowing = true;
     }
 
     @Override
     public void hideGui() {
+        gui.showGui(GuiType.HUD);
+
         rootTable.setVisible(false);
         isShowing = false;
     }

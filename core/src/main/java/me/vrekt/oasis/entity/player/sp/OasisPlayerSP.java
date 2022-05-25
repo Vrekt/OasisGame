@@ -3,8 +3,8 @@ package me.vrekt.oasis.entity.player.sp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import gdx.lunar.network.AbstractConnection;
-import gdx.lunar.network.handlers.ConnectionHandlers;
+import gdx.lunar.network.types.ConnectionOption;
+import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.world.LunarWorld;
@@ -20,7 +20,7 @@ import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.parts.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
@@ -37,6 +37,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private OasisWorld gameWorldIn;
     private ClassType classType;
+
+    private PlayerConnectionHandler connectionHandler;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -63,11 +65,19 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.gameWorldIn = gameWorldIn;
     }
 
-    @Override
-    public void setConnection(AbstractConnection connection) {
-        super.setConnection(connection);
-        connection.registerHandler(ConnectionHandlers.JOIN_WORLD, packet -> handleWorldJoin(((SPacketJoinWorld) packet)));
-        connection.registerHandler(ConnectionHandlers.CREATE_PLAYER, packet -> handlePlayerJoin((SPacketCreatePlayer) packet));
+
+    public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
+        this.connectionHandler = connectionHandler;
+        this.setConnection(connectionHandler);
+
+        connectionHandler.enableOptions(
+                ConnectionOption.HANDLE_PLAYER_POSITION,
+                ConnectionOption.HANDLE_PLAYER_VELOCITY,
+                ConnectionOption.HANDLE_AUTHENTICATION,
+                ConnectionOption.HANDLE_PLAYER_FORCE);
+
+        connectionHandler.registerHandlerAsync(ConnectionOption.HANDLE_JOIN_WORLD, packet -> handleWorldJoin(((SPacketJoinWorld) packet)));
+        connectionHandler.registerHandlerAsync(ConnectionOption.HANDLE_PLAYER_JOIN, packet -> handlePlayerJoin((SPacketCreatePlayer) packet));
     }
 
     public void handleWorldJoin(SPacketJoinWorld world) {
@@ -132,7 +142,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         super.setInterpolated(x - getWidthScaled() / 2f, y - getHeightScaled() / 2f);
     }
 
-    @Override
     public void pollInput() {
         float rotation = getRotation();
         setVelocity(0.0f, 0.0f, false);

@@ -21,7 +21,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
-import me.vrekt.oasis.entity.parts.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.graphics.Renderable;
@@ -226,9 +226,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         } else if (paused) {
             // draw fbo.
 
-            //gui.applyStageViewport();
-            // batch.setProjectionMatrix(gui.getCamera().combined);
-            // batch.begin();
+            gui.applyStageViewport();
+            batch.setProjectionMatrix(gui.getCamera().combined);
+            batch.begin();
 
             if (fboTexture == null) {
                 fboTexture = new TextureRegion(fbo.getColorBufferTexture());
@@ -292,7 +292,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         // render MP players first,
         for (OasisNetworkPlayer player : players.values()) {
-            if (player.isInView(renderer.getCamera())) player.render(batch, delta);
+            if (player.isInView(renderer.getCamera())) {
+                player.render(batch, delta);
+            }
         }
 
         for (LunarEntity value : entities.values()) {
@@ -305,6 +307,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         // render local player next
         player.render(batch, delta);
+
         batch.end();
 
         // render gui

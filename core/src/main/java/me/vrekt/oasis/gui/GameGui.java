@@ -16,6 +16,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
+import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
 
 import java.util.HashMap;
@@ -58,6 +59,7 @@ public final class GameGui {
         multiplexer.addProcessor(stage);
         guis.put(GuiType.DIALOG, new DialogGui(this, asset));
         guis.put(GuiType.CLASS, new ClassSelectorGui(this, asset));
+        guis.put(GuiType.HUD, new HudGui(this, asset));
     }
 
     public Camera getCamera() {

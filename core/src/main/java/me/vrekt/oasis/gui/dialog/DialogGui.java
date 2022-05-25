@@ -12,6 +12,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
+import me.vrekt.oasis.gui.GuiType;
 import org.apache.commons.lang3.StringUtils;
 
 public final class DialogGui extends Gui {
@@ -28,7 +29,7 @@ public final class DialogGui extends Gui {
     private EntityInteractable entity;
 
     public DialogGui(GameGui gui, Asset asset) {
-        super(gui);
+        super(gui, asset);
 
         rootTable = new Table();
         rootTable.setVisible(false);
@@ -129,12 +130,16 @@ public final class DialogGui extends Gui {
 
     @Override
     public void showGui() {
+        gui.hideGui(GuiType.HUD);
+
         rootTable.setVisible(true);
         isShowing = true;
     }
 
     @Override
     public void hideGui() {
+        gui.showGui(GuiType.HUD);
+
         rootTable.setVisible(false);
         isShowing = false;
     }
