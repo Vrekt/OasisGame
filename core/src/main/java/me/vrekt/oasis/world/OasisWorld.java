@@ -3,6 +3,7 @@ package me.vrekt.oasis.world;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -29,8 +30,7 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
@@ -53,6 +53,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected GameGui gui;
 
     private final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
+    private final List<ParticleEffect> effects = new ArrayList<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -83,6 +84,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadMapActions(worldMap, worldScale);
         loadMapCollision(worldMap, worldScale);
         loadInteractableEntities(game, Asset.get(), worldMap, worldScale);
+        loadParticleEffects(worldMap, Asset.get(), worldScale);
 
         this.renderer.setTiledMap(worldMap, spawn.x, spawn.y);
         this.width = renderer.getWidth();
@@ -198,6 +200,27 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (result) Logging.info(this, "Loaded " + (entities.size()) + " entities.");
     }
 
+    /**
+     * Load particles
+     *
+     * @param worldMap   the map of the world
+     * @param asset      asset
+     * @param worldScale the scale of the world
+     */
+    protected void loadParticleEffects(TiledMap worldMap, Asset asset, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Particles", (object, rectangle) -> {
+            final ParticleEffect effect = new ParticleEffect();
+            effect.load(Gdx.files.internal("world/asset/" + object.getName()), asset.getAtlasAssets());
+            effect.setPosition(rectangle.x, rectangle.y);
+            effect.start();
+
+            this.effects.add(effect);
+        });
+
+        if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
+        if (!result) Logging.warn(this, "Failed to find particle layer.");
+    }
+
     @Override
     public void show() {
         Logging.info(this, "Showing world.");
@@ -303,6 +326,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                     ((Renderable) value).render(batch, delta);
                 }
             }
+        }
+
+        // render particles
+        for (ParticleEffect effect : effects) {
+            effect.update(delta);
+            effect.draw(batch);
         }
 
         // render local player next

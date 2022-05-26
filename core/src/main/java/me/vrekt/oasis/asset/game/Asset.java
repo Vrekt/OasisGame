@@ -97,6 +97,10 @@ public final class Asset implements Disposable {
         return atlasAssets.findRegion(name, index);
     }
 
+    public TextureAtlas getAtlasAssets() {
+        return atlasAssets;
+    }
+
     public <T> T getType(String name) {
         return assetManager.get(name);
     }

@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.sp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
@@ -47,8 +48,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setEntityName(name);
         setMoveSpeed(6.0f);
         setFixedRotation(false);
-        setConfig(24, 24, OasisGameSettings.SCALE);
         setHasMoved(true);
+        setConfig(15, 25, OasisGameSettings.SCALE);
 
         setNetworkSendRatesInMs(0, 0);
     }
@@ -64,7 +65,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public void setGameWorldIn(OasisWorld gameWorldIn) {
         this.gameWorldIn = gameWorldIn;
     }
-
 
     public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
@@ -105,16 +105,16 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private void setIdleRegionState() {
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
-                currentRegionState = getRegion("walking_up_idle");
+                currentRegionState = getRegion("healer_walking_up_idle");
                 break;
             case FACING_DOWN:
-                currentRegionState = getRegion("walking_down_idle");
+                currentRegionState = getRegion("healer_walking_down_idle");
                 break;
             case FACING_LEFT:
-                currentRegionState = getRegion("walking_left_idle");
+                currentRegionState = getRegion("healer_walking_left_idle");
                 break;
             case FACING_RIGHT:
-                currentRegionState = getRegion("walking_right_idle");
+                currentRegionState = getRegion("healer_walking_right_idle");
                 break;
         }
     }
@@ -124,17 +124,17 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        putRegion("walking_up_idle", asset.get("walking_up_idle"));
-        putRegion("walking_down_idle", asset.get("walking_down_idle"));
-        putRegion("walking_left_idle", asset.get("walking_left_idle"));
-        putRegion("walking_right_idle", asset.get("walking_right_idle"));
-        currentRegionState = getRegion("walking_up_idle");
+        putRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
+        putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
+        putRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
+        putRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
+        currentRegionState = getRegion("healer_walking_up_idle");
 
         // up, down, left, right
-        animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("walking_up", 1), asset.get("walking_up", 2));
-        animationComponent.registerWalkingAnimation(1, 0.25f, asset.get("walking_down", 1), asset.get("walking_down", 2));
-        animationComponent.registerWalkingAnimation(2, 0.25f, asset.get("walking_left", 1), asset.get("walking_left", 2));
-        animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("walking_right", 1), asset.get("walking_right", 2));
+        animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
+        animationComponent.registerWalkingAnimation(1, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
+        animationComponent.registerWalkingAnimation(2, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
+        animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
     }
 
     @Override
@@ -184,13 +184,16 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (!getVelocity().isZero()) {
-            // indicates player is moving
-            batch.draw(animationComponent.playWalkingAnimation(rotation, delta), getInterpolated().x, getInterpolated().y, getWidthScaled(), getHeightScaled());
+            draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
         } else {
             if (currentRegionState != null) {
-                batch.draw(currentRegionState, getInterpolated().x, getInterpolated().y, getWidthScaled(), getHeightScaled());
+                draw(batch, currentRegionState);
             }
         }
+    }
+
+    public void draw(SpriteBatch batch, TextureRegion region) {
+        batch.draw(region, getInterpolated().x, getInterpolated().y, region.getRegionWidth() * getScaling(), region.getRegionHeight() * getScaling());
     }
 
     @Override

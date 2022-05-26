@@ -40,8 +40,9 @@ public final class HudGui extends Gui {
         healthTable.setVisible(true);
         healthTable.left();
 
-        gui.createContainer(healthTable).top().left().pad(4);
-        healthTable.add(new Image(asset.get("health_bar"))).size(256, 24);
+        // TODO: Health bar
+        //  gui.createContainer(healthTable).top().left().pad(4);
+        //   healthTable.add(new Image(asset.get("health_bar"))).size(256, 24);
 
         final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("inventory_slot"));
 

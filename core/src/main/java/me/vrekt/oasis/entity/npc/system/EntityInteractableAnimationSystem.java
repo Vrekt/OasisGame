@@ -23,7 +23,7 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
     private final ComponentMapper<EntityDialogComponent> dialogMapper;
 
     public EntityInteractableAnimationSystem(OasisPlayerSP player, Engine engine) {
-        super(1);
+        super(.7f);
         this.engine = engine;
         this.player = player;
 
