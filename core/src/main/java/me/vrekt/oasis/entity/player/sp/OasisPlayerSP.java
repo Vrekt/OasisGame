@@ -92,7 +92,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         Logging.info(this, "Spawning new player " + packet.getUsername() + ":" + packet.getEntityId());
         if (inWorld) {
             final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
-            player.load(Asset.get());
+            player.load(game.getAsset());
 
             player.getProperties().initialize(packet.getEntityId(), packet.getUsername());
             player.getConfig().setConfig(24, 24, OasisGameSettings.SCALE);

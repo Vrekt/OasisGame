@@ -1,20 +1,12 @@
 package me.vrekt.oasis.world.server;
 
-import gdx.lunar.server.world.ServerWorld;
-import gdx.lunar.server.world.config.ServerWorldConfiguration;
-import me.vrekt.oasis.world.OasisWorld;
+import com.badlogic.gdx.physics.box2d.World;
+import gdx.lunar.world.impl.WorldAdapter;
+import lunar.shared.entity.player.impl.LunarPlayer;
 
-public final class WorldServer extends ServerWorld {
+public final class WorldServer extends WorldAdapter {
 
-    private final OasisWorld localWorld;
-
-    public WorldServer(OasisWorld world, String worldName) {
-        super(new ServerWorldConfiguration(), worldName);
-        this.localWorld = world;
-    }
-
-    @Override
-    public void tick() {
-
+    public WorldServer(LunarPlayer player, World world) {
+        super(player, world);
     }
 }

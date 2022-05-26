@@ -16,7 +16,6 @@ public final class Asset implements Disposable {
 
     public static final String TUTORIAL_WORLD = "world/worlds/OasisTutorialWorld.tmx";
     public static final String ASSETS = "Assets.atlas";
-    private static Asset asset;
 
     private final AssetManager assetManager = new AssetManager();
 
@@ -25,13 +24,9 @@ public final class Asset implements Disposable {
 
     private TextureAtlas atlasAssets;
 
-    public Asset() {
-        if (asset != null) throw new UnsupportedOperationException();
-        asset = this;
-        loadSkins();
-    }
-
     public void load() {
+        loadSkins();
+
         final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
         assetManager.setLoader(TiledMap.class, mapLoader);
         assetManager.load(ASSETS, TextureAtlas.class);
@@ -115,10 +110,6 @@ public final class Asset implements Disposable {
         small.dispose();
         medium.dispose();
         large.dispose();
-    }
-
-    public static Asset get() {
-        return asset;
     }
 
 }

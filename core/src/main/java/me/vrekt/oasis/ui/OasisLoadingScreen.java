@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
-import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.OasisGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +23,11 @@ public final class OasisLoadingScreen extends ScreenAdapter {
     private int index = 0;
     private boolean invoked;
 
-    public OasisLoadingScreen() {
+    public OasisLoadingScreen(OasisGame game) {
         this.tasks = new ArrayList<>();
 
         this.stage = new Stage();
-        this.progressBar = new ProgressBar(0.0f, 100.0f, 10.0f, false, Asset.get().getDefaultLibgdxSkin());
+        this.progressBar = new ProgressBar(0.0f, 100.0f, 10.0f, false, game.getAsset().getDefaultLibgdxSkin());
     }
 
     public void addTask(Runnable task) {

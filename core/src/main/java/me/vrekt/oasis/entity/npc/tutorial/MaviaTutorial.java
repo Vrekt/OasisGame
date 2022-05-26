@@ -32,17 +32,14 @@ public final class MaviaTutorial extends EntityInteractable {
         if (entityDialog.isEnd(option)) {
             setSpeakingTo(false);
             atEnd = true;
+            game.getGui().showGui(GuiType.HUD);
             return true;
-
-            // TODO: mavia walks away and something something
         }
 
-        switch (option) {
-            case "mavia_dialog_1":
-            case "mavia_dialog_2":
-                game.getGui().hideGui(GuiType.DIALOG);
-                game.getGui().showGui(GuiType.CLASS);
-                break;
+        // class selector GUI
+        if (option.equals("mavia_dialog_2")) {
+            game.getGui().hideGui(GuiType.DIALOG);
+            game.getGui().showGui(GuiType.CLASS);
         }
 
         this.dialog = entityDialog.sections.get(option);

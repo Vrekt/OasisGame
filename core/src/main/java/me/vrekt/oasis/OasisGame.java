@@ -25,6 +25,8 @@ import java.util.concurrent.CompletableFuture;
 
 public final class OasisGame extends Game {
 
+    private Asset asset;
+
     private OasisTiledRenderer renderer;
     private OasisPlayerSP player;
     private SpriteBatch batch;
@@ -34,6 +36,7 @@ public final class OasisGame extends Game {
     private InputMultiplexer multiplexer;
     private GameGui gui;
 
+    private Lunar lunar;
     private LunarProtocol protocol;
     private OasisLocalServer server;
     private LunarClientServer clientServer;
@@ -65,14 +68,15 @@ public final class OasisGame extends Game {
         try {
             if (screen != null) screen.hide();
             player.getConnection().dispose();
+            clientServer.dispose();
+            server.dispose();
             player.dispose();
             worldManager.dispose();
             clientServer.dispose();
             batch.dispose();
-            Asset.get().dispose();
-            System.exit(0);
+            asset.dispose();
         } catch (Exception a) {
-            System.exit(0);
+            a.printStackTrace();
         }
     }
 
@@ -80,12 +84,10 @@ public final class OasisGame extends Game {
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
-        new Asset();
-        final Asset asset = Asset.get();
+        asset = new Asset();
         asset.load();
 
-
-        final OasisLoadingScreen screen = new OasisLoadingScreen();
+        final OasisLoadingScreen screen = new OasisLoadingScreen(this);
 
         // load base assets
         player = new OasisPlayerSP(this, "Player" + RandomUtils.nextInt(0, 999));
@@ -97,7 +99,6 @@ public final class OasisGame extends Game {
         gui = new GameGui(this, asset, multiplexer);
 
         screen.setFinishedLoadingCall(() -> CompletableFuture.runAsync(this::joinLocalServer));
-
         setScreen(screen);
     }
 
@@ -105,9 +106,15 @@ public final class OasisGame extends Game {
         final TutorialOasisWorld world = new TutorialOasisWorld(this, player, new World(Vector2.Zero, true));
         worldManager.addWorld("TutorialWorld", world);
 
+        this.lunar = new Lunar();
         this.protocol = new LunarProtocol(true);
 
-        clientServer = new LunarClientServer(new Lunar(), protocol, "localhost", 6969);
+        // start local server for singleplayer
+        server = new OasisLocalServer(this, protocol);
+        server.start();
+
+        // connect to SP server
+        clientServer = new LunarClientServer(lunar, protocol, "localhost", 6969);
         clientServer.setProvider(channel -> new PlayerConnectionHandler(channel, protocol));
         clientServer.connect().join();
 
@@ -148,5 +155,9 @@ public final class OasisGame extends Game {
 
     public OasisPlayerSP getPlayer() {
         return player;
+    }
+
+    public Asset getAsset() {
+        return asset;
     }
 }

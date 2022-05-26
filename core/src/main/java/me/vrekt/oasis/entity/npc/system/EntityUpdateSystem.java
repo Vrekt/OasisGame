@@ -27,7 +27,6 @@ public final class EntityUpdateSystem extends EntitySystem {
             final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
             entity.setDistanceToPlayer(distance);
 
-
             if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE || entity.isInView(game.getRenderer().getCamera())) {
                 entity.update(deltaTime);
 

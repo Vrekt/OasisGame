@@ -103,6 +103,7 @@ public final class ClassSelectorGui extends Gui {
 
                     // show dialog gui
                     gui.showEntityDialog(mavia);
+                    gui.hideGui(GuiType.HUD);
                     gui.showGui(GuiType.DIALOG);
                 }
 
@@ -173,8 +174,6 @@ public final class ClassSelectorGui extends Gui {
 
     @Override
     public void hideGui() {
-        gui.showGui(GuiType.HUD);
-
         rootTable.setVisible(false);
         isShowing = false;
     }

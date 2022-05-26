@@ -60,8 +60,8 @@ public final class OasisTiledRenderer implements Disposable {
             renderer = new OrthogonalTiledMapRenderer(map, OasisGameSettings.SCALE, batch);
         }
 
-        this.width = map.getProperties().get("width", Integer.class);
-        this.height = map.getProperties().get("height", Integer.class);
+        this.width = map.getProperties().get("width", Integer.class) - 2;
+        this.height = map.getProperties().get("height", Integer.class) - 2;
 
         this.hx = camera.viewportWidth / 2f;
         this.hy = camera.viewportHeight / 2f;

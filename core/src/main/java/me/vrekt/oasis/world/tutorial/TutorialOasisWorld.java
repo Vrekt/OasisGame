@@ -36,7 +36,7 @@ public final class TutorialOasisWorld extends OasisWorld {
     @Override
     public void loadIntoWorld() {
         super.loadIntoWorld();
-        loadWorld(Asset.get().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
+        loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
     }
 
     @Override
@@ -46,6 +46,7 @@ public final class TutorialOasisWorld extends OasisWorld {
             closest.setSpeakingTo(true);
 
             gui.showEntityDialog(closest);
+            gui.hideGui(GuiType.HUD);
             gui.showGui(GuiType.DIALOG);
         }
     }

@@ -44,7 +44,7 @@ import java.util.function.BiConsumer;
  */
 public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements InputProcessor {
 
-    private final OasisGame game;
+    protected final OasisGame game;
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
 
@@ -88,8 +88,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void loadWorld(TiledMap worldMap, float worldScale) {
         loadMapActions(worldMap, worldScale);
         loadMapCollision(worldMap, worldScale);
-        loadInteractableEntities(game, Asset.get(), worldMap, worldScale);
-        loadParticleEffects(worldMap, Asset.get(), worldScale);
+        loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
+        loadParticleEffects(worldMap, game.getAsset(), worldScale);
 
         this.renderer.setTiledMap(worldMap, spawn.x, spawn.y);
         this.width = renderer.getWidth();

@@ -5,11 +5,10 @@ import gdx.lunar.Lunar;
 import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.GameServer;
 import gdx.lunar.server.NettyServer;
+import gdx.lunar.server.world.config.ServerWorldConfiguration;
+import gdx.lunar.server.world.impl.WorldAdapter;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.utility.logging.Logging;
-import me.vrekt.oasis.world.server.WorldServer;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A local single player game server.
@@ -32,17 +31,13 @@ public final class OasisLocalServer implements Disposable {
     /**
      * Start local game server async
      */
-    public void startAsync() {
-        CompletableFuture.runAsync(() -> {
-            server.bind();
+    public void start() {
+        server.bind();
 
-            gameServer.getWorldManager().addWorld("TutorialWorld",
-                    new WorldServer(game.getWorldManager().getWorld("TutorialWorld"), "TutorialWorld"));
-            gameServer.start();
+        gameServer.getWorldManager().addWorld("TutorialWorld", new WorldAdapter(new ServerWorldConfiguration(), "TutorialWorld"));
+        gameServer.start();
 
-            Logging.info(this, "Local Server Started.");
-
-        });
+        Logging.info(this, "Local Server Started.");
     }
 
     @Override
