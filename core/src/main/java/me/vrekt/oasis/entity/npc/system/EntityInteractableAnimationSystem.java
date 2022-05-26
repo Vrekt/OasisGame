@@ -8,7 +8,6 @@ import com.badlogic.ashley.systems.IntervalSystem;
 import lunar.shared.entity.components.position.EntityPositionComponent;
 import lunar.shared.entity.components.prop.EntityPropertiesComponent;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 
 /**
  * Basic system for updating dialog tile animation states
@@ -16,22 +15,18 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 public final class EntityInteractableAnimationSystem extends IntervalSystem {
 
     private final Engine engine;
-    private final OasisPlayerSP player;
 
     private final Family family;
-    private final ComponentMapper<EntityPositionComponent> positionMapper;
     private final ComponentMapper<EntityDialogComponent> dialogMapper;
 
-    public EntityInteractableAnimationSystem(OasisPlayerSP player, Engine engine) {
+    public EntityInteractableAnimationSystem(Engine engine) {
         super(.7f);
         this.engine = engine;
-        this.player = player;
 
         this.family = Family.all(
                 EntityDialogComponent.class,
                 EntityPositionComponent.class,
                 EntityPropertiesComponent.class).get();
-        this.positionMapper = ComponentMapper.getFor(EntityPositionComponent.class);
         this.dialogMapper = ComponentMapper.getFor(EntityDialogComponent.class);
     }
 
@@ -42,7 +37,6 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
             final EntityDialogComponent component = dialogMapper.get(entity);
             if (component.isInView && component.drawDialogAnimationTile) {
                 // TODO: This is going to be changing
-                component.distanceFromPlayer = player.getPosition().dst2(positionMapper.get(entity).position);
                 component.currentDialogFrame = component.currentDialogFrame >= 3 ? 1 : component.currentDialogFrame + 1;
             }
         }

@@ -19,9 +19,11 @@ import lunar.shared.entity.player.LunarEntity;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
+import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
@@ -30,14 +32,17 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 /**
  * Represents a base world within the game
  */
-public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, LunarEntity> implements InputProcessor {
+public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements InputProcessor {
 
     private final OasisGame game;
     private final SpriteBatch batch;
@@ -91,7 +96,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.height = renderer.getHeight();
         game.getMultiplexer().addProcessor(this);
 
-        engine.addSystem(new EntityInteractableAnimationSystem(player, engine));
+        engine.addSystem(new EntityInteractableAnimationSystem(engine));
+        engine.addSystem(new EntityUpdateSystem(game, this));
 
         // initialize player in this world.
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
@@ -276,30 +282,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public float update(float d) {
-        super.update(d);
-
-        // update all entities within the world, that are within ticking distance
-        for (LunarEntity entity : entities.values()) {
-            // update entities we can see, or are below update distance
-            // TODO: Remove this, need in system
-            final double distance = entity.getPosition().dst2(player.getPosition());
-            if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE
-                    || ((Renderable) entity).isInView(renderer.getCamera())) {
-                entity.update(d);
-
-                if (entity instanceof EntityInteractable)
-                    nearbyEntities.put(((EntityInteractable) entity), ((EntityInteractable) entity).getDistanceFromPlayer());
-            } else {
-                if (entity instanceof EntityInteractable) {
-                    nearbyEntities.remove((EntityInteractable) entity);
-                }
-            }
-        }
-        return d;
+        return super.update(d);
     }
 
     private void renderInternal(float delta) {
-        final float d = this.update(delta);
+        this.update(delta);
         this.renderWorld(game.getBatch(), delta);
     }
 
@@ -354,6 +341,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public EntityInteractable getClosest() {
         return Collections.min(nearbyEntities.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
+        return nearbyEntities;
     }
 
     public void handleInteraction() {

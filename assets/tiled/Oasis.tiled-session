@@ -262,20 +262,24 @@
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 1,
-            "scaleInEditor": 1
+            "scaleInDock": 2,
+            "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 1.5,
-            "scaleInEditor": 1
+            "scaleInDock": 2,
+            "scaleInEditor": 1.5
+        },
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "scale": 2,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 277.66666666666663,
-                "y": 162
+                "x": 174.25,
+                "y": 95.5
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {
@@ -316,23 +320,24 @@
     "openFiles": [
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx"
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx"
     ],
     "project": "Oasis.tiled-project",
     "property.type": "string",
     "recentFiles": [
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Sewer.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/TutorialLevelMap.tmx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Cave1.tsx",
         "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Athena.tmx",
         "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Terrain.tsx",
         "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/Interior1.tsx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/domains/ChambersOfMist.tmx"
+        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/Interior1.tsx"
     ],
     "resizeMap.removeObjects": false,
     "tileset.lastUsedFormat": "tsx",

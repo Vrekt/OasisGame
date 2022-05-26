@@ -27,7 +27,6 @@ public final class MaviaTutorial extends EntityInteractable {
         dialog = entityDialog.getStarting();
     }
 
-
     @Override
     public boolean advanceDialogStage(String option) {
         if (entityDialog.isEnd(option)) {

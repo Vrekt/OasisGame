@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.drawing.LunarAnimatedEntity;
 import lunar.shared.entity.player.LunarEntity;
 import lunar.shared.entity.player.LunarEntityPlayer;
 import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
@@ -14,6 +13,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.EntityDialog;
 import me.vrekt.oasis.entity.dialog.EntityDialogSection;
+import me.vrekt.oasis.entity.npc.animation.EntityTextured;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.Renderable;
@@ -22,7 +22,7 @@ import me.vrekt.oasis.world.OasisWorld;
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityInteractable extends LunarAnimatedEntity implements ResourceLoader, Renderable {
+public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable {
 
     // describes the view/renderable stuff
     protected final Vector3 view = new Vector3(0, 0, 0);
@@ -47,7 +47,6 @@ public abstract class EntityInteractable extends LunarAnimatedEntity implements 
         this.player = player;
         this.game = game;
         this.type = type;
-        entity.add(new EntityDialogComponent());
     }
 
     public EntityNPCType getType() {
@@ -105,14 +104,6 @@ public abstract class EntityInteractable extends LunarAnimatedEntity implements 
         return entity.getComponent(EntityDialogComponent.class).currentDialogFrame;
     }
 
-    public void setDistanceToPlayer(float distance) {
-        entity.getComponent(EntityDialogComponent.class).distanceFromPlayer = distance;
-    }
-
-    public float getDistanceFromPlayer() {
-        return entity.getComponent(EntityDialogComponent.class).distanceFromPlayer;
-    }
-
     public void setDrawDialogAnimationTile(boolean drawDialogAnimationTile) {
         entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile = drawDialogAnimationTile;
     }
@@ -121,6 +112,15 @@ public abstract class EntityInteractable extends LunarAnimatedEntity implements 
         entity.getComponent(EntityDialogComponent.class).isInView = inView;
     }
 
+    @Override
+    public boolean isInteractable() {
+        return true;
+    }
+
+    @Override
+    public EntityInteractable asInteractable() {
+        return this;
+    }
 
     /**
      * @return if the floating dialog animation tile should be drawn.
