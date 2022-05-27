@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.npc.tutorial;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import lunar.shared.entity.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -46,6 +47,7 @@ public final class MaviaTutorial extends EntityInteractable {
                     .giveEntityItem(LucidTreeHarvestingTool.class, 1);
 
             // mavia should face towards the tree.
+            this.rotation = Rotation.FACING_LEFT.ordinal();
             currentRegionState = getRegion("facing_left");
 
             if (item == null) {

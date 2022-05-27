@@ -13,6 +13,7 @@ public final class LucidFruitTreeInteraction extends Interaction {
     public void interactionFinished() {
         this.isInteractable = false;
         world.getWorld().destroyBody(environmentObject.getCollisionBody());
-        world.getEnvironmentObjects().remove(id);
+        world.removeEffect(environmentObject.getEffect());
+        world.removeEnvironmentObject(id);
     }
 }

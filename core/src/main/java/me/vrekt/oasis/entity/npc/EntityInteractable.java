@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import gdx.lunar.world.LunarWorld;
+import lunar.shared.entity.drawing.Rotation;
 import lunar.shared.entity.player.LunarEntity;
 import lunar.shared.entity.player.LunarEntityPlayer;
 import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
@@ -47,6 +48,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         this.player = player;
         this.game = game;
         this.type = type;
+        this.rotation = Rotation.FACING_DOWN.ordinal();
     }
 
     public EntityNPCType getType() {
@@ -89,7 +91,10 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         this.speakingTo = speakingTo;
 
         // set rotation to face the player.
-        if (speakingTo) facePlayer();
+        if (speakingTo) {
+            player.setRotation(Rotation.getOppositeRotation(rotation).ordinal());
+            player.setIdleRegionState();
+        }
     }
 
     /**

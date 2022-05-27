@@ -324,7 +324,7 @@
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx"
     ],
     "project": "Oasis.tiled-project",
-    "property.type": "string",
+    "property.type": "float",
     "recentFiles": [
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",

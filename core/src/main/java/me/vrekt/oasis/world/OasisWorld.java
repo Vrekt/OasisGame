@@ -75,10 +75,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         configuration.stepTime = 1 / 240f;
     }
 
-    public OasisTiledRenderer getRenderer() {
-        return renderer;
-    }
-
     /**
      * Load this world
      */
@@ -236,7 +232,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.setPosition(rectangle.x, rectangle.y);
             effect.start();
 
-            this.effects.add(effect);
+            // this.effects.add(effect);
         });
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
@@ -266,6 +262,18 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 interaction.setEnvironmentObject(eo);
                 this.interactions.add(interaction);
             }
+
+            if (object.getProperties().containsKey("particle")) {
+                // object contains particle effects
+                final ParticleEffect effect = new ParticleEffect();
+                effect.load(Gdx.files.internal("world/asset/" + object.getProperties().get("particle", String.class)), asset.getAtlasAssets());
+                effect.setPosition(rectangle.x, rectangle.y + object.getProperties().get("offset", float.class));
+                effect.start();
+
+                eo.setEffect(effect);
+            }
+
+            // create collision body, offset position to fit within bounds.
             final Body body = CollisionShapeCreator.createPolygonShapeInWorld(rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
                     rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
                     texture.getRegionWidth(),
@@ -298,6 +306,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public void resize(int width, int height) {
         renderer.resize(width, height);
+    }
+
+    @Override
+    public void pause() {
+        paused = true;
+    }
+
+    @Override
+    public void resume() {
+        paused = false;
     }
 
     @Override
@@ -376,6 +394,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // render environment objects
         for (EnvironmentObject e : environmentObjects.values()) {
             e.render(batch);
+
+            // render environment particles
+            if (e.getEffect() != null) {
+                e.getEffect().update(delta);
+                e.getEffect().draw(batch);
+            }
         }
 
         // render particles
@@ -410,8 +434,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return nearbyEntities;
     }
 
-    public Map<Integer, EnvironmentObject> getEnvironmentObjects() {
-        return environmentObjects;
+    public void removeEnvironmentObject(int id) {
+        environmentObjects.remove(id).dispose();
+    }
+
+    public void removeEffect(ParticleEffect effect) {
+        effect.dispose();
+        effects.remove(effect);
     }
 
     public void handleInteraction() {
@@ -463,9 +492,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public boolean scrolled(float amountX, float amountY) {
         if (amountY > 0) {
-            renderer.getCamera().zoom += 0.02f;
+            renderer.getCamera().zoom += 0.01f;
         } else {
-            renderer.getCamera().zoom -= 0.02f;
+            renderer.getCamera().zoom -= 0.01f;
         }
         return true;
     }

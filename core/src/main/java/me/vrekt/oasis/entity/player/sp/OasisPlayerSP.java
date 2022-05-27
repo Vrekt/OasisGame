@@ -77,6 +77,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.gameWorldIn = gameWorldIn;
     }
 
+    public void setRotationChanged(boolean rotationChanged) {
+        this.rotationChanged = rotationChanged;
+    }
+
     public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
@@ -113,7 +117,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         }
     }
 
-    private void setIdleRegionState() {
+    public void setIdleRegionState() {
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
                 currentRegionState = getRegion("healer_walking_up_idle");
