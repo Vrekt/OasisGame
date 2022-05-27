@@ -18,6 +18,7 @@ public final class EnvironmentObject implements Disposable {
     private Body collisionBody;
 
     private ParticleEffect effect;
+    private boolean playEffect = true;
 
     public EnvironmentObject(TextureRegion texture, float x, float y) {
         this.texture = texture;
@@ -30,6 +31,19 @@ public final class EnvironmentObject implements Disposable {
 
     public ParticleEffect getEffect() {
         return effect;
+    }
+
+    public void setPlayEffect(boolean playEffect) {
+        this.playEffect = playEffect;
+    }
+
+    public boolean playEffect() {
+        return playEffect;
+    }
+
+    public void removeEffect() {
+        effect.dispose();
+        effect = null;
     }
 
     public void setCollisionBody(Body collisionBody) {

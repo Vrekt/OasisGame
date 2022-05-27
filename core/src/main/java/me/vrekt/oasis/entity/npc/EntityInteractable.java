@@ -42,7 +42,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(true);
-        setPosition(position.x, position.y, false);
+        setPosition(position.x, position.y, true);
         setEntityName(name);
         getInstance().worldIn = worldIn;
         this.player = player;

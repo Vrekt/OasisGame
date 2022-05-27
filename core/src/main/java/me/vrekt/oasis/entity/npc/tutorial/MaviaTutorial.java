@@ -16,6 +16,7 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingTool;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.interaction.interactions.LucidFruitTreeInteraction;
 
 /**
  * Represents a tutorial/debug NPC.1
@@ -49,6 +50,9 @@ public final class MaviaTutorial extends EntityInteractable {
             // mavia should face towards the tree.
             this.rotation = Rotation.FACING_LEFT.ordinal();
             currentRegionState = getRegion("facing_left");
+
+            // only works within tutorial world!
+            player.getGameWorldIn().getInteraction(LucidFruitTreeInteraction.class).setInteractable(true);
 
             if (item == null) {
                 Logging.error(this, "Failed to give player harvesting item??");

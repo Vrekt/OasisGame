@@ -19,6 +19,7 @@ import me.vrekt.oasis.item.Item;
 public final class HudGui extends Gui {
 
     private final Table rootTable, classSelectorTable, notificationTable;
+    private final Table interactionTable;
     // rendering of hud inventory
     private final InventoryRenderer inventoryRenderer;
 
@@ -47,7 +48,14 @@ public final class HudGui extends Gui {
         classSelectorTable.setVisible(true);
         classSelectorTable.left();
 
+        interactionTable = new Table();
+        interactionTable.setVisible(true);
+        interactionTable.bottom();
+        gui.createContainer(interactionTable).bottom().padBottom(64);
+
         gui.createContainer(classSelectorTable).bottom().left().pad(8);
+
+        interactionTable.add(new Label("Interact: >>E<<", gui.getSkin(), "large", Color.WHITE));
 
         // notifications
         notificationTable = new Table();
@@ -102,6 +110,18 @@ public final class HudGui extends Gui {
         lastHint = System.currentTimeMillis();
     }
 
+    public void showInteractionHint() {
+        interactionTable.setVisible(true);
+    }
+
+    public void hideInteractionHint() {
+        interactionTable.setVisible(false);
+    }
+
+    public boolean isInteractionHintShowing() {
+        return interactionTable.isVisible();
+    }
+
     @Override
     public void showGui() {
         rootTable.setVisible(true);
@@ -113,6 +133,8 @@ public final class HudGui extends Gui {
     public void hideGui() {
         rootTable.setVisible(false);
         classSelectorTable.setVisible(false);
+        interactionTable.setVisible(false);
+        notificationTable.setVisible(false);
         isShowing = false;
     }
 

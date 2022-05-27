@@ -108,6 +108,18 @@ public final class GameGui {
         ((HudGui) getGui(GuiType.HUD)).showItemCollected(item);
     }
 
+    public void showInteractionHint() {
+        ((HudGui) getGui(GuiType.HUD)).showInteractionHint();
+    }
+
+    public void hideInteractHint() {
+        ((HudGui) getGui(GuiType.HUD)).hideInteractionHint();
+    }
+
+    public boolean isInteractionHintShowing() {
+        return ((HudGui) getGui(GuiType.HUD)).isInteractionHintShowing();
+    }
+
     public void showGui(GuiType type) {
         guis.get(type).showGui();
     }

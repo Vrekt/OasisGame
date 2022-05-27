@@ -47,13 +47,19 @@ public final class TutorialOasisWorld extends OasisWorld {
     }
 
     private void updateEnvironmentInteractions() {
+        float distance = OasisGameSettings.OBJECT_UPDATE_DISTANCE;
+        Interaction interact = null;
         for (Interaction interaction : interactions) {
-            if (interaction.isWithinUpdateDistance(player.getPosition())) {
-                interaction.update();
-                if (interaction.isWithinInteractionDistance(player.getPosition()) && interaction.isInteractable() && !interaction.isInteractedWith()) {
-                    interaction.interact();
+            if (interaction.isWithinInteractionDistance(player.getPosition())
+                    && interaction.isInteractable()
+                    && !interaction.isInteractedWith()) {
+                if (interaction.getDistance() < distance) {
+                    distance = interaction.getDistance();
+                    interact = interaction;
                 }
             }
         }
+
+        if (interact != null) interact.interact(player);
     }
 }

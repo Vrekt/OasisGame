@@ -161,12 +161,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (object.getName().equalsIgnoreCase("WorldSpawn")) {
                 Logging.info(this, "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
                 spawn.set(rectangle.x, rectangle.y);
-            } else {
-                // others...
-                final Interaction interaction = Pools.obtain(InteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
-                interaction.setLocation(rectangle.x, rectangle.y);
-                interaction.setWorld(this);
-                this.interactions.add(interaction);
             }
         });
 
@@ -209,8 +203,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
             entity.load(asset);
 
-            entity.setPosition(rectangle.x, rectangle.y, true);
-
             entity.setEntityId(this.entities.size() + 1);
             this.entities.put(entity.getEntityId(), entity);
             engine.addEntity(entity.getEntity());
@@ -231,8 +223,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.load(Gdx.files.internal("world/asset/" + object.getName()), asset.getAtlasAssets());
             effect.setPosition(rectangle.x, rectangle.y);
             effect.start();
-
-            // this.effects.add(effect);
         });
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
@@ -247,22 +237,28 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     protected void loadEnvironmentObjects(TiledMap worldMap, Asset asset, float worldScale) {
         final boolean result = loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
+            // assign ID and find texture
             final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
             final int id = environmentObjects.size() + 1;
 
+            // create env obj
             final EnvironmentObject eo = new EnvironmentObject(texture, rectangle.x, rectangle.y);
 
             if (object.getProperties().containsKey("interaction_type")) {
                 // indicates this object also has a valid interaction
                 final Class<Interaction> type = InteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class));
                 final Interaction interaction = Pools.obtain(type);
+
+                // set interaction properties
                 interaction.setLocation(rectangle.x, rectangle.y);
                 interaction.setWorld(this);
                 interaction.setId(id);
                 interaction.setEnvironmentObject(eo);
+                interaction.load(asset);
                 this.interactions.add(interaction);
             }
 
+            // load particle information if any
             if (object.getProperties().containsKey("particle")) {
                 // object contains particle effects
                 final ParticleEffect effect = new ParticleEffect();
@@ -396,7 +392,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             e.render(batch);
 
             // render environment particles
-            if (e.getEffect() != null) {
+            if (e.getEffect() != null && e.playEffect()) {
                 e.getEffect().update(delta);
                 e.getEffect().draw(batch);
             }
@@ -406,6 +402,23 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (ParticleEffect effect : effects) {
             effect.update(delta);
             effect.draw(batch);
+        }
+
+        for (Interaction interaction : interactions) {
+            if (interaction.isWithinUpdateDistance(player.getPosition())
+                    && interaction.isInteractedWith()) {
+                interaction.update(player);
+                interaction.render(batch);
+            }
+
+            if (interaction.isWithinInteractionDistance(player.getPosition())
+                    && interaction.isInteractable()
+                    && !interaction.isInteractedWith()) {
+                gui.showInteractionHint();
+            } else if (gui.isInteractionHintShowing()) {
+                gui.hideInteractHint();
+            }
+
         }
 
         // render local player next
@@ -439,8 +452,20 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     public void removeEffect(ParticleEffect effect) {
-        effect.dispose();
         effects.remove(effect);
+    }
+
+    public void addEffect(ParticleEffect effect) {
+        effects.add(effect);
+    }
+
+    public <T extends Interaction> T getInteraction(Class<T> type) {
+        for (Interaction interaction : interactions) {
+            if (interaction.getClass().isAssignableFrom(type)) {
+                return (T) interaction;
+            }
+        }
+        return null;
     }
 
     public void handleInteraction() {

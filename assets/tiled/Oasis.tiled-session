@@ -275,11 +275,11 @@
             "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "scale": 2,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 269,
-                "y": 227.3333333333333
+                "x": 267.25,
+                "y": 159.5
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {
