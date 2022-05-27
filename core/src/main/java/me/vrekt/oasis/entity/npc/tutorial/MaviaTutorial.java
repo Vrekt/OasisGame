@@ -11,6 +11,9 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.tools.LucidTreeHarvestingTool;
+import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -29,11 +32,27 @@ public final class MaviaTutorial extends EntityInteractable {
 
     @Override
     public boolean advanceDialogStage(String option) {
-        if (entityDialog.isEnd(option)) {
+
+        // first part of player tutorial, give the player an item.
+        if (option.equals("mavia_dialog_end_1")) {
             setSpeakingTo(false);
             atEnd = true;
-            game.getGui().showGui(GuiType.HUD);
-            return true;
+
+            // give the player the harvesting tool.
+            game.getGui().showHud();
+            final Item item = game
+                    .getPlayer()
+                    .getInventory()
+                    .giveEntityItem(LucidTreeHarvestingTool.class, 1);
+
+            // mavia should face towards the tree.
+            currentRegionState = getRegion("facing_left");
+
+            if (item == null) {
+                Logging.error(this, "Failed to give player harvesting item??");
+            } else {
+                game.getGui().showItemCollected(item);
+            }
         }
 
         // class selector GUI

@@ -5,18 +5,15 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
-import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.interaction.Interaction;
 
 /**
  * This world acts as a debug/tutorial level for now.
  */
 public final class TutorialOasisWorld extends OasisWorld {
-
-    private boolean nearbyEntities;
-    private MaviaTutorial tutorial;
 
     public TutorialOasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(game, player, world);
@@ -27,10 +24,6 @@ public final class TutorialOasisWorld extends OasisWorld {
         getConfiguration().updateEntities = false;
         getConfiguration().updateNetworkPlayers = true;
         getConfiguration().updatePlayer = true;
-    }
-
-    public MaviaTutorial getTutorial() {
-        return tutorial;
     }
 
     @Override
@@ -48,6 +41,19 @@ public final class TutorialOasisWorld extends OasisWorld {
             gui.showEntityDialog(closest);
             gui.hideGui(GuiType.HUD);
             gui.showGui(GuiType.DIALOG);
+        } else {
+            updateEnvironmentInteractions();
+        }
+    }
+
+    private void updateEnvironmentInteractions() {
+        for (Interaction interaction : interactions) {
+            if (interaction.isWithinUpdateDistance(player.getPosition())) {
+                interaction.update();
+                if (interaction.isWithinInteractionDistance(player.getPosition()) && interaction.isInteractable() && !interaction.isInteractedWith()) {
+                    interaction.interact();
+                }
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
@@ -40,6 +41,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private ClassType classType;
 
     private PlayerConnectionHandler connectionHandler;
+    private final PlayerInventory inventory;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -50,8 +52,17 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setFixedRotation(false);
         setHasMoved(true);
         setConfig(15, 25, OasisGameSettings.SCALE);
-
         setNetworkSendRatesInMs(0, 0);
+
+        this.inventory = new PlayerInventory(this);
+    }
+
+    public OasisGame getGame() {
+        return game;
+    }
+
+    public PlayerInventory getInventory() {
+        return inventory;
     }
 
     public void setClassType(ClassType classType) {

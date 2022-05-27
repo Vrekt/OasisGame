@@ -6,10 +6,7 @@ import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.ChainShape;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
 import me.vrekt.oasis.utility.logging.Logging;
 
 /**
@@ -30,16 +27,17 @@ public final class CollisionShapeCreator {
      * @param scale  scale
      * @param bw     box2d world
      */
-    public static void createCollisionInWorld(MapObject object, float scale, World bw) {
+    public static Body createCollisionInWorld(MapObject object, float scale, World bw) {
         if (object instanceof PolylineMapObject) {
-            createPolylineShapeInWorld((PolylineMapObject) object, scale, bw);
+            return createPolylineShapeInWorld((PolylineMapObject) object, scale, bw);
         } else if (object instanceof PolygonMapObject) {
-            createPolygonShapeInWorld((PolygonMapObject) object, scale, bw);
+            return createPolygonShapeInWorld((PolygonMapObject) object, scale, bw);
         } else if (object instanceof RectangleMapObject) {
-            createPolygonShapeInWorld((RectangleMapObject) object, scale, true, bw);
+            return createPolygonShapeInWorld((RectangleMapObject) object, scale, true, bw);
         } else {
             Logging.warn("CollisionShapeCreator", "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
         }
+        return null;
     }
 
     /**
@@ -50,7 +48,7 @@ public final class CollisionShapeCreator {
      * @param scale  the scale
      * @param bw     the box2d world.
      */
-    public static void createPolygonShapeInWorld(PolygonMapObject object, float scale, World bw) {
+    public static Body createPolygonShapeInWorld(PolygonMapObject object, float scale, World bw) {
         final float[] vertices = object.getPolygon().getTransformedVertices();
         final float[] world = new float[vertices.length];
 
@@ -61,8 +59,10 @@ public final class CollisionShapeCreator {
         final PolygonShape shape = new PolygonShape();
         shape.set(world);
 
-        bw.createBody(STATIC_BODY).createFixture(shape, 1.0f);
+        final Body body = bw.createBody(STATIC_BODY);
+        body.createFixture(shape, 1.0f);
         shape.dispose();
+        return body;
     }
 
     /**
@@ -73,7 +73,7 @@ public final class CollisionShapeCreator {
      * @param scale  the scale
      * @param bw     the box2d world.
      */
-    public static void createPolylineShapeInWorld(PolylineMapObject object, float scale, World bw) {
+    public static Body createPolylineShapeInWorld(PolylineMapObject object, float scale, World bw) {
         final float[] vertices = object.getPolyline().getTransformedVertices();
         final Vector2[] world = new Vector2[vertices.length / 2];
 
@@ -85,8 +85,10 @@ public final class CollisionShapeCreator {
         final ChainShape shape = new ChainShape();
         shape.createChain(world);
 
-        bw.createBody(STATIC_BODY).createFixture(shape, 1.0f);
+        final Body body = bw.createBody(STATIC_BODY);
+        body.createFixture(shape, 1.0f);
         shape.dispose();
+        return body;
     }
 
     /**
@@ -97,7 +99,7 @@ public final class CollisionShapeCreator {
      * @param ds     if you should scale
      * @param bw     the box2d world.
      */
-    public static void createPolygonShapeInWorld(RectangleMapObject object, float scale, boolean ds, World bw) {
+    public static Body createPolygonShapeInWorld(RectangleMapObject object, float scale, boolean ds, World bw) {
         final PolygonShape shape = new PolygonShape();
         final Rectangle rectangle = object.getRectangle();
 
@@ -111,8 +113,27 @@ public final class CollisionShapeCreator {
         final Vector2 center = new Vector2(rectangle.x + rectangle.width / 2f, rectangle.y + rectangle.height / 2f);
         shape.setAsBox(rectangle.width / 2, rectangle.height / 2, center, 0.0f);
 
-        bw.createBody(new BodyDef()).createFixture(shape, 1.0f);
+        final Body body = bw.createBody(STATIC_BODY);
+        body.createFixture(shape, 1.0f);
         shape.dispose();
+        return body;
+    }
+
+    public static Body createPolygonShapeInWorld(float x, float y, float width, float height, float scale, boolean ds, World bw) {
+        final PolygonShape shape = new PolygonShape();
+
+        if (ds) {
+            width *= scale;
+            height *= scale;
+        }
+
+        final Vector2 center = new Vector2(x + width / 2f, y + height / 2f);
+        shape.setAsBox(width / 2, height / 2, center, 0.0f);
+
+        final Body body = bw.createBody(STATIC_BODY);
+        body.createFixture(shape, 1.0f);
+        shape.dispose();
+        return body;
     }
 
 }

@@ -14,6 +14,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.item.pooling.ItemPool;
 import me.vrekt.oasis.network.OasisLocalServer;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.world.OasisWorld;
@@ -40,6 +41,8 @@ public final class OasisGame extends Game {
     private LunarProtocol protocol;
     private OasisLocalServer server;
     private LunarClientServer clientServer;
+
+    private ItemPool itemPool;
 
     @Override
     public void create() {
@@ -86,6 +89,8 @@ public final class OasisGame extends Game {
 
         asset = new Asset();
         asset.load();
+
+        this.itemPool = new ItemPool();
 
         final OasisLoadingScreen screen = new OasisLoadingScreen(this);
 
@@ -159,5 +164,9 @@ public final class OasisGame extends Game {
 
     public Asset getAsset() {
         return asset;
+    }
+
+    public ItemPool getItemPool() {
+        return itemPool;
     }
 }

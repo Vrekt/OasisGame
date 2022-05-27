@@ -262,24 +262,24 @@
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 2,
+            "scaleInDock": 1,
             "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx": {
             "dynamicWrapping": false,
-            "scaleInDock": 2,
+            "scaleInDock": 1,
             "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx": {
-            "scaleInDock": 2,
+            "scaleInDock": 1,
             "scaleInEditor": 1.5
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx": {
-            "scale": 2,
-            "selectedLayer": 2,
+            "scale": 1.5,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 174.25,
-                "y": 95.5
+                "x": 269,
+                "y": 227.3333333333333
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {

@@ -13,7 +13,9 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
 import me.vrekt.oasis.OasisGame;
@@ -31,11 +33,11 @@ import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.world.environment.EnvironmentObject;
+import me.vrekt.oasis.world.interaction.Interaction;
+import me.vrekt.oasis.world.interaction.InteractionType;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
@@ -57,8 +59,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected GameGui gui;
 
-    private final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
-    private final List<ParticleEffect> effects = new ArrayList<>();
+    protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
+    protected final List<ParticleEffect> effects = new ArrayList<>();
+
+    protected final List<Interaction> interactions = new ArrayList<>();
+    protected final Map<Integer, EnvironmentObject> environmentObjects = new HashMap<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -66,6 +71,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
         this.gui = game.getGui();
+
+        configuration.stepTime = 1 / 240f;
+    }
+
+    public OasisTiledRenderer getRenderer() {
+        return renderer;
     }
 
     /**
@@ -90,6 +101,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadMapCollision(worldMap, worldScale);
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
+        loadEnvironmentObjects(worldMap, game.getAsset(), worldScale);
 
         this.renderer.setTiledMap(worldMap, spawn.x, spawn.y);
         this.width = renderer.getWidth();
@@ -153,9 +165,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (object.getName().equalsIgnoreCase("WorldSpawn")) {
                 Logging.info(this, "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
                 spawn.set(rectangle.x, rectangle.y);
+            } else {
+                // others...
+                final Interaction interaction = Pools.obtain(InteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
+                interaction.setLocation(rectangle.x, rectangle.y);
+                interaction.setWorld(this);
+                this.interactions.add(interaction);
             }
-
-            // others...
         });
 
         if (!result) Logging.warn(this, "Failed to find world spawn.");
@@ -225,6 +241,48 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
         if (!result) Logging.warn(this, "Failed to find particle layer.");
+    }
+
+    /**
+     * Load map actions like spawn points.
+     *
+     * @param worldMap   the map of the world
+     * @param worldScale the scale of the world
+     */
+    protected void loadEnvironmentObjects(TiledMap worldMap, Asset asset, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
+            final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
+            final int id = environmentObjects.size() + 1;
+
+            final EnvironmentObject eo = new EnvironmentObject(texture, rectangle.x, rectangle.y);
+
+            if (object.getProperties().containsKey("interaction_type")) {
+                // indicates this object also has a valid interaction
+                final Class<Interaction> type = InteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class));
+                final Interaction interaction = Pools.obtain(type);
+                interaction.setLocation(rectangle.x, rectangle.y);
+                interaction.setWorld(this);
+                interaction.setId(id);
+                interaction.setEnvironmentObject(eo);
+                this.interactions.add(interaction);
+            }
+            final Body body = CollisionShapeCreator.createPolygonShapeInWorld(rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
+                    rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
+                    texture.getRegionWidth(),
+                    texture.getRegionHeight(),
+                    OasisGameSettings.SCALE,
+                    true,
+                    world);
+
+            eo.setCollisionBody(body);
+            this.environmentObjects.put(id, eo);
+        });
+
+        if (result) {
+            Logging.info(this, "Loaded " + (environmentObjects.size()) + " environment objects and " + interactions.size() + " interactions.");
+        } else {
+            Logging.warn(this, "Failed to find environment objects.");
+        }
     }
 
     @Override
@@ -315,6 +373,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
+        // render environment objects
+        for (EnvironmentObject e : environmentObjects.values()) {
+            e.render(batch);
+        }
+
         // render particles
         for (ParticleEffect effect : effects) {
             effect.update(delta);
@@ -345,6 +408,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
         return nearbyEntities;
+    }
+
+    public Map<Integer, EnvironmentObject> getEnvironmentObjects() {
+        return environmentObjects;
     }
 
     public void handleInteraction() {

@@ -48,6 +48,10 @@ public final class OasisTiledRenderer implements Disposable {
         viewport = new StretchViewport(Gdx.graphics.getWidth() / (OasisGameSettings.SCALE / 2.0f), Gdx.graphics.getHeight() / (OasisGameSettings.SCALE / 2.0f));
     }
 
+    public Array<TiledMapTileLayer> getLayers() {
+        return layers;
+    }
+
     /**
      * Set the current {@link  TiledMap} to render
      *

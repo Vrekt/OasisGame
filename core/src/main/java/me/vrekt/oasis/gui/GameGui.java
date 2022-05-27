@@ -18,6 +18,7 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
+import me.vrekt.oasis.item.Item;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -103,6 +104,10 @@ public final class GameGui {
         ((DialogGui) getGui(GuiType.DIALOG)).setShowingDialog(entity);
     }
 
+    public void showItemCollected(Item item) {
+        ((HudGui) getGui(GuiType.HUD)).showItemCollected(item);
+    }
+
     public void showGui(GuiType type) {
         guis.get(type).showGui();
     }
@@ -117,6 +122,14 @@ public final class GameGui {
 
     public <T extends Gui> T getGui(GuiType type) {
         return (T) guis.get(type);
+    }
+
+    public void showHud() {
+        showGui(GuiType.HUD);
+    }
+
+    public void hideHud() {
+        hideGui(GuiType.HUD);
     }
 
     /**
