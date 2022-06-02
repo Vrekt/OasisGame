@@ -6,17 +6,15 @@ import me.vrekt.oasis.item.Item;
 /**
  * Allows the player to harvest fruit from a Lucid tree.
  */
-public final class LucidTreeHarvestingTool extends Item {
+public final class LucidTreeHarvestingToolItem extends Item {
 
-    public LucidTreeHarvestingTool() {
+    public LucidTreeHarvestingToolItem() {
         super("Lucid Harvester");
     }
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.icon = asset.get("lucid_harvesting_tool_icon");
         this.texture = asset.get("lucid_harvesting_tool_icon");
     }
-
 
 }

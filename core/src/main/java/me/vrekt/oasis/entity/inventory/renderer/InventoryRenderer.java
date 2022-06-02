@@ -1,5 +1,6 @@
-package me.vrekt.oasis.entity.inventory;
+package me.vrekt.oasis.entity.inventory.renderer;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -34,7 +35,12 @@ public final class InventoryRenderer {
         for (int i = 0; i < size; i++) {
             final Stack stack = new Stack();
             stack.add(new Image(slot));
-            stack.add(slots[i]);
+
+            final Table other = new Table();
+            other.add(slots[i]);
+            final Container<Table> overlay = new Container<>(other);
+
+            stack.add(overlay);
             parent.add(stack).size(48, 48).padRight(2f);
         }
     }
@@ -46,9 +52,8 @@ public final class InventoryRenderer {
         player.getInventory().getSlots().forEach((slot, item) -> {
             if (item != null && item.isOccupied()) {
                 // valid item in this slot #
-                if (slots[slot].getDrawable() == null) {
+                if (slots[slot].getDrawable() == null)
                     slots[slot].setDrawable(new TextureRegionDrawable(item.getItem().getTexture()));
-                }
             } else {
                 slots[slot].setDrawable(null);
             }

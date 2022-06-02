@@ -15,7 +15,7 @@ public final class MaviaTutorialDialog extends EntityDialog {
         createOption("mavia_dialog_1", "Okay.");
 
         createSection("mavia_dialog_1", "Before we start, I should introduce you to your player class, let me show you them.");
-        createOption("mavia_dialog_2", "Okay.");
+        createOption("mavia_dialog_select_class", "Okay.");
 
         createSection("mavia_dialog_nature", "Nature? Great choice! Let me show you around.");
         createOption("mavia_dialog_3", "Sounds good.");

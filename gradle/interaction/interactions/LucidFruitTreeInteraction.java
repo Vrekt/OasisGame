@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.world.interaction.Interaction;
+import me.vrekt.oasis.world.interaction.WorldInteraction;
 
 /**
- * Interaction for lucid fruit tree
+ * WorldInteraction for lucid fruit tree
  */
-public final class LucidFruitTreeInteraction extends Interaction {
+public final class LucidFruitTreeInteraction extends WorldInteraction {
 
     private ParticleEffect harvestingEffect;
 

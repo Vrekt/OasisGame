@@ -4,11 +4,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.interaction.Interaction;
 
 /**
  * This world acts as a debug/tutorial level for now.
@@ -32,34 +29,32 @@ public final class TutorialOasisWorld extends OasisWorld {
         loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
     }
 
-    @Override
-    public void handleInteraction() {
-        final EntityInteractable closest = getClosest();
-        if (closest != null && closest.isSpeakable() && !closest.isSpeakingTo()) {
-            closest.setSpeakingTo(true);
+    private void updateEnvironmentInteractions() {
+        //   float distance = OasisGameSettings.OBJECT_UPDATE_DISTANCE;
+        //  WorldInteraction interact = null;
+        //   for (WorldInteraction interaction : interactions) {
+        //       if (interaction.isWithinInteractionDistance(player.getPosition())
+        //              && interaction.isInteractable()
+        //              && !interaction.isInteractedWith()) {
+        //         if (interaction.getDistance() < distance) {
+        //             distance = interaction.getDistance();
+        //             interact = interaction;
+        //         }
+        //      }
+        //    }
 
-            gui.showEntityDialog(closest);
-            gui.hideGui(GuiType.HUD);
-            gui.showGui(GuiType.DIALOG);
-        } else {
-            updateEnvironmentInteractions();
-        }
+        //    if (interact != null) interact.interact(player);
     }
 
-    private void updateEnvironmentInteractions() {
-        float distance = OasisGameSettings.OBJECT_UPDATE_DISTANCE;
-        Interaction interact = null;
-        for (Interaction interaction : interactions) {
-            if (interaction.isWithinInteractionDistance(player.getPosition())
-                    && interaction.isInteractable()
-                    && !interaction.isInteractedWith()) {
-                if (interaction.getDistance() < distance) {
-                    distance = interaction.getDistance();
-                    interact = interaction;
-                }
-            }
-        }
 
-        if (interact != null) interact.interact(player);
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        super.touchDown(screenX, screenY, pointer, button);
+
+        // no entity to interact with, get environment object
+        if (!interactWithEntity()) {
+            return interactWithEnvironment();
+        }
+        return false;
     }
 }

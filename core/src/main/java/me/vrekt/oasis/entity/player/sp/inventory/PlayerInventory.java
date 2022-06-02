@@ -17,7 +17,7 @@ public final class PlayerInventory extends EntityInventory {
     public <T extends Item> Item giveEntityItem(Class<T> type, int amount) {
         final Item item = super.giveEntityItem(type, amount);
         if (item == null) return null;
-        localPlayer.getGame().getGui().showItemCollected(item);
+        //localPlayer.getGame().getGui().showItemCollected(item);
         return item;
     }
 }

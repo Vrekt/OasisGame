@@ -11,7 +11,7 @@ import me.vrekt.oasis.asset.game.Asset;
 public class Item implements Pool.Poolable {
 
     protected String itemName;
-    protected TextureRegion texture, icon;
+    protected TextureRegion texture;
 
     // amount of this item player has
     protected int amount;
@@ -23,31 +23,6 @@ public class Item implements Pool.Poolable {
         this.itemName = itemName;
     }
 
-    public Item(String itemName, TextureRegion texture) {
-        this.itemName = itemName;
-        this.texture = texture;
-    }
-
-    public Item(String itemName, int amount) {
-        this.itemName = itemName;
-        this.amount = amount;
-    }
-
-    public Item(int amount) {
-        this.amount = amount;
-    }
-
-    /**
-     * Set the properties of this item
-     *
-     * @param name   the name
-     * @param amount the amount
-     */
-    public void set(String name, int amount) {
-        this.itemName = name;
-        this.amount = amount;
-    }
-
     public void loadItemAsset(Asset asset) {
 
     }
@@ -56,16 +31,8 @@ public class Item implements Pool.Poolable {
         return itemName;
     }
 
-    public void setTexture(TextureRegion texture) {
-        this.texture = texture;
-    }
-
     public TextureRegion getTexture() {
         return texture;
-    }
-
-    public TextureRegion getIcon() {
-        return icon;
     }
 
     public int getAmount() {
@@ -79,7 +46,6 @@ public class Item implements Pool.Poolable {
     @Override
     public void reset() {
         texture = null;
-        icon = null;
         itemName = null;
         amount = 0;
     }

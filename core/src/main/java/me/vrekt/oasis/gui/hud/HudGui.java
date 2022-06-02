@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.inventory.InventoryRenderer;
+import me.vrekt.oasis.entity.inventory.renderer.InventoryRenderer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
@@ -49,13 +49,13 @@ public final class HudGui extends Gui {
         classSelectorTable.left();
 
         interactionTable = new Table();
-        interactionTable.setVisible(true);
+        interactionTable.setVisible(false);
         interactionTable.bottom();
-        gui.createContainer(interactionTable).bottom().padBottom(64);
 
+        gui.createContainer(interactionTable).bottom().padBottom(64);
         gui.createContainer(classSelectorTable).bottom().left().pad(8);
 
-        interactionTable.add(new Label("Interact: >>E<<", gui.getSkin(), "large", Color.WHITE));
+        interactionTable.add(new Label("Interact: >>E<<", gui.getSkin(), "large", Color.DARK_GRAY));
 
         // notifications
         notificationTable = new Table();
@@ -66,8 +66,8 @@ public final class HudGui extends Gui {
         final Table notification = new Table();
         notification.setBackground(new TextureRegionDrawable(asset.get("hint_dropdown")));
 
-        notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY)).left();
-        notification.add(iconImage = new Image()).size(34, 34);
+        notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY));
+        notification.add(iconImage = new Image()).padBottom(6).padTop(6).padRight(1);
         notification.add(new Label("x", gui.getSkin(), "small", Color.DARK_GRAY));
         notification.add(amountLabel = new Label("1", gui.getSkin(), "medium", Color.DARK_GRAY));
         notificationTable.add(notification).size(256, 32);
@@ -105,7 +105,7 @@ public final class HudGui extends Gui {
         notificationTable.getColor().a = 0;
         notificationTable.addAction(Actions.fadeIn(1f));
 
-        iconImage.setDrawable(new TextureRegionDrawable(item.getIcon()));
+        //   iconImage.setDrawable(new TextureRegionDrawable(item.getIcon()));
         amountLabel.setText("" + item.getAmount());
         lastHint = System.currentTimeMillis();
     }

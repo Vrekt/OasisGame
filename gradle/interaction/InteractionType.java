@@ -9,17 +9,17 @@ public enum InteractionType {
 
     LUCID_FRUIT_TREE(LucidFruitTreeInteraction.class);
 
-    public static Class<Interaction> getInteractionFromName(String name) {
+    public static Class<WorldInteraction> getInteractionFromName(String name) {
         return valueOf(name.toUpperCase()).interaction;
     }
 
-    private final Class<Interaction> interaction;
+    private final Class<WorldInteraction> interaction;
 
-    <T extends Interaction> InteractionType(Class<T> interaction) {
-        this.interaction = (Class<Interaction>) interaction;
+    <T extends WorldInteraction> InteractionType(Class<T> interaction) {
+        this.interaction = (Class<WorldInteraction>) interaction;
     }
 
-    public Class<Interaction> getInteraction() {
+    public Class<WorldInteraction> getInteraction() {
         return interaction;
     }
 }

@@ -278,8 +278,8 @@
             "scale": 2,
             "selectedLayer": 7,
             "viewCenter": {
-                "x": 267.25,
-                "y": 159.5
+                "x": 251.25,
+                "y": 115.5
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {
@@ -324,7 +324,7 @@
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx"
     ],
     "project": "Oasis.tiled-project",
-    "property.type": "float",
+    "property.type": "string",
     "recentFiles": [
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",

@@ -33,7 +33,6 @@ public final class EntityUpdateSystem extends EntitySystem {
                 if (entity.isInteractable()) {
                     world.getNearbyEntities().put(entity.asInteractable(), distance);
                 }
-
             } else {
                 if (entity.isInteractable()) {
                     world.getNearbyEntities().remove(entity.asInteractable());

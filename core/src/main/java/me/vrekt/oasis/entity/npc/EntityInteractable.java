@@ -11,6 +11,7 @@ import lunar.shared.entity.player.LunarEntity;
 import lunar.shared.entity.player.LunarEntityPlayer;
 import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.EntityDialog;
 import me.vrekt.oasis.entity.dialog.EntityDialogSection;
@@ -23,7 +24,7 @@ import me.vrekt.oasis.world.OasisWorld;
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable {
+public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable{
 
     // describes the view/renderable stuff
     protected final Vector3 view = new Vector3(0, 0, 0);
@@ -39,6 +40,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     protected EntityNPCType type;
 
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
+    protected float speakableDistance = 6f, dialogAnimationRange = 50f;
 
     public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(true);
@@ -57,17 +59,29 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     @Override
     public void update(float v) {
-        this.speakable = getDistanceFromPlayer() <= 6f;
-        setDistanceToPlayer(player.getPosition().dst2(getPosition()));
+        this.speakable = getDistanceFromPlayer() <= speakableDistance;
         setInView(this.inView);
+
+        // update dialog animation state
+        if (getDistanceFromPlayer() <= dialogAnimationRange) {
+            setDrawDialogAnimationTile(true);
+        } else if (getDistanceFromPlayer() > dialogAnimationRange && drawDialogAnimationTile()) {
+            setDrawDialogAnimationTile(false);
+        }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
+        // draw generic texture
         if (currentRegionState != null) {
             batch.draw(currentRegionState, getX(), getY(), getWidth() * getScaling(), getHeight() * getScaling());
         } else if (currentTextureState != null) {
             batch.draw(currentTextureState, getX(), getY(), getWidth() * getScaling(), getHeight() * getScaling());
+        }
+
+        // draw animation
+        if (drawDialogAnimationTile()) {
+            renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
         }
     }
 
@@ -98,11 +112,13 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     }
 
     /**
-     * Face the player
-     * Must be implemented by default
+     * Check if this entity was clicked on
+     *
+     * @param clicked the vector3 click
+     * @return {@code  true} if so
      */
-    public void facePlayer() {
-
+    public boolean clickedOn(Vector3 clicked) {
+        return clicked.x > getX() && clicked.x < (getX() + getWidthScaled()) && clicked.y > getY() && clicked.y < (getY() + getHeightScaled());
     }
 
     public int getCurrentDialogFrame() {
@@ -134,9 +150,15 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
     }
 
-    public void invalidateDialogState() {
-        setDrawDialogAnimationTile(false);
-        setSpeakingTo(false);
+    /**
+     * Render the dialog tile animation
+     *
+     * @param batch  batch
+     * @param region region
+     */
+    protected void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
+        batch.draw(region, getX() + 0.2f, getY() + getHeightScaled() + 0.1f,
+                region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
     /**
@@ -155,23 +177,16 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     @Override
     public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> lunarWorld, float v, float v1) {
-        //  removeEntityInWorld(getWorldIn());
-        //   lunarWorld.spawnEntityInWorld(this);
-        //   getInstance().setWorldIn(lunarWorld);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> lunarWorld) {
-        //  removeEntityInWorld(getWorldIn());
-        //  lunarWorld.spawnEntityInWorld(this);
-        //   getInstance().setWorldIn(lunarWorld);
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void removeEntityInWorld(LunarWorld<P, N, E> lunarWorld) {
-        //    getInstance().worldIn.removeEntityInWorld(this);
         throw new UnsupportedOperationException();
     }
 
@@ -181,6 +196,9 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
         if (currentTextureState != null) currentTextureState.dispose();
         this.entityDialog.dispose();
+        dialogFrames[0] = null;
+        dialogFrames[1] = null;
+        dialogFrames[2] = null;
         this.entityDialog = null;
         this.dialog = null;
     }

@@ -102,6 +102,7 @@ public final class GameGui {
      */
     public void showEntityDialog(EntityInteractable entity) {
         ((DialogGui) getGui(GuiType.DIALOG)).setShowingDialog(entity);
+        showDialog();
     }
 
     public void showItemCollected(Item item) {
@@ -126,6 +127,10 @@ public final class GameGui {
 
     public void hideGui(GuiType type) {
         guis.get(type).hideGui();
+    }
+
+    public void showDialog() {
+        showGui(GuiType.DIALOG);
     }
 
     public boolean isGuiVisible(GuiType type) {
