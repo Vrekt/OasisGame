@@ -1,15 +1,12 @@
 package me.vrekt.oasis.world.interaction.plants;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.world.interaction.Interaction;
 
 /**
  * Interaction in general for trees
  */
 public final class TreeInteraction extends Interaction {
-
-    private boolean cursorChanged;
 
     public TreeInteraction() {
         this.interactable = true;
@@ -19,17 +16,19 @@ public final class TreeInteraction extends Interaction {
 
     @Override
     public void update() {
-        if (!cursorChanged) {
-            this.cursorChanged = true;
-            Pixmap pm = new Pixmap(Gdx.files.internal("ui/tree_cursor.png"));
-            Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
-            pm.dispose();
-        }
+        super.update();
     }
 
     @Override
     public void interact() {
         super.interact();
+        environment.destroy();
+
+        // TODO: Animations
+
+        this.interactable = false;
+        this.interactedWith = false;
+        Pools.free(this);
     }
 
     @Override

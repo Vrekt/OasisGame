@@ -1,6 +1,5 @@
 package me.vrekt.oasis.graphics;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -11,7 +10,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 
@@ -27,7 +26,7 @@ public final class OasisTiledRenderer implements Disposable {
 
     private final OasisPlayerSP thePlayer;
     private final SpriteBatch batch;
-    private final StretchViewport viewport;
+    private final ScreenViewport viewport;
 
     private int width, height;
     private float hx, hy;
@@ -44,8 +43,9 @@ public final class OasisTiledRenderer implements Disposable {
         this.batch = batch;
 
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, Gdx.graphics.getWidth() / (OasisGameSettings.SCALE / 2.0f), Gdx.graphics.getHeight() / (OasisGameSettings.SCALE / 2.0f));
-        viewport = new StretchViewport(Gdx.graphics.getWidth() / (OasisGameSettings.SCALE / 2.0f), Gdx.graphics.getHeight() / (OasisGameSettings.SCALE / 2.0f));
+        camera.setToOrtho(false);
+
+        viewport = new ScreenViewport();
     }
 
     public Array<TiledMapTileLayer> getLayers() {
@@ -115,7 +115,7 @@ public final class OasisTiledRenderer implements Disposable {
         return camera;
     }
 
-    public StretchViewport getViewport() {
+    public ScreenViewport getViewport() {
         return viewport;
     }
 

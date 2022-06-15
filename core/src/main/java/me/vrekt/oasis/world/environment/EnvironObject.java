@@ -108,4 +108,6 @@ public interface EnvironObject extends Disposable {
      */
     boolean clickedOn(Vector3 vector3);
 
+    void destroy();
+
 }

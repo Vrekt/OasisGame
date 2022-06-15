@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.environment.Environment;
 
 /**
  * Represents an interaction within the game
@@ -16,13 +17,20 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
 
     // location of interaction
     protected final Vector2 location = new Vector2();
+    protected final Vector2 interaction = new Vector2();
     protected float width, height;
+
+    protected Environment environment;
 
     // config
     protected boolean interactable, interactedWith;
     protected float updateDistance, interactionDistance;
 
     public Interaction() {
+    }
+
+    public OasisWorld getWorld() {
+        return world;
     }
 
     @Override
@@ -70,14 +78,24 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
     }
 
     @Override
+    public void setRelatedEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    @Override
     public void interact() {
         this.interactable = false;
         this.interactedWith = true;
+        this.interaction.set(world.getLocalPlayer().getPosition());
     }
 
     @Override
     public void update() {
-
+        // check if moved, cancel interaction
+        if (interaction.dst2(world.getLocalPlayer().getPosition()) >= 0.1f) {
+            this.interactable = true;
+            this.interactedWith = false;
+        }
     }
 
     @Override
@@ -93,6 +111,7 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
     @Override
     public void reset() {
         location.set(0, 0);
+        interaction.set(0, 0);
         world = null;
         width = 0;
         height = 0;

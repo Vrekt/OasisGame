@@ -26,6 +26,7 @@ import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.interior.WorldInterior;
 
 /**
  * Represents the local player SP
@@ -43,6 +44,9 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private PlayerConnectionHandler connectionHandler;
     private final PlayerInventory inventory;
 
+    private boolean inInterior;
+    private WorldInterior interior;
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -55,6 +59,22 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setNetworkSendRatesInMs(0, 0);
 
         this.inventory = new PlayerInventory(this);
+    }
+
+    public boolean isInInterior() {
+        return inInterior;
+    }
+
+    public void setInInterior(boolean inInterior) {
+        this.inInterior = inInterior;
+    }
+
+    public void setInterior(WorldInterior interior) {
+        this.interior = interior;
+    }
+
+    public WorldInterior getInterior() {
+        return interior;
     }
 
     public OasisGame getGame() {
@@ -104,6 +124,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     public void handlePlayerJoin(SPacketCreatePlayer packet) {
+        if (packet.getEntityId() == getEntityId()) return;
+
         Logging.info(this, "Spawning new player " + packet.getUsername() + ":" + packet.getEntityId());
         if (inWorld) {
             final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
@@ -215,6 +237,27 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
         super.spawnEntityInWorld(world, x, y);
         this.getBody().setUserData(this);
+
+//        // RIGHTARM //
+//
+//        this.rightArmDef = new RevoluteJointDef();
+//        this.rightArmDef.bodyA = this.body;
+//        this.rightArmDef.bodyB = this.body;
+//        this.rightArmDef.collideConnected = false;
+//
+//
+//        this.rightArmDef.localAnchorA.set(this.body.getLocalCenter().add(new Vector2(0.50f, +0.05f)));
+//        this.rightArmDef.localAnchorB.set(this.body.getLocalCenter().add(new Vector2(0.14f, 0.14f)));
+//
+//        this.rightArmDef.enableMotor = true;
+//        this.rightArmDef.motorSpeed = 0f;
+//        this.rightArmDef.maxMotorTorque = 10f;
+//
+//        this.rightArmDef.enableLimit = true;
+//        this.rightArmDef.lowerAngle = 1.2f;// * DEGTORAD;
+//        this.rightArmDef.upperAngle = 5;
+//        this.rightArmJoint = (RevoluteJoint) world.getWorld().createJoint(this.rightArmDef);
+
     }
 
 }

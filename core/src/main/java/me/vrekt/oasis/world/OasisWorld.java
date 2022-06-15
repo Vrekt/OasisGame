@@ -37,12 +37,14 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.environment.Environment;
+import me.vrekt.oasis.world.instance.SeparateWorldInstance;
 import me.vrekt.oasis.world.interaction.Interaction;
 import me.vrekt.oasis.world.interaction.type.InteractionType;
+import me.vrekt.oasis.world.interior.WorldInterior;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +57,8 @@ import java.util.function.BiConsumer;
 public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements InputProcessor {
 
     protected final OasisGame game;
+    protected final OasisPlayerSP localPlayer;
+
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
     protected final Vector3 projection = new Vector3();
@@ -74,15 +78,28 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final List<ParticleEffect> effects = new ArrayList<>();
 
     protected final CopyOnWriteArraySet<Environment> environments = new CopyOnWriteArraySet<>();
+    protected final Map<String, WorldInterior> interiors = new HashMap<>();
+
+    // current interior player is in
+    private SeparateWorldInstance instanceIn;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
+        this.localPlayer = player;
         this.game = game;
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
         this.gui = game.getGui();
 
         configuration.stepTime = 1 / 240f;
+    }
+
+    public OasisPlayerSP getLocalPlayer() {
+        return localPlayer;
+    }
+
+    public OasisGame getGame() {
+        return game;
     }
 
     /**
@@ -108,6 +125,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadEnvironmentObjects(worldMap, game.getAsset(), worldScale);
+        loadWorldInteriors(worldMap, worldScale);
+
+        configuration.worldScale = worldScale;
 
         this.renderer.setTiledMap(worldMap, spawn.x, spawn.y);
         this.width = renderer.getWidth();
@@ -140,7 +160,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected boolean loadMapObjects(TiledMap worldMap, float worldScale, String layerName, BiConsumer<MapObject, Rectangle> handler) {
         final MapLayer layer = worldMap.getLayers().get(layerName);
         if (layer == null) {
-            Logging.warn(this, "Failed to load layer: " + layerName);
             return false;
         }
 
@@ -168,7 +187,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     protected void loadMapActions(TiledMap worldMap, float worldScale) {
         loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
-            if (object.getName().equalsIgnoreCase("WorldSpawn")) {
+            if (object.getName().equalsIgnoreCase("WorldSpawn")
+                    || object.getName().equalsIgnoreCase("Spawn")) {
                 Logging.info(this, "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
                 spawn.set(rectangle.x, rectangle.y);
             }
@@ -184,7 +204,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected void loadMapCollision(TiledMap worldMap, float worldScale) {
         final MapLayer layer = worldMap.getLayers().get("Collision");
         if (layer == null) {
-            Logging.warn(this, "Failed to find collision layer.");
             return;
         }
 
@@ -246,7 +265,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         });
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
-        if (!result) Logging.warn(this, "Failed to find particle layer.");
     }
 
     /**
@@ -259,7 +277,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
             // assign n find texture
             final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
-            final Environment environment = Pools.get(Environment.class).obtain();
+            final Environment environment = Pools.obtain(Environment.class);
             environment.load(asset);
 
             environment.setLocation(
@@ -281,6 +299,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                         environment.getTexture().getRegionHeight() * OasisGameSettings.SCALE
                 );
                 environment.setInteraction(interaction);
+                interaction.setRelatedEnvironment(environment);
             }
 
             // load each particle within properties
@@ -315,6 +334,25 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         Logging.info(this, "Loaded " + (environments.size()) + " environment objects.");
     }
 
+    /**
+     * Load interiors within this world
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    public void loadWorldInteriors(TiledMap worldMap, float worldScale) {
+        final boolean result = loadMapObjects(worldMap, worldScale, "Interior", (object, rectangle) -> {
+            final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
+            final String interiorName = object.getProperties().get("interior_name", null, String.class);
+            if (interiorName != null && enterable) {
+                final WorldInterior interior = new WorldInterior(rectangle);
+                this.interiors.put(interiorName, interior);
+            }
+        });
+
+        if (result) Logging.info(this, "Loaded " + (interiors.size()) + " interiors.");
+    }
+
     @Override
     public void show() {
         Logging.info(this, "Showing world.");
@@ -342,6 +380,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void render(float delta) {
+        if (instanceIn != null) {
+            instanceIn.render(delta);
+            return;
+        }
+
         if (paused && !hasFbo) fbo.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -459,7 +502,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
-        // render environment objects
         for (Environment environment : environments) {
             environment.render(batch);
             if (environment.playEffects()) {
@@ -481,6 +523,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.draw(batch);
         }
 
+
         // render local player next
         player.render(batch, delta);
 
@@ -499,24 +542,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 .orElse(null);
     }
 
-    public EntityInteractable getClosest() {
-        return Collections.min(nearbyEntities.entrySet(), Map.Entry.comparingByValue()).getKey();
-    }
-
     public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
         return nearbyEntities;
     }
 
-    public void removeEnvironmentObject(int id) {
-        // environmentObjects.remove(id).dispose();
-    }
-
-    public void removeEffect(ParticleEffect effect) {
-        effects.remove(effect);
-    }
-
-    public void addEffect(ParticleEffect effect) {
-        effects.add(effect);
+    public void removeEnvironment(Environment environment) {
+        this.environments.remove(environment);
     }
 
     public Vector3 getCursor() {
@@ -542,21 +573,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return false;
     }
 
-    //   float distance = OasisGameSettings.OBJECT_UPDATE_DISTANCE;
-    //  WorldInteraction interact = null;
-    //   for (WorldInteraction interaction : interactions) {
-    //       if (interaction.isWithinInteractionDistance(player.getPosition())
-    //              && interaction.isInteractable()
-    //              && !interaction.isInteractedWith()) {
-    //         if (interaction.getDistance() < distance) {
-    //             distance = interaction.getDistance();
-    //             interact = interaction;
-    //         }
-    //      }
-    //    }
-
-    //    if (interact != null) interact.interact(player);
-
     /**
      * Interact with the environment
      *
@@ -572,6 +588,23 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                     && !environment.getInteraction().isInteractedWith()) {
                 environment.getInteraction().interact();
                 return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Attempt to enter an interior
+     *
+     * @return the result
+     */
+    protected boolean interactWithInterior() {
+        final WorldInterior interior = interiors.values().stream().filter(e -> e.clickedOn(projection)).findFirst().orElse(null);
+        if (interior != null && interior.enterable()) {
+            if (interior.create(this)) {
+                // enter interior from their own created instance!
+                instanceIn = interior.getWorldInstance();
+                instanceIn.loadIntoWorld();
             }
         }
         return false;

@@ -19,12 +19,13 @@ import me.vrekt.oasis.entity.npc.animation.EntityTextured;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.Renderable;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable{
+public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable {
 
     // describes the view/renderable stuff
     protected final Vector3 view = new Vector3(0, 0, 0);
@@ -41,6 +42,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
     protected float speakableDistance = 6f, dialogAnimationRange = 50f;
+    protected final Vector2 interaction = new Vector2();
 
     public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(true);
@@ -68,6 +70,16 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         } else if (getDistanceFromPlayer() > dialogAnimationRange && drawDialogAnimationTile()) {
             setDrawDialogAnimationTile(false);
         }
+
+        // update dialog state
+        if (speakingTo) {
+            // player moved, cancel
+            if (player.getPosition().dst(interaction) >= 0.1f) {
+                game.getGui().hideGui(GuiType.DIALOG);
+                this.speakingTo = false;
+            }
+        }
+
     }
 
     @Override
@@ -108,6 +120,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         if (speakingTo) {
             player.setRotation(Rotation.getOppositeRotation(rotation).ordinal());
             player.setIdleRegionState();
+            interaction.set(player.getPosition());
         }
     }
 

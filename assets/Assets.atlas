@@ -1,817 +1,831 @@
 
 Assets.png
-size: 1235, 294
+size: 1628, 224
 format: RGBA8888
 filter: MipMap, MipMap
 repeat: none
 12
   rotate: false
-  xy: 792, 2
+  xy: 1524, 19
   size: 15, 10
   orig: 15, 10
   offset: 0, 0
   index: -1
 23
   rotate: false
-  xy: 758, 2
+  xy: 859, 45
   size: 15, 10
   orig: 15, 10
   offset: 0, 0
   index: -1
 67
   rotate: false
-  xy: 775, 2
+  xy: 1418, 4
   size: 15, 10
   orig: 15, 10
   offset: 0, 0
   index: -1
 ambitious_medics_box
   rotate: false
-  xy: 963, 56
+  xy: 1572, 146
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 blade_of_averr
   rotate: false
-  xy: 728, 28
+  xy: 360, 10
   size: 43, 48
   orig: 43, 48
   offset: 0, 0
   index: -1
 blessing_of_athena
   rotate: false
-  xy: 936, 7
+  xy: 1188, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 blood_class
   rotate: false
-  xy: 910, 33
+  xy: 1083, 11
   size: 25, 25
   orig: 25, 25
   offset: 0, 0
   index: -1
 blood_class_icon
   rotate: false
-  xy: 1032, 116
+  xy: 1418, 42
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 blood_icon_dialog
   rotate: false
-  xy: 962, 8
+  xy: 1240, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 cicin_serpent
   rotate: false
-  xy: 1162, 157
+  xy: 876, 66
   size: 42, 62
   orig: 42, 62
   offset: 0, 0
   index: -1
 class_select_panel
   rotate: false
-  xy: 774, 108
+  xy: 1030, 38
   size: 256, 184
   orig: 256, 184
   offset: 0, 0
   index: -1
 coin
   rotate: false
-  xy: 1129, 44
+  xy: 761, 13
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
   index: -1
 dialog
   rotate: false
-  xy: 758, 14
+  xy: 1435, 2
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 3
 dialog
   rotate: false
-  xy: 895, 8
+  xy: 1450, 2
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 2
 dialog
   rotate: false
-  xy: 948, 68
+  xy: 1454, 100
   size: 13, 12
   orig: 13, 12
   offset: 0, 0
   index: 1
-dialog_cursor
-  rotate: false
-  xy: 728, 3
-  size: 28, 23
-  orig: 28, 23
-  offset: 0, 0
-  index: -1
 dialog_display
   rotate: false
-  xy: 1032, 164
+  xy: 1288, 10
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 dialog_end_picture
   rotate: false
-  xy: 1209, 242
+  xy: 1136, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dialog_option
   rotate: false
-  xy: 509, 2
+  xy: 1546, 198
   size: 80, 24
   orig: 80, 24
   offset: 0, 0
   index: -1
 dialog_option_test
   rotate: false
-  xy: 591, 2
+  xy: 1546, 172
   size: 80, 24
   orig: 80, 24
   offset: 0, 0
   index: -1
 dialog_picture
   rotate: false
-  xy: 1014, 30
+  xy: 1572, 94
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 dialog_start_empty
   rotate: false
-  xy: 1000, 82
+  xy: 1598, 120
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 domain_background
   rotate: false
-  xy: 876, 62
+  xy: 823, 39
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 earth_class
   rotate: false
-  xy: 1206, 168
+  xy: 1029, 11
   size: 25, 25
   orig: 25, 25
   offset: 0, 0
   index: -1
 earth_class_icon
   rotate: false
-  xy: 1066, 4
+  xy: 1496, 114
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 earth_icon_dialog
   rotate: false
-  xy: 1052, 90
+  xy: 1444, 42
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 enchanted_band_of_power
   rotate: false
-  xy: 937, 34
+  xy: 1214, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 equipped_inventory_slot
   rotate: false
-  xy: 1132, 140
+  xy: 539, 2
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 ethe_display
   rotate: false
-  xy: 360, 39
+  xy: 904, 13
   size: 62, 23
   orig: 62, 23
   offset: 0, 0
   index: -1
 food_icon
   rotate: false
-  xy: 910, 7
+  xy: 1162, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 food_icon_active
   rotate: false
-  xy: 1066, 30
+  xy: 1470, 114
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 frostbitten_avernic
   rotate: false
-  xy: 872, 22
+  xy: 920, 44
   size: 36, 38
   orig: 36, 38
   offset: 0, 0
   index: -1
 green_button
   rotate: false
-  xy: 260, 2
+  xy: 774, 130
   size: 247, 26
   orig: 247, 26
   offset: 0, 0
   index: -1
 healer_walking_down
   rotate: false
-  xy: 1126, 14
+  xy: 1570, 64
   size: 14, 28
   orig: 14, 28
   offset: 0, 0
   index: 2
 healer_walking_down
   rotate: false
-  xy: 1142, 27
+  xy: 1559, 4
   size: 14, 28
   orig: 14, 28
   offset: 0, 0
   index: 1
 healer_walking_down_idle
   rotate: false
-  xy: 1162, 54
+  xy: 1524, 31
   size: 16, 29
   orig: 16, 29
   offset: 0, 0
   index: -1
 healer_walking_left
   rotate: false
-  xy: 1220, 84
+  xy: 1576, 35
   size: 13, 27
   orig: 13, 27
   offset: 0, 0
   index: 2
 healer_walking_left
   rotate: false
-  xy: 1220, 55
+  xy: 1586, 65
   size: 12, 27
   orig: 12, 27
   offset: 0, 0
   index: 1
 healer_walking_left_idle
   rotate: false
-  xy: 1198, 51
+  xy: 1590, 5
   size: 12, 28
   orig: 12, 28
   offset: 0, 0
   index: -1
 healer_walking_right
   rotate: false
-  xy: 1220, 113
+  xy: 1575, 5
   size: 13, 27
   orig: 13, 27
   offset: 0, 0
   index: 1
 healer_walking_right
   rotate: false
-  xy: 1158, 8
+  xy: 1600, 65
   size: 12, 27
   orig: 12, 27
   offset: 0, 0
   index: 2
 healer_walking_right_idle
   rotate: false
-  xy: 1172, 7
+  xy: 1604, 7
   size: 12, 28
   orig: 12, 28
   offset: 0, 0
   index: -1
 healer_walking_up
   rotate: false
-  xy: 492, 34
+  xy: 1542, 34
   size: 15, 28
   orig: 15, 28
   offset: 0, 0
   index: 1
 healer_walking_up
   rotate: false
-  xy: 1092, 5
+  xy: 1542, 4
   size: 15, 28
   orig: 15, 28
   offset: 0, 0
   index: 2
 healer_walking_up_idle
   rotate: false
-  xy: 1180, 65
+  xy: 1506, 26
   size: 16, 29
   orig: 16, 29
   offset: 0, 0
   index: -1
 health_bar
   rotate: false
-  xy: 2, 12
+  xy: 2, 8
   size: 256, 16
   orig: 256, 16
   offset: 0, 0
   index: -1
 health_color
   rotate: false
-  xy: 516, 64
+  xy: 260, 12
   size: 54, 12
   orig: 54, 12
   offset: 0, 0
   index: -1
 hint
   rotate: false
-  xy: 639, 44
+  xy: 968, 2
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 hint_dropdown
   rotate: false
-  xy: 2, 130
+  xy: 2, 60
   size: 512, 32
   orig: 512, 32
   offset: 0, 0
   index: -1
 ino_face
   rotate: false
-  xy: 673, 5
+  xy: 774, 57
   size: 53, 71
   orig: 53, 71
   offset: 0, 0
   index: -1
 ino_facing_down
   rotate: false
-  xy: 1108, 111
+  xy: 1470, 29
   size: 16, 27
   orig: 16, 27
   offset: 0, 0
   index: -1
 ino_facing_left
   rotate: false
-  xy: 1212, 27
+  xy: 1614, 66
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 ino_facing_right
   rotate: false
-  xy: 1180, 37
+  xy: 1591, 37
   size: 12, 26
   orig: 12, 26
   offset: 0, 0
   index: -1
 ino_facing_up
   rotate: false
-  xy: 1144, 75
+  xy: 1488, 29
   size: 16, 26
   orig: 16, 26
   offset: 0, 0
   index: -1
 ino_idle
   rotate: false
-  xy: 1186, 9
+  xy: 1605, 37
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 interaction
   rotate: false
-  xy: 2, 30
+  xy: 2, 26
   size: 356, 32
   orig: 356, 32
   offset: 0, 0
   index: -1
 interaction_dialog
   rotate: false
-  xy: 2, 164
+  xy: 2, 94
   size: 512, 128
   orig: 512, 128
   offset: 0, 0
   index: -1
 inventory_background
   rotate: false
-  xy: 1102, 75
+  xy: 707, 8
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 inventory_color
   rotate: false
-  xy: 1126, 122
+  xy: 841, 39
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 inventory_slot
   rotate: false
-  xy: 1108, 140
+  xy: 515, 2
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 inventory_slot_epic
   rotate: false
-  xy: 1084, 118
+  xy: 1522, 92
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 inventory_slot_rare
   rotate: false
-  xy: 1078, 92
+  xy: 1522, 116
   size: 22, 22
   orig: 22, 22
   offset: 0, 0
   index: -1
 lava_class
   rotate: false
-  xy: 1206, 195
+  xy: 1002, 10
   size: 25, 24
   orig: 25, 24
   offset: 0, 0
   index: -1
 lava_class_icon
   rotate: false
-  xy: 1014, 4
+  xy: 1418, 114
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 lava_icon_dialog
   rotate: false
-  xy: 948, 82
+  xy: 1546, 146
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 lira
   rotate: false
-  xy: 1102, 93
+  xy: 671, 8
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 lira_display
   rotate: false
-  xy: 509, 28
+  xy: 774, 2
   size: 128, 34
   orig: 128, 34
   offset: 0, 0
   index: -1
 lucid_fruit_tree
   rotate: false
-  xy: 774, 14
+  xy: 968, 36
   size: 58, 92
   orig: 58, 92
   offset: 0, 0
   index: -1
 lucid_fruit_tree_particle
   rotate: false
-  xy: 1138, 57
+  xy: 743, 8
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 lucid_harvesting_tool_icon
   rotate: false
-  xy: 1156, 123
+  xy: 1546, 64
   size: 22, 32
   orig: 22, 32
   offset: 0, 0
   index: -1
 mavia_face
   rotate: false
-  xy: 1162, 221
+  xy: 829, 57
   size: 45, 71
   orig: 45, 71
   offset: 0, 0
   index: -1
 mavia_facing_down
   rotate: false
-  xy: 1180, 126
+  xy: 1266, 7
   size: 18, 29
   orig: 18, 29
   offset: 0, 0
   index: -1
 mavia_facing_left
   rotate: false
-  xy: 1109, 5
+  xy: 1559, 34
   size: 15, 28
   orig: 15, 28
   offset: 0, 0
   index: -1
 mavia_walking_up
   rotate: false
-  xy: 1200, 112
+  xy: 1519, 62
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 1
 mavia_walking_up
   rotate: false
-  xy: 1180, 96
+  xy: 1470, 58
   size: 18, 28
   orig: 18, 28
   offset: 0, 0
   index: 2
 mavia_walking_up_idle
   rotate: false
-  xy: 1200, 81
+  xy: 1490, 57
   size: 18, 29
   orig: 18, 29
   offset: 0, 0
   index: -1
 mining_animation
   rotate: false
-  xy: 1209, 223
+  xy: 774, 38
   size: 24, 17
   orig: 24, 17
   offset: 0, 0
   index: 2
 mining_animation
   rotate: false
-  xy: 872, 3
+  xy: 800, 38
   size: 21, 17
   orig: 21, 17
   offset: 0, 0
   index: 1
 nature_class
   rotate: false
-  xy: 1058, 116
+  xy: 1444, 16
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 nature_class_icon
   rotate: false
-  xy: 1209, 268
+  xy: 1110, 12
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 nature_icon_dialog
   rotate: false
-  xy: 1026, 82
+  xy: 1418, 68
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 pickaxe
   rotate: false
-  xy: 1120, 84
+  xy: 689, 8
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 prototype_timepiercer
   rotate: false
-  xy: 834, 14
+  xy: 405, 12
   size: 36, 46
   orig: 36, 46
   offset: 0, 0
   index: -1
 prototype_timepiercer_swing
   rotate: false
-  xy: 834, 62
+  xy: 920, 84
   size: 40, 44
   orig: 40, 44
   offset: 0, 0
   index: 3
 prototype_timepiercer_swing
   rotate: false
-  xy: 910, 60
+  xy: 443, 12
   size: 36, 46
   orig: 36, 46
   offset: 0, 0
   index: 1
 prototype_timepiercer_swing
   rotate: false
-  xy: 988, 8
+  xy: 1546, 98
   size: 24, 46
   orig: 24, 46
   offset: 0, 0
   index: 2
 quest_background
   rotate: false
-  xy: 1162, 105
+  xy: 635, 8
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 quest_bar
   rotate: false
-  xy: 2, 64
+  xy: 516, 158
   size: 512, 64
   orig: 512, 64
   offset: 0, 0
   index: -1
 quest_chapter
   rotate: false
-  xy: 516, 228
+  xy: 516, 92
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_chapter_dark
   rotate: false
-  xy: 516, 162
+  xy: 516, 26
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 quest_title
   rotate: false
-  xy: 516, 78
+  xy: 1288, 140
   size: 256, 40
   orig: 256, 40
   offset: 0, 0
   index: -1
 quest_title_dark
   rotate: false
-  xy: 516, 120
+  xy: 1288, 182
   size: 256, 40
   orig: 256, 40
   offset: 0, 0
   index: -1
 rock
   rotate: false
-  xy: 876, 80
+  xy: 876, 38
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 2
 rock
   rotate: false
-  xy: 424, 36
+  xy: 481, 32
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 1
 rock
   rotate: false
-  xy: 458, 36
+  xy: 481, 4
   size: 32, 26
   orig: 32, 26
   offset: 0, 0
   index: 3
+sword
+  rotate: false
+  xy: 1029, 2
+  size: 19, 7
+  orig: 19, 7
+  offset: 0, 0
+  index: -1
+sword180
+  rotate: false
+  xy: 316, 3
+  size: 24, 21
+  orig: 24, 21
+  offset: 0, 0
+  index: -1
+sword90
+  rotate: false
+  xy: 1496, 88
+  size: 21, 24
+  orig: 21, 24
+  offset: 0, 0
+  index: -1
 valueables_icon
   rotate: false
-  xy: 1015, 56
+  xy: 1598, 94
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 valueables_icon_active
   rotate: false
-  xy: 1040, 30
+  xy: 1418, 16
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 walking_down
   rotate: false
-  xy: 1162, 85
+  xy: 653, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_down
   rotate: false
-  xy: 1120, 64
+  xy: 725, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_down_idle
   rotate: false
-  xy: 1093, 55
+  xy: 1470, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_left
   rotate: false
-  xy: 963, 36
+  xy: 342, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_left
   rotate: false
-  xy: 1144, 103
+  xy: 599, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_left_idle
   rotate: false
-  xy: 1111, 44
+  xy: 1488, 9
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_right
   rotate: false
-  xy: 1032, 144
+  xy: 1418, 94
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_right
   rotate: false
-  xy: 1126, 102
+  xy: 617, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_right_idle
   rotate: false
-  xy: 1050, 144
+  xy: 1436, 94
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 walking_up
   rotate: false
-  xy: 1086, 144
+  xy: 581, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_up
   rotate: false
-  xy: 1092, 35
+  xy: 1506, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_up_idle
   rotate: false
-  xy: 1068, 144
+  xy: 563, 6
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: -1
 wand_of_embracing
   rotate: false
-  xy: 1067, 64
+  xy: 1470, 88
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 water_class
   rotate: false
-  xy: 1206, 142
+  xy: 1056, 12
   size: 25, 24
   orig: 25, 24
   offset: 0, 0
   index: -1
 water_class_icon
   rotate: false
-  xy: 1041, 56
+  xy: 1444, 68
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 water_icon_dialog
   rotate: false
-  xy: 989, 56
+  xy: 1572, 120
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 weapon_icon
   rotate: false
-  xy: 1040, 4
+  xy: 1444, 114
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 weapon_icon_active
   rotate: false
-  xy: 974, 82
+  xy: 1598, 146
   size: 24, 24
   orig: 24, 24
   offset: 0, 0
   index: -1
 xp_book_common
   rotate: false
-  xy: 1126, 2
+  xy: 910, 54
   size: 8, 10
   orig: 8, 10
   offset: 0, 0

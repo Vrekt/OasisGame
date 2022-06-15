@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="43">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="46">
  <tileset firstgid="1" source="../asset/Overworld.tsx"/>
  <tileset firstgid="1441" source="../asset/Trees.tsx"/>
  <tileset firstgid="17825" source="../asset/Objects.tsx"/>
@@ -69,10 +69,10 @@
 0,0,414,0,0,1382,1383,0,0,0,4,0,686,687,0,0,0,0,686,687,0,0,0,0,0,0,0,412,0,0,0,0,
 0,0,0,0,0,1422,1423,0,0,4,4,0,646,647,0,0,0,0,646,647,0,334,335,0,0,4,0,0,0,0,0,0,
 0,0,0,0,0,0,0,209,0,0,0,414,686,687,0,0,244,0,686,687,0,374,375,0,0,0,0,0,0,334,335,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,374,375,0,
-0,0,334,335,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,412,0,334,335,0,0,0,0,
-0,0,374,375,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,374,375,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,164,0,0,0,0,0,0,0,0,0,374,375,0,
+0,0,334,335,0,0,0,0,0,0,0,0,0,164,0,0,0,0,0,0,0,0,0,0,412,0,334,335,0,0,0,0,
+0,0,374,375,0,0,0,0,0,0,0,0,0,0,0,164,0,41,0,0,0,0,0,0,0,0,374,375,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,164,0,0,0,0,0,41,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="3" name="Master" width="32" height="32">
@@ -111,6 +111,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="9" name="Interior">
+  <object id="45" x="238.5" y="112" width="18" height="31">
+   <properties>
+    <property name="enterable" type="bool" value="true"/>
+    <property name="interior_name" value="world/interiors/House1.tmx"/>
+   </properties>
+  </object>
+ </objectgroup>
  <objectgroup id="4" name="Entities">
   <object id="2" name="Mavia" x="256" y="192">
    <properties>
@@ -125,7 +133,7 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Particles"/>
- <objectgroup id="6" name="Collision">
+ <objectgroup id="6" name="Collision" visible="0">
   <object id="3" x="287.568" y="449.431">
    <polyline points="0,0 0.447136,-195.398 159.627,-194.057"/>
   </object>

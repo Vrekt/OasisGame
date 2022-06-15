@@ -3,14 +3,14 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx",
+    "activeFile": "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx",
     "console.history": [
         "HELP",
         "help"
     ],
     "expandedProjectPaths": [
     ],
-    "file.lastUsedOpenFilter": "Tiled tileset files (*.tsx *.xml)",
+    "file.lastUsedOpenFilter": "Tiled map files (*.tmx *.xml)",
     "fileStates": {
         "": {
             "scaleInEditor": 1
@@ -242,8 +242,8 @@
             "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 367.5,
-                "y": 142
+                "x": 147.25,
+                "y": 141.5
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/.Overworld.tsx": {
@@ -260,6 +260,9 @@
                 "y": 192.04471355379602
             }
         },
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Interior1.tsx": {
+            "scaleInDock": 1
+        },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx": {
             "dynamicWrapping": false,
             "scaleInDock": 1,
@@ -274,12 +277,31 @@
             "scaleInDock": 1,
             "scaleInEditor": 1.5
         },
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx": {
+            "scale": 2.196875,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 136.33001422475107,
+                "y": 163.41394025604552
+            }
+        },
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/Interior1.tsx": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interiors/House1.tmx": {
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 176.75,
+                "y": 195
+            }
+        },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx": {
             "scale": 2,
-            "selectedLayer": 7,
+            "selectedLayer": 3,
             "viewCenter": {
                 "x": 251.25,
-                "y": 115.5
+                "y": 313
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {
@@ -321,23 +343,25 @@
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx"
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
+        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx"
     ],
     "project": "Oasis.tiled-project",
-    "property.type": "string",
+    "property.type": "bool",
     "recentFiles": [
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/OasisTutorialWorld.tmx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
+        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Sewer.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/TutorialLevelMap.tmx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Cave1.tsx",
         "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Athena.tmx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Terrain.tsx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/Interior1.tsx"
+        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Terrain.tsx"
     ],
     "resizeMap.removeObjects": false,
     "tileset.lastUsedFormat": "tsx",

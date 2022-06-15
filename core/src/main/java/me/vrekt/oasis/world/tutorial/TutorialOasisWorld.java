@@ -29,32 +29,14 @@ public final class TutorialOasisWorld extends OasisWorld {
         loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
     }
 
-    private void updateEnvironmentInteractions() {
-        //   float distance = OasisGameSettings.OBJECT_UPDATE_DISTANCE;
-        //  WorldInteraction interact = null;
-        //   for (WorldInteraction interaction : interactions) {
-        //       if (interaction.isWithinInteractionDistance(player.getPosition())
-        //              && interaction.isInteractable()
-        //              && !interaction.isInteractedWith()) {
-        //         if (interaction.getDistance() < distance) {
-        //             distance = interaction.getDistance();
-        //             interact = interaction;
-        //         }
-        //      }
-        //    }
-
-        //    if (interact != null) interact.interact(player);
-    }
-
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         super.touchDown(screenX, screenY, pointer, button);
 
-        // no entity to interact with, get environment object
-        if (!interactWithEntity()) {
-            return interactWithEnvironment();
-        }
+        interactWithEntity();
+        interactWithEnvironment();
+        interactWithInterior();
         return false;
     }
 }

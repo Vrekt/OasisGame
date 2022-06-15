@@ -3,6 +3,7 @@ package me.vrekt.oasis.world.interaction;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.environment.Environment;
 
 /**
  * Represents something that you can interact with.
@@ -68,6 +69,8 @@ public interface Interactable {
      * @param height h
      */
     void setSize(float width, float height);
+
+    void setRelatedEnvironment(Environment environment);
 
     /**
      * Interact with this object

@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Disposable;
 public final class Asset implements Disposable {
 
     public static final String TUTORIAL_WORLD = "world/worlds/OasisTutorialWorld.tmx";
+    public static final String HOUSE1 = "world/interiors/House1.tmx";
     public static final String ASSETS = "Assets.atlas";
 
     private final AssetManager assetManager = new AssetManager();
@@ -42,8 +43,12 @@ public final class Asset implements Disposable {
         this.atlasAssets = assetManager.get(ASSETS);
     }
 
+    /**
+     * TODO: Load on contact
+     */
     private void loadWorlds() {
         assetManager.load(TUTORIAL_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
+        assetManager.load(HOUSE1, TiledMap.class, new TmxMapLoader.Parameters());
     }
 
     private void loadSkins() {

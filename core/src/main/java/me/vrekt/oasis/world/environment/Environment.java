@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
@@ -114,8 +115,15 @@ public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable
     }
 
     @Override
+    public void destroy() {
+        interaction.getWorld().removeEnvironment(this);
+        this.dispose();
+    }
+
+    @Override
     public void dispose() {
-        reset();
+        interaction.getWorld().getWorld().destroyBody(body);
+        Pools.free(this);
     }
 
     @Override

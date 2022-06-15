@@ -41,7 +41,6 @@ public final class OasisGame extends Game {
     private OasisLocalServer server;
     private LunarClientServer clientServer;
 
-
     @Override
     public void create() {
         loadGame();
