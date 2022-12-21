@@ -138,6 +138,8 @@ public final class DialogGui extends Gui {
 
     @Override
     public void hideGui() {
+        gui.showGui(GuiType.HUD);
+
         rootTable.setVisible(false);
         isShowing = false;
     }

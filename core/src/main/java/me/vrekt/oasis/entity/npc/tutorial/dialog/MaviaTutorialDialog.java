@@ -36,6 +36,9 @@ public final class MaviaTutorialDialog extends EntityDialog {
         createOption("mavia_dialog_4", "I see.");
 
         createSection("mavia_dialog_4", "Take this tool, and harvest that tree over there.");
+        createOption("mavia_dialog_5", "I'll try my best.");
+
+        createSection("mavia_dialog_5", "Come back to me when you're finished.");
         createOption("mavia_dialog_end_1", "Okay.");
 
         save();

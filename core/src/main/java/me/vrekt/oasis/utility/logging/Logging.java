@@ -29,7 +29,11 @@ public interface Logging {
      * @param info the info
      */
     static void info(Object tag, String info) {
-        Gdx.app.log(tag.getClass().getSimpleName(), INFO + info);
+        if (tag instanceof String) {
+            Gdx.app.log(tag.toString(), INFO + info);
+        } else {
+            Gdx.app.log(tag.getClass().getSimpleName(), INFO + info);
+        }
     }
 
     static void d(String info) {
@@ -43,7 +47,11 @@ public interface Logging {
      * @param warn the warning
      */
     static void warn(Object tag, String warn) {
-        Gdx.app.log(tag.getClass().getSimpleName(), WARN + warn);
+        if (tag instanceof String) {
+            Gdx.app.log(tag.toString(), WARN + warn);
+        } else {
+            Gdx.app.log(tag.getClass().getSimpleName(), WARN + warn);
+        }
     }
 
     /**

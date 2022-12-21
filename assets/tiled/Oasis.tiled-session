@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx",
+    "activeFile": "C:/Users/Corgan/Desktop/Oasis/assets/world/interiors/House1.tmx",
     "console.history": [
         "HELP",
         "help"
@@ -290,7 +290,7 @@
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/interiors/House1.tmx": {
             "scale": 2,
-            "selectedLayer": 3,
+            "selectedLayer": 4,
             "viewCenter": {
                 "x": 176.75,
                 "y": 195
@@ -301,7 +301,7 @@
             "selectedLayer": 3,
             "viewCenter": {
                 "x": 251.25,
-                "y": 313
+                "y": 246.5
             }
         },
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx": {
@@ -344,8 +344,7 @@
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
-        "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx"
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interiors/House1.tmx"
     ],
     "project": "Oasis.tiled-project",
     "property.type": "bool",
@@ -354,14 +353,14 @@
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Overworld.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Objects.tsx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/asset/Trees.tsx",
+        "C:/Users/Corgan/Desktop/Oasis/assets/world/interiors/House1.tmx",
         "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/interiors/MaviaHouse.tmx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/interior/House1.tmx",
         "C:/Users/Corgan/Desktop/Oasis/assets/world/worlds/Trees.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Sewer.tsx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/TutorialLevelMap.tmx",
         "C:/Users/Corgan/Desktop/Java/GameAssets/Cave1.tsx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Athena.tmx",
-        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Terrain.tsx"
+        "C:/Users/Corgan/Desktop/Java/Oasis/core/assets/worlds/athena/Athena.tmx"
     ],
     "resizeMap.removeObjects": false,
     "tileset.lastUsedFormat": "tsx",

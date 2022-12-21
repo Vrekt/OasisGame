@@ -9,9 +9,6 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -36,11 +33,11 @@ import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.environment.Environment;
-import me.vrekt.oasis.world.instance.SeparateWorldInstance;
 import me.vrekt.oasis.world.interaction.Interaction;
 import me.vrekt.oasis.world.interaction.type.InteractionType;
-import me.vrekt.oasis.world.interior.WorldInterior;
+import me.vrekt.oasis.world.interior.Interior;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -49,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.function.BiConsumer;
 
 /**
  * Represents a base world within the game
@@ -58,6 +54,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected final OasisGame game;
     protected final OasisPlayerSP localPlayer;
+
+    protected TiledMap map;
 
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
@@ -78,10 +76,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final List<ParticleEffect> effects = new ArrayList<>();
 
     protected final CopyOnWriteArraySet<Environment> environments = new CopyOnWriteArraySet<>();
-    protected final Map<String, WorldInterior> interiors = new HashMap<>();
-
-    // current interior player is in
-    private SeparateWorldInstance instanceIn;
+    protected final Map<String, Interior> interiors = new HashMap<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -102,6 +97,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return game;
     }
 
+    public void showWorld() {
+        this.renderer.setTiledMap(map, spawn.x, spawn.y);
+    }
+
     /**
      * Load this world
      */
@@ -120,8 +119,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param worldScale the scale of the world
      */
     public void loadWorld(TiledMap worldMap, float worldScale) {
-        loadMapActions(worldMap, worldScale);
-        loadMapCollision(worldMap, worldScale);
+        this.map = worldMap;
+
+        TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
+        TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadEnvironmentObjects(worldMap, game.getAsset(), worldScale);
@@ -149,81 +150,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     /**
-     * General functions for collecting rectangle objects and handling them
-     *
-     * @param worldMap   map
-     * @param worldScale scale
-     * @param layerName  layer to get
-     * @param handler    handler
-     * @return the result (if the layer was found)
-     */
-    protected boolean loadMapObjects(TiledMap worldMap, float worldScale, String layerName, BiConsumer<MapObject, Rectangle> handler) {
-        final MapLayer layer = worldMap.getLayers().get(layerName);
-        if (layer == null) {
-            return false;
-        }
-
-        for (MapObject object : layer.getObjects()) {
-            if (object instanceof RectangleMapObject) {
-                final Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
-                rectangle.x = rectangle.x * worldScale;
-                rectangle.y = rectangle.y * worldScale;
-                rectangle.width = rectangle.width * worldScale;
-                rectangle.height = rectangle.height * worldScale;
-                handler.accept(object, rectangle);
-            } else {
-                Logging.warn(this, "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Load map actions like spawn points.
-     *
-     * @param worldMap   the map of the world
-     * @param worldScale the scale of the world
-     */
-    protected void loadMapActions(TiledMap worldMap, float worldScale) {
-        loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
-            if (object.getName().equalsIgnoreCase("WorldSpawn")
-                    || object.getName().equalsIgnoreCase("Spawn")) {
-                Logging.info(this, "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
-                spawn.set(rectangle.x, rectangle.y);
-            }
-        });
-    }
-
-    /**
-     * Load map collision
-     *
-     * @param worldMap   the map
-     * @param worldScale the scale
-     */
-    protected void loadMapCollision(TiledMap worldMap, float worldScale) {
-        final MapLayer layer = worldMap.getLayers().get("Collision");
-        if (layer == null) {
-            return;
-        }
-
-        int loaded = 0;
-        for (MapObject object : layer.getObjects()) {
-            CollisionShapeCreator.createCollisionInWorld(object, worldScale, world);
-            loaded++;
-        }
-
-        Logging.info(this, "Loaded a total of " + loaded + " collision objects.");
-    }
-
-    /**
      * Load world NPCs
      *
      * @param worldMap   map
      * @param worldScale scale
      */
     protected void loadInteractableEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
-        loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final EntityNPCType type = EntityNPCType.findType(object);
             if (type != null) {
                 final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
@@ -257,7 +190,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param worldScale the scale of the world
      */
     protected void loadParticleEffects(TiledMap worldMap, Asset asset, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Particles", (object, rectangle) -> {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Particles", (object, rectangle) -> {
             final ParticleEffect effect = new ParticleEffect();
             effect.load(Gdx.files.internal("world/asset/" + object.getName()), asset.getAtlasAssets());
             effect.setPosition(rectangle.x, rectangle.y);
@@ -274,7 +207,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param worldScale the scale of the world
      */
     protected void loadEnvironmentObjects(TiledMap worldMap, Asset asset, float worldScale) {
-        loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
             // assign n find texture
             final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
             final Environment environment = Pools.obtain(Environment.class);
@@ -341,12 +274,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param worldScale scale
      */
     public void loadWorldInteriors(TiledMap worldMap, float worldScale) {
-        final boolean result = loadMapObjects(worldMap, worldScale, "Interior", (object, rectangle) -> {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Interior", (object, rectangle) -> {
             final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
             final String interiorName = object.getProperties().get("interior_name", null, String.class);
             if (interiorName != null && enterable) {
-                final WorldInterior interior = new WorldInterior(rectangle);
-                this.interiors.put(interiorName, interior);
+                this.interiors.put(interiorName, new Interior(this, interiorName, rectangle));
             }
         });
 
@@ -380,8 +312,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void render(float delta) {
-        if (instanceIn != null) {
-            instanceIn.render(delta);
+
+        // handle parent instance if in one
+        if (player.getInstanceIn() != null) {
+            player.getInstanceIn().render(delta);
             return;
         }
 
@@ -430,9 +364,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasEntity = true;
 
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
-            if (entityInteractable.clickedOn(cursor)) {
+            if (entityInteractable.isMouseInEntityBounds(cursor)) {
                 // mouse is over this entity
-                setCursor("ui/dialog_cursor.png");
+                if (!cursorChanged) {
+                    setCursor("ui/dialog_cursor.png");
+                }
                 break;
             } else {
                 hasEntity = false;
@@ -562,7 +498,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     protected boolean interactWithEntity() {
         // find entity clicked on
-        final EntityInteractable closest = getNearbyEntities().keySet().stream().filter(entity -> entity.clickedOn(projection)).findFirst().orElse(null);
+        final EntityInteractable closest = getNearbyEntities().keySet().stream().filter(entity -> entity.isMouseInEntityBounds(projection)).findFirst().orElse(null);
         if (closest != null && closest.isSpeakable() && !closest.isSpeakingTo()) {
             closest.setSpeakingTo(true);
 
@@ -599,13 +535,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @return the result
      */
     protected boolean interactWithInterior() {
-        final WorldInterior interior = interiors.values().stream().filter(e -> e.clickedOn(projection)).findFirst().orElse(null);
-        if (interior != null && interior.enterable()) {
-            if (interior.create(this)) {
-                // enter interior from their own created instance!
-                instanceIn = interior.getWorldInstance();
-                instanceIn.loadIntoWorld();
-            }
+        final Interior interior = interiors.values().stream().filter(e -> e.clickedOn(projection)).findFirst().orElse(null);
+        if (interior != null
+                && interior.enterable()
+                && interior.isWithinEnteringDistance(player.getPosition())) {
+            interior.enter();
         }
         return false;
     }

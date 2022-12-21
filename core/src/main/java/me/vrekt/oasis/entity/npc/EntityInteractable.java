@@ -130,7 +130,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
      * @param clicked the vector3 click
      * @return {@code  true} if so
      */
-    public boolean clickedOn(Vector3 clicked) {
+    public boolean isMouseInEntityBounds(Vector3 clicked) {
         return clicked.x > getX() && clicked.x < (getX() + getWidthScaled()) && clicked.y > getY() && clicked.y < (getY() + getHeightScaled());
     }
 

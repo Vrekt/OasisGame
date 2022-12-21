@@ -26,7 +26,7 @@ import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.interior.WorldInterior;
+import me.vrekt.oasis.world.instance.Instanced;
 
 /**
  * Represents the local player SP
@@ -44,8 +44,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private PlayerConnectionHandler connectionHandler;
     private final PlayerInventory inventory;
 
-    private boolean inInterior;
-    private WorldInterior interior;
+    private boolean isInInstance;
+    private Instanced instanceIn;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -61,20 +61,20 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.inventory = new PlayerInventory(this);
     }
 
-    public boolean isInInterior() {
-        return inInterior;
+    public boolean isInInstance() {
+        return isInInstance;
     }
 
-    public void setInInterior(boolean inInterior) {
-        this.inInterior = inInterior;
+    public void setInInstance(boolean inInstance) {
+        isInInstance = inInstance;
     }
 
-    public void setInterior(WorldInterior interior) {
-        this.interior = interior;
+    public Instanced getInstanceIn() {
+        return instanceIn;
     }
 
-    public WorldInterior getInterior() {
-        return interior;
+    public void setInstanceIn(Instanced instanceIn) {
+        this.instanceIn = instanceIn;
     }
 
     public OasisGame getGame() {

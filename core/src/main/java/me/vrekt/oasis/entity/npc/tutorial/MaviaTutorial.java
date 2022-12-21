@@ -10,9 +10,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
-import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -30,16 +28,23 @@ public final class MaviaTutorial extends EntityInteractable {
     @Override
     public boolean advanceDialogStage(String option) {
         // first part of player tutorial, give the player an item.
+
         if (option.equals("mavia_dialog_end_1")) {
+            // TODO;
+        }
+
+        if (option.equals("mavia_dialog_5")) {
             setSpeakingTo(false);
             speakable = false;
 
-            // give the player the harvesting tool.
-            game.getGui().showHud();
-            final Item item = game
-                    .getPlayer()
-                    .getInventory()
-                    .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
+            if (!game.getPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
+                // give the player the harvesting tool.
+                game.getGui().showHud();
+                game
+                        .getPlayer()
+                        .getInventory()
+                        .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
+            }
 
             // mavia should face towards the tree.
             this.rotation = Rotation.FACING_LEFT.ordinal();
@@ -48,11 +53,11 @@ public final class MaviaTutorial extends EntityInteractable {
             // only works within tutorial world!
             //  player.getGameWorldIn().getInteraction(LucidFruitTreeInteraction.class).setInteractable(true);
 
-            if (item == null) {
-                Logging.error(this, "Failed to give player harvesting item??");
-            } else {
-                //  game.getGui().showItemCollected(item);
-            }
+            //  if (item == null) {
+            //      Logging.error(this, "Failed to give player harvesting item??");
+            //    } else {
+            //        //  game.getGui().showItemCollected(item);
+            //    }
         }
 
         // player should select their class

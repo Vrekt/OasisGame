@@ -108,6 +108,23 @@ public abstract class EntityInventory {
     }
 
     /**
+     * Check if this entity has an existing item
+     *
+     * @param type the type item class
+     * @param <T>  T
+     * @return {@code  true} if so.
+     */
+    public <T> boolean hasItem(Class<T> type) {
+        for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
+            if (entry.getValue() != null && entry.getValue().isOccupied() &&
+                    entry.getValue().getItem().getClass().equals(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return {@code true} if this inventory is full.
      */
     public boolean isInventoryFull() {
@@ -121,13 +138,17 @@ public abstract class EntityInventory {
      */
     public int getEmptySlot() {
         if (slots.size() == 0) return 0;
+        int lastSlot = 0;
 
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
             if (entry.getValue() == null || !entry.getValue().isOccupied()) {
                 return entry.getKey();
+            } else {
+                lastSlot = entry.getKey();
             }
         }
-        return -1;
+
+        return lastSlot + 1;
     }
 
     public Map<Integer, InventorySlot> getSlots() {
