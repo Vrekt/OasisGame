@@ -94,7 +94,7 @@
  <objectgroup id="7" name="Collision">
   <object id="2" x="64" y="64" width="256" height="16"/>
   <object id="3" x="64" y="80" width="16" height="224"/>
-  <object id="4" x="80" y="296.5" width="88.5" height="16"/>
+  <object id="4" x="80" y="290.5" width="92" height="22"/>
   <object id="5" x="304" y="80" width="16" height="208"/>
   <object id="7" x="79.5" y="82">
    <polyline points="0,0 0,52.5 62,53 221,53 220.5,1.5"/>
@@ -104,7 +104,7 @@
   <object id="19" x="80" y="144" width="80" height="48"/>
   <object id="20" x="256" y="144" width="48" height="64"/>
   <object id="21" x="192" y="144" width="48" height="16"/>
-  <object id="24" x="215" y="296.5" width="88.5" height="18.5"/>
+  <object id="24" x="210.5" y="291.5" width="93" height="23.5"/>
   <object id="30" x="172" y="311" width="39.5" height="9.5"/>
  </objectgroup>
 </map>

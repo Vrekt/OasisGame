@@ -129,6 +129,11 @@ public final class GameGui {
         guis.get(type).hideGui();
     }
 
+    public void hideThenShowGui(GuiType hide, GuiType show) {
+        hideGui(hide);
+        showGui(show);
+    }
+
     public void showDialog() {
         showGui(GuiType.DIALOG);
     }

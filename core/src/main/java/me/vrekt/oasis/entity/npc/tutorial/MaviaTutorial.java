@@ -1,7 +1,6 @@
 package me.vrekt.oasis.entity.npc.tutorial;
 
 import com.badlogic.gdx.math.Vector2;
-import lunar.shared.entity.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -11,6 +10,7 @@ import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
+import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -30,10 +30,6 @@ public final class MaviaTutorial extends EntityInteractable {
         // first part of player tutorial, give the player an item.
 
         if (option.equals("mavia_dialog_end_1")) {
-            // TODO;
-        }
-
-        if (option.equals("mavia_dialog_5")) {
             setSpeakingTo(false);
             speakable = false;
 
@@ -44,26 +40,14 @@ public final class MaviaTutorial extends EntityInteractable {
                         .getPlayer()
                         .getInventory()
                         .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
+            } else {
+                Logging.error(this, "Failed to give player their tutorial item.");
             }
-
-            // mavia should face towards the tree.
-            this.rotation = Rotation.FACING_LEFT.ordinal();
-            currentRegionState = getRegion("facing_left");
-
-            // only works within tutorial world!
-            //  player.getGameWorldIn().getInteraction(LucidFruitTreeInteraction.class).setInteractable(true);
-
-            //  if (item == null) {
-            //      Logging.error(this, "Failed to give player harvesting item??");
-            //    } else {
-            //        //  game.getGui().showItemCollected(item);
-            //    }
         }
 
         // player should select their class
         if (option.equals("mavia_dialog_select_class")) {
-            game.getGui().hideGui(GuiType.DIALOG);
-            game.getGui().showGui(GuiType.CLASS);
+            game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS);
         }
 
         this.dialog = entityDialog.sections.get(option);

@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.inventory.renderer.InventoryRenderer;
+import me.vrekt.oasis.entity.inventory.renderer.InventoryUiHandler;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
@@ -21,7 +21,7 @@ public final class HudGui extends Gui {
     private final Table rootTable, classSelectorTable, notificationTable;
     private final Table interactionTable;
     // rendering of hud inventory
-    private final InventoryRenderer inventoryRenderer;
+    private final InventoryUiHandler inventoryRenderer;
 
     // amount of item collected + icon image of item
     private final Label amountLabel;
@@ -74,7 +74,7 @@ public final class HudGui extends Gui {
 
         // initialize HUD inventory.
         final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("inventory_slot"));
-        this.inventoryRenderer = new InventoryRenderer(player.getInventory().getInventorySize(), player);
+        this.inventoryRenderer = new InventoryUiHandler(player.getInventory().getInventorySize(), player);
         this.inventoryRenderer.initialize(inventory, slot);
 
         classSelectorTable.add(new Image(asset.get("nature_class"))).size(48, 48);

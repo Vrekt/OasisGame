@@ -129,7 +129,11 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
     }
 
     public void loadInstance(TiledMap map, float worldScale) {
-        TiledMapLoader.loadMapCollision(map, worldScale, world);
+
+        // destroy worldIn collisions.
+        worldIn.clearCollisionBodies();
+
+        TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exitArea);
 
         this.worldIn.getGame().getRenderer().setTiledMap(map, spawn.x, spawn.y);

@@ -6,9 +6,11 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.world.OasisWorld;
 
 import java.util.function.BiConsumer;
 
@@ -73,7 +75,7 @@ public final class TiledMapLoader {
      * @param worldMap   the map
      * @param worldScale the scale
      */
-    public static void loadMapCollision(TiledMap worldMap, float worldScale, World world) {
+    public static void loadMapCollision(TiledMap worldMap, float worldScale, World world, OasisWorld worldIn) {
         final MapLayer layer = worldMap.getLayers().get("Collision");
         if (layer == null) {
             return;
@@ -81,7 +83,8 @@ public final class TiledMapLoader {
 
         int loaded = 0;
         for (MapObject object : layer.getObjects()) {
-            CollisionShapeCreator.createCollisionInWorld(object, worldScale, world);
+            final Body body = CollisionShapeCreator.createCollisionInWorld(object, worldScale, world);
+            worldIn.addCollisionBody(body);
             loaded++;
         }
 

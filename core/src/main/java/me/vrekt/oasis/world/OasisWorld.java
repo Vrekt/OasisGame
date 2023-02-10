@@ -60,7 +60,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
     protected final Vector3 projection = new Vector3();
-    protected final Vector3 cursor = new Vector3();
+    protected final Vector3 cursorInWorld = new Vector3();
+    protected final Vector3 cursorInScreen = new Vector3();
     protected boolean cursorChanged;
 
     protected int width, height;
@@ -77,6 +78,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected final CopyOnWriteArraySet<Environment> environments = new CopyOnWriteArraySet<>();
     protected final Map<String, Interior> interiors = new HashMap<>();
+
+    // TODO: Better system for when we eventually have thousands of bodies possibly.
+    protected final List<Body> collisionBodies = new ArrayList<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -101,6 +105,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.renderer.setTiledMap(map, spawn.x, spawn.y);
     }
 
+    public void addCollisionBody(Body body) {
+        collisionBodies.add(body);
+    }
+
+    public void clearCollisionBodies() {
+        for (Body collisionBody : collisionBodies) {
+            world.destroyBody(collisionBody);
+        }
+    }
+
     /**
      * Load this world
      */
@@ -114,6 +128,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     /**
      * Load the local player into this world.
+     * TODO: Reinit collision when entering back if not done already.
+     * TODO: NEw worlds per instance? might be hard with networking probably
      *
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
@@ -122,7 +138,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.map = worldMap;
 
         TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
-        TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
+        TiledMapLoader.loadMapCollision(worldMap, worldScale, world, this);
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadEnvironmentObjects(worldMap, game.getAsset(), worldScale);
@@ -360,14 +376,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         float d1 = super.update(d);
 
         // update world cursor
-        renderer.getCamera().unproject(cursor.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+        renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+        game.getGui().getCamera().unproject(cursorInScreen.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+
         boolean hasEntity = true;
 
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
-            if (entityInteractable.isMouseInEntityBounds(cursor)) {
+            if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
                 if (!cursorChanged) {
-                    setCursor("ui/dialog_cursor.png");
+                    setCursorInWorld("ui/dialog_cursor.png");
                 }
                 break;
             } else {
@@ -380,9 +398,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (!hasEntity) {
             for (Environment environment : environments) {
                 if (environment.hasInteraction()
-                        && environment.clickedOn(cursor)
+                        && environment.clickedOn(cursorInWorld)
                         && environment.getInteraction().getCursor() != null) {
-                    setCursor(environment.getInteraction().getCursor());
+                    setCursorInWorld(environment.getInteraction().getCursor());
                     hasObj = true;
                     break;
                 }
@@ -396,9 +414,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return d1;
     }
 
-    private void setCursor(String cursor) {
+    private void setCursorInWorld(String cursorInWorld) {
         this.cursorChanged = true;
-        Pixmap pm = new Pixmap(Gdx.files.internal(cursor));
+        Pixmap pm = new Pixmap(Gdx.files.internal(cursorInWorld));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
     }
@@ -486,8 +504,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.environments.remove(environment);
     }
 
-    public Vector3 getCursor() {
-        return cursor;
+    public Vector3 getCursorInWorld() {
+        return cursorInWorld;
+    }
+
+    public Vector3 getCursorInScreen() {
+        return cursorInScreen;
     }
 
     /**
