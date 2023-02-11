@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="46">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="47">
  <tileset firstgid="1" source="../asset/Overworld.tsx"/>
  <tileset firstgid="1441" source="../asset/Trees.tsx"/>
  <tileset firstgid="17825" source="../asset/Objects.tsx"/>
@@ -157,10 +157,11 @@
   <object id="34" x="435.5" y="108" width="9.5" height="142"/>
   <object id="35" x="291.5" y="245.5" width="140" height="5"/>
  </objectgroup>
- <objectgroup id="8" name="Environment">
-  <object id="42" x="352" y="160">
+ <objectgroup id="10" name="WorldObjects">
+  <object id="46" x="352.939" y="160.373">
    <properties>
-    <property name="interaction_type" value="TREE"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="interaction_type" value="LUCID_FRUIT_TREE_TUTORIAL"/>
     <property name="offset0" type="float" value="2.5"/>
     <property name="particle0" value="lucid_fruit_tree_particle"/>
     <property name="texture" value="lucid_fruit_tree"/>

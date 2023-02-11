@@ -18,12 +18,10 @@ public abstract class Entity extends LunarEntity implements Renderable {
 
     public Entity(com.badlogic.ashley.core.Entity entity, boolean initializeComponents) {
         super(entity, initializeComponents);
-        entity.add(new EntityDialogComponent());
     }
 
     public Entity(boolean initializeComponents) {
         super(initializeComponents);
-        entity.add(new EntityDialogComponent());
     }
 
     public boolean isInteractable() {

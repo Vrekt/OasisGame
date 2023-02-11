@@ -33,7 +33,7 @@ public final class MaviaTutorial extends EntityInteractable {
             setSpeakingTo(false);
             speakable = false;
 
-            if (!game.getPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
+            if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
                 // give the player the harvesting tool.
                 game.getGui().showHud();
                 game

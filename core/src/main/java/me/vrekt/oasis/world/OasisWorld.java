@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -34,10 +35,10 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.environment.Environment;
-import me.vrekt.oasis.world.interaction.Interaction;
-import me.vrekt.oasis.world.interaction.type.InteractionType;
 import me.vrekt.oasis.world.interior.Interior;
+import me.vrekt.oasis.world.obj.WorldObject;
+import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -76,7 +77,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
     protected final List<ParticleEffect> effects = new ArrayList<>();
 
-    protected final CopyOnWriteArraySet<Environment> environments = new CopyOnWriteArraySet<>();
+    // objects within this world
+    protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
+    protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
+
     protected final Map<String, Interior> interiors = new HashMap<>();
 
     // TODO: Better system for when we eventually have thousands of bodies possibly.
@@ -141,7 +145,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world, this);
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
-        loadEnvironmentObjects(worldMap, game.getAsset(), worldScale);
+        loadWorldObjects(worldMap, game.getAsset(), worldScale);
         loadWorldInteriors(worldMap, worldScale);
 
         configuration.worldScale = worldScale;
@@ -217,70 +221,83 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     /**
-     * Load map actions like spawn points.
+     * Load world objects
      *
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
      */
-    protected void loadEnvironmentObjects(TiledMap worldMap, Asset asset, float worldScale) {
-        TiledMapLoader.loadMapObjects(worldMap, worldScale, "Environment", (object, rectangle) -> {
+    protected void loadWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "WorldObjects", (object, rectangle) -> {
             // assign n find texture
             final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
-            final Environment environment = Pools.obtain(Environment.class);
-            environment.load(asset);
+            final boolean interactable = object.getProperties().get("interactable", Boolean.class);
 
-            environment.setLocation(
-                    rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
-                    rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE)
-            );
-            environment.setTexture(texture);
-
-            // load interaction type
-            if (object.getProperties().containsKey("interaction_type")) {
-                final Class<? extends Interaction> type = InteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class));
-                final Interaction interaction = Pools.obtain(type);
-
-                interaction.load(asset);
-                interaction.initialize(this,
+            if (interactable) {
+                final InteractableWorldObject worldObject = Pools.obtain(WorldInteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
+                worldObject.load(asset);
+                worldObject.initialize(this,
                         rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
                         rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
-                        environment.getTexture().getRegionWidth() * OasisGameSettings.SCALE,
-                        environment.getTexture().getRegionHeight() * OasisGameSettings.SCALE
+                        texture.getRegionWidth() * OasisGameSettings.SCALE,
+                        texture.getRegionHeight() * OasisGameSettings.SCALE
                 );
-                environment.setInteraction(interaction);
-                interaction.setRelatedEnvironment(environment);
+
+                worldObject.setTexture(texture);
+
+                loadWorldObjectEffects(worldObject, object, rectangle);
+                loadWorldObjectBody(worldObject, rectangle, texture);
+                this.interactableWorldObjects.add(worldObject);
+            } else {
+                final WorldObject wb = Pools.obtain(WorldObject.class);
+                wb.load(asset);
+                // TODO: init WorldObjectType
+
+                loadWorldObjectEffects(wb, object, rectangle);
+                loadWorldObjectBody(wb, rectangle, texture);
+                this.worldObjects.add(wb);
             }
-
-            // load each particle within properties
-            object.getProperties().getKeys().forEachRemaining(key -> {
-                // find a particle + int identifier
-                if (key.contains("particle")) {
-                    final ParticleEffect effect = new ParticleEffect();
-                    effect.load(Gdx.files.internal("world/asset/" + object.getProperties().get(key, String.class)), asset.getAtlasAssets());
-                    effect.setPosition(rectangle.x, rectangle.y + object.getProperties().get("offset" + (StringUtils.getDigits(key)), 0.0f, float.class));
-                    effect.start();
-
-                    // add this new effect to environ object
-                    environment.getEffects().add(effect);
-                }
-            });
-
-            // create collision body, offset position to fit within bounds.
-            final Body body = CollisionShapeCreator.createPolygonShapeInWorld(
-                    rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
-                    rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
-                    texture.getRegionWidth(),
-                    texture.getRegionHeight(),
-                    OasisGameSettings.SCALE,
-                    true,
-                    world
-            );
-
-            environment.setCollisionBody(body);
-            this.environments.add(environment);
         });
 
-        Logging.info(this, "Loaded " + (environments.size()) + " environment objects.");
+        Logging.info(this, "Loaded " + (interactableWorldObjects.size()) + " interactable objects.");
+        Logging.info(this, "Loaded " + (worldObjects.size()) + " world objects.");
+    }
+
+    /**
+     * Load particle effects for a world object, interactable or not.
+     *
+     * @param wb        wb
+     * @param object    obj
+     * @param rectangle rect
+     */
+    private void loadWorldObjectEffects(WorldObject wb, MapObject object, Rectangle rectangle) {
+        // load each particle within properties
+        object.getProperties().getKeys().forEachRemaining(key -> {
+            // find a particle + int identifier
+            if (key.contains("particle")) {
+                final ParticleEffect effect = new ParticleEffect();
+                effect.load(Gdx.files.internal("world/asset/" + object.getProperties().get(key, String.class)), game.getAsset().getAtlasAssets());
+                effect.setPosition(rectangle.x, rectangle.y + object.getProperties().get("offset" + (StringUtils.getDigits(key)), 0.0f, float.class));
+                effect.start();
+
+                // add this new effect to environ object
+                wb.getEffects().add(effect);
+            }
+        });
+    }
+
+    private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
+        // create collision body, offset position to fit within bounds.
+        final Body body = CollisionShapeCreator.createPolygonShapeInWorld(
+                rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
+                rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
+                texture.getRegionWidth(),
+                texture.getRegionHeight(),
+                OasisGameSettings.SCALE,
+                true,
+                world
+        );
+
+        wb.setCollisionBody(body);
     }
 
     /**
@@ -396,11 +413,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // check for environment objects
         boolean hasObj = false;
         if (!hasEntity) {
-            for (Environment environment : environments) {
-                if (environment.hasInteraction()
-                        && environment.clickedOn(cursorInWorld)
-                        && environment.getInteraction().getCursor() != null) {
-                    setCursorInWorld(environment.getInteraction().getCursor());
+            for (InteractableWorldObject worldObject : interactableWorldObjects) {
+                if (worldObject.clickedOn(cursorInWorld) && worldObject.getCursor() != null) {
+                    setCursorInWorld(worldObject.getCursor());
                     hasObj = true;
                     break;
                 }
@@ -456,19 +471,24 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
-        for (Environment environment : environments) {
-            environment.render(batch);
-            if (environment.playEffects()) {
-                environment.renderEffects(batch, delta);
+        // general world objects
+        for (WorldObject object : worldObjects) {
+            object.render(batch);
+            if (object.playEffects()) {
+                object.renderEffects(batch, delta);
+            }
+        }
+
+        // interactions
+        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+            worldObject.render(batch);
+            if (worldObject.playEffects()) {
+                worldObject.renderEffects(batch, delta);
             }
 
-            // update interaction
-            if (environment.getInteraction() != null
-                    && environment.getInteraction().isWithinUpdateDistance(player.getPosition())
-                    && environment.getInteraction().isInteractedWith()) {
-                environment.getInteraction().update();
+            if (worldObject.isWithinUpdateDistance(player.getPosition()) && worldObject.isInteractedWith()) {
+                worldObject.update();
             }
-
         }
 
         // render particles
@@ -477,10 +497,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.draw(batch);
         }
 
-
         // render local player next
         player.render(batch, delta);
+    }
 
+    public void endRender() {
         batch.end();
 
         // render gui
@@ -498,10 +519,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
         return nearbyEntities;
-    }
-
-    public void removeEnvironment(Environment environment) {
-        this.environments.remove(environment);
     }
 
     public Vector3 getCursorInWorld() {
@@ -536,16 +553,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      *
      * @return {@code  true} if interacted with the environment
      */
-    protected boolean interactWithEnvironment() {
-        final Environment environment = environments.stream().filter(e -> e.clickedOn(projection)).findFirst().orElse(null);
-        if (environment != null
-                && environment.hasInteraction()
-                && environment.getInteraction().isWithinInteractionDistance(player.getPosition())) {
-
-            if (environment.getInteraction().isInteractable()
-                    && !environment.getInteraction().isInteractedWith()) {
-                environment.getInteraction().interact();
-                return true;
+    protected boolean interactWithObject() {
+        final InteractableWorldObject worldObject = interactableWorldObjects.stream().filter(wb -> wb.clickedOn(cursorInWorld)).findFirst().orElse(null);
+        if (worldObject != null && worldObject.isWithinInteractionDistance(player.getPosition())) {
+            if (worldObject.isInteractable() && !worldObject.isInteractedWith()) {
+                worldObject.interact();
             }
         }
         return false;
@@ -564,6 +576,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             interior.enter();
         }
         return false;
+    }
+
+    /**
+     * Destroy a world object within this world. Removes box2d collision and object from list
+     *
+     * @param worldObject the object
+     */
+    public void destroyWorldObject(InteractableWorldObject worldObject) {
+        world.destroyBody(worldObject.getCollisionBody());
+        interactableWorldObjects.remove(worldObject);
     }
 
     @Override

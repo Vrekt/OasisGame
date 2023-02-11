@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.environment;
+package me.vrekt.oasis.world.obj;
 
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,28 +11,37 @@ import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.world.interaction.Interaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Represents an environment object that can be interacted with
+ * Represents an object within the world that may have special properties.
  */
-public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable {
+public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable {
 
-    private Interaction interaction;
+    // the type of this object
+    protected WorldObjectType type;
 
-    private List<ParticleEffect> effects;
-    private boolean playEffects = true;
+    // possible particle effects this object has
+    protected List<ParticleEffect> effects;
+    protected boolean playEffects = true;
 
-    private TextureRegion texture;
-    private Vector2 location;
+    // texture and location
+    protected TextureRegion texture;
+    protected final Vector2 location = new Vector2();
+    protected final Vector2 size = new Vector2();
+    protected Body body;
 
-    private Body body;
+    @Override
+    public WorldObjectType getType() {
+        return type;
+    }
 
-    public Environment() {
+    @Override
+    public void setType(WorldObjectType type) {
+        this.type = type;
     }
 
     @Override
@@ -60,8 +69,12 @@ public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable
 
     @Override
     public void setLocation(float x, float y) {
-        if (location == null) location = new Vector2();
         location.set(x, y);
+    }
+
+    @Override
+    public void setSize(float x, float y) {
+        size.set(x, y);
     }
 
     @Override
@@ -90,23 +103,8 @@ public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable
     }
 
     @Override
-    public void setInteraction(Interaction interaction) {
-        this.interaction = interaction;
-    }
-
-    @Override
-    public Interaction getInteraction() {
-        return interaction;
-    }
-
-    @Override
-    public boolean hasInteraction() {
-        return interaction != null;
-    }
-
-    @Override
-    public boolean clickedOn(Vector3 vector3) {
-        return interaction != null && interaction.clickedOn(vector3);
+    public boolean clickedOn(Vector3 clicked) {
+        return clicked.x > location.x && clicked.x < (location.x + size.x) && clicked.y > location.y && clicked.y < (location.y + size.y);
     }
 
     @Override
@@ -116,13 +114,12 @@ public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable
 
     @Override
     public void destroy() {
-        interaction.getWorld().removeEnvironment(this);
         this.dispose();
     }
 
     @Override
     public void dispose() {
-        interaction.getWorld().getWorld().destroyBody(body);
+        this.reset();
         Pools.free(this);
     }
 
@@ -130,7 +127,6 @@ public class Environment implements EnvironObject, ResourceLoader, Pool.Poolable
     public void reset() {
         body = null;
         texture = null;
-        location = null;
         if (effects != null) {
             effects.forEach(ParticleEffect::dispose);
             effects.clear();

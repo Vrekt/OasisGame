@@ -1,32 +1,28 @@
-package me.vrekt.oasis.world.interaction;
+package me.vrekt.oasis.world.obj.interaction;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Pool;
-import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.environment.Environment;
+import me.vrekt.oasis.world.obj.WorldObject;
 
 /**
- * Represents an interaction within the game
+ * Represents a {@link WorldObject} that can be interacted with
  */
-public class Interaction implements Interactable, Pool.Poolable, ResourceLoader {
+public class InteractableWorldObject extends WorldObject implements Interactable, ResourceLoader, Pool.Poolable {
 
+    // worldIn
     protected OasisWorld world;
+    protected WorldInteractionType interactionType;
 
-    // location of interaction
-    protected final Vector2 location = new Vector2();
+    // interaction location
     protected final Vector2 interaction = new Vector2();
-    protected float width, height;
-
-    protected Environment environment;
 
     // config
     protected boolean interactable, interactedWith;
     protected float updateDistance, interactionDistance;
 
-    public Interaction() {
+    public InteractableWorldObject() {
     }
 
     public OasisWorld getWorld() {
@@ -34,16 +30,21 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
     }
 
     @Override
-    public void initialize(OasisWorld world, float x, float y, float width, float height) {
-        this.world = world;
-        location.set(x, y);
-        this.width = width;
-        this.height = height;
+    public WorldInteractionType getInteractionType() {
+        return interactionType;
     }
 
     @Override
-    public boolean clickedOn(Vector3 clicked) {
-        return clicked.x > location.x && clicked.x < (location.x + width) && clicked.y > location.y && clicked.y < (location.y + height);
+    public void setInteractionType(WorldInteractionType type) {
+        this.interactionType = type;
+    }
+
+    @Override
+    public void initialize(OasisWorld world, float x, float y, float width, float height) {
+        this.world = world;
+        location.set(x, y);
+        size.set(width, height);
+        this.interactable = true;
     }
 
     @Override
@@ -73,13 +74,7 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
 
     @Override
     public void setSize(float width, float height) {
-        this.width = width;
-        this.height = height;
-    }
-
-    @Override
-    public void setRelatedEnvironment(Environment environment) {
-        this.environment = environment;
+        size.set(width, height);
     }
 
     @Override
@@ -91,16 +86,11 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
 
     @Override
     public void update() {
-        // check if moved, cancel interaction
+        // cancel current interaction if player moved.
         if (interaction.dst2(world.getLocalPlayer().getPosition()) >= 0.1f) {
             this.interactable = true;
             this.interactedWith = false;
         }
-    }
-
-    @Override
-    public void load(Asset asset) {
-
     }
 
     @Override
@@ -110,15 +100,14 @@ public class Interaction implements Interactable, Pool.Poolable, ResourceLoader 
 
     @Override
     public void reset() {
+        super.reset();
         location.set(0, 0);
+        size.set(0, 0);
         interaction.set(0, 0);
         world = null;
-        width = 0;
-        height = 0;
         updateDistance = 50;
         interactionDistance = 6;
         interactable = true;
         interactedWith = false;
     }
-
 }

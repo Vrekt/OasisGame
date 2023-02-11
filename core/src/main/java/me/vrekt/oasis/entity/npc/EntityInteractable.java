@@ -25,7 +25,7 @@ import me.vrekt.oasis.world.OasisWorld;
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityInteractable extends EntityTextured implements ResourceLoader, Renderable {
+public abstract class EntityInteractable extends EntityTextured implements ResourceLoader {
 
     // describes the view/renderable stuff
     protected final Vector3 view = new Vector3(0, 0, 0);
@@ -46,6 +46,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(true);
+        entity.add(new EntityDialogComponent());
         setPosition(position.x, position.y, true);
         setEntityName(name);
         getInstance().worldIn = worldIn;

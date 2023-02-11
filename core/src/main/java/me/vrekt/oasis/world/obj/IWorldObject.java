@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.environment;
+package me.vrekt.oasis.world.obj;
 
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -6,14 +6,17 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Disposable;
-import me.vrekt.oasis.world.interaction.Interaction;
 
 import java.util.Collection;
 
 /**
- * An environment object
+ * A world object
  */
-public interface EnvironObject extends Disposable {
+public interface IWorldObject extends Disposable {
+
+    WorldObjectType getType();
+
+    void setType(WorldObjectType type);
 
     /**
      * Render
@@ -37,6 +40,14 @@ public interface EnvironObject extends Disposable {
      * @param y y
      */
     void setLocation(float x, float y);
+
+    /**
+     * Set size
+     *
+     * @param x x
+     * @param y y
+     */
+    void setSize(float x, float y);
 
     /**
      * Texture
@@ -86,28 +97,13 @@ public interface EnvironObject extends Disposable {
     void setPlayEffects(boolean playEffects);
 
     /**
-     * Set interaction of this object
-     *
-     * @param interaction interaction
-     */
-    void setInteraction(Interaction interaction);
-
-    /**
-     * @return interaction
-     */
-    Interaction getInteraction();
-
-    /**
-     * @return {@code  true} if so
-     */
-    boolean hasInteraction();
-
-
-    /**
      * @param vector3 proj
      */
     boolean clickedOn(Vector3 vector3);
 
+    /**
+     * Destroy this object
+     */
     void destroy();
 
 }

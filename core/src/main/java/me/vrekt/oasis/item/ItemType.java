@@ -4,7 +4,7 @@ public enum ItemType {
     ;
 
     public enum Tools {
-        LUCID_HARVESTING_TOOL("lucid_harvesting_tool_icon");
+        LUCID_HARVESTING_TOOL("lucid_harvesting_tool_icon"), TUTORIAL_WAND("wand");
 
         private final String texture, icon;
 

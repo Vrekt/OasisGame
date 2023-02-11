@@ -1,22 +1,16 @@
-package me.vrekt.oasis.world.interaction;
+package me.vrekt.oasis.world.obj.interaction;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.environment.Environment;
 
 /**
  * Represents something that you can interact with.
  */
 public interface Interactable {
 
-    /**
-     * Check if this object was clicked on
-     *
-     * @param clicked the vector3 click
-     * @return {@code  true} if so
-     */
-    boolean clickedOn(Vector3 clicked);
+    WorldInteractionType getInteractionType();
+
+    void setInteractionType(WorldInteractionType type);
 
     /**
      * Check if this object is within update distance
@@ -61,16 +55,6 @@ public interface Interactable {
      * @param height h
      */
     void initialize(OasisWorld world, float x, float y, float width, float height);
-
-    /**
-     * Set size
-     *
-     * @param width  w
-     * @param height h
-     */
-    void setSize(float width, float height);
-
-    void setRelatedEnvironment(Environment environment);
 
     /**
      * Interact with this object

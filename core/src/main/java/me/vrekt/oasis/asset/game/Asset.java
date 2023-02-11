@@ -24,6 +24,8 @@ public final class Asset implements Disposable {
     private BitmapFont small, medium, large;
 
     private TextureAtlas atlasAssets;
+    private TextureAtlas spells;
+    private TextureAtlas assets2;
 
     public void load() {
         loadSkins();
@@ -31,6 +33,8 @@ public final class Asset implements Disposable {
         final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
         assetManager.setLoader(TiledMap.class, mapLoader);
         assetManager.load(ASSETS, TextureAtlas.class);
+        assetManager.load("spells.atlas", TextureAtlas.class);
+        assetManager.load("Assets2.atlas", TextureAtlas.class);
 
         loadFonts();
         defaultLibgdxSkin.add("large", large);
@@ -41,6 +45,16 @@ public final class Asset implements Disposable {
 
         assetManager.finishLoading();
         this.atlasAssets = assetManager.get(ASSETS);
+        this.spells = assetManager.get("spells.atlas");
+        this.assets2 = assetManager.get("Assets2.atlas");
+    }
+
+    public TextureAtlas getSpells() {
+        return spells;
+    }
+
+    public TextureAtlas getAssets2() {
+        return assets2;
     }
 
     /**

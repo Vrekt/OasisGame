@@ -229,7 +229,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         }
     }
 
-    public void draw(SpriteBatch batch, TextureRegion region) {
+    private void draw(SpriteBatch batch, TextureRegion region) {
         batch.draw(region, getInterpolated().x, getInterpolated().y, region.getRegionWidth() * getScaling(), region.getRegionHeight() * getScaling());
     }
 
