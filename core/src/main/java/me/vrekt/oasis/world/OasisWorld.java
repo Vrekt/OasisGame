@@ -60,7 +60,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
-    protected final Vector3 projection = new Vector3();
     protected final Vector3 cursorInWorld = new Vector3();
     protected final Vector3 cursorInScreen = new Vector3();
     protected boolean cursorChanged;
@@ -85,6 +84,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     // TODO: Better system for when we eventually have thousands of bodies possibly.
     protected final List<Body> collisionBodies = new ArrayList<>();
+    protected float updateTime, renderTime;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -345,6 +345,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void render(float delta) {
+        final long now = System.currentTimeMillis();
 
         // handle parent instance if in one
         if (player.getInstanceIn() != null) {
@@ -386,10 +387,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // end
         if (paused && hasFbo) fbo.end();
         if (paused && batch.isDrawing()) batch.end();
+
+        renderTime = System.currentTimeMillis() - now;
     }
 
     @Override
     public float update(float d) {
+        final long now = System.currentTimeMillis();
         float d1 = super.update(d);
 
         // update world cursor
@@ -426,7 +430,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             resetCursor();
         }
 
+        updateTime = System.currentTimeMillis() - now;
         return d1;
+    }
+
+    public float getUpdateTime() {
+        return updateTime;
+    }
+
+    public float getRenderTime() {
+        return renderTime;
     }
 
     private void setCursorInWorld(String cursorInWorld) {
@@ -532,50 +545,40 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     /**
      * Interact with an entity if they were clicked on.
      * Finds the first entity and does not allow multiple
-     *
-     * @return {@code  true} if an entity was clicked on
      */
-    protected boolean interactWithEntity() {
+    protected void interactWithEntity() {
         // find entity clicked on
-        final EntityInteractable closest = getNearbyEntities().keySet().stream().filter(entity -> entity.isMouseInEntityBounds(projection)).findFirst().orElse(null);
+        final EntityInteractable closest = getNearbyEntities().keySet().stream().filter(entity -> entity.isMouseInEntityBounds(cursorInWorld)).findFirst().orElse(null);
         if (closest != null && closest.isSpeakable() && !closest.isSpeakingTo()) {
             closest.setSpeakingTo(true);
 
             gui.showEntityDialog(closest);
             gui.hideHud();
-            return true;
         }
-        return false;
     }
 
     /**
      * Interact with the environment
-     *
-     * @return {@code  true} if interacted with the environment
      */
-    protected boolean interactWithObject() {
+    protected void interactWithObject() {
         final InteractableWorldObject worldObject = interactableWorldObjects.stream().filter(wb -> wb.clickedOn(cursorInWorld)).findFirst().orElse(null);
         if (worldObject != null && worldObject.isWithinInteractionDistance(player.getPosition())) {
             if (worldObject.isInteractable() && !worldObject.isInteractedWith()) {
                 worldObject.interact();
             }
         }
-        return false;
     }
 
     /**
      * Attempt to enter an interior
-     *
-     * @return the result
      */
-    protected boolean interactWithInterior() {
-        final Interior interior = interiors.values().stream().filter(e -> e.clickedOn(projection)).findFirst().orElse(null);
+    protected void interactWithInterior() {
+        final Interior interior = interiors.values().stream().filter(e -> e.clickedOn(cursorInWorld)).findFirst().orElse(null);
         if (interior != null
                 && interior.enterable()
                 && interior.isWithinEnteringDistance(player.getPosition())) {
             interior.enter();
         }
-        return false;
     }
 
     /**
@@ -605,8 +608,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        projection.set(screenX, screenY, 0);
-        renderer.getCamera().unproject(projection);
         return false;
     }
 

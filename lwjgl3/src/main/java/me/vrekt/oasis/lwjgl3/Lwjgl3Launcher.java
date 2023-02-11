@@ -18,7 +18,8 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.useOpenGL3(true,3,2);
+        configuration.useOpenGL3(true, 3, 2);
+        configuration.setResizable(false);
         return configuration;
     }
 }

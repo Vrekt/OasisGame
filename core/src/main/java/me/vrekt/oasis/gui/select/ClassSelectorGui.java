@@ -15,6 +15,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 
 import java.util.Locale;
@@ -100,6 +101,8 @@ public final class ClassSelectorGui extends Gui {
 
                     // advance state
                     mavia.advanceDialogStage("mavia_dialog_" + classType.getClassName().toLowerCase(Locale.ROOT));
+                    // show class icon to player hud
+                    ((HudGui) gui.getGui(GuiType.HUD)).setClassIcon(classType.getIcon());
 
                     // show dialog gui
                     gui.showEntityDialog(mavia);

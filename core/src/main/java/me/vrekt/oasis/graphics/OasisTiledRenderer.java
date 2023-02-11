@@ -106,7 +106,8 @@ public final class OasisTiledRenderer implements Disposable {
         // update animations and render map.
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
-        for (TiledMapTileLayer layer : layers) {
+
+        for (TiledMapTileLayer layer : new Array.ArrayIterator<>(layers)) {
             renderer.renderTileLayer(layer);
         }
     }
@@ -120,7 +121,7 @@ public final class OasisTiledRenderer implements Disposable {
     }
 
     /**
-     * Update camera position
+     * Clamps camera position so it doesn't scroll out of bounds
      */
     private void update() {
         final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolated().x, 1f);

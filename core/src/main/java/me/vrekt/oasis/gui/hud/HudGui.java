@@ -1,5 +1,6 @@
 package me.vrekt.oasis.gui.hud;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -18,14 +19,14 @@ import me.vrekt.oasis.item.Item;
  */
 public final class HudGui extends Gui {
 
-    private final Table rootTable, classSelectorTable, notificationTable;
+    private final Table rootTable, classSelectorTable, notificationTable, fpsTable;
     private final Table interactionTable;
     // rendering of hud inventory
     private final InventoryUiHandler inventoryRenderer;
 
     // amount of item collected + icon image of item
-    private final Label amountLabel;
-    private final Image iconImage;
+    private final Label amountLabel, fpsLabel;
+    private final Image iconImage, classImage;
 
     // last hint popped up
     private long lastHint;
@@ -34,11 +35,22 @@ public final class HudGui extends Gui {
         super(gui, asset);
         OasisPlayerSP player = gui.getGame().getPlayer();
 
+        fpsTable = new Table();
+        fpsTable.setVisible(true);
+        fpsTable.top().left();
+
+        // FPS Information
+        final Label.LabelStyle style = new Label.LabelStyle();
+        style.font = asset.getMedium();
+        style.fontColor = Color.WHITE;
+        fpsTable.add(fpsLabel = new Label("FPS: ", style));
+
         rootTable = new Table();
         rootTable.setVisible(true);
         rootTable.left();
 
         gui.createContainer(rootTable).bottom();
+        gui.createContainer(fpsTable).top().left();
 
         // the actual table that holds the inventory slots
         final Table inventory = new Table();
@@ -67,7 +79,7 @@ public final class HudGui extends Gui {
         notification.setBackground(new TextureRegionDrawable(asset.get("hint_dropdown")));
 
         notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY));
-        notification.add(iconImage = new Image()).padBottom(6).padTop(6).padRight(1);
+        notification.add(iconImage = new Image()).padBottom(6).padTop(6).padRight(2);
         notification.add(new Label("x", gui.getSkin(), "small", Color.DARK_GRAY));
         notification.add(amountLabel = new Label("1", gui.getSkin(), "medium", Color.DARK_GRAY));
         notificationTable.add(notification).size(256, 32);
@@ -77,7 +89,7 @@ public final class HudGui extends Gui {
         this.inventoryRenderer = new InventoryUiHandler(player.getInventory().getInventorySize(), player);
         this.inventoryRenderer.initialize(inventory, slot);
 
-        classSelectorTable.add(new Image(asset.get("nature_class"))).size(48, 48);
+        classSelectorTable.add(classImage = new Image(asset.get("nature_class"))).size(48, 48);
         rootTable.add(inventory).padBottom(8);
     }
 
@@ -87,6 +99,11 @@ public final class HudGui extends Gui {
             notificationTable.addAction(Actions.fadeOut(1f));
 
         inventoryRenderer.update();
+        fpsLabel.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
+    }
+
+    public void setClassIcon(String icon) {
+        classImage.setDrawable(new TextureRegionDrawable(asset.get(icon)));
     }
 
     /**
@@ -97,7 +114,6 @@ public final class HudGui extends Gui {
      */
     public void showItemCollected(Item item) {
         if (System.currentTimeMillis() - lastHint <= 2500) {
-            // prevent spamming and weird shit
             return;
         }
 
@@ -105,7 +121,7 @@ public final class HudGui extends Gui {
         notificationTable.getColor().a = 0;
         notificationTable.addAction(Actions.fadeIn(1f));
 
-        //   iconImage.setDrawable(new TextureRegionDrawable(item.getIcon()));
+        iconImage.setDrawable(new TextureRegionDrawable(item.getTexture()));
         amountLabel.setText("" + item.getAmount());
         lastHint = System.currentTimeMillis();
     }
