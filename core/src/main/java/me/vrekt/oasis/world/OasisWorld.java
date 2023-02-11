@@ -499,7 +499,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 worldObject.renderEffects(batch, delta);
             }
 
-            if (worldObject.isWithinUpdateDistance(player.getPosition()) && worldObject.isInteractedWith()) {
+            if (worldObject.isWithinUpdateDistance(player.getPosition())
+                    && worldObject.isInteractedWith()) {
                 worldObject.update();
             }
         }
@@ -548,8 +549,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     protected void interactWithEntity() {
         // find entity clicked on
-        final EntityInteractable closest = getNearbyEntities().keySet().stream().filter(entity -> entity.isMouseInEntityBounds(cursorInWorld)).findFirst().orElse(null);
-        if (closest != null && closest.isSpeakable() && !closest.isSpeakingTo()) {
+        final EntityInteractable closest = getNearbyEntities()
+                .keySet()
+                .stream()
+                .filter(entity -> entity.isMouseInEntityBounds(cursorInWorld))
+                .findFirst()
+                .orElse(null);
+
+        if (closest != null
+                && closest.isSpeakable()
+                && !closest.isSpeakingTo()) {
             closest.setSpeakingTo(true);
 
             gui.showEntityDialog(closest);
@@ -561,13 +570,27 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * Interact with the environment
      */
     protected void interactWithObject() {
-        final InteractableWorldObject worldObject = interactableWorldObjects.stream().filter(wb -> wb.clickedOn(cursorInWorld)).findFirst().orElse(null);
-        if (worldObject != null && worldObject.isWithinInteractionDistance(player.getPosition())) {
-            if (worldObject.isInteractable() && !worldObject.isInteractedWith()) {
+        // only check objects that are within our update distance
+        // TODO: Still needs optimization? I don't know if it stops at the first filter object
+        final InteractableWorldObject worldObject = interactableWorldObjects
+                .stream()
+                .filter(InteractableWorldObject::isWithinUpdateDistanceCache)
+                .filter(wb -> wb.clickedOn(cursorInWorld))
+                .findFirst()
+                .orElse(null);
+
+        if (worldObject != null
+                && worldObject.isWithinInteractionDistance(player.getPosition())
+                && worldObject.isInteractable()
+                && !worldObject.isInteractedWith()) {
+            if (worldObject.hasRequiredItem()) {
                 worldObject.interact();
+            } else {
+                gui.getHud().showMissingItemWarning();
             }
         }
     }
+
 
     /**
      * Attempt to enter an interior

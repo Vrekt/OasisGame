@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.tutorial;
 
+import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
@@ -18,6 +19,16 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     @Override
     public void update() {
         super.update();
+    }
+
+    @Override
+    public boolean hasRequiredItem() {
+        return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.class);
+    }
+
+    @Override
+    public boolean isInteractable() {
+        return super.isInteractable();
     }
 
     @Override

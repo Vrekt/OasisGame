@@ -21,6 +21,13 @@ public interface Interactable {
     boolean isWithinUpdateDistance(Vector2 other);
 
     /**
+     * Check if this object is within update distance (cache from {@code  isWithinUpdateDistance})
+     *
+     * @return {@code  true} if so
+     */
+    boolean isWithinUpdateDistanceCache();
+
+    /**
      * Check if this object is within interaction distance
      *
      * @param other position
@@ -37,6 +44,11 @@ public interface Interactable {
      * @return {@code  true} if interactable
      */
     boolean isInteractable();
+
+    /**
+     * @return {@code  true} if the player has the required item for this interaction
+     */
+    boolean hasRequiredItem();
 
     /**
      * Set this object interactable state

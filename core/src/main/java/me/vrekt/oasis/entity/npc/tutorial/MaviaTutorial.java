@@ -9,7 +9,6 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.utility.logging.Logging;
@@ -42,7 +41,7 @@ public final class MaviaTutorial extends EntityInteractable {
                         .getPlayer()
                         .getInventory()
                         .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
-                ((HudGui) game.getGui().getGui(GuiType.HUD)).showItemCollected(item);
+                game.getGui().getHud().showItemCollected(item);
             } else {
                 Logging.error(this, "Failed to give player their tutorial item.");
             }

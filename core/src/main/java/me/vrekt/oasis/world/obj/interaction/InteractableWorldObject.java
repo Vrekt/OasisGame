@@ -21,6 +21,7 @@ public class InteractableWorldObject extends WorldObject implements Interactable
     // config
     protected boolean interactable, interactedWith;
     protected float updateDistance, interactionDistance;
+    protected boolean withinUpdateDistance;
 
     public InteractableWorldObject() {
     }
@@ -49,7 +50,12 @@ public class InteractableWorldObject extends WorldObject implements Interactable
 
     @Override
     public boolean isWithinUpdateDistance(Vector2 other) {
-        return other.dst2(location) <= updateDistance;
+        return withinUpdateDistance = other.dst2(location) <= updateDistance;
+    }
+
+    @Override
+    public boolean isWithinUpdateDistanceCache() {
+        return withinUpdateDistance;
     }
 
     @Override
@@ -75,6 +81,11 @@ public class InteractableWorldObject extends WorldObject implements Interactable
     @Override
     public void setSize(float width, float height) {
         size.set(width, height);
+    }
+
+    @Override
+    public boolean hasRequiredItem() {
+        return true;
     }
 
     @Override

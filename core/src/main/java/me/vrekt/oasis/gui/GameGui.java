@@ -18,7 +18,6 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
-import me.vrekt.oasis.item.Item;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,22 +104,6 @@ public final class GameGui {
         showDialog();
     }
 
-    public void showItemCollected(Item item) {
-        ((HudGui) getGui(GuiType.HUD)).showItemCollected(item);
-    }
-
-    public void showInteractionHint() {
-        ((HudGui) getGui(GuiType.HUD)).showInteractionHint();
-    }
-
-    public void hideInteractHint() {
-        ((HudGui) getGui(GuiType.HUD)).hideInteractionHint();
-    }
-
-    public boolean isInteractionHintShowing() {
-        return ((HudGui) getGui(GuiType.HUD)).isInteractionHintShowing();
-    }
-
     public void showGui(GuiType type) {
         guis.get(type).showGui();
     }
@@ -154,6 +137,10 @@ public final class GameGui {
         hideGui(GuiType.HUD);
     }
 
+    public HudGui getHud() {
+        return (HudGui) guis.get(GuiType.HUD);
+    }
+
     /**
      * Render all active GUI elements.
      */
@@ -173,25 +160,6 @@ public final class GameGui {
         stage.getCamera().update();
 
         for (Gui gui : guis.values()) gui.resize(width, height);
-    }
-
-    /**
-     * Update dialog rendering
-     *
-     * @param interactingWith the entity interacting with
-     * @return if the gui has been hidden
-     */
-    public boolean updateDialogState(EntityInteractable interactingWith) {
-        if (getGui(GuiType.DIALOG).isVisible()
-                && interactingWith != null
-                && interactingWith.isSpeakingTo()
-                && !interactingWith.isSpeakable()) {
-
-            hideGui(GuiType.DIALOG);
-            interactingWith.setSpeakingTo(false);
-            return true;
-        }
-        return false;
     }
 
     /**

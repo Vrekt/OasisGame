@@ -1,0 +1,34 @@
+
+Assets2.png
+size: 512, 64
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+wand
+  rotate: false
+  xy: 2, 2
+  size: 17, 16
+  orig: 17, 16
+  offset: 0, 0
+  index: -1
+wand2
+  rotate: false
+  xy: 341, 18
+  size: 15, 36
+  orig: 15, 36
+  offset: 0, 0
+  index: -1
+wand3
+  rotate: false
+  xy: 304, 9
+  size: 35, 45
+  orig: 35, 45
+  offset: 0, 0
+  index: -1
+warning_display
+  rotate: false
+  xy: 2, 20
+  size: 300, 34
+  orig: 300, 34
+  offset: 0, 0
+  index: -1
