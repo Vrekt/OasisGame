@@ -14,13 +14,23 @@ public final class Interior extends Instanced {
     private final Rectangle bounds;
     private boolean enterable = true;
     private float distance = 2.5f;
+    private final String cursor;
 
-    public Interior(OasisWorld world, String name, Rectangle bounds) {
+    public Interior(OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(world.getLocalPlayer(), world.getWorld(), world, name);
+        this.cursor = cursor;
         this.bounds = bounds;
     }
 
+    public String getCursor() {
+        return cursor;
+    }
+
     public boolean clickedOn(Vector3 vector3) {
+        return bounds.contains(vector3.x, vector3.y);
+    }
+
+    public boolean isMouseWithinBounds(Vector3 vector3) {
         return bounds.contains(vector3.x, vector3.y);
     }
 

@@ -311,7 +311,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
             final String interiorName = object.getProperties().get("interior_name", null, String.class);
             if (interiorName != null && enterable) {
-                this.interiors.put(interiorName, new Interior(this, interiorName, rectangle));
+                this.interiors.put(interiorName, new Interior(this, interiorName, object.getProperties().get("cursor", String.class), rectangle));
             }
         });
 
@@ -414,6 +414,18 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
+        boolean hasInterior = true;
+        for (Interior interior : interiors.values()) {
+            if (interior.isMouseWithinBounds(cursorInWorld)) {
+                if (!cursorChanged) {
+                    setCursorInWorld(interior.getCursor());
+                }
+                break;
+            } else {
+                hasInterior = false;
+            }
+        }
+
         // check for environment objects
         boolean hasObj = false;
         if (!hasEntity) {
@@ -426,7 +438,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
-        if (!hasEntity && !hasObj && cursorChanged) {
+        if (!hasEntity && !hasObj && !hasInterior && cursorChanged) {
             resetCursor();
         }
 
@@ -596,7 +608,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * Attempt to enter an interior
      */
     protected void interactWithInterior() {
-        final Interior interior = interiors.values().stream().filter(e -> e.clickedOn(cursorInWorld)).findFirst().orElse(null);
+        final Interior interior = interiors
+                .values()
+                .stream()
+                .filter(e -> e.clickedOn(cursorInWorld))
+                .findFirst()
+                .orElse(null);
+
         if (interior != null
                 && interior.enterable()
                 && interior.isWithinEnteringDistance(player.getPosition())) {
