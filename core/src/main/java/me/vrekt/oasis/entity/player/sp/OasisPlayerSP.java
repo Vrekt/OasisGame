@@ -24,6 +24,9 @@ import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Renderable;
+import me.vrekt.oasis.questing.PlayerQuestManager;
+import me.vrekt.oasis.questing.quests.QuestType;
+import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.Instanced;
@@ -46,6 +49,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private boolean isInInstance;
     private Instanced instanceIn;
+    private final PlayerQuestManager questManager;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -53,12 +57,16 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
         setEntityName(name);
         setMoveSpeed(6.0f);
-        setFixedRotation(false);
         setHasMoved(true);
+        setFixedRotation(true);
         setConfig(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRatesInMs(0, 0);
 
         this.inventory = new PlayerInventory(this);
+
+        // starting quest, later this won't be added here but instead on new game.
+        this.questManager = new PlayerQuestManager();
+        questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
     }
 
     public boolean isInInstance() {
@@ -83,6 +91,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public PlayerQuestManager getQuestManager() {
+        return questManager;
     }
 
     public void setClassType(ClassType classType) {

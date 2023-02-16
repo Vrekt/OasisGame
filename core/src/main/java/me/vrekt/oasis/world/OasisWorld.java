@@ -16,12 +16,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
@@ -32,6 +34,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -81,9 +84,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
     protected final Map<String, Interior> interiors = new HashMap<>();
-
-    // TODO: Better system for when we eventually have thousands of bodies possibly.
-    protected final List<Body> collisionBodies = new ArrayList<>();
     protected float updateTime, renderTime;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
@@ -109,13 +109,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.renderer.setTiledMap(map, spawn.x, spawn.y);
     }
 
-    public void addCollisionBody(Body body) {
-        collisionBodies.add(body);
-    }
-
     public void clearCollisionBodies() {
-        for (Body collisionBody : collisionBodies) {
-            world.destroyBody(collisionBody);
+        final Array<Body> bodies = new Array<>();
+        world.getBodies(bodies);
+
+        for (int i = 0; i < bodies.size; i++) {
+            if (!world.isLocked())
+                world.destroyBody(bodies.get(i));
         }
     }
 
@@ -618,6 +618,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (interior != null
                 && interior.enterable()
                 && interior.isWithinEnteringDistance(player.getPosition())) {
+            this.resetCursor();
             interior.enter();
         }
     }
@@ -634,6 +635,14 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean keyDown(int keycode) {
+        if (keycode == OasisKeybindings.QUEST_BOOK_KEY) {
+            if(gui.isGuiVisible(GuiType.QUEST)) {
+                gui.hideGui(GuiType.QUEST);
+            } else {
+                gui.showGui(GuiType.QUEST);
+            }
+            return true;
+        }
         return false;
     }
 

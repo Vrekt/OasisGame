@@ -113,7 +113,7 @@ public final class CollisionShapeCreator {
         final Vector2 center = new Vector2(rectangle.x + rectangle.width / 2f, rectangle.y + rectangle.height / 2f);
         shape.setAsBox(rectangle.width / 2, rectangle.height / 2, center, 0.0f);
 
-        final Body body = bw.createBody(STATIC_BODY);
+        final Body body = bw.createBody(new BodyDef());
         body.createFixture(shape, 1.0f);
         shape.dispose();
         return body;

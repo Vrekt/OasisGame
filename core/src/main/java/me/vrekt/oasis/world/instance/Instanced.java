@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.LunarWorld;
@@ -42,6 +43,8 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
     protected TextureRegion fboTexture;
     protected boolean paused, hasFbo;
 
+    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+
     public Instanced(OasisPlayerSP player, World world, OasisWorld worldIn, String mapName) {
         super(player, world);
         this.worldIn = worldIn;
@@ -49,6 +52,12 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         this.batch = worldIn.getGame().getBatch();
         this.renderer = worldIn.getGame().getRenderer();
         this.gameGui = worldIn.getGame().getGui();
+
+        getConfiguration().handlePhysics = true;
+        getConfiguration().updateEngine = true;
+        getConfiguration().updateEntities = true;
+        getConfiguration().updateNetworkPlayers = true;
+        getConfiguration().updatePlayer = true;
 
         configuration.stepTime = 1 / 240f;
     }
@@ -119,6 +128,9 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         player.render(batch, delta);
 
         batch.end();
+
+        debugRenderer.render(world, renderer.getCamera().combined);
+
         // render gui
         gameGui.applyStageViewport();
         gameGui.render();
@@ -129,7 +141,6 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
     }
 
     public void loadInstance(TiledMap map, float worldScale) {
-
         // destroy worldIn collisions.
         worldIn.clearCollisionBodies();
 
@@ -142,7 +153,6 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         if (player.isInWorld()) {
             Logging.info(this, "Removing local player from world.");
             player.removeEntityInWorld(player.getWorldIn());
-            player.setGameWorldIn(null);
         }
 
         // initialize player in this world.

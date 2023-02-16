@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.rafaskoberg.gdx.typinglabel.TypingLabel;
+import com.github.tommyettinger.textra.TypingLabel;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
@@ -44,7 +44,7 @@ public final class ClassSelectorGui extends Gui {
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
         final Table name = new Table();
-        name.add(new Label("Pick A Class", gui.getSkin(), "medium", Color.BLACK));
+        name.add(new Label("Pick A Class", gui.getSkin(), "medium", Color.WHITE));
 
         final Table optionsTable = new Table();
         Table optionsGroup = new Table();
@@ -65,7 +65,7 @@ public final class ClassSelectorGui extends Gui {
         entity.add(this.classImage = new Image(asset.get("nature_class_icon"))).size(48, 48).left();
         table.add(entity).padLeft(16);
 
-        table.add(this.classDescription = new TypingLabel(ClassType.NATURE.getDescription(), gui.getSkin(), "medium", Color.BLACK))
+        table.add(this.classDescription = new TypingLabel(ClassType.NATURE.getDescription(), new Label.LabelStyle(asset.getMedium(), Color.WHITE)))
                 .width(448).padTop(16).padBottom(16).padRight(8).padLeft(8);
         this.classDescription.setWrap(true);
 

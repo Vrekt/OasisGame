@@ -14,7 +14,7 @@ public final class LucidTreeFruitItem extends Item {
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get("lucid_tree_fruit");
+        this.texture = asset.get("lucid_fruit");
     }
 
 }

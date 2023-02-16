@@ -1,7 +1,6 @@
 package me.vrekt.oasis.entity.player.spells.test;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
@@ -30,10 +29,10 @@ public final class PlayerSpellTest extends PlayerSpell implements ResourceLoader
     @Override
     public void load(Asset asset) {
         for (int i = 1; i < 8; i++) {
-            final TextureRegion region = asset.getSpells().findRegion(i + "");
-            if (region != null) {
-                putRegion(i + "", region);
-            }
+          //  final TextureRegion region = asset.getSpells().findRegion(i + "");
+        //    if (region != null) {
+       //         putRegion(i + "", region);
+       //     }
         }
 
         currentRegionState = getRegion(1 + "");

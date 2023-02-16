@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.tutorial;
 
+import me.vrekt.oasis.item.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -35,7 +36,9 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     public void interact() {
         super.interact();
 
-        // TODO: Animations
+        // give the player their item
+        world.getLocalPlayer().getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
+
         this.interactable = false;
         this.interactedWith = false;
 

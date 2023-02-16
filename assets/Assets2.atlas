@@ -11,16 +11,23 @@ door_icon
   orig: 14, 21
   offset: 0, 0
   index: -1
+lucid_fruit
+  rotate: false
+  xy: 341, 27
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 wand
   rotate: false
-  xy: 358, 43
+  xy: 392, 43
   size: 17, 16
   orig: 17, 16
   offset: 0, 0
   index: -1
 wand2
   rotate: false
-  xy: 341, 23
+  xy: 375, 23
   size: 15, 36
   orig: 15, 36
   offset: 0, 0

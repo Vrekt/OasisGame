@@ -10,7 +10,7 @@ import me.vrekt.oasis.asset.game.Asset;
  */
 public class Item implements Pool.Poolable {
 
-    protected String itemName;
+    protected String itemName, textureName;
     protected TextureRegion texture;
 
     // amount of this item player has

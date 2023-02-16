@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.kotcrab.vis.ui.VisUI;
 import gdx.lunar.Lunar;
 import gdx.lunar.LunarClientServer;
 import gdx.lunar.network.types.PlayerConnectionHandler;
@@ -16,7 +17,7 @@ import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.network.OasisLocalServer;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
-import me.vrekt.oasis.ui.main.OasisMainMenu;
+import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
@@ -89,7 +90,10 @@ public final class OasisGame extends Game {
         asset.load();
 
         final OasisLoadingScreen screen = new OasisLoadingScreen(this);
-        final OasisMainMenu mainMenu = new OasisMainMenu(this);
+
+
+        VisUI.load();
+
 
         // load base assets
         player = new OasisPlayerSP(this, "Player" + RandomUtils.nextInt(0, 999));
@@ -121,14 +125,18 @@ public final class OasisGame extends Game {
         clientServer.connect().join();
 
         if (clientServer.getConnection() == null) {
+            Logging.info(this, "error");
             throw new UnsupportedOperationException("Local server not started yet.");
         }
+
+        Logging.info(this, "Made it past join connection");
 
         final PlayerConnectionHandler connection = (PlayerConnectionHandler) clientServer.getConnection();
         player.setConnectionHandler(connection);
 
         // request to join local tutorial world.
         connection.joinWorld("TutorialWorld", player.getName());
+        Logging.info(this, "join world");
     }
 
     public void executeMain(Runnable action) {

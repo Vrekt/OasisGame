@@ -53,7 +53,7 @@ public final class HudGui extends Gui {
         warningTable.bottom().padBottom(16);
 
         final Table warning = new Table();
-        warning.setBackground(new TextureRegionDrawable(asset.getAssets2().findRegion("warning_display")));
+        warning.setBackground(new TextureRegionDrawable(asset.get("warning_display")));
         warning.add(new Label("Missing required item!", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).padLeft(28);
         warningTable.add(warning);
 

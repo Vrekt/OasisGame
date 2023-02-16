@@ -5,13 +5,16 @@ import me.vrekt.oasis.item.Item;
 
 public final class TutorialWand extends Item {
 
+    public static final String TEXTURE = "wand2";
+    public static final String NAME = "Tutorial Wand";
+
     public TutorialWand() {
         super("Arcane Wand");
     }
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.getAssets2().findRegion("wand2");
+        this.texture = asset.get("wand2");
     }
 
 }

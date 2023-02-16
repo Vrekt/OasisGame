@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.rafaskoberg.gdx.typinglabel.TypingLabel;
+import com.github.tommyettinger.textra.TypingLabel;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.GameGui;
@@ -40,12 +40,12 @@ public final class DialogGui extends Gui {
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
         final Table name = new Table();
-        name.add(this.entityNameLabel = new TypingLabel("", gui.getSkin(), "medium", Color.BLACK));
+        name.add(this.entityNameLabel = new TypingLabel("", new Label.LabelStyle(asset.getMedium(), Color.BLACK)));
 
         final Table optionsTable = new Table();
         this.optionsGroup = new Table();
 
-        optionsTable.add(name).padBottom(2f);
+        optionsTable.add(name).padBottom(12f);
         optionsTable.row();
         optionsTable.add(optionsGroup);
 
@@ -61,7 +61,7 @@ public final class DialogGui extends Gui {
         entity.add(this.entityImage = new Image()).left();
         table.add(entity).padLeft(16);
 
-        table.add(this.dialogTitle = new TypingLabel("DialogTitle", gui.getSkin(), "medium", Color.BLACK)).width(448).padTop(16).padBottom(16).padRight(8).padLeft(8);
+        table.add(this.dialogTitle = new TypingLabel("DialogTitle", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).width(448).padTop(16).padBottom(16).padRight(8).padLeft(8);
         this.dialogTitle.setWrap(true);
 
         rootTable.add(table);
