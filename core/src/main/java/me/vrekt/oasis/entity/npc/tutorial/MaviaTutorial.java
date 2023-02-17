@@ -11,6 +11,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
+import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 
@@ -34,6 +35,9 @@ public final class MaviaTutorial extends EntityInteractable {
             setSpeakingTo(false);
             speakable = false;
 
+            // unlock quest, obj1: speak obj2: player class completed both
+            player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
+            player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
             if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
                 // give the player the harvesting tool.
                 game.getGui().showHud();

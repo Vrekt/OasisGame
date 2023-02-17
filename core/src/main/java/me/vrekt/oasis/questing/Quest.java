@@ -2,7 +2,6 @@ package me.vrekt.oasis.questing;
 
 import me.vrekt.oasis.item.ItemRegistry;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 /**
@@ -13,9 +12,11 @@ public abstract class Quest {
     // name of this quest and description
     protected final String name, description;
     // quest objectives
-    protected final LinkedHashMap<String, Boolean> objectives = new LinkedHashMap<>();
+    protected final LinkedList<QuestObjective> objectives = new LinkedList<>();
     protected final LinkedList<ItemRegistry.Item> itemsRequired = new LinkedList<>();
     protected final LinkedList<ItemRegistry.Item> rewards = new LinkedList<>();
+
+    protected int currentObjectiveStep = 0;
 
     public Quest(String name, String description) {
         this.name = name;
@@ -30,6 +31,12 @@ public abstract class Quest {
         return description;
     }
 
+    public void updateQuestObjectiveAndUnlockNext() {
+        objectives.get(currentObjectiveStep).setCompleted(true);
+        currentObjectiveStep++;
+        objectives.get(currentObjectiveStep).setUnlocked(true);
+    }
+
     public LinkedList<ItemRegistry.Item> getItemsRequired() {
         return itemsRequired;
     }
@@ -38,7 +45,7 @@ public abstract class Quest {
         return rewards;
     }
 
-    public LinkedHashMap<String, Boolean> getObjectives() {
+    public LinkedList<QuestObjective> getObjectives() {
         return objectives;
     }
 }
