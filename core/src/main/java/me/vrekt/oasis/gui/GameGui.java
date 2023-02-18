@@ -17,6 +17,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
+import me.vrekt.oasis.gui.inventory.InventoryGui;
 import me.vrekt.oasis.gui.quest.QuestingGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
 
@@ -64,6 +65,7 @@ public final class GameGui {
         guis.put(GuiType.CLASS, new ClassSelectorGui(this, asset));
         guis.put(GuiType.HUD, new HudGui(this, asset));
         guis.put(GuiType.QUEST, new QuestingGui(this, asset));
+        guis.put(GuiType.INVENTORY, new InventoryGui(this, asset));
     }
 
     public InputMultiplexer getMultiplexer() {

@@ -10,6 +10,7 @@ public final class TutorialWand extends Item {
 
     public TutorialWand() {
         super("Arcane Wand");
+        setDescription("A tutorial wand for Tutorial Island.");
     }
 
     @Override

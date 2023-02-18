@@ -13,6 +13,7 @@ public final class LucidTreeHarvestingToolItem extends Item {
 
     public LucidTreeHarvestingToolItem() {
         super("Lucid Harvester");
+        setDescription("Allows you to cut down Lucid trees.");
     }
 
     @Override

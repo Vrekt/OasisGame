@@ -10,7 +10,7 @@ import me.vrekt.oasis.asset.game.Asset;
  */
 public class Item implements Pool.Poolable {
 
-    protected String itemName, textureName;
+    protected String itemName, textureName, description;
     protected TextureRegion texture;
 
     // amount of this item player has
@@ -41,6 +41,14 @@ public class Item implements Pool.Poolable {
 
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

@@ -13,13 +13,13 @@ import java.util.stream.IntStream;
 /**
  * Manages rendering the players hud inventory or both.
  */
-public final class InventoryUiHandler {
+public final class HudInventoryHandler {
 
     private final OasisPlayerSP player;
     private final InventoryUiSlot[] slots;
     private final int size;
 
-    public InventoryUiHandler(int size, OasisPlayerSP player) {
+    public HudInventoryHandler(int size, OasisPlayerSP player) {
         slots = new InventoryUiSlot[size];
         for (int i = 0; i < slots.length; i++) {
             slots[i] = new InventoryUiSlot();
@@ -50,7 +50,6 @@ public final class InventoryUiHandler {
                     final Label label = slots[i].itemName;
                     label.setStyle(initializeLabelStyle());
                     label.setVisible(false);
-
 
                     stack.add(image);
 
