@@ -39,6 +39,10 @@ public abstract class Gui extends VisWindow {
 
     }
 
+    public void draw() {
+
+    }
+
     /**
      * Resize the element
      */

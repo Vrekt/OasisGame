@@ -9,7 +9,6 @@ import me.vrekt.oasis.questing.QuestObjective;
  */
 public final class TutorialIslandQuest extends Quest {
 
-
     public TutorialIslandQuest() {
         super("Tutorial Island", "Finish tutorial island with the help of [/][GRAY]Mavia.");
         this.objectives.add(new QuestObjective("Speak with Mavia", true));

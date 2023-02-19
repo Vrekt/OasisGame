@@ -86,11 +86,8 @@ public final class InventoryGui extends Gui {
 
     @Override
     public void update() {
-        stage.getViewport().apply();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
         stage.getCamera().update();
-        stage.draw();
-
 
         // update ui based on player inventory status
         player.getInventory().getSlots().forEach((slot, item) -> {
@@ -102,6 +99,12 @@ public final class InventoryGui extends Gui {
                 ui.setDescription(item.getItem().getDescription());
             }
         });
+    }
+
+    @Override
+    public void draw() {
+        stage.getViewport().apply();
+        stage.draw();
     }
 
     @Override

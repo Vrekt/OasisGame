@@ -364,7 +364,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         } else if (paused) {
             // draw fbo.
 
-            gui.applyStageViewport();
+            gui.getStage().getViewport().apply();
             batch.setProjectionMatrix(gui.getCamera().combined);
             batch.begin();
 
@@ -527,11 +527,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         player.render(batch, delta);
     }
 
+    /**
+     * End world rendering and render player UIs
+     */
     public void endRender() {
         batch.end();
-
-        // render gui
-        gui.applyStageViewport();
         gui.render();
     }
 

@@ -31,20 +31,33 @@ public abstract class Quest {
         return description;
     }
 
+    /**
+     * Update the current quest objective and then unlock the next steps
+     */
     public void updateQuestObjectiveAndUnlockNext() {
         objectives.get(currentObjectiveStep).setCompleted(true);
         currentObjectiveStep++;
+        if (currentObjectiveStep >= objectives.size()) return;
         objectives.get(currentObjectiveStep).setUnlocked(true);
     }
 
+    /**
+     * @return {@link  me.vrekt.oasis.item.ItemRegistry.Item} basic items that are required to do this quest.
+     */
     public LinkedList<ItemRegistry.Item> getItemsRequired() {
         return itemsRequired;
     }
 
+    /**
+     * @return {@link  me.vrekt.oasis.item.ItemRegistry.Item} basic items that could be rewards.
+     */
     public LinkedList<ItemRegistry.Item> getRewards() {
         return rewards;
     }
 
+    /**
+     * @return all quest objectives for this quest
+     */
     public LinkedList<QuestObjective> getObjectives() {
         return objectives;
     }

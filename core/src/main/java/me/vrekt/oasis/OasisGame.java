@@ -88,12 +88,9 @@ public final class OasisGame extends Game {
 
         asset = new Asset();
         asset.load();
-
-        final OasisLoadingScreen screen = new OasisLoadingScreen(this);
-
-
         VisUI.load();
 
+        final OasisLoadingScreen screen = new OasisLoadingScreen(this);
 
         // load base assets
         player = new OasisPlayerSP(this, "Player" + RandomUtils.nextInt(0, 999));
@@ -129,14 +126,11 @@ public final class OasisGame extends Game {
             throw new UnsupportedOperationException("Local server not started yet.");
         }
 
-        Logging.info(this, "Made it past join connection");
-
         final PlayerConnectionHandler connection = (PlayerConnectionHandler) clientServer.getConnection();
         player.setConnectionHandler(connection);
 
         // request to join local tutorial world.
         connection.joinWorld("TutorialWorld", player.getName());
-        Logging.info(this, "join world");
     }
 
     public void executeMain(Runnable action) {

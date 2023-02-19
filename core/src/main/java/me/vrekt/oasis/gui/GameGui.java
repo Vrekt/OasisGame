@@ -100,10 +100,6 @@ public final class GameGui {
         return stage;
     }
 
-    public void applyStageViewport() {
-        stage.getViewport().apply();
-    }
-
     /**
      * Show dialog for an entity
      *
@@ -161,8 +157,10 @@ public final class GameGui {
         stage.getCamera().update();
 
         for (Gui gui : guis.values()) gui.update();
-
         stage.draw();
+
+        // draw VisUIs
+        for (Gui gui : guis.values()) gui.draw();
     }
 
     public void resize(int width, int height) {

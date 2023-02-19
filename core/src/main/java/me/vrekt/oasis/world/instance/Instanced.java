@@ -75,7 +75,7 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         } else if (paused) {
             // draw fbo.
 
-            gameGui.applyStageViewport();
+            gameGui.getStage().getViewport().apply();
             batch.setProjectionMatrix(worldIn.getGame().getGui().getCamera().combined);
             batch.begin();
 
@@ -132,7 +132,6 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         debugRenderer.render(world, renderer.getCamera().combined);
 
         // render gui
-        gameGui.applyStageViewport();
         gameGui.render();
     }
 

@@ -221,9 +221,13 @@ public final class QuestingGui extends Gui {
 
     @Override
     public void update() {
-        stage.getViewport().apply();
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
         stage.getCamera().update();
+    }
+
+    @Override
+    public void draw() {
+        stage.getViewport().apply();
         stage.draw();
     }
 

@@ -17,22 +17,45 @@ public final class QuestObjective {
         this.unlocked = unlocked;
     }
 
+    /**
+     * @return {@code  true} if this objective is completed.
+     */
     public boolean isCompleted() {
         return completed;
     }
 
+    /**
+     * Set the status of this objective
+     *
+     * @param completed completed or not
+     */
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
 
+    /**
+     * If this objective has been unlocked yet. (required steps)
+     *
+     * @return {@code  true} if so
+     */
     public boolean isUnlocked() {
         return unlocked;
     }
 
+    /**
+     * Unlock this objective to be shown
+     *
+     * @param unlocked unlocked
+     */
     public void setUnlocked(boolean unlocked) {
         this.unlocked = unlocked;
     }
 
+    /**
+     * Steps and description of what to do
+     *
+     * @return the description
+     */
     public String getDescription() {
         return description;
     }
