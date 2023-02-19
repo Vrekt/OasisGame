@@ -38,7 +38,7 @@ public final class HudGui extends Gui {
         OasisPlayerSP player = gui.getGame().getPlayer();
 
         rootTable = new Table();
-        rootTable.setVisible(false);
+        rootTable.setVisible(true);
         rootTable.left();
 
         // info: FPS
@@ -152,14 +152,14 @@ public final class HudGui extends Gui {
     }
 
     @Override
-    public void showGui() {
+    public void show() {
         rootTable.setVisible(true);
         classIconTable.setVisible(true);
         isShowing = true;
     }
 
     @Override
-    public void hideGui() {
+    public void hide() {
         rootTable.setVisible(false);
         classIconTable.setVisible(false);
         warningTable.setVisible(false);

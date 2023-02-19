@@ -1,13 +1,12 @@
 package me.vrekt.oasis.gui;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.kotcrab.vis.ui.widget.VisWindow;
 import me.vrekt.oasis.asset.game.Asset;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Represents a basic gui element.
+ * A base for all new gui types
  */
 public abstract class Gui extends VisWindow {
 
@@ -15,31 +14,22 @@ public abstract class Gui extends VisWindow {
     protected final Asset asset;
     protected final Skin skin;
 
-    protected final GlyphLayout layout;
-    protected final BitmapFont romulusSmall, romulusBig;
-
     protected boolean isShowing;
 
-    public Gui(GameGui gui, Asset asset) {
-        super("test");
+    public Gui(GameGui gui, Asset asset, String windowTitle) {
+        super(windowTitle);
         this.gui = gui;
 
         this.asset = asset;
         this.skin = gui.getSkin();
-        this.layout = gui.getLayout();
-        this.romulusSmall = gui.getMedium();
-        this.romulusBig = gui.getLarge();
     }
 
-    public Gui(GameGui gui, Asset asset, String title) {
-        super(title);
+    public Gui(GameGui gui, Asset asset) {
+        super(StringUtils.EMPTY);
         this.gui = gui;
 
         this.asset = asset;
         this.skin = gui.getSkin();
-        this.layout = gui.getLayout();
-        this.romulusSmall = gui.getMedium();
-        this.romulusBig = gui.getLarge();
     }
 
     /**
@@ -59,21 +49,21 @@ public abstract class Gui extends VisWindow {
     /**
      * Show this GUI element
      */
-    public void showGui() {
+    public void show() {
         isShowing = true;
     }
 
     /**
      * Hide this GUI element
      */
-    public void hideGui() {
+    public void hide() {
         isShowing = false;
     }
 
     /**
      * @return if this element is visible.
      */
-    public boolean isVisible() {
+    public boolean isGuiVisible() {
         return isShowing;
     }
 }

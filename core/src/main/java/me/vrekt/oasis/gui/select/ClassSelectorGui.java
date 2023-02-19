@@ -81,7 +81,7 @@ public final class ClassSelectorGui extends Gui {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 // set player class type to current one
-                hideGui();
+                hide();
 
                 // just prevent general stuff, usually player is 100% in tutorial world
                 gui.getGame().getPlayer().setClassType(classType);
@@ -167,7 +167,7 @@ public final class ClassSelectorGui extends Gui {
     }
 
     @Override
-    public void showGui() {
+    public void show() {
         gui.hideGui(GuiType.HUD);
 
         rootTable.setVisible(true);
@@ -175,7 +175,7 @@ public final class ClassSelectorGui extends Gui {
     }
 
     @Override
-    public void hideGui() {
+    public void hide() {
         rootTable.setVisible(false);
         isShowing = false;
     }

@@ -10,7 +10,11 @@ import me.vrekt.oasis.asset.game.Asset;
  */
 public class Item implements Pool.Poolable {
 
-    protected String itemName, textureName, description;
+    // the item ID of this item
+    protected long itemId;
+
+    protected String itemName;
+    protected String description;
     protected TextureRegion texture;
 
     // amount of this item player has
@@ -51,10 +55,20 @@ public class Item implements Pool.Poolable {
         this.description = description;
     }
 
+    public long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(long itemId) {
+        this.itemId = itemId;
+    }
+
     @Override
     public void reset() {
         texture = null;
         itemName = null;
+        description = null;
+        itemId = -1;
         amount = 0;
     }
 }

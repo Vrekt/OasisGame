@@ -14,7 +14,7 @@ public abstract class Entity extends LunarEntity implements Renderable {
 
     // describes the view/renderable stuff
     protected final Vector3 view = new Vector3(0, 0, 0);
-    protected boolean inView;
+    protected boolean inView, withinUpdateDistance, isNearby;
 
     public Entity(com.badlogic.ashley.core.Entity entity, boolean initializeComponents) {
         super(entity, initializeComponents);
@@ -32,6 +32,22 @@ public abstract class Entity extends LunarEntity implements Renderable {
         return null;
     }
 
+    public boolean isWithinUpdateDistance() {
+        return withinUpdateDistance;
+    }
+
+    public void setWithinUpdateDistance(boolean withinUpdateDistance) {
+        this.withinUpdateDistance = withinUpdateDistance;
+    }
+
+    public boolean isNearby() {
+        return isNearby;
+    }
+
+    public void setNearby(boolean nearby) {
+        isNearby = nearby;
+    }
+
     public void setDistanceToPlayer(float distance) {
         entity.getComponent(EntityDialogComponent.class).distanceFromPlayer = distance;
     }
@@ -42,7 +58,6 @@ public abstract class Entity extends LunarEntity implements Renderable {
 
     @Override
     public boolean isInView(Camera camera) {
-        inView = Renderable.isInViewExtended(view, getX(), getY(), camera.frustum);
-        return inView;
+        return inView = camera.frustum.pointInFrustum(getX(), getY(), 0.0f);
     }
 }

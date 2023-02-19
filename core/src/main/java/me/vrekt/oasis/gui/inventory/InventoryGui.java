@@ -1,5 +1,6 @@
 package me.vrekt.oasis.gui.inventory;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,6 +17,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
+import me.vrekt.oasis.gui.GuiType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -41,6 +43,7 @@ public final class InventoryGui extends Gui {
         stage = new Stage();
         rootTable = new VisTable(true);
         rootTable.setFillParent(true);
+        rootTable.setVisible(false);
         TableUtils.setSpacingDefaults(rootTable);
 
         rootTable.setBackground(new TextureRegionDrawable(asset.get("book_tab")));
@@ -66,7 +69,7 @@ public final class InventoryGui extends Gui {
             itemTable.add(item);
             final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
 
-            this.slots.add(new InventoryUiSlot(overlay, slot, item));
+            this.slots.add(new InventoryUiSlot(overlay, item));
             primary.add(overlay).size(48, 48);
             if (i % 3 == 0) primary.row();
         }
@@ -79,36 +82,57 @@ public final class InventoryGui extends Gui {
 
         rootTable.pack();
         stage.addActor(rootTable);
-        gui.getMultiplexer().addProcessor(stage);
     }
 
     @Override
     public void update() {
-        stage.act();
+        stage.getViewport().apply();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
+        stage.getCamera().update();
         stage.draw();
 
-        // update ui
+
+        // update ui based on player inventory status
         player.getInventory().getSlots().forEach((slot, item) -> {
             final InventoryUiSlot ui = slots.get(slot);
-            ui.setItem(new TextureRegionDrawable(item.getItem().getTexture()));
-            ui.setToolTipText(item.getItem().getItemName());
-            ui.setDescription(item.getItem().getDescription());
+            // only update this inventory slot IF the last item does not match the current
+            if (ui.lastItemId != item.getItem().getItemId()) {
+                ui.setItem(new TextureRegionDrawable(item.getItem().getTexture()), item.getItem().getItemId());
+                ui.setToolTipText(item.getItem().getItemName());
+                ui.setDescription(item.getItem().getDescription());
+            }
         });
+    }
 
+    @Override
+    public void show() {
+        super.show();
+        gui.hideGui(GuiType.HUD);
+        rootTable.setVisible(true);
+        gui.getMultiplexer().addProcessor(stage);
+    }
+
+    @Override
+    public void hide() {
+        super.hide();
+        gui.showGui(GuiType.HUD);
+        rootTable.setVisible(false);
+        gui.getMultiplexer().removeProcessor(stage);
     }
 
     /**
      * Handles data required for the UI inventory slot
      */
     private final class InventoryUiSlot {
-        private final VisImage slot, item;
+        private final VisImage item;
         private final Tooltip tooltip;
 
         // item description of whatever is in this slot
         private String itemDescription = StringUtils.EMPTY;
+        // the last item in this slot, for comparison when updating
+        private long lastItemId = -1;
 
-        public InventoryUiSlot(Stack stack, VisImage slot, VisImage item) {
-            this.slot = slot;
+        public InventoryUiSlot(Stack stack, VisImage item) {
             this.item = item;
             tooltip = new Tooltip.Builder("Empty Slot").target(stack).build();
             tooltip.setAppearDelayTime(0.35f);
@@ -131,8 +155,9 @@ public final class InventoryGui extends Gui {
             tooltip.setText(text);
         }
 
-        void setItem(TextureRegionDrawable drawable) {
+        void setItem(TextureRegionDrawable drawable, long itemId) {
             item.setDrawable(drawable);
+            this.lastItemId = itemId;
         }
 
         void setDescription(String text) {

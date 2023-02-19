@@ -1,5 +1,6 @@
 package me.vrekt.oasis.gui.quest;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -48,6 +49,7 @@ public final class QuestingGui extends Gui {
 
         table = new VisTable(true);
         table.setFillParent(true);
+        table.setVisible(false);
         table.add(this).expand().fill();
 
         activeQuestObjectives = new VisTable(true);
@@ -63,12 +65,9 @@ public final class QuestingGui extends Gui {
         gui.getMultiplexer().addProcessor(stage);
     }
 
-    @Override
-    public void update() {
-        stage.act();
-        stage.draw();
-    }
-
+    /**
+     * Populate all quest information into the {@link  VisSplitPane}
+     */
     private void populateQuests() {
 
         final VisTable table = new VisTable(true);
@@ -112,7 +111,7 @@ public final class QuestingGui extends Gui {
             }
             // add click listener, remove previous typing labels
             // info -1 because index starts at 0 but quest starts at 1.
-            label.addListener(getQuestNameClickListener(quest, style, labels));
+            label.addListener(registerNameClickListener(quest, style, labels));
             respectiveObjectiveLabels.put(quest, labels);
         }
 
@@ -135,7 +134,15 @@ public final class QuestingGui extends Gui {
         add(splitPane).fill().expand();
     }
 
-    private ClickListener getQuestNameClickListener(Quest quest,
+    /**
+     * Register a new {@link  ClickListener} for when the player clicks on the quest name label.
+     *
+     * @param quest  the quest clicked on
+     * @param style  the general style
+     * @param labels a list of labels for that quest
+     * @return the new {@link ClickListener}
+     */
+    private ClickListener registerNameClickListener(Quest quest,
                                                     Label.LabelStyle style,
                                                     LinkedList<TypingLabel> labels) {
         return new ClickListener() {
@@ -156,6 +163,12 @@ public final class QuestingGui extends Gui {
         };
     }
 
+    /**
+     * Update the quest objectives UI.
+     *
+     * @param quest  quest
+     * @param labels the labels for that quest
+     */
     private void updateQuestObjectivesUi(Quest quest, LinkedList<TypingLabel> labels) {
         this.currentSelectedQuest = quest;
         questTitleLabel.setText(quest.getDescription());
@@ -207,20 +220,37 @@ public final class QuestingGui extends Gui {
     }
 
     @Override
-    public void showGui() {
-        super.showGui();
-        super.gui.hideGui(GuiType.HUD);
-        if (currentSelectedQuest != null) {
-            updateQuestObjectivesUi(currentSelectedQuest, respectiveObjectiveLabels.get(currentSelectedQuest));
-        }
-
-        table.setVisible(true);
+    public void update() {
+        stage.getViewport().apply();
+        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
+        stage.getCamera().update();
+        stage.draw();
     }
 
     @Override
-    public void hideGui() {
-        super.hideGui();
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+        stage.getCamera().update();
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        super.gui.hideGui(GuiType.HUD);
+
+        // update quest objectives once this window is re-opened.
+        if (currentSelectedQuest != null) {
+            updateQuestObjectivesUi(currentSelectedQuest, respectiveObjectiveLabels.get(currentSelectedQuest));
+        }
+        table.setVisible(true);
+        gui.getMultiplexer().addProcessor(stage);
+    }
+
+    @Override
+    public void hide() {
+        super.hide();
         super.gui.showGui(GuiType.HUD);
         table.setVisible(false);
+        gui.getMultiplexer().removeProcessor(stage);
     }
 }

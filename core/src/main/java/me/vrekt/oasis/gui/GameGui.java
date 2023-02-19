@@ -115,11 +115,11 @@ public final class GameGui {
     }
 
     public void showGui(GuiType type) {
-        guis.get(type).showGui();
+        guis.get(type).show();
     }
 
     public void hideGui(GuiType type) {
-        guis.get(type).hideGui();
+        guis.get(type).hide();
     }
 
     public void hideThenShowGui(GuiType hide, GuiType show) {
@@ -132,7 +132,7 @@ public final class GameGui {
     }
 
     public boolean isGuiVisible(GuiType type) {
-        return guis.get(type).isVisible();
+        return guis.get(type).isGuiVisible();
     }
 
     public <T extends Gui> T getGui(GuiType type) {

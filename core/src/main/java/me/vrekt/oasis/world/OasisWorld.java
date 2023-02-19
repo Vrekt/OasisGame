@@ -636,10 +636,17 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == OasisKeybindings.QUEST_BOOK_KEY) {
-            if(gui.isGuiVisible(GuiType.QUEST)) {
+            if (gui.isGuiVisible(GuiType.QUEST)) {
                 gui.hideGui(GuiType.QUEST);
             } else {
                 gui.showGui(GuiType.QUEST);
+            }
+            return true;
+        } else if (keycode == OasisKeybindings.INVENTORY_KEY) {
+            if (gui.isGuiVisible(GuiType.INVENTORY)) {
+                gui.hideGui(GuiType.INVENTORY);
+            } else {
+                gui.showGui(GuiType.INVENTORY);
             }
             return true;
         }

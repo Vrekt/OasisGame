@@ -18,7 +18,6 @@ import me.vrekt.oasis.entity.dialog.EntityDialogSection;
 import me.vrekt.oasis.entity.npc.animation.EntityTextured;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
 
@@ -186,8 +185,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
 
     @Override
     public boolean isInView(Camera camera) {
-        inView = Renderable.isInViewExtended(view, getX(), getY(), camera.frustum);
-        return inView;
+        return inView = super.isInView(camera);
     }
 
     @Override

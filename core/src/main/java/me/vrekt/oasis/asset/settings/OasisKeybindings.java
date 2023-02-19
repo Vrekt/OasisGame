@@ -9,5 +9,6 @@ public final class OasisKeybindings {
     public static int WALK_LEFT_KEY = Input.Keys.A;
     public static int WALK_RIGHT_KEY = Input.Keys.D;
     public static int QUEST_BOOK_KEY = Input.Keys.Q;
+    public static int INVENTORY_KEY = Input.Keys.I;
 
 }

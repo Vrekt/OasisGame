@@ -74,7 +74,7 @@ public final class DialogGui extends Gui {
      */
     public void setShowingDialog(EntityInteractable entity) {
         if (entity.getDialog() == null) {
-            hideGui();
+            hide();
             return;
         }
 
@@ -108,7 +108,7 @@ public final class DialogGui extends Gui {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (entity.advanceDialogStage(key)) {
-                    hideGui();
+                    hide();
                 } else {
                     setShowingDialog(entity);
                 }
@@ -129,7 +129,7 @@ public final class DialogGui extends Gui {
     }
 
     @Override
-    public void showGui() {
+    public void show() {
         gui.hideGui(GuiType.HUD);
 
         rootTable.setVisible(true);
@@ -137,7 +137,7 @@ public final class DialogGui extends Gui {
     }
 
     @Override
-    public void hideGui() {
+    public void hide() {
         rootTable.setVisible(false);
         isShowing = false;
     }
