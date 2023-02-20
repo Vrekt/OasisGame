@@ -32,7 +32,7 @@ public final class GameGui {
     private final Stage stage;
     private final Stack stack;
     private final Skin skin;
-    private final BitmapFont medium, large;
+    private final BitmapFont small, medium, large;
     private final GlyphLayout layout;
     private final OasisGame game;
 
@@ -52,11 +52,13 @@ public final class GameGui {
         root.add(stack).grow();
 
         this.skin = asset.getDefaultLibgdxSkin();
+        this.small = asset.getSmall();
         this.medium = asset.getMedium();
         this.large = asset.getLarge();
         this.layout = new GlyphLayout(medium, "");
 
-        skin.add("small", asset.getSmall());
+        skin.add("smaller", asset.getSmaller());
+        skin.add("small", small);
         skin.add("medium", medium);
         skin.add("large", large);
 
@@ -78,6 +80,10 @@ public final class GameGui {
 
     public Skin getSkin() {
         return skin;
+    }
+
+    public BitmapFont getSmall() {
+        return small;
     }
 
     public BitmapFont getMedium() {
@@ -147,6 +153,10 @@ public final class GameGui {
         return (HudGui) guis.get(GuiType.HUD);
     }
 
+    public InventoryGui getInventoryGui() {
+        return (InventoryGui) guis.get(GuiType.INVENTORY);
+    }
+
     /**
      * Render all active GUI elements.
      */
@@ -156,7 +166,9 @@ public final class GameGui {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
         stage.getCamera().update();
 
-        for (Gui gui : guis.values()) gui.update();
+        for (Gui gui : guis.values()) {
+            if (gui.isGuiVisible()) gui.update();
+        }
         stage.draw();
 
         // draw VisUIs

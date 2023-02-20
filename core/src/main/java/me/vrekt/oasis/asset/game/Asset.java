@@ -21,7 +21,7 @@ public final class Asset implements Disposable {
     private final AssetManager assetManager = new AssetManager();
 
     private Skin defaultLibgdxSkin;
-    private BitmapFont small, medium, large;
+    private BitmapFont smaller, small, medium, large;
 
     private TextureAtlas atlasAssets;
 
@@ -68,8 +68,11 @@ public final class Asset implements Disposable {
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
         medium = generator.generateFont(parameter);
 
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.033);
         small = generator.generateFont(parameter);
+
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
+        smaller = generator.generateFont(parameter);
         generator.dispose();
     }
 
@@ -87,6 +90,10 @@ public final class Asset implements Disposable {
 
     public BitmapFont getSmall() {
         return small;
+    }
+
+    public BitmapFont getSmaller() {
+        return smaller;
     }
 
     public TextureRegion get(String name) {

@@ -395,6 +395,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public float update(float d) {
         final long now = System.currentTimeMillis();
         float d1 = super.update(d);
+        this.player.getInventory().update();
 
         // update world cursor
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));

@@ -10,15 +10,17 @@ import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
-import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
  * Represents a tutorial/debug NPC.1
  */
 public final class MaviaTutorial extends EntityInteractable {
+
+    private boolean givenLucidHarvestingItem;
 
     public MaviaTutorial(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.MAVIA);
@@ -36,9 +38,10 @@ public final class MaviaTutorial extends EntityInteractable {
             speakable = false;
 
             // unlock quest, obj1: speak obj2: player class completed both
-            player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
-            player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
             if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
+                this.givenLucidHarvestingItem = true;
+                player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
+                player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class);
                 // give the player the harvesting tool.
                 game.getGui().showHud();
                 final Item item = game
@@ -46,8 +49,6 @@ public final class MaviaTutorial extends EntityInteractable {
                         .getInventory()
                         .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
                 game.getGui().getHud().showItemCollected(item);
-            } else {
-                Logging.error(this, "Failed to give player their tutorial item.");
             }
         }
 
@@ -74,5 +75,19 @@ public final class MaviaTutorial extends EntityInteractable {
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);
         dialogFrames[2] = asset.get("dialog", 3);
+    }
+
+    @Override
+    public void update(float v) {
+        super.update(v);
+
+        // player has collected what they needed, advance dialog stage.
+        if (givenLucidHarvestingItem
+                && player.getInventory().hasItem(LucidTreeFruitItem.class)) {
+            // also reset because we don't care anymore
+            this.givenLucidHarvestingItem = false;
+            this.dialog = entityDialog.sections.get("mavia_dialog_6");
+        }
+
     }
 }

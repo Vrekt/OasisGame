@@ -51,6 +51,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private Instanced instanceIn;
     private final PlayerQuestManager questManager;
 
+    private float health = 100.0f;
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -67,6 +69,18 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         // starting quest, later this won't be added here but instead on new game.
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public void modifyHealth(float health) {
+        this.health += health;
     }
 
     public boolean isInInstance() {

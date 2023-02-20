@@ -3,6 +3,11 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.item.attribute.ItemAttribute;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents an item within the game
@@ -20,6 +25,9 @@ public class Item implements Pool.Poolable {
     // amount of this item player has
     protected int amount;
 
+    // attributes
+    protected final Map<Integer, ItemAttribute> attributes = new HashMap<>();
+
     public Item() {
     }
 
@@ -28,6 +36,10 @@ public class Item implements Pool.Poolable {
     }
 
     public void loadItemAsset(Asset asset) {
+
+    }
+
+    public void useItem(OasisPlayerSP player) {
 
     }
 
@@ -47,6 +59,10 @@ public class Item implements Pool.Poolable {
         this.amount = amount;
     }
 
+    public void decreaseItemAmount() {
+        this.amount -= 1;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -61,6 +77,26 @@ public class Item implements Pool.Poolable {
 
     public void setItemId(long itemId) {
         this.itemId = itemId;
+    }
+
+    public void addAttribute(ItemAttribute attribute) {
+        this.attributes.put(attribute.getAttributeId(), attribute);
+    }
+
+    public boolean hasAttribute(int id) {
+        return attributes.containsKey(id);
+    }
+
+    public boolean hasAttributes() {
+        return !attributes.isEmpty();
+    }
+
+    public ItemAttribute getAttribute(int id) {
+        return attributes.get(id);
+    }
+
+    public Map<Integer, ItemAttribute> getAttributes() {
+        return attributes;
     }
 
     @Override

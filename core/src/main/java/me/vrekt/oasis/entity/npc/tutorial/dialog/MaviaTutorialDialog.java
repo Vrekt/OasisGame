@@ -1,5 +1,7 @@
 package me.vrekt.oasis.entity.npc.tutorial.dialog;
 
+import com.badlogic.gdx.Input;
+import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.dialog.EntityDialog;
 
 /**
@@ -41,6 +43,11 @@ public final class MaviaTutorialDialog extends EntityDialog {
         createSection("mavia_dialog_5", "Come back to me when you're finished.");
         createOption("mavia_dialog_end_1", "Okay.");
 
+        createSection("mavia_dialog_6", "[BLACK]Great! [GREEN]Lucid Tree Fruit [BLACK]gives you the ability to heal your HP by [GREEN]+20.");
+        createOption("mavia_dialog_7", "Can I try it?");
+
+        createSection("mavia_dialog_7", "Yes, to consume the fruit, press [GREEN]" + Input.Keys.toString(OasisKeybindings.INVENTORY_KEY) + " [BLACK]to open your inventory.");
+        createOption("mavia_dialog_8", "I'll try.");
         save();
     }
 }

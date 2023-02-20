@@ -2,8 +2,10 @@ package me.vrekt.oasis.entity.inventory;
 
 import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.item.Item;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,13 +31,19 @@ public abstract class EntityInventory {
      * Update this inventory
      */
     public void update() {
-        slots.forEach((slot, item) -> {
-            if (item == null || item.getItem() == null) {
-                slots.remove(slot);
-            } else if (item.getItem().getAmount() == 0) {
-                Pools.free(item.getItem());
+        for (Iterator<Map.Entry<Integer, InventorySlot>> it = slots.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Integer, InventorySlot> entry = it.next();
+            final Item item = entry.getValue().getItem();
+            if (item.getAmount() == 0) {
+                Pools.free(item);
+                it.remove();
+
+                // update gui
+                if (this instanceof PlayerInventory) {
+                    localPlayer.getGame().getGui().getInventoryGui().removeItemSlot(entry.getKey());
+                }
             }
-        });
+        }
     }
 
     /**

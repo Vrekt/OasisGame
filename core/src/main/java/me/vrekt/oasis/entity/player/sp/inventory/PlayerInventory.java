@@ -14,6 +14,11 @@ public final class PlayerInventory extends EntityInventory {
     }
 
     @Override
+    public void update() {
+        super.update();
+    }
+
+    @Override
     public <T extends Item> Item giveEntityItem(Class<T> type, int amount) {
         final Item item = super.giveEntityItem(type, amount);
         if (item == null) return null;

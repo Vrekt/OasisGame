@@ -61,7 +61,11 @@ public final class DialogGui extends Gui {
         entity.add(this.entityImage = new Image()).left();
         table.add(entity).padLeft(16);
 
-        table.add(this.dialogTitle = new TypingLabel("DialogTitle", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).width(448).padTop(16).padBottom(16).padRight(8).padLeft(8);
+        table.add(this.dialogTitle = new TypingLabel("DialogTitle", new Label.LabelStyle(asset.getMedium(), Color.BLACK)))
+                .width(448)
+                .padBottom(16)
+                .padRight(8)
+                .padLeft(8);
         this.dialogTitle.setWrap(true);
 
         rootTable.add(table);
@@ -98,7 +102,7 @@ public final class DialogGui extends Gui {
         final Table bck = new Table();
 
         bck.setBackground(middle);
-        bck.add(new Label(parseDialogText(text), gui.getSkin(), "small", Color.WHITE));
+        bck.add(new Label(parseDialogText(text), gui.getSkin(), "smaller", Color.WHITE));
 
         option.add(new Image(start));
         option.add(bck);
@@ -131,7 +135,6 @@ public final class DialogGui extends Gui {
     @Override
     public void show() {
         gui.hideGui(GuiType.HUD);
-
         rootTable.setVisible(true);
         isShowing = true;
     }

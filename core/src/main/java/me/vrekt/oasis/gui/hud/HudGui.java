@@ -71,7 +71,7 @@ public final class HudGui extends Gui {
         final Table notification = new Table();
         notification.setBackground(new TextureRegionDrawable(asset.get("hint_dropdown")));
         notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY));
-        notification.add(iconImage = new Image()).padBottom(6).padTop(6).padRight(2);
+        notification.add(iconImage = new Image()).size(32, 32).padBottom(6).padTop(6).padRight(2).padLeft(-1f);
         notification.add(new Label("x", gui.getSkin(), "small", Color.DARK_GRAY));
         notification.add(amountLabel = new Label("1", gui.getSkin(), "medium", Color.DARK_GRAY));
         notificationTable.add(notification).size(256, 32);

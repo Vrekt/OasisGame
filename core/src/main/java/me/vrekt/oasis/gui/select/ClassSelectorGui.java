@@ -114,7 +114,7 @@ public final class ClassSelectorGui extends Gui {
         });
 
         bck.setBackground(middle);
-        bck.add(new Label("Choose", gui.getSkin(), "small", Color.WHITE));
+        bck.add(new Label("Choose", gui.getSkin(), "smaller", Color.WHITE));
 
         option.add(new Image(asset.get("dialog_start_empty")));
         option.add(bck);
@@ -147,7 +147,7 @@ public final class ClassSelectorGui extends Gui {
         final Table bck = new Table();
 
         bck.setBackground(middle);
-        bck.add(new Label(text, gui.getSkin(), "small", Color.WHITE));
+        bck.add(new Label(text, gui.getSkin(), "smaller", Color.WHITE));
 
         option.add(new Image(asset.get(start)));
         option.add(bck);
