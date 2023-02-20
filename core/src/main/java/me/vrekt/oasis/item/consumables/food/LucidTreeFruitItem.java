@@ -1,8 +1,8 @@
-package me.vrekt.oasis.item.food;
+package me.vrekt.oasis.item.consumables.food;
 
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.ItemConsumable;
+import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
 
 /**
@@ -10,8 +10,11 @@ import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
  */
 public final class LucidTreeFruitItem extends ItemConsumable {
 
+    public static final String TEXTURE = "lucid_fruit";
+    public static final String NAME = "Lucid Tree Fruit";
+
     public LucidTreeFruitItem() {
-        super("Lucid Tree Fruit");
+        super(NAME);
         setDescription("Heals you by [GREEN]+20 [BLACK]HP.");
         setItemId(3);
 
@@ -20,7 +23,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get("lucid_fruit");
+        this.texture = asset.get(TEXTURE);
     }
 
     @Override

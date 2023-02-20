@@ -13,7 +13,7 @@ import java.util.Map;
  * Represents an item within the game
  * Pooled to save resources when lots of items are used.
  */
-public class Item implements Pool.Poolable {
+public abstract class Item implements Pool.Poolable {
 
     // the item ID of this item
     protected long itemId;
@@ -101,10 +101,6 @@ public class Item implements Pool.Poolable {
 
     @Override
     public void reset() {
-        texture = null;
-        itemName = null;
-        description = null;
-        itemId = -1;
         amount = 0;
     }
 }

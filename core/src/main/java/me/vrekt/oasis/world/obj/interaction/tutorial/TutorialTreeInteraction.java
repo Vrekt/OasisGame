@@ -1,6 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.tutorial;
 
-import me.vrekt.oasis.item.food.LucidTreeFruitItem;
+import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;

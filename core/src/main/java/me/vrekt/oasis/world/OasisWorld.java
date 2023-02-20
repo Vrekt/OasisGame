@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
@@ -35,6 +36,7 @@ import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -650,6 +652,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 gui.showGui(GuiType.INVENTORY);
             }
             return true;
+        } else if (keycode == Input.Keys.T) {
+            player.getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
         }
         return false;
     }

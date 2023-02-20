@@ -20,7 +20,7 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.ItemConsumable;
+import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
 import org.apache.commons.lang3.StringUtils;
 
@@ -123,7 +123,7 @@ public final class InventoryGui extends Gui {
         player.getInventory().getSlots().forEach((slot, item) -> {
             final InventoryUiSlot ui = slots.get(slot);
             // only update this inventory slot IF the last item does not match the current
-            if (ui.lastItemId != item.getItem().getItemId()) ui.setImageItem(item.getItem());
+            if (ui.lastItemId != item.getItem().getItemId()) ui.setItem(item.getItem());
         });
     }
 
@@ -221,16 +221,24 @@ public final class InventoryGui extends Gui {
 
         }
 
-        void setImageItem(Item imageItem) {
-            this.imageItem.setDrawable(new TextureRegionDrawable(imageItem.getTexture()));
-            this.lastItemId = imageItem.getItemId();
-            this.item = imageItem;
+        /**
+         * Set all data about the given item
+         *
+         * @param item the item
+         */
+        void setItem(Item item) {
+            this.imageItem.setDrawable(new TextureRegionDrawable(item.getTexture()));
+            this.lastItemId = item.getItemId();
+            this.item = item;
 
-            this.tooltip.setText(imageItem.getItemName());
-            this.itemDescription = imageItem.getDescription();
+            this.tooltip.setText(item.getItemName());
+            this.itemDescription = item.getDescription();
             this.occupied = true;
         }
 
+        /**
+         * Remove all data about this item
+         */
         void removeItem() {
             this.occupied = false;
             this.imageItem.setDrawable((Drawable) null);

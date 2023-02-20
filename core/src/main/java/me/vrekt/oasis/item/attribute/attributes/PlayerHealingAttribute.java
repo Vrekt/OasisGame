@@ -15,9 +15,14 @@ public final class PlayerHealingAttribute extends ItemAttribute {
     private final float amount;
 
     public PlayerHealingAttribute(float amount) {
-        super("[BLACK][/]Healing", "[/][BLACK]Applies [GREEN]+" + amount + " [BLACK]HP.", PlayerHealingAttribute.ID);
+        super("Healing", "[/][BLACK]Applies [GREEN]+" + amount + " [BLACK]HP.", PlayerHealingAttribute.ID);
         this.amount = amount;
         setUses(1);
+    }
+
+    @Override
+    public String getAttributeName() {
+        return "[BLACK][/]" + super.getAttributeName();
     }
 
     @Override

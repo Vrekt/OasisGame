@@ -12,14 +12,14 @@ public final class LucidTreeHarvestingToolItem extends Item {
     public static final String NAME = "Lucid Harvester";
 
     public LucidTreeHarvestingToolItem() {
-        super("Lucid Harvester");
+        super(NAME);
         setDescription("Allows you to cut down Lucid trees.");
         setItemId(2);
     }
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get("lucid_tree_harvesting_tool");
+        this.texture = asset.get(TEXTURE);
     }
 
 }

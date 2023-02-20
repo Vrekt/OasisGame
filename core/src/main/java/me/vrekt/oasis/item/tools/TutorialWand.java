@@ -9,14 +9,14 @@ public final class TutorialWand extends Item {
     public static final String NAME = "Tutorial Wand";
 
     public TutorialWand() {
-        super("Arcane Wand");
+        super(NAME);
         setDescription("A tutorial wand for Tutorial Island.");
         setItemId(1);
     }
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get("wand2");
+        this.texture = asset.get(TEXTURE);
     }
 
 }
