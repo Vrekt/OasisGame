@@ -8,8 +8,8 @@ import me.vrekt.oasis.item.Item;
  */
 public abstract class ItemConsumable extends Item {
 
-    public ItemConsumable(String itemName) {
-        super(itemName);
+    public ItemConsumable(String itemName, int itemId, String description) {
+        super(itemName, itemId, description);
     }
 
     @Override

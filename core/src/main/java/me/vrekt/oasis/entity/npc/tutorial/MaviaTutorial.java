@@ -20,7 +20,7 @@ import me.vrekt.oasis.world.OasisWorld;
  */
 public final class MaviaTutorial extends EntityInteractable {
 
-    private boolean givenLucidHarvestingItem;
+    private boolean givenLucidHarvestingItem, didUseFruitItem;
 
     public MaviaTutorial(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.MAVIA);
@@ -89,5 +89,9 @@ public final class MaviaTutorial extends EntityInteractable {
             this.dialog = entityDialog.sections.get("mavia_dialog_6");
         }
 
+        if (!didUseFruitItem && player.didUseTutorialFruit()) {
+            didUseFruitItem = true;
+            this.dialog = entityDialog.sections.get("mavia_dialog_8");
+        }
     }
 }

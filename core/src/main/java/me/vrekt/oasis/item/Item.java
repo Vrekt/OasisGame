@@ -31,8 +31,10 @@ public abstract class Item implements Pool.Poolable {
     public Item() {
     }
 
-    public Item(String itemName) {
+    public Item(String itemName, int itemId, String description) {
         this.itemName = itemName;
+        this.description = description;
+        this.itemId = itemId;
     }
 
     public void loadItemAsset(Asset asset) {
@@ -93,6 +95,16 @@ public abstract class Item implements Pool.Poolable {
 
     public ItemAttribute getAttribute(int id) {
         return attributes.get(id);
+    }
+
+    public void applyAllAttributes(OasisPlayerSP player) {
+        for (ItemAttribute attribute : attributes.values()) {
+            attribute.applyToPlayer(player);
+        }
+    }
+
+    public void applyAttribute(int id, OasisPlayerSP player) {
+        attributes.get(id).applyToPlayer(player);
     }
 
     public Map<Integer, ItemAttribute> getAttributes() {

@@ -10,14 +10,12 @@ import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
  */
 public final class LucidTreeFruitItem extends ItemConsumable {
 
+    public static final int ID = 3;
     public static final String TEXTURE = "lucid_fruit";
     public static final String NAME = "Lucid Tree Fruit";
 
     public LucidTreeFruitItem() {
-        super(NAME);
-        setDescription("Heals you by [GREEN]+20 [BLACK]HP.");
-        setItemId(3);
-
+        super(NAME, ID, "Heals you by [GREEN]+20 [BLACK]HP.");
         addAttribute(new PlayerHealingAttribute(20.0f));
     }
 
@@ -29,6 +27,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     @Override
     public void consume(OasisPlayerSP player) {
         decreaseItemAmount();
-        getAttribute(PlayerHealingAttribute.ID).applyToPlayer(player);
+        applyAllAttributes(player);
+        player.setDidUseTutorialFruit(true);
     }
 }

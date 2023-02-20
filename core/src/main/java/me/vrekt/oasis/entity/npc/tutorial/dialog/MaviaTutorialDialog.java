@@ -47,7 +47,11 @@ public final class MaviaTutorialDialog extends EntityDialog {
         createOption("mavia_dialog_7", "Can I try it?");
 
         createSection("mavia_dialog_7", "Yes, to consume the fruit, press [GREEN]" + Input.Keys.toString(OasisKeybindings.INVENTORY_KEY) + " [BLACK]to open your inventory.");
-        createOption("mavia_dialog_8", "I'll try.");
+        createOption("mavia_dialog_end_2", "I'll try.");
+
+        createSection("mavia_dialog_8", "Now that you know about consumables, follow me inside my house and I'll teach you more.");
+        createOption("mavia_dialog_end_3", "Lets go!");
+
         save();
     }
 }

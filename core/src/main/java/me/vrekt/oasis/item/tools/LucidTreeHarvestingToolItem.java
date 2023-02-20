@@ -8,13 +8,12 @@ import me.vrekt.oasis.item.Item;
  */
 public final class LucidTreeHarvestingToolItem extends Item {
 
+    public static final int ID = 2;
     public static final String TEXTURE = "lucid_tree_harvesting_tool";
     public static final String NAME = "Lucid Harvester";
 
     public LucidTreeHarvestingToolItem() {
-        super(NAME);
-        setDescription("Allows you to cut down Lucid trees.");
-        setItemId(2);
+        super(NAME, ID, "Allows you to cut down Lucid trees.");
     }
 
     @Override

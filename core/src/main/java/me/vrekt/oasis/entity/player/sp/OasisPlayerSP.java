@@ -52,6 +52,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private final PlayerQuestManager questManager;
 
     private float health = 100.0f;
+    private boolean didUseTutorialFruit;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -81,6 +82,14 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public void modifyHealth(float health) {
         this.health += health;
+    }
+
+    public void setDidUseTutorialFruit(boolean didUseTutorialFruit) {
+        this.didUseTutorialFruit = didUseTutorialFruit;
+    }
+
+    public boolean didUseTutorialFruit() {
+        return didUseTutorialFruit;
     }
 
     public boolean isInInstance() {
