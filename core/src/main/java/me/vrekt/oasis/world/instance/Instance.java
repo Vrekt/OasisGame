@@ -8,11 +8,11 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -26,31 +26,29 @@ import me.vrekt.oasis.world.OasisWorld;
 /**
  * Represents an instance within a world, a dungeon or interior.
  */
-public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements Disposable {
+public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements Disposable {
 
-    private final OasisWorld worldIn;
-    private final String mapName;
+    protected final OasisWorld worldIn;
+    protected final String instanceName;
 
-    private final SpriteBatch batch;
-    private final OasisTiledRenderer renderer;
-    private final GameGui gameGui;
+    protected final SpriteBatch batch;
+    protected final OasisTiledRenderer renderer;
+    protected final GameGui gameGui;
 
     protected final Vector2 spawn = new Vector2();
-    protected final Rectangle exitArea = new Rectangle();
+    protected final Rectangle exit = new Rectangle();
 
     // pause state
     protected FrameBuffer fbo;
     protected TextureRegion fboTexture;
     protected boolean paused, hasFbo;
 
-    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-
-    public Instanced(OasisPlayerSP player, World world, OasisWorld worldIn, String mapName) {
+    public Instance(OasisPlayerSP player, World world, OasisWorld worldIn, String instanceName) {
         super(player, world);
         this.worldIn = worldIn;
-        this.mapName = mapName;
+        this.instanceName = instanceName;
         this.batch = worldIn.getGame().getBatch();
-        this.renderer = worldIn.getGame().getRenderer();
+        this.renderer = GameManager.getRenderer();
         this.gameGui = worldIn.getGame().getGui();
 
         getConfiguration().handlePhysics = true;
@@ -58,7 +56,6 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         getConfiguration().updateEntities = true;
         getConfiguration().updateNetworkPlayers = true;
         getConfiguration().updatePlayer = true;
-
         configuration.stepTime = 1 / 240f;
     }
 
@@ -102,10 +99,15 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
 
     protected void renderInternal(float delta) {
         this.update(delta);
-        this.renderWorld(delta);
+        this.renderInstance(delta);
     }
 
-    protected void renderWorld(float delta) {
+    /**
+     * Render this instance
+     *
+     * @param delta delta time
+     */
+    protected void renderInstance(float delta) {
         renderer.beginRendering();
         renderer.render();
 
@@ -126,28 +128,32 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
 
         // render local player next
         player.render(batch, delta);
-
         batch.end();
-
-        debugRenderer.render(world, renderer.getCamera().combined);
 
         // render gui
         gameGui.render();
     }
 
+    /**
+     * Enter this instance.
+     */
     public void enter() {
-        loadInstance(worldIn.getGame().getAsset().getWorldMap(mapName), worldIn.getConfiguration().worldScale);
+        loadInstance(worldIn.getGame().getAsset().getWorldMap(instanceName), worldIn.getConfiguration().worldScale);
     }
 
-    public void loadInstance(TiledMap map, float worldScale) {
+    /**
+     * Load this instance
+     *
+     * @param map        the map
+     * @param worldScale the scaling
+     */
+    private void loadInstance(TiledMap map, float worldScale) {
         // destroy worldIn collisions.
         worldIn.clearCollisionBodies();
 
         TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
-        TiledMapLoader.loadMapActions(map, worldScale, spawn, exitArea);
-
-        this.worldIn.getGame().getRenderer().setTiledMap(map, spawn.x, spawn.y);
-        // TODO: engine.addSystem(new EntityUpdateSystem(worldIn.getGame(), this));
+        TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
+        GameManager.getRenderer().setTiledMap(map, spawn.x, spawn.y);
 
         if (player.isInWorld()) {
             Logging.info(this, "Removing local player from world.");
@@ -160,6 +166,10 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
         player.setInstanceIn(this);
     }
 
+    public void processLeftClickDown() {
+
+    }
+
     @Override
     public void spawnEntityInWorld(LunarEntity entity, float x, float y) {
         if (entity instanceof OasisPlayerSP) return;
@@ -169,5 +179,6 @@ public abstract class Instanced extends LunarWorld<OasisPlayerSP, OasisNetworkPl
     @Override
     public void dispose() {
         fbo.dispose();
+        super.dispose();
     }
 }

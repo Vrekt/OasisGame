@@ -45,7 +45,9 @@ public final class TutorialOasisWorld extends OasisWorld {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        super.touchDown(screenX, screenY, pointer, button);
+        if (super.touchDown(screenX, screenY, pointer, button)) {
+            return true; // prevent instances from interacting with main world.
+        }
 
         interactWithEntity();
         interactWithObject();

@@ -3,9 +3,7 @@ package me.vrekt.oasis.world;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,6 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -40,7 +39,7 @@ import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.interior.Interior;
+import me.vrekt.oasis.world.interior.Instanced;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -85,7 +84,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
-    protected final Map<String, Interior> interiors = new HashMap<>();
+    protected final Map<String, Instanced> interiors = new HashMap<>();
     protected float updateTime, renderTime;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
@@ -163,6 +162,23 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // initialize player in this world.
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.setGameWorldIn(this);
+    }
+
+    /**
+     * Re-enter this world from the instance
+     *
+     * @param spawn the spawn
+     */
+    public void enterWorldFromInstance(Vector2 spawn) {
+        this.renderer.setTiledMap(map, spawn.x, spawn.y);
+        player.setInInstance(false);
+        player.setInstanceIn(null);
+
+        player.spawnEntityInWorld(this, spawn.x, spawn.y);
+        player.getInstance().worldIn = this;
+        player.setGameWorldIn(this);
+
+        Logging.info(this, "Re-entered parent world");
     }
 
     @Override
@@ -313,7 +329,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
             final String interiorName = object.getProperties().get("interior_name", null, String.class);
             if (interiorName != null && enterable) {
-                this.interiors.put(interiorName, new Interior(this, interiorName, object.getProperties().get("cursor", String.class), rectangle));
+                this.interiors.put(interiorName, new Instanced(this, interiorName, object.getProperties().get("cursor", String.class), rectangle));
             }
         });
 
@@ -409,7 +425,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
                 if (!cursorChanged) {
-                    setCursorInWorld("ui/dialog_cursor.png");
+                    GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
+                    this.cursorChanged = true;
                 }
                 break;
             } else {
@@ -418,10 +435,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         boolean hasInterior = true;
-        for (Interior interior : interiors.values()) {
+        for (Instanced interior : interiors.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
                 if (!cursorChanged) {
-                    setCursorInWorld(interior.getCursor());
+                    GameManager.setCursorInGame(interior.getCursor());
+                    this.cursorChanged = true;
                 }
                 break;
             } else {
@@ -434,7 +452,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (!hasEntity) {
             for (InteractableWorldObject worldObject : interactableWorldObjects) {
                 if (worldObject.clickedOn(cursorInWorld) && worldObject.getCursor() != null) {
-                    setCursorInWorld(worldObject.getCursor());
+                    GameManager.setCursorInGame(worldObject.getCursor());
+                    this.cursorChanged = true;
                     hasObj = true;
                     break;
                 }
@@ -442,7 +461,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         if (!hasEntity && !hasObj && !hasInterior && cursorChanged) {
-            resetCursor();
+            GameManager.resetCursor();
+            this.cursorChanged = false;
         }
 
         updateTime = System.currentTimeMillis() - now;
@@ -457,17 +477,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return renderTime;
     }
 
-    private void setCursorInWorld(String cursorInWorld) {
-        this.cursorChanged = true;
-        Pixmap pm = new Pixmap(Gdx.files.internal(cursorInWorld));
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
-        pm.dispose();
-    }
-
-    private void resetCursor() {
-        this.cursorChanged = false;
-        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-    }
 
     private void renderInternal(float delta) {
         this.update(delta);
@@ -611,7 +620,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * Attempt to enter an interior
      */
     protected void interactWithInterior() {
-        final Interior interior = interiors
+        final Instanced interior = interiors
                 .values()
                 .stream()
                 .filter(e -> e.clickedOn(cursorInWorld))
@@ -621,7 +630,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (interior != null
                 && interior.enterable()
                 && interior.isWithinEnteringDistance(player.getPosition())) {
-            this.resetCursor();
+            GameManager.resetCursor();
+            this.cursorChanged = false;
             interior.enter();
         }
     }
@@ -670,6 +680,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (player.isInInstance() && button == Input.Buttons.LEFT) {
+            player.getInstanceIn().processLeftClickDown();
+            return true;
+        }
         return false;
     }
 
