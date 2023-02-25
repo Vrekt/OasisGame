@@ -92,6 +92,7 @@ public final class HudGui extends Gui {
         this.inventoryRenderer.initialize(inventory, slot);
 
         rootTable.add(inventory).padBottom(8);
+        isShowing = true;
     }
 
     @Override

@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
@@ -23,12 +26,13 @@ public class Instanced extends Instance implements Pool.Poolable {
     private final Vector3 cursorInInstance = new Vector3();
     private final Vector2 worldExitSpawn = new Vector2();
     private final Rectangle bounds;
-    private boolean enterable = true, cursorChanged, dispose;
+    private boolean enterable = true, cursorChanged;
     private float distance = 2.5f;
-    private final String cursor;
+    private final String cursor, instanceName;
 
     public Instanced(OasisWorld world, String name, String cursor, Rectangle bounds) {
-        super(world.getLocalPlayer(), world.getWorld(), world, name);
+        super(world.getLocalPlayer(), new World(Vector2.Zero, true), world, name);
+        this.instanceName = name;
         this.cursor = cursor;
         this.bounds = bounds;
     }
@@ -60,15 +64,24 @@ public class Instanced extends Instance implements Pool.Poolable {
 
     @Override
     public void enter() {
+        Logging.info(instanceName, "Entering instance: " + instanceName);
         worldExitSpawn.set(player.getPosition());
         super.enter();
     }
 
     /**
-     * Destroy this instance and reset
+     * Unload
+     * TODO
      */
-    private void destroy() {
-        this.reset();
+    public void unload() {
+        Logging.info(instanceName, "Unloading instance from memory");
+        final Array<Body> bodies = new Array<>();
+        world.getBodies(bodies);
+        for (Body body : new Array.ArrayIterator<>(bodies)) {
+            world.destroyBody(body);
+        }
+        this.dispose();
+        isLoaded = false;
     }
 
     @Override
@@ -96,12 +109,11 @@ public class Instanced extends Instance implements Pool.Poolable {
         // check if player is close enough to exit
         if (cursorChanged // indicates mouse is over exit
                 && player.getPosition().dst(exit.x, exit.y) <= 4.5f) {
-            Logging.info(this, "Exiting instance: " + instanceName);
-            destroy();
-
-            player.removeEntityInWorld(this);
-            worldIn.enterWorldFromInstance(worldExitSpawn);
-            worldExitSpawn.set(0, 0);
+            Logging.info(instanceName, "Exiting instance: " + instanceName);
+            player.setInInstance(false);
+            player.setInstanceIn(null);
+            player.setPosition(worldExitSpawn.x, worldExitSpawn.y, true);
+            worldIn.enterWorld(true);
         }
     }
 
@@ -109,4 +121,5 @@ public class Instanced extends Instance implements Pool.Poolable {
     public void reset() {
         // TODO: Maybe use pools.
     }
+
 }

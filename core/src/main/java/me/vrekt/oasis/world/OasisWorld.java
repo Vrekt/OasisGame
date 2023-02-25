@@ -66,7 +66,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final OasisTiledRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
     protected final Vector3 cursorInScreen = new Vector3();
-    protected boolean cursorChanged;
+    protected boolean cursorChanged, isWorldLoaded;
 
     protected int width, height;
 
@@ -85,7 +85,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
     protected final Map<String, Instanced> interiors = new HashMap<>();
-    protected float updateTime, renderTime;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -106,28 +105,35 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return game;
     }
 
-    public void showWorld() {
-        this.renderer.setTiledMap(map, spawn.x, spawn.y);
+    /**
+     * Enter this world.
+     *
+     * @return {@code  true} if successful.
+     */
+    public boolean enterWorld(boolean fromInstance) {
+        // remove player from a world they could already be in
+        if (player.isInWorld()) {
+            player.removeEntityInWorld(player.getWorldIn());
+            player.setGameWorldIn(null);
+        }
+        if (fromInstance) {
+            this.renderer.setTiledMap(map, spawn.x, spawn.y);
+            player.spawnEntityInWorld(this, player.getX(), player.getY());
+            GameManager.resetCursor();
+        }
+        return true;
     }
 
-    public void clearCollisionBodies() {
+    /**
+     * Unload the collision within this world
+     */
+    public void unloadCollision() {
         final Array<Body> bodies = new Array<>();
         world.getBodies(bodies);
 
         for (int i = 0; i < bodies.size; i++) {
             if (!world.isLocked())
                 world.destroyBody(bodies.get(i));
-        }
-    }
-
-    /**
-     * Load this world
-     */
-    public void loadIntoWorld() {
-        if (player.isInWorld()) {
-            Logging.info(this, "Removing local player from world.");
-            player.removeEntityInWorld(player.getWorldIn());
-            player.setGameWorldIn(null);
         }
     }
 
@@ -162,6 +168,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // initialize player in this world.
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.setGameWorldIn(this);
+
+        this.isWorldLoaded = true;
     }
 
     /**
@@ -171,9 +179,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     public void enterWorldFromInstance(Vector2 spawn) {
         this.renderer.setTiledMap(map, spawn.x, spawn.y);
-        player.setInInstance(false);
-        player.setInstanceIn(null);
-
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.getInstance().worldIn = this;
         player.setGameWorldIn(this);
@@ -363,10 +368,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void render(float delta) {
-        final long now = System.currentTimeMillis();
 
         // handle parent instance if in one
-        if (player.getInstanceIn() != null) {
+        if (player.isInInstance()) {
             player.getInstanceIn().render(delta);
             return;
         }
@@ -405,14 +409,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // end
         if (paused && hasFbo) fbo.end();
         if (paused && batch.isDrawing()) batch.end();
-
-        renderTime = System.currentTimeMillis() - now;
     }
 
     @Override
     public float update(float d) {
-        final long now = System.currentTimeMillis();
-        float d1 = super.update(d);
+        d = super.update(d);
         this.player.getInventory().update();
 
         // update world cursor
@@ -464,19 +465,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             GameManager.resetCursor();
             this.cursorChanged = false;
         }
-
-        updateTime = System.currentTimeMillis() - now;
-        return d1;
+        return d;
     }
-
-    public float getUpdateTime() {
-        return updateTime;
-    }
-
-    public float getRenderTime() {
-        return renderTime;
-    }
-
 
     private void renderInternal(float delta) {
         this.update(delta);

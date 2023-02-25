@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.LunarEntity;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -42,6 +43,7 @@ public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPla
     protected FrameBuffer fbo;
     protected TextureRegion fboTexture;
     protected boolean paused, hasFbo;
+    protected boolean isLoaded;
 
     public Instance(OasisPlayerSP player, World world, OasisWorld worldIn, String instanceName) {
         super(player, world);
@@ -138,7 +140,8 @@ public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPla
      * Enter this instance.
      */
     public void enter() {
-        loadInstance(worldIn.getGame().getAsset().getWorldMap(instanceName), worldIn.getConfiguration().worldScale);
+        loadInstance(worldIn.getGame().getAsset().getWorldMap(instanceName), OasisGameSettings.SCALE);
+        isLoaded = true;
     }
 
     /**
@@ -148,15 +151,12 @@ public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPla
      * @param worldScale the scaling
      */
     private void loadInstance(TiledMap map, float worldScale) {
-        // destroy worldIn collisions.
-        worldIn.clearCollisionBodies();
-
         TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
         GameManager.getRenderer().setTiledMap(map, spawn.x, spawn.y);
 
         if (player.isInWorld()) {
-            Logging.info(this, "Removing local player from world.");
+            Logging.info(this, "Removing local player from parent world.");
             player.removeEntityInWorld(player.getWorldIn());
         }
 
@@ -164,6 +164,8 @@ public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPla
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.setInInstance(true);
         player.setInstanceIn(this);
+
+        Logging.info(this, "Loaded instance successfully.");
     }
 
     public void processLeftClickDown() {

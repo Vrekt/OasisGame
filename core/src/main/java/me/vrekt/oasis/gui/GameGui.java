@@ -172,7 +172,9 @@ public final class GameGui {
         stage.draw();
 
         // draw VisUIs
-        for (Gui gui : guis.values()) gui.draw();
+        for (Gui gui : guis.values()) {
+            if (gui.isGuiVisible()) gui.draw();
+        }
     }
 
     public void resize(int width, int height) {

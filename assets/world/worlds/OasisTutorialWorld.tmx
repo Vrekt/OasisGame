@@ -134,15 +134,15 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Particles"/>
- <objectgroup id="6" name="Collision" visible="0">
+ <objectgroup id="6" name="Collision">
   <object id="3" x="287.568" y="449.431">
    <polyline points="0,0 0.447136,-195.398 159.627,-194.057"/>
   </object>
   <object id="4" x="224.522" y="445.854">
    <polyline points="0,0 -0.894271,-190.927 -159.627,-190.48"/>
   </object>
-  <object id="5" x="112" y="160" width="80" height="80"/>
-  <object id="6" x="208" y="64" width="80" height="80"/>
+  <object id="5" x="123.924" y="169.539" width="57.3451" height="62.7108"/>
+  <object id="6" x="219.924" y="69.9618" width="58.5375" height="61.5184"/>
   <object id="7" x="48" y="64" width="16" height="192"/>
   <object id="8" x="48" y="48" width="400" height="16"/>
   <object id="9" x="448" y="48" width="16" height="208"/>

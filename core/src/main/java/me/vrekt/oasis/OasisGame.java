@@ -60,7 +60,7 @@ public final class OasisGame extends Game {
      * @param world the world
      */
     public void loadIntoWorld(OasisWorld world) {
-        world.loadIntoWorld();
+        world.enterWorld(false);
         setScreen(world);
         player.getConnection().updateWorldLoaded();
     }

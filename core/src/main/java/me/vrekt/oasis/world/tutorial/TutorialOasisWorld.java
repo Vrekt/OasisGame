@@ -6,7 +6,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.tools.TutorialWand;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -26,10 +25,12 @@ public final class TutorialOasisWorld extends OasisWorld {
     }
 
     @Override
-    public void loadIntoWorld() {
-        super.loadIntoWorld();
-        loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
-        player.getInventory().giveEntityItem(TutorialWand.class, 1);
+    public boolean enterWorld(boolean fromInstance) {
+        super.enterWorld(fromInstance);
+        if (!isWorldLoaded) {
+            loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
+        }
+        return true;
     }
 
     @Override
