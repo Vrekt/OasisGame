@@ -1,7 +1,7 @@
 package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import lunar.shared.entity.drawing.Rotation;
+import lunar.shared.drawing.Rotation;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
@@ -53,13 +53,13 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
     }
 
     @Override
-    public void updateServerPosition(float x, float y, float angle) {
-        super.updateServerPosition(x, y, angle);
+    public void updatePosition(float x, float y, float angle) {
+        super.updatePosition(x, y, angle);
     }
 
     @Override
-    public void updateServerVelocity(float x, float y, float angle) {
-        super.updateServerVelocity(x, y, angle);
+    public void updateVelocity(float x, float y, float angle) {
+        super.updateVelocity(x, y, angle);
     }
 
     @Override

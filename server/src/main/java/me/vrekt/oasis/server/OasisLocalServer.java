@@ -1,6 +1,6 @@
 package me.vrekt.oasis.server;
 
-import gdx.lunar.Lunar;
+import gdx.lunar.LunarProtocolSettings;
 import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.game.GameServer;
 import gdx.lunar.server.netty.NettyServer;
@@ -17,7 +17,7 @@ public final class OasisLocalServer {
 
     public OasisLocalServer(LunarProtocol protocol) {
         this.protocol = protocol;
-        this.gameServer = new GameServer(protocol, Lunar.gameVersion);
+        this.gameServer = new GameServer(protocol, LunarProtocolSettings.gameVersion);
         this.server = new NettyServer("localhost", 6969, protocol, gameServer);
     }
 

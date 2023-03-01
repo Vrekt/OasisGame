@@ -5,8 +5,8 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IntervalSystem;
-import lunar.shared.entity.components.position.EntityPositionComponent;
-import lunar.shared.entity.components.prop.EntityPropertiesComponent;
+import lunar.shared.components.position.EntityPositionComponent;
+import lunar.shared.components.prop.EntityPropertiesComponent;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 
 /**

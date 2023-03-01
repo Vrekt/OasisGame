@@ -2,7 +2,7 @@ package me.vrekt.oasis.entity;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
-import lunar.shared.entity.player.LunarEntity;
+import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.graphics.Renderable;

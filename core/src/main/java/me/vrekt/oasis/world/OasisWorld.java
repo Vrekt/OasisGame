@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.LunarEntity;
+import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
@@ -127,7 +127,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     /**
      * Unload the collision within this world
      */
-    public void unloadCollision() {
+    public void unloadBox2dWorld() {
         final Array<Body> bodies = new Array<>();
         world.getBodies(bodies);
 
@@ -180,7 +180,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void enterWorldFromInstance(Vector2 spawn) {
         this.renderer.setTiledMap(map, spawn.x, spawn.y);
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
-        player.getInstance().worldIn = this;
+        player.getWorlds().worldIn = this;
         player.setGameWorldIn(this);
 
         Logging.info(this, "Re-entered parent world");
@@ -700,5 +700,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             renderer.getCamera().zoom -= 0.01f;
         }
         return true;
+    }
+
+    @Override
+    public void dispose() {
+        unloadBox2dWorld();
+        super.dispose();
     }
 }

@@ -1,7 +1,7 @@
 package me.vrekt.oasis.network;
 
 import com.badlogic.gdx.utils.Disposable;
-import gdx.lunar.Lunar;
+import gdx.lunar.LunarProtocolSettings;
 import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.game.GameServer;
 import gdx.lunar.server.netty.NettyServer;
@@ -24,7 +24,7 @@ public final class OasisLocalServer implements Disposable {
     public OasisLocalServer(OasisGame game, LunarProtocol protocol) {
         this.game = game;
         this.protocol = protocol;
-        this.gameServer = new GameServer(protocol, Lunar.gameVersion);
+        this.gameServer = new GameServer(protocol, LunarProtocolSettings.gameVersion);
         this.server = new NettyServer("localhost", 6969, protocol, gameServer);
     }
 

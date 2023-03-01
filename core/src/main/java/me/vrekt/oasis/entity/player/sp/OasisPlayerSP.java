@@ -9,11 +9,11 @@ import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.drawing.Rotation;
-import lunar.shared.entity.player.LunarEntity;
-import lunar.shared.entity.player.LunarEntityPlayer;
-import lunar.shared.entity.player.impl.LunarPlayer;
-import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
+import lunar.shared.drawing.Rotation;
+import lunar.shared.entity.LunarEntity;
+import lunar.shared.player.LunarEntityPlayer;
+import lunar.shared.player.impl.LunarPlayer;
+import lunar.shared.player.mp.LunarNetworkEntityPlayer;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -61,8 +61,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setEntityName(name);
         setMoveSpeed(6.0f);
         setHasMoved(true);
-        setFixedRotation(true);
-        setConfig(15, 25, OasisGameSettings.SCALE);
+        setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRatesInMs(0, 0);
 
         this.inventory = new PlayerInventory(this);
@@ -166,8 +165,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
             player.load(game.getAsset());
 
-            player.getProperties().initialize(packet.getEntityId(), packet.getUsername());
-            player.getConfig().setConfig(24, 24, OasisGameSettings.SCALE);
+            player.setProperties(packet.getUsername(), packet.getEntityId());
+            player.setSize(24, 24, OasisGameSettings.SCALE);
             player.spawnEntityInWorld(getWorldIn());
         } else {
             Logging.warn(this, "Attempted to spawn player while not in world.");

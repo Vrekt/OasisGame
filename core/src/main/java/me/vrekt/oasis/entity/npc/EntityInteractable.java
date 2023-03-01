@@ -5,11 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.drawing.Rotation;
-import lunar.shared.entity.player.LunarEntity;
-import lunar.shared.entity.player.LunarEntityPlayer;
-import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
+import lunar.shared.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
@@ -48,7 +44,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         entity.add(new EntityDialogComponent());
         setPosition(position.x, position.y, true);
         setEntityName(name);
-        getInstance().worldIn = worldIn;
+        getWorlds().worldIn = worldIn;
         this.player = player;
         this.game = game;
         this.type = type;
@@ -186,21 +182,6 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     @Override
     public boolean isInView(Camera camera) {
         return inView = super.isInView(camera);
-    }
-
-    @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> lunarWorld, float v, float v1) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> lunarWorld) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void removeEntityInWorld(LunarWorld<P, N, E> lunarWorld) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

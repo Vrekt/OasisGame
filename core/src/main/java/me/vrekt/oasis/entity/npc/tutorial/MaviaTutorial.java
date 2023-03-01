@@ -70,7 +70,7 @@ public final class MaviaTutorial extends EntityInteractable {
         putRegion("facing_right", asset.get("mavia_facing_right"));
 
         currentRegionState = getRegion("facing_down");
-        setConfig(currentRegionState.getRegionWidth(), currentRegionState.getRegionHeight(), OasisGameSettings.SCALE);
+        setSize(currentRegionState.getRegionWidth(), currentRegionState.getRegionHeight(), OasisGameSettings.SCALE);
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);

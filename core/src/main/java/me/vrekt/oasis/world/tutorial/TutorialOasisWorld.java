@@ -18,10 +18,10 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         getConfiguration().worldScale = OasisGameSettings.SCALE;
         getConfiguration().handlePhysics = true;
-        getConfiguration().updateEngine = true;
+        getConfiguration().updateEntityEngine = true;
         getConfiguration().updateEntities = false;
         getConfiguration().updateNetworkPlayers = true;
-        getConfiguration().updatePlayer = true;
+        getConfiguration().updateLocalPlayer = true;
     }
 
     @Override

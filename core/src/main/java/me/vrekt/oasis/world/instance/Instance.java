@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.LunarEntity;
+import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
@@ -54,10 +54,10 @@ public abstract class Instance extends LunarWorld<OasisPlayerSP, OasisNetworkPla
         this.gameGui = worldIn.getGame().getGui();
 
         getConfiguration().handlePhysics = true;
-        getConfiguration().updateEngine = true;
+        getConfiguration().updateEntityEngine = true;
         getConfiguration().updateEntities = true;
         getConfiguration().updateNetworkPlayers = true;
-        getConfiguration().updatePlayer = true;
+        getConfiguration().updateLocalPlayer = true;
         configuration.stepTime = 1 / 240f;
     }
 

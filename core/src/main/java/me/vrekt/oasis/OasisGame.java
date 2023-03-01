@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.kotcrab.vis.ui.VisUI;
-import gdx.lunar.Lunar;
 import gdx.lunar.LunarClientServer;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.LunarProtocol;
@@ -38,7 +37,6 @@ public final class OasisGame extends Game {
     private InputMultiplexer multiplexer;
     private GameGui gui;
 
-    private Lunar lunar;
     private LunarProtocol protocol;
     private OasisLocalServer server;
     private LunarClientServer clientServer;
@@ -110,7 +108,6 @@ public final class OasisGame extends Game {
         final TutorialOasisWorld world = new TutorialOasisWorld(this, player, new World(Vector2.Zero, true));
         worldManager.addWorld("TutorialWorld", world);
 
-        this.lunar = new Lunar();
         this.protocol = new LunarProtocol(true);
 
         // start local server for singleplayer
@@ -118,9 +115,9 @@ public final class OasisGame extends Game {
         server.start();
 
         // connect to SP server
-        clientServer = new LunarClientServer(lunar, protocol, "localhost", 6969);
-        clientServer.setProvider(channel -> new PlayerConnectionHandler(channel, protocol));
-        clientServer.connect().join();
+        clientServer = new LunarClientServer(protocol, "localhost", 6969);
+        clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
+        clientServer.connectNoExceptions();
 
         if (clientServer.getConnection() == null) {
             Logging.info(this, "error");
