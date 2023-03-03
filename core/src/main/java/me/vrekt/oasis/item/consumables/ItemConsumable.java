@@ -12,9 +12,17 @@ public abstract class ItemConsumable extends Item {
         super(itemName, itemId, description);
     }
 
+    // if this item is allowed to be consumed
+    // mainly for unlocking/tutorial
+    protected boolean allowedToConsume = true;
+
     @Override
     public void useItem(OasisPlayerSP player) {
         this.consume(player);
+    }
+
+    public void setAllowedToConsume(boolean allowedToConsume) {
+        this.allowedToConsume = allowedToConsume;
     }
 
     /**

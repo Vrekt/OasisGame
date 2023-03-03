@@ -9,8 +9,8 @@ import lunar.shared.drawing.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.dialog.EntityDialog;
-import me.vrekt.oasis.entity.dialog.EntityDialogSection;
+import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
+import me.vrekt.oasis.entity.dialog.InteractableEntityDialogSection;
 import me.vrekt.oasis.entity.npc.animation.EntityTextured;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -29,8 +29,8 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     protected final OasisPlayerSP player;
     protected final OasisGame game;
 
-    protected EntityDialog entityDialog;
-    protected EntityDialogSection dialog;
+    protected InteractableEntityDialog entityDialog;
+    protected InteractableEntityDialogSection dialog;
 
     protected boolean speakingTo, speakable;
     protected EntityNPCType type;
@@ -93,7 +93,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         }
     }
 
-    public EntityDialogSection getDialog() {
+    public InteractableEntityDialogSection getDialog() {
         return dialog;
     }
 
@@ -117,7 +117,12 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         if (speakingTo) {
             player.setRotation(Rotation.getOppositeRotation(rotation).ordinal());
             player.setIdleRegionState();
+            player.setSpeakingToEntity(true);
+            player.setEntitySpeakingTo(this);
             interaction.set(player.getPosition());
+        } else {
+            player.setEntitySpeakingTo(null);
+            player.setSpeakingToEntity(false);
         }
     }
 
@@ -178,6 +183,8 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
      * @return {@code true} if dialog is complete.
      */
     public abstract boolean advanceDialogStage(String option);
+
+    public abstract boolean advanceDialogStage();
 
     @Override
     public boolean isInView(Camera camera) {

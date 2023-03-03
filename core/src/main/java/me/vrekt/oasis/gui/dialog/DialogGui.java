@@ -13,6 +13,7 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.utility.logging.Logging;
 import org.apache.commons.lang3.StringUtils;
 
 public final class DialogGui extends Gui {
@@ -20,13 +21,17 @@ public final class DialogGui extends Gui {
     private final Table rootTable;
     private final Table optionsGroup;
     private final TypingLabel entityNameLabel;
-    private final Image entityImage;
+    private final Image entityImage, keybindImage;
 
     private final TextureRegionDrawable start, middle, end;
 
     // dialog options and title
     private final TypingLabel dialogTitle;
     private EntityInteractable entity;
+
+    // time until reset key image
+    private boolean isPressed;
+    private long lastPress;
 
     public DialogGui(GameGui gui, Asset asset) {
         super(gui, asset);
@@ -40,16 +45,16 @@ public final class DialogGui extends Gui {
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
         final Table name = new Table();
-        name.add(this.entityNameLabel = new TypingLabel("", new Label.LabelStyle(asset.getMedium(), Color.BLACK)));
+        name.add(this.entityNameLabel = new TypingLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
+        name.add(keybindImage = new Image(asset.get("fkey"))).size(32, 32).padLeft(8).padBottom(-10);
 
         final Table optionsTable = new Table();
         this.optionsGroup = new Table();
-
-        optionsTable.add(name).padBottom(12f);
-        optionsTable.row();
         optionsTable.add(optionsGroup);
 
         gui.createContainer(rootTable).bottom();
+        // TODO: Might cause bugs will check later
+        rootTable.add(name).left().padBottom(12);
         rootTable.add(optionsTable).right().padBottom(4);
         rootTable.row();
 
@@ -72,12 +77,30 @@ public final class DialogGui extends Gui {
     }
 
     /**
+     * Update key-press for skipping dialog
+     */
+    public void updateKeyPress() {
+        keybindImage.setDrawable(new TextureRegionDrawable(asset.get("fkeypressed")));
+        lastPress = System.currentTimeMillis();
+        isPressed = true;
+    }
+
+    @Override
+    public void update() {
+        if (isPressed && (System.currentTimeMillis() - lastPress) >= 100) {
+            keybindImage.setDrawable(new TextureRegionDrawable(asset.get("fkey")));
+            isPressed = false;
+        }
+    }
+
+    /**
      * Set current entity speaking to
      *
      * @param entity the entity speaking to
      */
     public void setShowingDialog(EntityInteractable entity) {
-        if (entity.getDialog() == null) {
+        if (entity == null || entity.getDialog() == null) {
+            Logging.warn(this, "Failed to show dialog: " + (entity == null) + " -> entity " + (entity == null ? "[no entity]" : (entity.getDialog() == null)) + " -> dialog");
             hide();
             return;
         }
@@ -85,16 +108,17 @@ public final class DialogGui extends Gui {
         this.entity = entity;
 
         this.entityImage.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
-        this.entityNameLabel.setText("{COLOR=BLACK}" + entity.getName());
+        this.entityNameLabel.setText("{COLOR=WHITE}" + entity.getName());
         // append black color to typing label.
-        this.dialogTitle.restart("{COLOR=BLACK}" + parseDialogText(entity.getDialog().title));
+        this.dialogTitle.restart("{COLOR=BLACK}" + parseDialogText(entity.getDialog().getTitle()));
 
         optionsGroup.clear();
-        entity.getDialog().options.forEach((key, option) -> {
-            optionsGroup.add(createOptionSection(option, key)).padBottom(2f);
-            optionsGroup.row();
-        });
-
+        if (entity.getDialog().hasOptions()) {
+            entity.getDialog().getOptions().forEach((key, option) -> {
+                optionsGroup.add(createOptionSection(option, key)).padBottom(2f);
+                optionsGroup.row();
+            });
+        }
     }
 
     private Table createOptionSection(String text, String key) {

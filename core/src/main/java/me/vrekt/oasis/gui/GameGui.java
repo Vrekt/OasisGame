@@ -106,6 +106,10 @@ public final class GameGui {
         return stage;
     }
 
+    public void updateDialogKeyPress() {
+        ((DialogGui) getGui(GuiType.DIALOG)).updateKeyPress();
+    }
+
     /**
      * Show dialog for an entity
      *
@@ -113,7 +117,7 @@ public final class GameGui {
      */
     public void showEntityDialog(EntityInteractable entity) {
         ((DialogGui) getGui(GuiType.DIALOG)).setShowingDialog(entity);
-        showDialog();
+        showGui(GuiType.DIALOG);
     }
 
     public void showGui(GuiType type) {
@@ -127,10 +131,6 @@ public final class GameGui {
     public void hideThenShowGui(GuiType hide, GuiType show) {
         hideGui(hide);
         showGui(show);
-    }
-
-    public void showDialog() {
-        showGui(GuiType.DIALOG);
     }
 
     public boolean isGuiVisible(GuiType type) {

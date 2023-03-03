@@ -20,6 +20,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
@@ -53,6 +54,9 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private float health = 100.0f;
     private boolean didUseTutorialFruit;
+
+    private EntityInteractable entitySpeakingTo;
+    private boolean isSpeakingToEntity;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -133,6 +137,22 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public void setRotationChanged(boolean rotationChanged) {
         this.rotationChanged = rotationChanged;
+    }
+
+    public void setSpeakingToEntity(boolean speakingToEntity) {
+        isSpeakingToEntity = speakingToEntity;
+    }
+
+    public boolean isSpeakingToEntity() {
+        return isSpeakingToEntity;
+    }
+
+    public void setEntitySpeakingTo(EntityInteractable entitySpeakingTo) {
+        this.entitySpeakingTo = entitySpeakingTo;
+    }
+
+    public EntityInteractable getEntitySpeakingTo() {
+        return entitySpeakingTo;
     }
 
     public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {

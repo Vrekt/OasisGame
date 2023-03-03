@@ -654,6 +654,24 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             return true;
         } else if (keycode == Input.Keys.T) {
             player.getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
+        } else if (keycode == OasisKeybindings.NEXT_DIALOG) {
+            if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
+                // advance current dialog stage
+                if (player.getEntitySpeakingTo().getDialog().hasOptions()) {
+                    // return since we can't skip without selecting an option
+                    return true;
+                }
+
+                final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
+                if (!result) {
+                    // hide
+                    gui.hideGui(GuiType.DIALOG);
+                    return true;
+                }
+                gui.updateDialogKeyPress();
+                gui.showEntityDialog(player.getEntitySpeakingTo());
+                return true;
+            }
         }
         return false;
     }

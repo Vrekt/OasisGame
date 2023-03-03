@@ -48,6 +48,18 @@ public final class PlayerQuestManager {
         Objects.requireNonNull(getQuestOfType(type)).updateQuestObjectiveAndUnlockNext();
     }
 
+    /**
+     * Update the current quest objective to completed.
+     *
+     * @param type type
+     * @param <T>  of
+     */
+    public <T extends Quest> void updateQuestObjectiveAndUnlockNext(Class<T> type, int times) {
+        for (int i = 0; i < times; i++) {
+            Objects.requireNonNull(getQuestOfType(type)).updateQuestObjectiveAndUnlockNext();
+        }
+    }
+
     public Map<QuestType, Quest> getActiveQuests() {
         return activeQuests;
     }

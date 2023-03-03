@@ -17,8 +17,6 @@ import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 
-import java.util.Locale;
-
 /**
  * Allows the player to select their desired class.
  */
@@ -99,14 +97,14 @@ public final class ClassSelectorGui extends Gui {
                     }
 
                     // advance state
-                    mavia.advanceDialogStage("mavia_dialog_" + classType.getClassName().toLowerCase(Locale.ROOT));
+                    mavia.advanceDialogStage("mavia_dialog_3");
                     // show class icon to player hud
                     gui.getHud().setClassIcon(classType.getIcon());
 
                     // show dialog gui
-                    gui.showEntityDialog(mavia);
                     gui.hideGui(GuiType.HUD);
-                    gui.showGui(GuiType.DIALOG);
+                    gui.hideGui(GuiType.CLASS);
+                    gui.showEntityDialog(mavia);
                 }
 
                 return true;

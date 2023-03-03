@@ -36,8 +36,10 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     public void interact() {
         super.interact();
 
-        // give the player their item
-        world.getLocalPlayer().getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
+        // give the player their itemw
+        // not allowed to consume unless talked to mavia first
+        final LucidTreeFruitItem item = (LucidTreeFruitItem) world.getLocalPlayer().getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
+        item.setAllowedToConsume(false);
 
         this.interactable = false;
         this.interactedWith = false;

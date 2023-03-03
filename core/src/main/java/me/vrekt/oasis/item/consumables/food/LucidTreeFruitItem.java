@@ -26,6 +26,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
 
     @Override
     public void consume(OasisPlayerSP player) {
+        if (!allowedToConsume) return;
         decreaseItemAmount();
         applyAllAttributes(player);
         player.setDidUseTutorialFruit(true);

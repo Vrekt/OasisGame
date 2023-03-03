@@ -79,6 +79,24 @@ public abstract class EntityInventory {
     }
 
     /**
+     * Get an item by type
+     * This method will return the first instance of the item
+     *
+     * @param type the type
+     * @param <T>  T
+     * @return the item or {@code  null} if non-existent
+     */
+    public <T extends Item> Item getItem(Class<T> type) {
+        for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
+            if (entry.getValue() != null && entry.getValue().isOccupied() &&
+                    entry.getValue().getItem().getClass().equals(type)) {
+                return entry.getValue().getItem();
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get slot number of an item
      *
      * @param item the item
