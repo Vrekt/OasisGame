@@ -136,6 +136,8 @@ public final class DialogGui extends Gui {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (entity.advanceDialogStage(key)) {
+                    // no more dialog so stop speaking
+                    entity.setSpeakingTo(false);
                     hide();
                 } else {
                     setShowingDialog(entity);

@@ -1,7 +1,6 @@
 package me.vrekt.oasis;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
 
@@ -22,7 +21,7 @@ public class GameManager {
     }
 
     public static void resetCursor() {
-        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+        setCursorInGame("ui/cursor.png");
     }
 
     public static OasisTiledRenderer getRenderer() {

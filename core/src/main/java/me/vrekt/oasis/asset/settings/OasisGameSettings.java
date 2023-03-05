@@ -6,4 +6,6 @@ public final class OasisGameSettings {
     public static float ENTITY_UPDATE_DISTANCE = 100;
     public static boolean SHOW_FPS = true;
 
+    public static boolean V_SYNC = true;
+
 }

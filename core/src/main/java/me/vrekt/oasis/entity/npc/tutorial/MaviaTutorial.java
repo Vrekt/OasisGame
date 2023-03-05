@@ -27,49 +27,50 @@ public final class MaviaTutorial extends EntityInteractable {
 
         entityDialog = MaviaTutorialDialog.create();
         dialog = entityDialog.getStarting();
+
+        // first part of player tutorial, give the player an item.
+        addDialogAction("mavia_dialog_end_1", this::updateEndStage1);
+        addDialogAction("mavia_dialog_end_2", () -> {
+            setSpeakingTo(false);
+            allowedToConsumeFruitItem = true;
+        });
+        addDialogAction("mavia_dialog_end_3", this::updateEndStage3);
+        // player should select their class
+        addDialogAction("mavia_dialog_select_class", () -> game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS));
     }
 
     @Override
     public boolean advanceDialogStage(String option) {
-        // first part of player tutorial, give the player an item.
-
-        if (option.equals("mavia_dialog_end_1")) {
-            setSpeakingTo(false);
-            speakable = false;
-
-            // unlock quest, obj1: speak obj2: player class completed both
-            if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
-                this.givenLucidHarvestingItem = true;
-                // unlock the next 2 objectives
-                player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class, 2);
-                game.getGui().hideGui(GuiType.DIALOG);
-                game.getGui().showHud();
-                // give the player the harvesting tool.
-                final Item item = game
-                        .getPlayer()
-                        .getInventory()
-                        .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
-                game.getGui().getHud().showItemCollected(item);
-            }
-            return false;
-        }
-
-        // set the player is allowed to consume their tutorial item
-        if (option.equals("mavia_dialog_end_2")) {
-            allowedToConsumeFruitItem = true;
-            return false;
-        }
-
-        if (option.equals("mavia_dialog_end_3")) return false;
-
-        // player should select their class
-        if (option.equals("mavia_dialog_select_class")) {
-            game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS);
-            return false;
-        }
-
+        if (executeDialogAction(option)) return false;
         this.dialog = entityDialog.getSection(option);
         return true;
+    }
+
+    private void updateEndStage1() {
+        setSpeakingTo(false);
+        speakable = false;
+
+        // unlock quest, obj1: speak obj2: player class completed both
+        if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
+            this.givenLucidHarvestingItem = true;
+            // unlock the next 2 objectives
+            player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class, 2);
+            game.getGui().hideGui(GuiType.DIALOG);
+            game.getGui().showHud();
+            // give the player the harvesting tool.
+            final Item item = game
+                    .getPlayer()
+                    .getInventory()
+                    .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
+            game.getGui().getHud().showItemCollected(item);
+        }
+    }
+
+    private void updateEndStage3() {
+        setSpeakingTo(false);
+        // at this point dialog is finished and NPC needs to be moved
+        gameWorldIn.removeInteractableEntity(this);
+        getWorlds().worldIn = null;
     }
 
     @Override

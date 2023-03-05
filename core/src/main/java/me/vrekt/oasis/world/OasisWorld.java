@@ -39,6 +39,7 @@ import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
+import me.vrekt.oasis.world.instance.OasisInstance;
 import me.vrekt.oasis.world.interior.Instanced;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -112,15 +113,23 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     public boolean enterWorld(boolean fromInstance) {
         // remove player from a world they could already be in
-        if (player.isInWorld()) {
+        if (player.getWorldIn() != null) {
             player.removeEntityInWorld(player.getWorldIn());
             player.setGameWorldIn(null);
         }
+
         if (fromInstance) {
+            player.setInInstance(false);
+            player.setInstanceIn(null);
+
             this.renderer.setTiledMap(map, spawn.x, spawn.y);
             player.spawnEntityInWorld(this, player.getX(), player.getY());
+            player.setGameWorldIn(this);
+            player.setInWorld(true);
             GameManager.resetCursor();
         }
+
+        GameManager.resetCursor();
         return true;
     }
 
@@ -204,7 +213,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (type != null) {
                 final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
                 entity.load(asset);
-                addEntity(entity);
+                addInteractableEntity(entity);
             } else {
                 Logging.warn(this, "Found invalid entity: " + object);
             }
@@ -219,10 +228,31 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      *
      * @param entity the entity
      */
-    public void addEntity(EntityInteractable entity) {
+    public void addInteractableEntity(EntityInteractable entity) {
         entity.setEntityId(this.entities.size() + 1);
         this.entities.put(entity.getEntityId(), entity);
         engine.addEntity(entity.getEntity());
+    }
+
+    /**
+     * Remove an interactable entity from this world
+     * TODO: In update system maybe check for a state within the entity to queue to remove from world
+     *
+     * @param entity the entity
+     */
+    public void removeInteractableEntity(EntityInteractable entity) {
+        this.entities.remove(entity.getEntityId());
+        engine.removeEntity(entity.getEntity());
+        nearbyEntities.remove(entity);
+    }
+
+    public EntityInteractable getLoadedEntity(EntityNPCType type) {
+        for (Entity entity : entities.values()) {
+            if (entity.isInteractable() && entity.asInteractable().getType() == type) {
+                return entity.asInteractable();
+            }
+        }
+        return null;
     }
 
     /**
@@ -330,11 +360,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param worldScale scale
      */
     public void loadWorldInteriors(TiledMap worldMap, float worldScale) {
-        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Interior", (object, rectangle) -> {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Interior", (object, bounds) -> {
             final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
             final String interiorName = object.getProperties().get("interior_name", null, String.class);
             if (interiorName != null && enterable) {
-                this.interiors.put(interiorName, new Instanced(this, interiorName, object.getProperties().get("cursor", String.class), rectangle));
+                final String instanceCursor = object.getProperties().get("cursor", String.class);
+                this.interiors.put(interiorName, new Instanced(game, player, this, interiorName, instanceCursor, bounds));
             }
         });
 
@@ -374,6 +405,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             player.getInstanceIn().render(delta);
             return;
         }
+
 
         if (paused && !hasFbo) fbo.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -534,7 +566,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     public void endRender() {
         batch.end();
-        gui.render();
+        gui.updateAndRender();
     }
 
     public EntityInteractable getByType(EntityNPCType type) {
@@ -561,7 +593,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * Interact with an entity if they were clicked on.
      * Finds the first entity and does not allow multiple
      */
-    protected void interactWithEntity() {
+    protected boolean interactWithEntity() {
         // find entity clicked on
         final EntityInteractable closest = getNearbyEntities()
                 .keySet()
@@ -577,15 +609,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
             gui.showEntityDialog(closest);
             gui.hideHud();
+            return true;
         }
+        return false;
     }
 
     /**
      * Interact with the environment
      */
-    protected void interactWithObject() {
+    protected boolean interactWithObject() {
         // only check objects that are within our update distance
-        // TODO: Still needs optimization? I don't know if it stops at the first filter object
         final InteractableWorldObject worldObject = interactableWorldObjects
                 .stream()
                 .filter(InteractableWorldObject::isWithinUpdateDistanceCache)
@@ -602,14 +635,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             } else {
                 gui.getHud().showMissingItemWarning();
             }
+            return true;
         }
+        return false;
     }
 
-
-    /**
-     * Attempt to enter an interior
-     */
-    protected void interactWithInterior() {
+    protected OasisInstance getInstanceToEnterIfAny() {
         final Instanced interior = interiors
                 .values()
                 .stream()
@@ -620,10 +651,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (interior != null
                 && interior.enterable()
                 && interior.isWithinEnteringDistance(player.getPosition())) {
-            GameManager.resetCursor();
-            this.cursorChanged = false;
-            interior.enter();
+            return interior;
         }
+        return null;
     }
 
     /**
@@ -654,7 +684,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             return true;
         } else if (keycode == Input.Keys.T) {
             player.getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
-        } else if (keycode == OasisKeybindings.NEXT_DIALOG) {
+        } else if (keycode == OasisKeybindings.SKIP_DIALOG_KEY) {
             if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
                 // advance current dialog stage
                 if (player.getEntitySpeakingTo().getDialog().hasOptions()) {

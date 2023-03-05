@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
@@ -30,7 +31,7 @@ import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.Instance;
+import me.vrekt.oasis.world.instance.OasisInstance;
 
 /**
  * Represents the local player SP
@@ -49,7 +50,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private final PlayerInventory inventory;
 
     private boolean isInInstance;
-    private Instance instanceIn;
+    private OasisInstance instanceIn;
     private final PlayerQuestManager questManager;
 
     private float health = 100.0f;
@@ -67,6 +68,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setHasMoved(true);
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRatesInMs(0, 0);
+        setFixedRotation(true);
 
         this.inventory = new PlayerInventory(this);
 
@@ -103,11 +105,11 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         isInInstance = inInstance;
     }
 
-    public Instance getInstanceIn() {
+    public OasisInstance getInstanceIn() {
         return instanceIn;
     }
 
-    public void setInstanceIn(Instance instanceIn) {
+    public void setInstanceIn(OasisInstance instanceIn) {
         this.instanceIn = instanceIn;
     }
 
@@ -288,29 +290,17 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     @Override
+    public void definePlayer(World world, float x, float y) {
+        setPosition(x, y, true);
+        this.getPrevious().set(x, y);
+        this.setInterpolated(x, y);
+        this.body = this.definitionHandler.createBodyInWorld(world, x, y, this.getProperties());
+        this.definitionHandler.resetDefinition();
+    }
+
+    @Override
     public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
         super.spawnEntityInWorld(world, x, y);
         this.getBody().setUserData(this);
-
-//        // RIGHTARM //
-//
-//        this.rightArmDef = new RevoluteJointDef();
-//        this.rightArmDef.bodyA = this.body;
-//        this.rightArmDef.bodyB = this.body;
-//        this.rightArmDef.collideConnected = false;
-//
-//
-//        this.rightArmDef.localAnchorA.set(this.body.getLocalCenter().add(new Vector2(0.50f, +0.05f)));
-//        this.rightArmDef.localAnchorB.set(this.body.getLocalCenter().add(new Vector2(0.14f, 0.14f)));
-//
-//        this.rightArmDef.enableMotor = true;
-//        this.rightArmDef.motorSpeed = 0f;
-//        this.rightArmDef.maxMotorTorque = 10f;
-//
-//        this.rightArmDef.enableLimit = true;
-//        this.rightArmDef.lowerAngle = 1.2f;// * DEGTORAD;
-//        this.rightArmDef.upperAngle = 5;
-//        this.rightArmJoint = (RevoluteJoint) world.getWorld().createJoint(this.rightArmDef);
-
     }
 }

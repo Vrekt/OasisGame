@@ -16,6 +16,10 @@ import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.interior.Instanced;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents an NPC within the game
@@ -27,6 +31,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     protected boolean inView;
 
     protected final OasisPlayerSP player;
+    protected final OasisWorld gameWorldIn;
     protected final OasisGame game;
 
     protected InteractableEntityDialog entityDialog;
@@ -39,12 +44,15 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
     protected float speakableDistance = 6f, dialogAnimationRange = 50f;
     protected final Vector2 interaction = new Vector2();
 
+    protected final Map<String, Runnable> dialogActions = new HashMap<>();
+
     public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(true);
         entity.add(new EntityDialogComponent());
         setPosition(position.x, position.y, true);
         setEntityName(name);
         getWorlds().worldIn = worldIn;
+        this.gameWorldIn = worldIn;
         this.player = player;
         this.game = game;
         this.type = type;
@@ -93,6 +101,10 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         }
     }
 
+    public void spawnInInstance(Instanced instanced) {
+
+    }
+
     public InteractableEntityDialogSection getDialog() {
         return dialog;
     }
@@ -124,6 +136,30 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
             player.setEntitySpeakingTo(null);
             player.setSpeakingToEntity(false);
         }
+    }
+
+    /**
+     * Add a dialog option
+     *
+     * @param key    the key
+     * @param action the action to run
+     */
+    protected void addDialogAction(String key, Runnable action) {
+        this.dialogActions.put(key, action);
+    }
+
+    /**
+     * Execute a dialog action
+     *
+     * @param key the key entry
+     * @return {@code  true} if executed
+     */
+    protected boolean executeDialogAction(String key) {
+        if (dialogActions.containsKey(key)) {
+            dialogActions.get(key).run();
+            return true;
+        }
+        return false;
     }
 
     /**

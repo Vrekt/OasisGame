@@ -50,6 +50,6 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
     @Override
     public String getCursor() {
-        return "ui/tree_cursor.png";
+        return "ui/tree_cursor2.png";
     }
 }

@@ -7,17 +7,18 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.Instance;
+import me.vrekt.oasis.world.instance.OasisInstance;
 
 /**
- * Basic implementation of {@link Instance}.
+ * Basic implementation of {@link OasisInstance}.
  */
-public class Instanced extends Instance implements Pool.Poolable {
+public class Instanced extends OasisInstance {
 
     public static <T extends Instanced> T get(Class<T> type) {
         return Pools.obtain(type);
@@ -30,8 +31,8 @@ public class Instanced extends Instance implements Pool.Poolable {
     private float distance = 2.5f;
     private final String cursor, instanceName;
 
-    public Instanced(OasisWorld world, String name, String cursor, Rectangle bounds) {
-        super(world.getLocalPlayer(), new World(Vector2.Zero, true), world, name);
+    public Instanced(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+        super(game, player, new World(Vector2.Y, false), world, name);
         this.instanceName = name;
         this.cursor = cursor;
         this.bounds = bounds;
@@ -81,7 +82,7 @@ public class Instanced extends Instance implements Pool.Poolable {
             world.destroyBody(body);
         }
         this.dispose();
-        isLoaded = false;
+        isWorldLoaded = false;
     }
 
     @Override
@@ -110,16 +111,9 @@ public class Instanced extends Instance implements Pool.Poolable {
         if (cursorChanged // indicates mouse is over exit
                 && player.getPosition().dst(exit.x, exit.y) <= 4.5f) {
             Logging.info(instanceName, "Exiting instance: " + instanceName);
-            player.setInInstance(false);
-            player.setInstanceIn(null);
-            player.setPosition(worldExitSpawn.x, worldExitSpawn.y, true);
+            player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
             worldIn.enterWorld(true);
         }
-    }
-
-    @Override
-    public void reset() {
-        // TODO: Maybe use pools.
     }
 
 }

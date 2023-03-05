@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.inventory.renderer.HudInventoryHandler;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
@@ -43,7 +44,8 @@ public final class HudGui extends Gui {
 
         // info: FPS
         final Table fpsTable = new Table();
-        fpsTable.setVisible(true);
+        // TODO: Toggleable
+        fpsTable.setVisible(OasisGameSettings.SHOW_FPS);
         fpsTable.top().left();
         fpsTable.add(fpsLabel = new Label("FPS: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
 
