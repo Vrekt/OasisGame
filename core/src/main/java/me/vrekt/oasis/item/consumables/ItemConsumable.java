@@ -21,6 +21,10 @@ public abstract class ItemConsumable extends Item {
         this.consume(player);
     }
 
+    public boolean isAllowedToConsume() {
+        return allowedToConsume;
+    }
+
     public void setAllowedToConsume(boolean allowedToConsume) {
         this.allowedToConsume = allowedToConsume;
     }

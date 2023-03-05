@@ -198,8 +198,9 @@ public final class InventoryGui extends Gui {
                         InventoryGui.this.itemDescription.setVisible(true);
                     }
 
-                    // update buttons
-                    if (InventoryUiSlot.this.item instanceof ItemConsumable) {
+                    // update consume buttons, only if allowed and an actual item to eat
+                    if (InventoryUiSlot.this.item instanceof ItemConsumable
+                            && ((ItemConsumable) InventoryUiSlot.this.item).isAllowedToConsume()) {
                         useItemButton.setVisible(true);
                         useItemButton.setText("Consume");
                     }
