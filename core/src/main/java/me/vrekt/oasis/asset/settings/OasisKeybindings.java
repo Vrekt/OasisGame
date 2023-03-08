@@ -11,5 +11,6 @@ public final class OasisKeybindings {
     public static int QUEST_BOOK_KEY = Input.Keys.Q;
     public static int INVENTORY_KEY = Input.Keys.I;
     public static int SKIP_DIALOG_KEY = Input.Keys.F;
+    public static int PAUSE_GAME_KEY = Input.Keys.ESCAPE;
 
 }

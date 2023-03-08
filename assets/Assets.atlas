@@ -90,7 +90,7 @@ class_select_panel
   index: -1
 coin
   rotate: false
-  xy: 1186, 5
+  xy: 1509, 63
   size: 11, 11
   orig: 11, 11
   offset: 0, 0
@@ -300,14 +300,14 @@ healer_walking_right
   index: 1
 healer_walking_right
   rotate: false
-  xy: 1480, 46
+  xy: 1480, 26
   size: 12, 27
   orig: 12, 27
   offset: 0, 0
   index: 2
 healer_walking_right_idle
   rotate: false
-  xy: 1480, 16
+  xy: 1495, 46
   size: 12, 28
   orig: 12, 28
   offset: 0, 0
@@ -377,14 +377,14 @@ ino_facing_down
   index: -1
 ino_facing_left
   rotate: false
-  xy: 1494, 19
+  xy: 1509, 35
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
   index: -1
 ino_facing_right
   rotate: false
-  xy: 1466, 29
+  xy: 1466, 27
   size: 12, 26
   orig: 12, 26
   offset: 0, 0
@@ -398,7 +398,7 @@ ino_facing_up
   index: -1
 ino_idle
   rotate: false
-  xy: 1494, 47
+  xy: 1494, 18
   size: 11, 26
   orig: 11, 26
   offset: 0, 0
@@ -419,14 +419,14 @@ interaction_dialog
   index: -1
 inventory_background
   rotate: false
-  xy: 172, 6
+  xy: 190, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 inventory_color
   rotate: false
-  xy: 46, 6
+  xy: 64, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -475,7 +475,7 @@ lava_icon_dialog
   index: -1
 lira
   rotate: false
-  xy: 136, 6
+  xy: 154, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -503,7 +503,7 @@ lucid_fruit_tree
   index: -1
 lucid_fruit_tree_particle
   rotate: false
-  xy: 208, 6
+  xy: 226, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -599,9 +599,16 @@ nature_icon_dialog
   orig: 24, 24
   offset: 0, 0
   index: -1
+pause
+  rotate: false
+  xy: 28, 6
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
 pickaxe
   rotate: false
-  xy: 154, 6
+  xy: 172, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -636,7 +643,7 @@ prototype_timepiercer_swing
   index: 2
 quest_background
   rotate: false
-  xy: 100, 6
+  xy: 118, 6
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -741,21 +748,21 @@ valueables_icon_active
   index: -1
 walking_down
   rotate: false
-  xy: 118, 4
+  xy: 136, 4
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 2
 walking_down
   rotate: false
-  xy: 190, 4
+  xy: 208, 4
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_down_idle
   rotate: false
-  xy: 226, 4
+  xy: 472, 62
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
@@ -769,14 +776,14 @@ walking_left
   index: 2
 walking_left
   rotate: false
-  xy: 64, 4
+  xy: 82, 4
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_left_idle
   rotate: false
-  xy: 472, 62
+  xy: 490, 62
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
@@ -790,7 +797,7 @@ walking_right
   index: 2
 walking_right
   rotate: false
-  xy: 82, 4
+  xy: 100, 4
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
@@ -804,14 +811,14 @@ walking_right_idle
   index: -1
 walking_up
   rotate: false
-  xy: 28, 4
+  xy: 46, 4
   size: 16, 18
   orig: 16, 18
   offset: 0, 0
   index: 1
 walking_up
   rotate: false
-  xy: 490, 62
+  xy: 1472, 55
   size: 16, 18
   orig: 16, 18
   offset: 0, 0

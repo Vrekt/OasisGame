@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -35,7 +34,6 @@ import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -72,9 +70,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected int width, height;
 
     // pause state
-    protected FrameBuffer fbo;
-    protected TextureRegion fboTexture;
-    protected boolean paused, hasFbo;
+    protected boolean paused;
 
     protected GameGui gui;
 
@@ -86,6 +82,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
     protected final Map<String, Instanced> interiors = new HashMap<>();
+    protected final Map<Integer, Runnable> keyActions = new HashMap<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -163,6 +160,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadWorldObjects(worldMap, game.getAsset(), worldScale);
         loadWorldInteriors(worldMap, worldScale);
+        addKeyActions();
 
         configuration.worldScale = worldScale;
 
@@ -180,6 +178,50 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         this.isWorldLoaded = true;
     }
+
+    private void addKeyActions() {
+        keyActions.put(OasisKeybindings.INVENTORY_KEY, () -> showGuiType(GuiType.INVENTORY));
+        keyActions.put(OasisKeybindings.QUEST_BOOK_KEY, () -> showGuiType(GuiType.QUEST));
+        keyActions.put(OasisKeybindings.SKIP_DIALOG_KEY, this::skipCurrentDialog);
+        keyActions.put(OasisKeybindings.PAUSE_GAME_KEY, () -> {
+            gui.hideGui(GuiType.QUEST);
+            gui.hideGui(GuiType.INVENTORY);
+
+            if (paused) {
+                resume();
+            } else {
+                pause();
+            }
+        });
+    }
+
+    private void showGuiType(GuiType type) {
+        if (gui.isGuiVisible(type)) {
+            gui.hideGui(type);
+        } else {
+            gui.showGui(type);
+        }
+    }
+
+    private void skipCurrentDialog() {
+        if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
+            // advance current dialog stage
+            if (player.getEntitySpeakingTo().getDialog().hasOptions()) {
+                // return since we can't skip without selecting an option
+                return;
+            }
+
+            final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
+            if (!result) {
+                // hide
+                gui.hideGui(GuiType.DIALOG);
+                return;
+            }
+            gui.updateDialogKeyPress();
+            gui.showEntityDialog(player.getEntitySpeakingTo());
+        }
+    }
+
 
     /**
      * Re-enter this world from the instance
@@ -389,58 +431,38 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void pause() {
+        Logging.info(this, "Pausing game.");
         paused = true;
     }
 
     @Override
     public void resume() {
+        Logging.info(this, "Resuming game.");
+        gui.hideGui(GuiType.PAUSE);
         paused = false;
     }
 
     @Override
     public void render(float delta) {
-
         // handle parent instance if in one
         if (player.isInInstance()) {
             player.getInstanceIn().render(delta);
             return;
         }
 
-
-        if (paused && !hasFbo) fbo.begin();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (paused && !hasFbo) {
-            // capture fbo.
-            renderer.getViewport().apply();
-            renderInternal(delta);
-            hasFbo = true;
-        } else if (paused) {
-            // draw fbo.
-
-            gui.getStage().getViewport().apply();
-            batch.setProjectionMatrix(gui.getCamera().combined);
-            batch.begin();
-
-            if (fboTexture == null) {
-                fboTexture = new TextureRegion(fbo.getColorBufferTexture());
-                fboTexture.flip(false, true);
-            } else if (fboTexture.getTexture() == null) {
-                fboTexture.setTexture(fbo.getColorBufferTexture());
+        if (paused) {
+            if (!gui.isGuiVisible(GuiType.PAUSE)) {
+                gui.showGui(GuiType.PAUSE);
             }
-
-            // draw FBO
-            batch.draw(fboTexture, 0, 0);
+            // render, no update
+            this.renderWorld(game.getBatch(), delta);
         } else {
-            if (fboTexture != null) fboTexture.setTexture(null);
             renderer.getViewport().apply();
-            // no pause state, render normally.
+            // no pause state, render+update normally
             renderInternal(delta);
         }
-
-        // end
-        if (paused && hasFbo) fbo.end();
-        if (paused && batch.isDrawing()) batch.end();
     }
 
     @Override
@@ -668,40 +690,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == OasisKeybindings.QUEST_BOOK_KEY) {
-            if (gui.isGuiVisible(GuiType.QUEST)) {
-                gui.hideGui(GuiType.QUEST);
-            } else {
-                gui.showGui(GuiType.QUEST);
-            }
-            return true;
-        } else if (keycode == OasisKeybindings.INVENTORY_KEY) {
-            if (gui.isGuiVisible(GuiType.INVENTORY)) {
-                gui.hideGui(GuiType.INVENTORY);
-            } else {
-                gui.showGui(GuiType.INVENTORY);
-            }
-            return true;
-        } else if (keycode == Input.Keys.T) {
-            player.getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
-        } else if (keycode == OasisKeybindings.SKIP_DIALOG_KEY) {
-            if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
-                // advance current dialog stage
-                if (player.getEntitySpeakingTo().getDialog().hasOptions()) {
-                    // return since we can't skip without selecting an option
-                    return true;
-                }
+        if (paused && keycode != OasisKeybindings.PAUSE_GAME_KEY) {
+            return false;
+        }
 
-                final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
-                if (!result) {
-                    // hide
-                    gui.hideGui(GuiType.DIALOG);
-                    return true;
-                }
-                gui.updateDialogKeyPress();
-                gui.showEntityDialog(player.getEntitySpeakingTo());
-                return true;
-            }
+        if (keyActions.containsKey(keycode)) {
+            keyActions.get(keycode).run();
+            return true;
         }
         return false;
     }

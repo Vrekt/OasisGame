@@ -18,8 +18,10 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
+import me.vrekt.oasis.gui.pause.PauseGui;
 import me.vrekt.oasis.gui.quest.QuestingGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
+import me.vrekt.oasis.gui.settings.SettingsGui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +70,8 @@ public final class GameGui {
         guis.put(GuiType.HUD, new HudGui(this, asset));
         guis.put(GuiType.QUEST, new QuestingGui(this, asset));
         guis.put(GuiType.INVENTORY, new InventoryGui(this, asset));
+        guis.put(GuiType.PAUSE, new PauseGui(this, asset));
+        guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
     }
 
     public InputMultiplexer getMultiplexer() {

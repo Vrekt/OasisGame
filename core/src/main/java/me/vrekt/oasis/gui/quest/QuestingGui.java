@@ -50,14 +50,13 @@ public final class QuestingGui extends Gui {
         table = new VisTable(true);
         table.setFillParent(true);
         table.setVisible(false);
-        table.add(this).expand().fill();
+        table.setBackground(new TextureRegionDrawable(asset.get("quest_background")));
 
         activeQuestObjectives = new VisTable(true);
         activeQuestItems = new VisTable(true);
         activeQuestRewards = new VisTable(true);
 
-        TableUtils.setSpacingDefaults(this);
-        columnDefaults(0).left();
+        TableUtils.setSpacingDefaults(table);
         populateQuests();
         table.pack();
 
@@ -131,7 +130,9 @@ public final class QuestingGui extends Gui {
 
         VisSplitPane splitPane = new VisSplitPane(table, other, false);
         splitPane.setSplitAmount(0.3f);
-        add(splitPane).fill().expand();
+        splitPane.setMinSplitAmount(0.29f);
+        splitPane.setMaxSplitAmount(0.4f);
+        this.table.add(splitPane).fill().expand();
     }
 
     /**
