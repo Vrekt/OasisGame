@@ -52,7 +52,7 @@ public final class PauseGui extends Gui {
         primary.add(exit);
 
         rootTable.add(primary).top();
-        gui.createContainer(rootTable).fill().top();
+        gui.createContainer(rootTable).fill();
     }
 
     private void addDefaultActions(TypingLabel label, Runnable action) {

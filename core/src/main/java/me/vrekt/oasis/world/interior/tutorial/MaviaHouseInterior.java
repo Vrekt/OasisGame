@@ -11,20 +11,14 @@ import me.vrekt.oasis.world.interior.Instanced;
  */
 public final class MaviaHouseInterior extends Instanced {
 
-    private boolean hasMavia;
-
-    public MaviaHouseInterior(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds, boolean hasMavia) {
+    public MaviaHouseInterior(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(game, player, world, name, cursor, bounds);
-        this.hasMavia = hasMavia;
+        // not enterable until part 1 of tutorial is complete
+        this.enterable = false;
     }
 
     @Override
     public void enter() {
         super.enter();
-
-        // spawn mavia entity
-        if (!hasMavia) {
-
-        }
     }
 }

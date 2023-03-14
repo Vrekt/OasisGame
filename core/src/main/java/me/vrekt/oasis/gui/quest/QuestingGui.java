@@ -29,8 +29,6 @@ import java.util.Map;
  */
 public final class QuestingGui extends Gui {
 
-    private final Stage stage = new Stage();
-
     private final VisTable table;
     private final PlayerQuestManager manager;
 
@@ -59,9 +57,7 @@ public final class QuestingGui extends Gui {
         TableUtils.setSpacingDefaults(table);
         populateQuests();
         table.pack();
-
-        stage.addActor(table);
-        gui.getMultiplexer().addProcessor(stage);
+        gui.createContainer(table).fill();
     }
 
     /**
@@ -221,24 +217,6 @@ public final class QuestingGui extends Gui {
     }
 
     @Override
-    public void update() {
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
-        stage.getCamera().update();
-    }
-
-    @Override
-    public void draw() {
-        stage.getViewport().apply();
-        stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-        stage.getCamera().update();
-    }
-
-    @Override
     public void show() {
         super.show();
         super.gui.hideGui(GuiType.HUD);
@@ -248,7 +226,6 @@ public final class QuestingGui extends Gui {
             updateQuestObjectivesUi(currentSelectedQuest, respectiveObjectiveLabels.get(currentSelectedQuest));
         }
         table.setVisible(true);
-        gui.getMultiplexer().addProcessor(stage);
     }
 
     @Override
@@ -256,6 +233,5 @@ public final class QuestingGui extends Gui {
         super.hide();
         super.gui.showGui(GuiType.HUD);
         table.setVisible(false);
-        gui.getMultiplexer().removeProcessor(stage);
     }
 }

@@ -30,8 +30,6 @@ import java.util.LinkedList;
  * Inventory Gui
  */
 public final class InventoryGui extends Gui {
-
-    private final Stage stage;
     private final VisTable rootTable;
     private final OasisPlayerSP player;
 
@@ -47,7 +45,6 @@ public final class InventoryGui extends Gui {
         super(gui, asset, "inventory");
         this.player = gui.getGame().getPlayer();
 
-        stage = new Stage();
         rootTable = new VisTable(true);
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
@@ -111,14 +108,11 @@ public final class InventoryGui extends Gui {
         rootTable.add(splitPane).fill().expand();
 
         rootTable.pack();
-        stage.addActor(rootTable);
+        gui.createContainer(rootTable).fill();
     }
 
     @Override
     public void update() {
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
-        stage.getCamera().update();
-
         // update ui based on player inventory status
         player.getInventory().getSlots().forEach((slot, item) -> {
             final InventoryUiSlot ui = slots.get(slot);
@@ -128,17 +122,10 @@ public final class InventoryGui extends Gui {
     }
 
     @Override
-    public void draw() {
-        stage.getViewport().apply();
-        stage.draw();
-    }
-
-    @Override
     public void show() {
         super.show();
         gui.hideGui(GuiType.HUD);
         rootTable.setVisible(true);
-        gui.getMultiplexer().addProcessor(stage);
     }
 
     @Override
@@ -146,7 +133,6 @@ public final class InventoryGui extends Gui {
         super.hide();
         gui.showGui(GuiType.HUD);
         rootTable.setVisible(false);
-        gui.getMultiplexer().removeProcessor(stage);
     }
 
     /**

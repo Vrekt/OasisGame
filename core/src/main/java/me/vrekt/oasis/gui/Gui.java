@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class Gui extends VisWindow {
 
+
     protected final GameGui gui;
     protected final Asset asset;
     protected final Skin skin;

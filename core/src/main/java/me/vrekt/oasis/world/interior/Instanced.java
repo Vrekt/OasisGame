@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -20,16 +19,12 @@ import me.vrekt.oasis.world.instance.OasisInstance;
  */
 public class Instanced extends OasisInstance {
 
-    public static <T extends Instanced> T get(Class<T> type) {
-        return Pools.obtain(type);
-    }
-
-    private final Vector3 cursorInInstance = new Vector3();
-    private final Vector2 worldExitSpawn = new Vector2();
-    private final Rectangle bounds;
-    private boolean enterable = true, cursorChanged;
-    private float distance = 2.5f;
-    private final String cursor, instanceName;
+    protected final Vector3 cursorInInstance = new Vector3();
+    protected final Vector2 worldExitSpawn = new Vector2();
+    protected final Rectangle bounds;
+    protected boolean enterable = true, cursorChanged;
+    protected float distance = 2.5f;
+    protected final String cursor, instanceName;
 
     public Instanced(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(game, player, new World(Vector2.Y, false), world, name);

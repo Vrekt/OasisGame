@@ -44,11 +44,10 @@ public final class HudGui extends Gui {
 
         // info: FPS
         final Table fpsTable = new Table();
-        // TODO: Toggleable
-        fpsTable.setVisible(OasisGameSettings.SHOW_FPS);
+        fpsTable.setVisible(true);
         fpsTable.top().left();
         fpsTable.add(fpsLabel = new Label("FPS: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
-
+        fpsLabel.setVisible(false);
         // info: missing item warning
         warningTable = new Table();
         warningTable.setVisible(false);
@@ -90,7 +89,7 @@ public final class HudGui extends Gui {
 
         // initialize HUD inventory.
         final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("inventory_slot"));
-        this.inventoryRenderer = new HudInventoryHandler(player.getInventory().getInventorySize(), player);
+        this.inventoryRenderer = new HudInventoryHandler(player.getInventory().getInventorySize(), gui, player);
         this.inventoryRenderer.initialize(inventory, slot);
 
         rootTable.add(inventory).padBottom(8);
@@ -107,7 +106,15 @@ public final class HudGui extends Gui {
         if (warningTable.getColor().a == 1 && (System.currentTimeMillis() - lastWarning) >= 1500)
             warningTable.addAction(Actions.fadeOut(1));
 
-        fpsLabel.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
+        if(OasisGameSettings.SHOW_FPS && !fpsLabel.isVisible()) {
+            fpsLabel.setVisible(true);
+        } else if(!OasisGameSettings.SHOW_FPS && fpsLabel.isVisible()) {
+            fpsLabel.setVisible(false);
+        }
+
+        if(fpsLabel.isVisible()) {
+            fpsLabel.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
+        }
         inventoryRenderer.update();
     }
 

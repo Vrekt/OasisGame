@@ -38,6 +38,7 @@ import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.instance.OasisInstance;
+import me.vrekt.oasis.world.interior.InstanceType;
 import me.vrekt.oasis.world.interior.Instanced;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -70,7 +71,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected int width, height;
 
     // pause state
-    protected boolean paused;
+    protected boolean paused, showPausedScreen;
 
     protected GameGui gui;
 
@@ -81,7 +82,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
-    protected final Map<String, Instanced> interiors = new HashMap<>();
+    protected final Map<InstanceType, Instanced> instances = new HashMap<>();
     protected final Map<Integer, Runnable> keyActions = new HashMap<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
@@ -180,12 +181,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     private void addKeyActions() {
-        keyActions.put(OasisKeybindings.INVENTORY_KEY, () -> showGuiType(GuiType.INVENTORY));
-        keyActions.put(OasisKeybindings.QUEST_BOOK_KEY, () -> showGuiType(GuiType.QUEST));
+        keyActions.put(OasisKeybindings.INVENTORY_KEY, () -> gui.showGuiType(GuiType.INVENTORY, GuiType.QUEST));
+        keyActions.put(OasisKeybindings.QUEST_BOOK_KEY, () -> gui.showGuiType(GuiType.QUEST, GuiType.INVENTORY));
         keyActions.put(OasisKeybindings.SKIP_DIALOG_KEY, this::skipCurrentDialog);
         keyActions.put(OasisKeybindings.PAUSE_GAME_KEY, () -> {
-            gui.hideGui(GuiType.QUEST);
-            gui.hideGui(GuiType.INVENTORY);
+            if (gui.hideGuiType(GuiType.QUEST)) return;
+            if (gui.hideGuiType(GuiType.INVENTORY)) return;
+            if (gui.hideGuiType(GuiType.SETTINGS)) {
+                gui.showGui(GuiType.PAUSE);
+                return;
+            }
 
             if (paused) {
                 resume();
@@ -193,14 +198,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 pause();
             }
         });
-    }
-
-    private void showGuiType(GuiType type) {
-        if (gui.isGuiVisible(type)) {
-            gui.hideGui(type);
-        } else {
-            gui.showGui(type);
-        }
     }
 
     private void skipCurrentDialog() {
@@ -404,14 +401,17 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void loadWorldInteriors(TiledMap worldMap, float worldScale) {
         final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Interior", (object, bounds) -> {
             final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
-            final String interiorName = object.getProperties().get("interior_name", null, String.class);
+            final String interiorName = object.getProperties().get("instance_name", null, String.class);
+            final String interiorType = object.getProperties().get("instance_type", null, String.class);
+            final InstanceType type = interiorType == null ? InstanceType.DEFAULT : InstanceType.valueOf(interiorType.toUpperCase());
             if (interiorName != null && enterable) {
                 final String instanceCursor = object.getProperties().get("cursor", String.class);
-                this.interiors.put(interiorName, new Instanced(game, player, this, interiorName, instanceCursor, bounds));
+                this.instances.put(type, new Instanced(game, player, this, interiorName, instanceCursor, bounds));
+                Logging.info(this, "Loaded instance: " + type);
             }
         });
 
-        if (result) Logging.info(this, "Loaded " + (interiors.size()) + " interiors.");
+        if (result) Logging.info(this, "Loaded " + (instances.size()) + " instances.");
     }
 
     @Override
@@ -453,12 +453,14 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused) {
-            if (!gui.isGuiVisible(GuiType.PAUSE)) {
+            if (!gui.isGuiVisible(GuiType.PAUSE) && !showPausedScreen) {
                 gui.showGui(GuiType.PAUSE);
+                showPausedScreen = true;
             }
             // render, no update
             this.renderWorld(game.getBatch(), delta);
         } else {
+            if (showPausedScreen) showPausedScreen = false;
             renderer.getViewport().apply();
             // no pause state, render+update normally
             renderInternal(delta);
@@ -490,7 +492,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         boolean hasInterior = true;
-        for (Instanced interior : interiors.values()) {
+        for (Instanced interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
                 if (!cursorChanged) {
                     GameManager.setCursorInGame(interior.getCursor());
@@ -611,6 +613,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return cursorInScreen;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends Instanced> T getInstance(InstanceType type) {
+        return (T) instances.get(type);
+    }
+
     /**
      * Interact with an entity if they were clicked on.
      * Finds the first entity and does not allow multiple
@@ -663,7 +670,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     protected OasisInstance getInstanceToEnterIfAny() {
-        final Instanced interior = interiors
+        final Instanced interior = instances
                 .values()
                 .stream()
                 .filter(e -> e.clickedOn(cursorInWorld))

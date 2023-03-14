@@ -13,7 +13,10 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
+import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.interior.InstanceType;
+import me.vrekt.oasis.world.interior.Instanced;
 
 /**
  * Represents a tutorial/debug NPC.1
@@ -71,6 +74,13 @@ public final class MaviaTutorial extends EntityInteractable {
         // at this point dialog is finished and NPC needs to be moved
         gameWorldIn.removeInteractableEntity(this);
         getWorlds().worldIn = null;
+        // set instance allowed to enter
+        final Instanced house = gameWorldIn.getInstance(InstanceType.MAVIA_TUTORIAL_HOUSE);
+        if (house != null) {
+            house.setEnterable(true);
+        } else {
+            Logging.error(this, "Mavia's house not found !!");
+        }
     }
 
     @Override

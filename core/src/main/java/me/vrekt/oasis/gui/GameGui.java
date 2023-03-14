@@ -124,6 +124,23 @@ public final class GameGui {
         showGui(GuiType.DIALOG);
     }
 
+    public void showGuiType(GuiType type, GuiType hideOther) {
+        if (isGuiVisible(type)) {
+            hideGui(type);
+        } else {
+            hideGuiType(hideOther);
+            showGui(type);
+        }
+    }
+
+    public boolean hideGuiType(GuiType type) {
+        if (isGuiVisible(type)) {
+            hideGui(type);
+            return true;
+        }
+        return false;
+    }
+
     public void showGui(GuiType type) {
         guis.get(type).show();
     }
