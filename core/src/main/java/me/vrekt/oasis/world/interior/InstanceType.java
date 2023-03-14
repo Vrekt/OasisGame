@@ -1,39 +1,26 @@
 package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.tutorial.MaviaHouseInterior;
 
 public enum InstanceType {
 
-    DEFAULT(Instanced.class) {
+    DEFAULT {
         @Override
-        public <T extends Instanced> T createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
-            return (T) new Instanced(game, player, world, name, cursor, bounds);
+        public Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+            return new Instanced(game, player, world, name, cursor, bounds);
         }
     },
-    MAVIA_TUTORIAL_HOUSE(MaviaHouseInterior.class) {
+    MAVIA_TUTORIAL_HOUSE {
         @Override
-        public <T extends Instanced> T createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
-            return (T) new MaviaHouseInterior(game, player, world, name, cursor, bounds);
+        public Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+            return new MaviaHouseInterior(game, player, world, name, cursor, bounds);
         }
     };
 
-    private final Class<? extends Instanced> classType;
-
-    InstanceType(Class<? extends Instanced> classType) {
-        this.classType = classType;
-    }
-
-    public Class<? extends Instanced> getClassType() {
-        return classType;
-    }
-
-
-    public abstract <T extends Instanced> T createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds);
+    public abstract Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds);
 
 }

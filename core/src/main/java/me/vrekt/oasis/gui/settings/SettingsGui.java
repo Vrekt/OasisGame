@@ -57,7 +57,7 @@ public final class SettingsGui extends Gui {
         style.fontColor = Color.WHITE;
 
         final VisCheckBox vsync = new VisCheckBox("Enable VSync", style);
-        vsync.setChecked(true);
+        vsync.setChecked(OasisGameSettings.V_SYNC);
         vsync.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

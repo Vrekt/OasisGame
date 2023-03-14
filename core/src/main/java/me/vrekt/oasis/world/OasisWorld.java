@@ -406,7 +406,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             final InstanceType type = interiorType == null ? InstanceType.DEFAULT : InstanceType.valueOf(interiorType.toUpperCase());
             if (interiorName != null && enterable) {
                 final String instanceCursor = object.getProperties().get("cursor", String.class);
-                this.instances.put(type, new Instanced(game, player, this, interiorName, instanceCursor, bounds));
+                this.instances.put(type, type.createInstance(game, player, this, interiorName, instanceCursor, bounds));
                 Logging.info(this, "Loaded instance: " + type);
             }
         });
