@@ -19,7 +19,7 @@ public class InteractableWorldObject extends WorldObject implements Interactable
     protected final Vector2 interaction = new Vector2();
 
     // config
-    protected boolean interactable, interactedWith;
+    protected boolean interactable, interactedWith, requiresUpdating = true;
     protected float updateDistance, interactionDistance;
     protected boolean withinUpdateDistance;
 
@@ -50,11 +50,13 @@ public class InteractableWorldObject extends WorldObject implements Interactable
 
     @Override
     public boolean isWithinUpdateDistance(Vector2 other) {
+        if (!requiresUpdating) return false;
         return withinUpdateDistance = other.dst2(location) <= updateDistance;
     }
 
     @Override
     public boolean isWithinUpdateDistanceCache() {
+        if (!requiresUpdating) return false;
         return withinUpdateDistance;
     }
 

@@ -70,7 +70,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setNetworkSendRatesInMs(0, 0);
         setFixedRotation(true);
 
-        this.inventory = new PlayerInventory(this);
+        this.inventory = new PlayerInventory();
 
         // starting quest, later this won't be added here but instead on new game.
         this.questManager = new PlayerQuestManager();

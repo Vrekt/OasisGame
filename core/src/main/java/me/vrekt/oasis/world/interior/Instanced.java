@@ -111,4 +111,12 @@ public class Instanced extends OasisInstance {
         }
     }
 
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        processLeftClickDown();
+        if (interactWithEntity()) return true;
+        if (interactWithObject()) return true;
+        return false;
+    }
+
 }

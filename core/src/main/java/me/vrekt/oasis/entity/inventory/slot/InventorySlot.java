@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.inventory;
+package me.vrekt.oasis.entity.inventory.slot;
 
 import me.vrekt.oasis.item.Item;
 

@@ -65,7 +65,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     private final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
-    protected final Vector3 cursorInScreen = new Vector3();
     protected boolean cursorChanged, isWorldLoaded;
 
     protected int width, height;
@@ -187,6 +186,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         keyActions.put(OasisKeybindings.PAUSE_GAME_KEY, () -> {
             if (gui.hideGuiType(GuiType.QUEST)) return;
             if (gui.hideGuiType(GuiType.INVENTORY)) return;
+            if (gui.hideGuiType(GuiType.CONTAINER)) return;
             if (gui.hideGuiType(GuiType.SETTINGS)) {
                 gui.showGui(GuiType.PAUSE);
                 return;
@@ -320,33 +320,53 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     protected void loadWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "WorldObjects", (object, rectangle) -> {
-            // assign n find texture
-            final TextureRegion texture = asset.get(object.getProperties().get("texture", String.class));
-            final boolean interactable = object.getProperties().get("interactable", Boolean.class);
+            try {
+                // assign n find texture
+                final boolean hasTexture = object.getProperties().get("hasTexture", false, Boolean.class);
+                final TextureRegion texture = hasTexture ? asset.get(object.getProperties().get("texture", String.class)) : null;
+                final boolean interactable = object.getProperties().get("interactable", Boolean.class);
+                final boolean hasCollision = object.getProperties().get("hasCollision", false, Boolean.class);
+                final int runtimeId = object.getProperties().get("runtimeId", -1, Integer.class);
 
-            if (interactable) {
-                final InteractableWorldObject worldObject = Pools.obtain(WorldInteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
-                worldObject.load(asset);
-                worldObject.initialize(this,
-                        rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
-                        rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
-                        texture.getRegionWidth() * OasisGameSettings.SCALE,
-                        texture.getRegionHeight() * OasisGameSettings.SCALE
-                );
+                if (interactable) {
+                    final InteractableWorldObject worldObject = Pools.obtain(WorldInteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
+                    worldObject.load(asset);
+                    if (hasTexture) {
+                        worldObject.initialize(this,
+                                rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
+                                rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
+                                texture.getRegionWidth() * OasisGameSettings.SCALE,
+                                texture.getRegionHeight() * OasisGameSettings.SCALE);
+                        worldObject.setTexture(texture);
+                    } else {
+                        worldObject.initialize(this, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                    }
 
-                worldObject.setTexture(texture);
+                    loadWorldObjectEffects(worldObject, object, rectangle);
+                    if (hasCollision && hasTexture) {
+                        loadWorldObjectBody(worldObject, rectangle, texture);
+                    } else if (!hasTexture) {
+                        loadWorldObjectBody(worldObject, rectangle);
+                    }
+                    worldObject.setRuntimeId(runtimeId);
+                    this.interactableWorldObjects.add(worldObject);
+                } else {
+                    final WorldObject wb = Pools.obtain(WorldObject.class);
+                    wb.load(asset);
+                    // TODO: init WorldObjectType
 
-                loadWorldObjectEffects(worldObject, object, rectangle);
-                loadWorldObjectBody(worldObject, rectangle, texture);
-                this.interactableWorldObjects.add(worldObject);
-            } else {
-                final WorldObject wb = Pools.obtain(WorldObject.class);
-                wb.load(asset);
-                // TODO: init WorldObjectType
-
-                loadWorldObjectEffects(wb, object, rectangle);
-                loadWorldObjectBody(wb, rectangle, texture);
-                this.worldObjects.add(wb);
+                    loadWorldObjectEffects(wb, object, rectangle);
+                    if (hasTexture) {
+                        loadWorldObjectBody(wb, rectangle, texture);
+                    } else {
+                        loadWorldObjectBody(wb, rectangle);
+                    }
+                    wb.setRuntimeId(runtimeId);
+                    this.worldObjects.add(wb);
+                }
+            } catch (Exception any) {
+                Logging.error(this, "Failed to load a world object with error: \n");
+                any.printStackTrace();
             }
         });
 
@@ -375,6 +395,20 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 wb.getEffects().add(effect);
             }
         });
+    }
+
+    private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle) {
+        // create collision body, offset position to fit within bounds.
+        final Body body = CollisionShapeCreator
+                .createPolygonShapeInWorld(
+                        rectangle.x,
+                        rectangle.y,
+                        rectangle.width,
+                        rectangle.height,
+                        OasisGameSettings.SCALE,
+                        true,
+                        world);
+        wb.setCollisionBody(body);
     }
 
     private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
@@ -471,13 +505,18 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public float update(float d) {
         d = super.update(d);
         this.player.getInventory().update();
+        this.updateCursorState();
+        return d;
+    }
 
+    /**
+     * Update cursor images
+     */
+    protected void updateCursorState() {
         // update world cursor
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-        game.getGui().getCamera().unproject(cursorInScreen.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
-        boolean hasEntity = true;
-
+        boolean hasEntity = false;
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
             if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
@@ -485,22 +524,20 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                     GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
                     this.cursorChanged = true;
                 }
+                hasEntity = true;
                 break;
-            } else {
-                hasEntity = false;
             }
         }
 
-        boolean hasInterior = true;
+        boolean hasInterior = false;
         for (Instanced interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
                 if (!cursorChanged) {
                     GameManager.setCursorInGame(interior.getCursor());
                     this.cursorChanged = true;
                 }
+                hasInterior = true;
                 break;
-            } else {
-                hasInterior = false;
             }
         }
 
@@ -521,7 +558,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             GameManager.resetCursor();
             this.cursorChanged = false;
         }
-        return d;
     }
 
     private void renderInternal(float delta) {
@@ -563,6 +599,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         // interactions
+
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
             worldObject.render(batch);
             if (worldObject.playEffects()) {
@@ -605,17 +642,25 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return nearbyEntities;
     }
 
-    public Vector3 getCursorInWorld() {
-        return cursorInWorld;
-    }
-
-    public Vector3 getCursorInScreen() {
-        return cursorInScreen;
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends Instanced> T getInstance(InstanceType type) {
         return (T) instances.get(type);
+    }
+
+    /**
+     * Get a world object by its runtimeId
+     * TODO: Randomly generate runtime IDs so objects with no ID get picked instead
+     *
+     * @param id the ID
+     * @return the object if any or {@code null}
+     */
+    public InteractableWorldObject getByRuntimeId(int id) {
+        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+            if (worldObject.getRuntimeId() == id) {
+                return worldObject;
+            }
+        }
+        return null;
     }
 
     /**
@@ -650,7 +695,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // only check objects that are within our update distance
         final InteractableWorldObject worldObject = interactableWorldObjects
                 .stream()
-                .filter(InteractableWorldObject::isWithinUpdateDistanceCache)
+                .filter(wb -> wb.isWithinInteractionDistance(player.getPosition()))
                 .filter(wb -> wb.clickedOn(cursorInWorld))
                 .findFirst()
                 .orElse(null);
@@ -721,7 +766,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (player.isInInstance() && button == Input.Buttons.LEFT) {
-            player.getInstanceIn().processLeftClickDown();
+            player.getInstanceIn().touchDown(screenX, screenY, pointer, button);
             return true;
         }
         return false;

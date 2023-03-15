@@ -1,15 +1,12 @@
 package me.vrekt.oasis.gui.inventory;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.util.TableUtils;
@@ -20,8 +17,8 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.item.consumables.ItemConsumable;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -151,61 +148,61 @@ public final class InventoryGui extends Gui {
     /**
      * Handles data required for the UI inventory slot
      */
-    private final class InventoryUiSlot {
-        private final VisImage imageItem;
-        private final Tooltip tooltip;
+    private final class InventoryUiSlot extends AbstractInventoryUiSlot {
 
-        private boolean occupied;
         // item description of whatever is in this slot
         private String itemDescription = StringUtils.EMPTY;
         // the last item in this slot, for comparison when updating
         private long lastItemId = -1;
-        private Item item;
 
         public InventoryUiSlot(Stack stack, VisImage item) {
-            this.imageItem = item;
-            tooltip = new Tooltip.Builder("Empty Slot").target(stack).build();
-            tooltip.setAppearDelayTime(0.35f);
+            super(stack, item);
 
             // add click action
             stack.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (!occupied) return;
-
-                    // hide optional
-                    useItemButton.setVisible(false);
-                    itemAttributesText.setVisible(false);
-                    itemAttributes.setVisible(false);
-
-                    InventoryGui.this.itemDescription.setText("[BLACK]" + itemDescription);
-                    InventoryGui.this.itemDescription.restart();
-                    if (!InventoryGui.this.itemDescription.isVisible()) {
-                        InventoryGui.this.itemDescription.setVisible(true);
-                    }
-
-                    // update consume buttons, only if allowed and an actual item to eat
-                    if (InventoryUiSlot.this.item instanceof ItemConsumable
-                            && ((ItemConsumable) InventoryUiSlot.this.item).isAllowedToConsume()) {
-                        useItemButton.setVisible(true);
-                        useItemButton.setText("Consume");
-                    }
-
-                    // add attributes
-                    if (InventoryUiSlot.this.item.hasAttributes()) {
-                        itemAttributesText.setVisible(true);
-                        itemAttributesText.restart();
-                        itemAttributes.setVisible(true);
-                        for (ItemAttribute attribute : InventoryUiSlot.this.item.getAttributes().values()) {
-                            itemAttributes.setText(attribute.getAttributeName() + "\n" + attribute.getDescription());
-                        }
-                        itemAttributes.restart();
-                    }
-
-                    InventoryGui.this.clickedItem = InventoryUiSlot.this.item;
+                    handleClickActionListener();
                 }
             });
 
+        }
+
+        /**
+         * Handle actions and updating when clicking an item in this inventory GUI
+         */
+        private void handleClickActionListener() {
+            // hide optional
+            useItemButton.setVisible(false);
+            itemAttributesText.setVisible(false);
+            itemAttributes.setVisible(false);
+
+            InventoryGui.this.itemDescription.setText("[BLACK]" + itemDescription);
+            InventoryGui.this.itemDescription.restart();
+            if (!InventoryGui.this.itemDescription.isVisible()) {
+                InventoryGui.this.itemDescription.setVisible(true);
+            }
+
+            // update consume buttons, only if allowed and an actual item to eat
+            if (InventoryUiSlot.this.item instanceof ItemConsumable
+                    && ((ItemConsumable) InventoryUiSlot.this.item).isAllowedToConsume()) {
+                useItemButton.setVisible(true);
+                useItemButton.setText("Consume");
+            }
+
+            // add attributes
+            if (InventoryUiSlot.this.item.hasAttributes()) {
+                itemAttributesText.setVisible(true);
+                itemAttributesText.restart();
+                itemAttributes.setVisible(true);
+                for (ItemAttribute attribute : InventoryUiSlot.this.item.getAttributes().values()) {
+                    itemAttributes.setText(attribute.getAttributeName() + "\n" + attribute.getDescription());
+                }
+                itemAttributes.restart();
+            }
+
+            InventoryGui.this.clickedItem = InventoryUiSlot.this.item;
         }
 
         /**
@@ -213,28 +210,22 @@ public final class InventoryGui extends Gui {
          *
          * @param item the item
          */
-        void setItem(Item item) {
-            this.imageItem.setDrawable(new TextureRegionDrawable(item.getTexture()));
+        @Override
+        protected void setItem(Item item) {
+            super.setItem(item);
             this.lastItemId = item.getItemId();
-            this.item = item;
-
-            this.tooltip.setText(item.getItemName());
             this.itemDescription = item.getDescription();
-            this.occupied = true;
         }
 
         /**
          * Remove all data about this item
          */
-        void removeItem() {
-            this.occupied = false;
-            this.imageItem.setDrawable((Drawable) null);
+        @Override
+        protected void removeItem() {
+            super.reset();
             this.itemDescription = StringUtils.EMPTY;
-            this.tooltip.setText("Empty Slot");
             this.lastItemId = -1;
-            this.item = null;
         }
-
     }
 
 }

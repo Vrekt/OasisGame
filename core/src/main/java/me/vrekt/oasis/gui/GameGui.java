@@ -14,7 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
@@ -52,6 +54,7 @@ public final class GameGui {
         stack = new Stack();
         stack.setFillParent(true);
         root.add(stack).grow();
+        stage.setDebugAll(false);
 
         this.skin = asset.getDefaultLibgdxSkin();
         this.small = asset.getSmall();
@@ -72,6 +75,7 @@ public final class GameGui {
         guis.put(GuiType.INVENTORY, new InventoryGui(this, asset));
         guis.put(GuiType.PAUSE, new PauseGui(this, asset));
         guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
+        guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
     }
 
     public InputMultiplexer getMultiplexer() {
@@ -176,6 +180,14 @@ public final class GameGui {
 
     public InventoryGui getInventoryGui() {
         return (InventoryGui) guis.get(GuiType.INVENTORY);
+    }
+
+    public void populateContainerGui(ContainerInventory inventory) {
+        getContainerGui().populate(inventory);
+    }
+
+    public ContainerGui getContainerGui() {
+        return (ContainerGui) guis.get(GuiType.CONTAINER);
     }
 
     /**

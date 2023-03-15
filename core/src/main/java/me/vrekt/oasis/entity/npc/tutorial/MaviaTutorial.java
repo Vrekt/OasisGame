@@ -64,7 +64,7 @@ public final class MaviaTutorial extends EntityInteractable {
             final Item item = game
                     .getPlayer()
                     .getInventory()
-                    .giveEntityItem(LucidTreeHarvestingToolItem.class, 1);
+                    .addItem(LucidTreeHarvestingToolItem.class, 1);
             game.getGui().getHud().showItemCollected(item);
         }
     }
@@ -117,7 +117,7 @@ public final class MaviaTutorial extends EntityInteractable {
         }
 
         if (allowedToConsumeFruitItem) {
-            final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItem(LucidTreeFruitItem.class);
+            final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemByType(LucidTreeFruitItem.class);
             if (item != null) {
                 item.setAllowedToConsume(true);
                 // reset state so this isn't run continuously

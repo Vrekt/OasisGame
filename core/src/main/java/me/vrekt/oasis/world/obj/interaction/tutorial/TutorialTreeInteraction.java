@@ -18,18 +18,8 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     }
 
     @Override
-    public void update() {
-        super.update();
-    }
-
-    @Override
     public boolean hasRequiredItem() {
         return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.class);
-    }
-
-    @Override
-    public boolean isInteractable() {
-        return super.isInteractable();
     }
 
     @Override
@@ -38,7 +28,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
         // give the player their itemw
         // not allowed to consume unless talked to mavia first
-        final LucidTreeFruitItem item = (LucidTreeFruitItem) world.getLocalPlayer().getInventory().giveEntityItem(LucidTreeFruitItem.class, 1);
+        final LucidTreeFruitItem item = (LucidTreeFruitItem) world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.class, 1);
         item.setAllowedToConsume(false);
 
         this.interactable = false;

@@ -25,6 +25,7 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 
 /**
  * Represents an instance within a world - a dungeon or interior.
@@ -130,6 +131,20 @@ public abstract class OasisInstance extends OasisWorld implements Disposable {
             }
         }
 
+        // interactions
+
+        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+            worldObject.render(batch);
+            if (worldObject.playEffects()) {
+                worldObject.renderEffects(batch, delta);
+            }
+
+            if (worldObject.isWithinUpdateDistance(player.getPosition())
+                    && worldObject.isInteractedWith()) {
+                worldObject.update();
+            }
+        }
+
         // render local player next
         player.render(batch, delta);
         batch.end();
@@ -161,6 +176,8 @@ public abstract class OasisInstance extends OasisWorld implements Disposable {
         }
         TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
+        super.loadWorldObjects(map, game.getAsset(), worldScale);
+
         GameManager.getRenderer().setTiledMap(map, spawn.x, spawn.y);
 
         if (player.isInWorld()) {

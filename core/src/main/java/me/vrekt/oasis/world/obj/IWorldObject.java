@@ -102,6 +102,16 @@ public interface IWorldObject extends Disposable {
     boolean clickedOn(Vector3 vector3);
 
     /**
+     * @param runtimeId runtimeId
+     */
+    void setRuntimeId(int runtimeId);
+
+    /**
+     * @return runtimeId
+     */
+    int getRuntimeId();
+
+    /**
      * Destroy this object
      */
     void destroy();

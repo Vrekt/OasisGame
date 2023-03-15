@@ -1,10 +1,11 @@
 package me.vrekt.oasis.world.obj.interaction;
 
+import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
 import me.vrekt.oasis.world.obj.interaction.tutorial.TutorialTreeInteraction;
 
 public enum WorldInteractionType {
 
-    LUCID_FRUIT_TREE_TUTORIAL(TutorialTreeInteraction.class);
+    LUCID_FRUIT_TREE_TUTORIAL(TutorialTreeInteraction.class), CHEST(ChestInventoryInteraction.class);
 
     private final Class<? extends InteractableWorldObject> classType;
 

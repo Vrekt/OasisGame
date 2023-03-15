@@ -2,7 +2,9 @@ package me.vrekt.oasis;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
+import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
+import me.vrekt.oasis.gui.GameGui;
 
 public class GameManager {
 
@@ -26,6 +28,14 @@ public class GameManager {
 
     public static OasisTiledRenderer getRenderer() {
         return oasis.getRenderer();
+    }
+
+    public static GameGui getGui() {
+        return oasis.getGui();
+    }
+
+    public static Asset getAssets() {
+        return oasis.getAsset();
     }
 
 }

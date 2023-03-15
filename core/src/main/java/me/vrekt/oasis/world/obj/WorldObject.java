@@ -27,6 +27,7 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
     // possible particle effects this object has
     protected List<ParticleEffect> effects;
     protected boolean playEffects = true;
+    protected int runtimeId = -1;
 
     // texture and location
     protected TextureRegion texture;
@@ -46,6 +47,7 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
 
     @Override
     public void render(SpriteBatch batch) {
+        if (texture == null) return;
         batch.draw(texture, location.x, location.y, texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
@@ -105,6 +107,16 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
     @Override
     public boolean clickedOn(Vector3 clicked) {
         return clicked.x > location.x && clicked.x < (location.x + size.x) && clicked.y > location.y && clicked.y < (location.y + size.y);
+    }
+
+    @Override
+    public void setRuntimeId(int runtimeId) {
+        this.runtimeId = runtimeId;
+    }
+
+    @Override
+    public int getRuntimeId() {
+        return runtimeId;
     }
 
     @Override
