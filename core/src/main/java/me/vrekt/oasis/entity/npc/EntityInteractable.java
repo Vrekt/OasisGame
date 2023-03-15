@@ -16,7 +16,7 @@ import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.interior.Instanced;
+import me.vrekt.oasis.world.interior.Instance;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -101,7 +101,7 @@ public abstract class EntityInteractable extends EntityTextured implements Resou
         }
     }
 
-    public void spawnInInstance(Instanced instanced) {
+    public void spawnInInstance(Instance instanced) {
 
     }
 

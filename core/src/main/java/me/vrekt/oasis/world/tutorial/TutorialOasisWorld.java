@@ -11,7 +11,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.OasisInstance;
+import me.vrekt.oasis.world.interior.Instance;
 
 /**
  * This world acts as a debug/tutorial level for now.
@@ -41,17 +41,11 @@ public final class TutorialOasisWorld extends OasisWorld {
     }
 
     @Override
-    public boolean enterWorld(boolean fromInstance) {
+    public void enterWorld(boolean fromInstance) {
         super.enterWorld(fromInstance);
         if (!isWorldLoaded) {
             loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
         }
-        return true;
-    }
-
-    @Override
-    public float update(float d) {
-        return super.update(d);
     }
 
     @Override
@@ -63,13 +57,10 @@ public final class TutorialOasisWorld extends OasisWorld {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (super.touchDown(screenX, screenY, pointer, button)) {
-            return true; // prevent instances from interacting with main world.
+            return true;
         }
 
-        if (interactWithEntity()) return true;
-        if (interactWithObject()) return true;
-
-        final OasisInstance instance = getInstanceToEnterIfAny();
+        final Instance instance = getInstanceToEnterIfAny();
         if (instance != null) {
             GameManager.resetCursor();
             this.cursorChanged = false;

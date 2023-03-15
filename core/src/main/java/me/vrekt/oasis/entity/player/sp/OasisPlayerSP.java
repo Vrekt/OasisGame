@@ -31,7 +31,7 @@ import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.OasisInstance;
+import me.vrekt.oasis.world.instance.OasisWorldInstance;
 
 /**
  * Represents the local player SP
@@ -50,7 +50,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private final PlayerInventory inventory;
 
     private boolean isInInstance;
-    private OasisInstance instanceIn;
+    private OasisWorldInstance instanceIn;
     private final PlayerQuestManager questManager;
 
     private float health = 100.0f;
@@ -105,11 +105,11 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         isInInstance = inInstance;
     }
 
-    public OasisInstance getInstanceIn() {
+    public OasisWorldInstance getInstanceIn() {
         return instanceIn;
     }
 
-    public void setInstanceIn(OasisInstance instanceIn) {
+    public void setInstanceIn(OasisWorldInstance instanceIn) {
         this.instanceIn = instanceIn;
     }
 

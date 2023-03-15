@@ -1,6 +1,5 @@
 package me.vrekt.oasis.world.interior;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -12,21 +11,20 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.OasisInstance;
+import me.vrekt.oasis.world.instance.OasisWorldInstance;
 
 /**
- * Basic implementation of {@link OasisInstance}.
+ * Basic implementation of {@link OasisWorldInstance}.
  */
-public class Instanced extends OasisInstance {
+public class Instance extends OasisWorldInstance {
 
-    protected final Vector3 cursorInInstance = new Vector3();
     protected final Vector2 worldExitSpawn = new Vector2();
     protected final Rectangle bounds;
     protected boolean enterable = true, cursorChanged;
     protected float distance = 2.5f;
     protected final String cursor, instanceName;
 
-    public Instanced(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+    public Instance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(game, player, new World(Vector2.Y, false), world, name);
         this.instanceName = name;
         this.cursor = cursor;
@@ -57,10 +55,9 @@ public class Instanced extends OasisInstance {
         return position.dst2(bounds.x, bounds.y) <= distance;
     }
 
-
     @Override
     public void enter() {
-        Logging.info(instanceName, "Entering instance: " + instanceName);
+        Logging.info(this, "Entering instance: " + instanceName);
         worldExitSpawn.set(player.getPosition());
         super.enter();
     }
@@ -84,13 +81,11 @@ public class Instanced extends OasisInstance {
     public float update(float delta) {
         super.update(delta);
 
-        // set our mouse within world space
-        GameManager.getRenderer().getCamera().unproject(cursorInInstance.set(Gdx.input.getX(), Gdx.input.getY(), 0));
         // check if mouse is over exit
-        if (exit.contains(cursorInInstance.x, cursorInInstance.y) && !cursorChanged) {
+        if (exit.contains(cursorInWorld.x, cursorInWorld.y) && !cursorChanged) {
             GameManager.setCursorInGame(getCursor());
             this.cursorChanged = true;
-        } else if (!exit.contains(cursorInInstance.x, cursorInInstance.y) && cursorChanged) {
+        } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y) && cursorChanged) {
             GameManager.resetCursor();
             this.cursorChanged = false;
         }
@@ -101,11 +96,11 @@ public class Instanced extends OasisInstance {
     /**
      * Left mouse button was clicked
      */
-    public void processLeftClickDown() {
+    protected void handleExitIfClicked() {
         // check if player is close enough to exit
         if (cursorChanged // indicates mouse is over exit
                 && player.getPosition().dst(exit.x, exit.y) <= 4.5f) {
-            Logging.info(instanceName, "Exiting instance: " + instanceName);
+            Logging.info(this, "Exiting instance: " + instanceName);
             player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
             worldIn.enterWorld(true);
         }
@@ -113,10 +108,8 @@ public class Instanced extends OasisInstance {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        processLeftClickDown();
-        if (interactWithEntity()) return true;
-        if (interactWithObject()) return true;
-        return false;
+        handleExitIfClicked();
+        return super.touchDown(screenX, screenY, pointer, button);
     }
 
 }

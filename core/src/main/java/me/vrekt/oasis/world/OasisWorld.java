@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -31,15 +30,13 @@ import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
-import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.instance.OasisInstance;
+import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
-import me.vrekt.oasis.world.interior.Instanced;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -62,7 +59,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected TiledMap map;
 
-    private final SpriteBatch batch;
+    protected final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
     protected boolean cursorChanged, isWorldLoaded;
@@ -81,8 +78,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
 
-    protected final Map<InstanceType, Instanced> instances = new HashMap<>();
-    protected final Map<Integer, Runnable> keyActions = new HashMap<>();
+    protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -108,7 +104,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      *
      * @return {@code  true} if successful.
      */
-    public boolean enterWorld(boolean fromInstance) {
+    public void enterWorld(boolean fromInstance) {
         // remove player from a world they could already be in
         if (player.getWorldIn() != null) {
             player.removeEntityInWorld(player.getWorldIn());
@@ -118,16 +114,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         if (fromInstance) {
             player.setInInstance(false);
             player.setInstanceIn(null);
-
-            this.renderer.setTiledMap(map, spawn.x, spawn.y);
-            player.spawnEntityInWorld(this, player.getX(), player.getY());
             player.setGameWorldIn(this);
             player.setInWorld(true);
-            GameManager.resetCursor();
+
+            renderer.setTiledMap(map, spawn.x, spawn.y);
+            player.spawnEntityInWorld(this, player.getX(), player.getY());
+            game.getMultiplexer().addProcessor(this);
+            game.setScreen(this);
         }
 
         GameManager.resetCursor();
-        return true;
     }
 
     /**
@@ -145,8 +141,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     /**
      * Load the local player into this world.
-     * TODO: Reinit collision when entering back if not done already.
-     * TODO: NEw worlds per instance? might be hard with networking probably
      *
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
@@ -160,7 +154,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadWorldObjects(worldMap, game.getAsset(), worldScale);
         loadWorldInteriors(worldMap, worldScale);
-        addKeyActions();
 
         configuration.worldScale = worldScale;
 
@@ -169,8 +162,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.height = renderer.getHeight();
         game.getMultiplexer().addProcessor(this);
 
-        engine.addSystem(new EntityInteractableAnimationSystem(engine));
-        engine.addSystem(new EntityUpdateSystem(game, this));
+        addDefaultWorldSystems();
 
         // initialize player in this world.
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
@@ -179,25 +171,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.isWorldLoaded = true;
     }
 
-    private void addKeyActions() {
-        keyActions.put(OasisKeybindings.INVENTORY_KEY, () -> gui.showGuiType(GuiType.INVENTORY, GuiType.QUEST));
-        keyActions.put(OasisKeybindings.QUEST_BOOK_KEY, () -> gui.showGuiType(GuiType.QUEST, GuiType.INVENTORY));
-        keyActions.put(OasisKeybindings.SKIP_DIALOG_KEY, this::skipCurrentDialog);
-        keyActions.put(OasisKeybindings.PAUSE_GAME_KEY, () -> {
-            if (gui.hideGuiType(GuiType.QUEST)) return;
-            if (gui.hideGuiType(GuiType.INVENTORY)) return;
-            if (gui.hideGuiType(GuiType.CONTAINER)) return;
-            if (gui.hideGuiType(GuiType.SETTINGS)) {
-                gui.showGui(GuiType.PAUSE);
-                return;
-            }
-
-            if (paused) {
-                resume();
-            } else {
-                pause();
-            }
-        });
+    protected void addDefaultWorldSystems() {
+        engine.addSystem(new EntityInteractableAnimationSystem(engine));
+        engine.addSystem(new EntityUpdateSystem(game, this));
     }
 
     private void skipCurrentDialog() {
@@ -478,27 +454,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public void render(float delta) {
-        // handle parent instance if in one
-        if (player.isInInstance()) {
-            player.getInstanceIn().render(delta);
-            return;
-        }
-
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        if (paused) {
-            if (!gui.isGuiVisible(GuiType.PAUSE) && !showPausedScreen) {
-                gui.showGui(GuiType.PAUSE);
-                showPausedScreen = true;
-            }
-            // render, no update
-            this.renderWorld(game.getBatch(), delta);
-        } else {
-            if (showPausedScreen) showPausedScreen = false;
-            renderer.getViewport().apply();
-            // no pause state, render+update normally
-            renderInternal(delta);
-        }
+        preRender(delta);
     }
 
     @Override
@@ -510,7 +466,41 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     /**
-     * Update cursor images
+     * Handle pausing states before actually rendering or updating
+     *
+     * @param delta the delta
+     */
+    protected void preRender(float delta) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (paused) {
+            if (!gui.isGuiVisible(GuiType.PAUSE) && !showPausedScreen) {
+                gui.showGui(GuiType.PAUSE);
+                showPausedScreen = true;
+            }
+            // render, no update
+            renderer.getViewport().apply();
+            renderWorld(game.getBatch(), delta);
+        } else {
+            if (showPausedScreen) showPausedScreen = false;
+            renderer.getViewport().apply();
+            // no pause state, render+update normally
+            updateAndRender(delta);
+        }
+    }
+
+    /**
+     * Update and render this world
+     *
+     * @param delta the delta
+     */
+    protected void updateAndRender(float delta) {
+        this.update(delta);
+        this.renderWorld(game.getBatch(), delta);
+    }
+
+    /**
+     * Update cursor state
      */
     protected void updateCursorState() {
         // update world cursor
@@ -530,7 +520,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         boolean hasInterior = false;
-        for (Instanced interior : instances.values()) {
+        for (Instance interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
                 if (!cursorChanged) {
                     GameManager.setCursorInGame(interior.getCursor());
@@ -560,11 +550,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
     }
 
-    private void renderInternal(float delta) {
-        this.update(delta);
-        this.renderWorld(game.getBatch(), delta);
-    }
-
     /**
      * Render this world
      *
@@ -582,34 +567,27 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
-        for (LunarEntity value : entities.values()) {
-            if (value instanceof Renderable) {
-                if (((Renderable) value).isInView(renderer.getCamera())) {
-                    ((Renderable) value).render(batch, delta);
-                }
+        for (Entity entity : entities.values()) {
+            if (entity.isInView(renderer.getCamera())) {
+                entity.render(batch, delta);
             }
         }
 
         // general world objects
         for (WorldObject object : worldObjects) {
             object.render(batch);
-            if (object.playEffects()) {
-                object.renderEffects(batch, delta);
-            }
+            if (object.playEffects()) object.renderEffects(batch, delta);
         }
 
         // interactions
-
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            worldObject.render(batch);
-            if (worldObject.playEffects()) {
-                worldObject.renderEffects(batch, delta);
-            }
-
             if (worldObject.isWithinUpdateDistance(player.getPosition())
                     && worldObject.isInteractedWith()) {
                 worldObject.update();
             }
+
+            worldObject.render(batch);
+            if (worldObject.playEffects()) worldObject.renderEffects(batch, delta);
         }
 
         // render particles
@@ -623,14 +601,20 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     /**
-     * End world rendering and render player UIs
+     * End world rendering and render GUI(s)
      */
     public void endRender() {
         batch.end();
         gui.updateAndRender();
     }
 
-    public EntityInteractable getByType(EntityNPCType type) {
+    /**
+     * Get an {@link EntityInteractable} by their NPC type
+     *
+     * @param type the type
+     * @return the {@link EntityInteractable} or {@code  null} if not found
+     */
+    public EntityInteractable getEntityByType(EntityNPCType type) {
         return (EntityInteractable) entities.values()
                 .stream()
                 .filter(entity -> entity instanceof EntityInteractable && ((EntityInteractable) entity).getType() == type)
@@ -643,7 +627,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Instanced> T getInstance(InstanceType type) {
+    public <T extends Instance> T getInstance(InstanceType type) {
         return (T) instances.get(type);
     }
 
@@ -714,8 +698,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return false;
     }
 
-    protected OasisInstance getInstanceToEnterIfAny() {
-        final Instanced interior = instances
+    protected Instance getInstanceToEnterIfAny() {
+        final Instance interior = instances
                 .values()
                 .stream()
                 .filter(e -> e.clickedOn(cursorInWorld))
@@ -742,14 +726,25 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean keyDown(int keycode) {
-        if (paused && keycode != OasisKeybindings.PAUSE_GAME_KEY) {
-            return false;
-        }
+        if (!paused && GameManager.handleGuiKeyPress(keycode)) return true;
 
-        if (keyActions.containsKey(keycode)) {
-            keyActions.get(keycode).run();
+        if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
+            if (gui.hideGuiType(GuiType.QUEST)) return true;
+            if (gui.hideGuiType(GuiType.INVENTORY)) return true;
+            if (gui.hideGuiType(GuiType.CONTAINER)) return true;
+            if (gui.hideGuiType(GuiType.SETTINGS)) {
+                gui.showGui(GuiType.PAUSE);
+                return true;
+            }
+
+            if (paused) {
+                resume();
+            } else {
+                pause();
+            }
             return true;
         }
+
         return false;
     }
 
@@ -765,10 +760,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (player.isInInstance() && button == Input.Buttons.LEFT) {
-            player.getInstanceIn().touchDown(screenX, screenY, pointer, button);
-            return true;
-        }
+        if (interactWithEntity()) return true;
+        if (interactWithObject()) return true;
         return false;
     }
 
@@ -789,12 +782,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        if (amountY > 0) {
-            renderer.getCamera().zoom += 0.01f;
-        } else {
-            renderer.getCamera().zoom -= 0.01f;
-        }
-        return true;
+        return false;
     }
 
     @Override

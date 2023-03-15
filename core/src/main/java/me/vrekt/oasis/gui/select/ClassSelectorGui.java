@@ -89,7 +89,7 @@ public final class ClassSelectorGui extends Gui {
                     final EntityInteractable mavia = gui.getGame()
                             .getPlayer()
                             .getGameWorldIn()
-                            .getByType(EntityNPCType.MAVIA);
+                            .getEntityByType(EntityNPCType.MAVIA);
 
                     if (mavia == null) {
                         // this should not happen

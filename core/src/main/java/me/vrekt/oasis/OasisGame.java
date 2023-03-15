@@ -95,10 +95,10 @@ public final class OasisGame extends Game {
         player.load(asset);
 
         renderer = new OasisTiledRenderer(batch, player);
-        GameManager.initialize(this);
         multiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(multiplexer);
         gui = new GameGui(this, asset, multiplexer);
+        GameManager.initialize(this);
 
         screen.setFinishedLoadingCall(() -> CompletableFuture.runAsync(this::joinLocalServer));
         setScreen(screen);

@@ -16,7 +16,7 @@ import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.InstanceType;
-import me.vrekt.oasis.world.interior.Instanced;
+import me.vrekt.oasis.world.interior.Instance;
 
 /**
  * Represents a tutorial/debug NPC.1
@@ -75,7 +75,7 @@ public final class MaviaTutorial extends EntityInteractable {
         gameWorldIn.removeInteractableEntity(this);
         getWorlds().worldIn = null;
         // set instance allowed to enter
-        final Instanced house = gameWorldIn.getInstance(InstanceType.MAVIA_TUTORIAL_HOUSE);
+        final Instance house = gameWorldIn.getInstance(InstanceType.MAVIA_TUTORIAL_HOUSE);
         if (house != null) {
             house.setEnterable(true);
         } else {

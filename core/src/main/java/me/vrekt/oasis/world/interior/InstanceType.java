@@ -10,17 +10,17 @@ public enum InstanceType {
 
     DEFAULT {
         @Override
-        public Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
-            return new Instanced(game, player, world, name, cursor, bounds);
+        public Instance createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+            return new Instance(game, player, world, name, cursor, bounds);
         }
     },
     MAVIA_TUTORIAL_HOUSE {
         @Override
-        public Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+        public Instance createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
             return new MaviaHouseInterior(game, player, world, name, cursor, bounds);
         }
     };
 
-    public abstract Instanced createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds);
+    public abstract Instance createInstance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds);
 
 }
