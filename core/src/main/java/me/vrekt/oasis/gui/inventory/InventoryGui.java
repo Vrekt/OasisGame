@@ -87,7 +87,7 @@ public final class InventoryGui extends Gui {
         // populate a total of 21 inventory slots
         primary.top().padTop(52).padLeft(84);
         final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("inventory_slot"));
-        for (int i = 1; i < 22; i++) {
+        for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
             final VisImage slot = new VisImage(drawable);
             final VisImage item = new VisImage();
 
@@ -122,6 +122,7 @@ public final class InventoryGui extends Gui {
     public void show() {
         super.show();
         gui.hideGui(GuiType.HUD);
+        gui.hideGui(GuiType.CONTAINER);
         rootTable.setVisible(true);
     }
 

@@ -15,7 +15,7 @@ import java.util.Map;
 public final class PlayerInventory extends BasicInventory {
 
     public PlayerInventory() {
-        super(6);
+        super(22);
     }
 
     @Override

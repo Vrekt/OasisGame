@@ -17,6 +17,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     public LucidTreeFruitItem() {
         super(NAME, ID, "Heals you by [GREEN]+20 [BLACK]HP.");
         addAttribute(new PlayerHealingAttribute(20.0f));
+        this.allowedToConsume = false;
     }
 
     @Override

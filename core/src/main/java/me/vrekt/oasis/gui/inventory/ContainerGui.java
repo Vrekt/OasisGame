@@ -29,7 +29,8 @@ import java.util.LinkedList;
 public final class ContainerGui extends Gui {
 
     private final VisTable rootTable;
-    private final LinkedList<ContainerUiSlot> slots = new LinkedList<>();
+    private final LinkedList<ContainerUiSlot> chestSlots = new LinkedList<>();
+    private final LinkedList<ContainerUiSlot> inventorySlots = new LinkedList<>();
 
     private final OasisPlayerSP player;
     private ContainerInventory inventory;
@@ -61,7 +62,7 @@ public final class ContainerGui extends Gui {
             itemTable.add(item);
 
             final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
-            this.slots.add(new ContainerUiSlot(overlay, item));
+            chestSlots.add(new ContainerUiSlot(overlay, item));
             primary.add(overlay).size(48, 48);
             if (i % 3 == 0) primary.row();
         }
@@ -69,7 +70,7 @@ public final class ContainerGui extends Gui {
         secondary.top();
         secondary.add(new VisLabel("Your Inventory", new Label.LabelStyle(gui.getMedium(), Color.WHITE))).size(48, 48);
         secondary.row().padTop(-8);
-        for (int i = 1; i < 22; i++) {
+        for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
             final VisImage slot = new VisImage(drawable);
             final VisImage item = new VisImage();
 
@@ -77,6 +78,7 @@ public final class ContainerGui extends Gui {
             final VisTable itemTable = new VisTable(true);
             itemTable.add(item);
             final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
+            inventorySlots.add(new ContainerUiSlot(overlay, item));
             secondary.add(overlay).size(48, 48);
             if (i % 3 == 0) secondary.row();
         }
@@ -88,7 +90,13 @@ public final class ContainerGui extends Gui {
 
     @Override
     public void update() {
-        super.update();
+        // update ui based on player inventory status
+        player.getInventory().getSlots().forEach((slot, item) -> {
+            final ContainerUiSlot ui = inventorySlots.get(slot);
+            if (!ui.occupied) {
+                ui.setItem(item.getItem());
+            }
+        });
     }
 
     /**
@@ -98,7 +106,7 @@ public final class ContainerGui extends Gui {
      */
     public void populate(ContainerInventory inventory) {
         inventory.getSlots().forEach((slot, item) -> {
-            final ContainerUiSlot ui = slots.get(slot);
+            final ContainerUiSlot ui = chestSlots.get(slot);
             ui.setItem(item.getItem());
             ui.setSlot(slot);
         });

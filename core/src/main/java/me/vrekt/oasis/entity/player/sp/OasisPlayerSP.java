@@ -49,12 +49,12 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private PlayerConnectionHandler connectionHandler;
     private final PlayerInventory inventory;
 
-    private boolean isInInstance;
+    private boolean isInInstance, isInTutorialWorld = true;
     private OasisWorldInstance instanceIn;
     private final PlayerQuestManager questManager;
 
     private float health = 100.0f;
-    private boolean didUseTutorialFruit;
+    private boolean didUseTutorialFruit, didChopTree;
 
     private EntityInteractable entitySpeakingTo;
     private boolean isSpeakingToEntity;
@@ -95,6 +95,14 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public boolean didUseTutorialFruit() {
         return didUseTutorialFruit;
+    }
+
+    public void setDidChopTree(boolean didChopTree) {
+        this.didChopTree = didChopTree;
+    }
+
+    public boolean didChopTree() {
+        return didChopTree;
     }
 
     public boolean isInInstance() {
@@ -151,6 +159,14 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public void setEntitySpeakingTo(EntityInteractable entitySpeakingTo) {
         this.entitySpeakingTo = entitySpeakingTo;
+    }
+
+    public boolean isInTutorialWorld() {
+        return isInTutorialWorld;
+    }
+
+    public void setInTutorialWorld(boolean inTutorialWorld) {
+        isInTutorialWorld = inTutorialWorld;
     }
 
     public EntityInteractable getEntitySpeakingTo() {

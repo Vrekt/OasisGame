@@ -10,15 +10,24 @@ import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
+import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
+
+import java.util.List;
 
 /**
  * This world acts as a debug/tutorial level for now.
  */
 public final class TutorialOasisWorld extends OasisWorld {
 
+    public static final int TUTORIAL_CHEST_RUNTIME_ID = 2;
+    public static final int TUTORIAL_CHEST_RUNTIME_ID_2 = 3;
+    public static final int TUTORIAL_CHEST_RUNTIME_ID_3 = 4;
+
     private MaviaTutorial tutorialEntity;
+    private List<ChestInventoryInteraction> chests;
 
     public TutorialOasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(game, player, world);
@@ -46,6 +55,12 @@ public final class TutorialOasisWorld extends OasisWorld {
         if (!isWorldLoaded) {
             loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
         }
+
+        // populate tutorial chests, lock them as-well until a certain point in the tutorial
+        chests = getByRuntimeIds(ChestInventoryInteraction.class, TUTORIAL_CHEST_RUNTIME_ID, TUTORIAL_CHEST_RUNTIME_ID_2, TUTORIAL_CHEST_RUNTIME_ID_3);
+        for (ChestInventoryInteraction chest : chests) chest.setInteractable(false);
+
+        chests.get(0).getInventory().addItem(LucidTreeHarvestingToolItem.class, 1);
     }
 
     @Override
@@ -76,4 +91,10 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         return false;
     }
+
+    public void unlockTutorialChests() {
+        for (ChestInventoryInteraction chest : chests) chest.setInteractable(true);
+        chests.clear();
+    }
+
 }

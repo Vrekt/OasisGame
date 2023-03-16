@@ -22,12 +22,12 @@ public final class HudInventoryHandler {
     private final int size;
 
     public HudInventoryHandler(int size, GameGui gui, OasisPlayerSP player) {
-        slots = new InventoryUiSlot[size];
+        slots = new InventoryUiSlot[6];
         for (int i = 0; i < slots.length; i++) {
             slots[i] = new InventoryUiSlot();
         }
 
-        this.size = size;
+        this.size = 6;
         this.gui = gui;
         this.player = player;
 

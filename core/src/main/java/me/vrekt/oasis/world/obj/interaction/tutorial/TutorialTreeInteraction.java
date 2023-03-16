@@ -10,8 +10,10 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
  */
 public final class TutorialTreeInteraction extends InteractableWorldObject {
 
+    public static final int RUNTIME_ID = 5;
+
     public TutorialTreeInteraction() {
-        this.interactable = true;
+        this.interactable = false;
         this.updateDistance = 20f;
         this.interactionDistance = 7f;
         this.interactionType = WorldInteractionType.LUCID_FRUIT_TREE_TUTORIAL;
@@ -24,16 +26,11 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
     @Override
     public void interact() {
-        super.interact();
-
-        // give the player their itemw
-        // not allowed to consume unless talked to mavia first
-        final LucidTreeFruitItem item = (LucidTreeFruitItem) world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.class, 1);
-        item.setAllowedToConsume(false);
+        world.getLocalPlayer().setDidChopTree(true);
+        world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.class, 1);
 
         this.interactable = false;
         this.interactedWith = false;
-
         world.destroyWorldObject(this);
         this.dispose();
     }

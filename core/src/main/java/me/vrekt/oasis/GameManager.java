@@ -27,6 +27,7 @@ public class GameManager {
     private static void registerGlobalKeyActions() {
         KEY_ACTIONS.put(OasisKeybindings.INVENTORY_KEY, () -> gui.showGuiType(GuiType.INVENTORY, GuiType.QUEST));
         KEY_ACTIONS.put(OasisKeybindings.QUEST_BOOK_KEY, () -> gui.showGuiType(GuiType.QUEST, GuiType.INVENTORY));
+        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().getGameWorldIn().skipCurrentDialog());
     }
 
     public static void setCursorInGame(String cursorInWorld) {

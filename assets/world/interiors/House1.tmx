@@ -110,7 +110,7 @@
   <object id="7" x="79.5" y="82">
    <polyline points="0,0 0,52.5 62,53 221,53 220.5,1.5"/>
   </object>
-  <object id="17" x="278.5" y="230" width="18" height="18"/>
+  <object id="17" x="278.053" y="230.447" width="18" height="18"/>
   <object id="18" x="284.5" y="266.5" width="10.5" height="12.5"/>
   <object id="19" x="80" y="144" width="80" height="48"/>
   <object id="20" x="256" y="144" width="48" height="64"/>

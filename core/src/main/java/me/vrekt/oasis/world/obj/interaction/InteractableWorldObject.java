@@ -9,7 +9,7 @@ import me.vrekt.oasis.world.obj.WorldObject;
 /**
  * Represents a {@link WorldObject} that can be interacted with
  */
-public class InteractableWorldObject extends WorldObject implements Interactable, ResourceLoader, Pool.Poolable {
+public abstract class InteractableWorldObject extends WorldObject implements Interactable, ResourceLoader, Pool.Poolable {
 
     // worldIn
     protected OasisWorld world;

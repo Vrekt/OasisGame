@@ -57,6 +57,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
     public void enter() {
         loadInstance(game.getAsset().getWorldMap(instanceName), OasisGameSettings.SCALE);
         isWorldLoaded = true;
+
         game.getMultiplexer().removeProcessor(worldIn);
         game.setScreen(this);
     }

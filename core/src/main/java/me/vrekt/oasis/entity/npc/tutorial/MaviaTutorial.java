@@ -9,21 +9,22 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.interior.InstanceType;
 import me.vrekt.oasis.world.interior.Instance;
+import me.vrekt.oasis.world.interior.InstanceType;
+import me.vrekt.oasis.world.obj.interaction.tutorial.TutorialTreeInteraction;
+import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 
 /**
  * Represents a tutorial/debug NPC.1
  */
 public final class MaviaTutorial extends EntityInteractable {
 
-    private boolean givenLucidHarvestingItem, didUseFruitItem, allowedToConsumeFruitItem;
+    private boolean tutorialUnlocked, didUseFruitItem, allowedToChopTree, didChopTree;
 
     public MaviaTutorial(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.MAVIA);
@@ -35,9 +36,10 @@ public final class MaviaTutorial extends EntityInteractable {
         addDialogAction("mavia_dialog_end_1", this::updateEndStage1);
         addDialogAction("mavia_dialog_end_2", () -> {
             setSpeakingTo(false);
-            allowedToConsumeFruitItem = true;
+            allowedToChopTree = true;
         });
         addDialogAction("mavia_dialog_end_3", this::updateEndStage3);
+        addDialogAction("mavia_dialog_end_4", this::updateEndStage4);
         // player should select their class
         addDialogAction("mavia_dialog_select_class", () -> game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS));
     }
@@ -54,22 +56,28 @@ public final class MaviaTutorial extends EntityInteractable {
         speakable = false;
 
         // unlock quest, obj1: speak obj2: player class completed both
-        if (!player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
-            this.givenLucidHarvestingItem = true;
+        if (!tutorialUnlocked) {
+            this.tutorialUnlocked = true;
             // unlock the next 2 objectives
             player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class, 2);
             game.getGui().hideGui(GuiType.DIALOG);
             game.getGui().showHud();
-            // give the player the harvesting tool.
-            final Item item = game
-                    .getPlayer()
-                    .getInventory()
-                    .addItem(LucidTreeHarvestingToolItem.class, 1);
-            game.getGui().getHud().showItemCollected(item);
+
+            // unlock tutorial chests within the tutorial world.
+            if (player.isInTutorialWorld()) {
+                ((TutorialOasisWorld) player.getGameWorldIn()).unlockTutorialChests();
+            }
         }
     }
 
     private void updateEndStage3() {
+        final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemByType(LucidTreeFruitItem.class);
+        if (item != null) {
+            item.setAllowedToConsume(true);
+        }
+    }
+
+    private void updateEndStage4() {
         setSpeakingTo(false);
         // at this point dialog is finished and NPC needs to be moved
         gameWorldIn.removeInteractableEntity(this);
@@ -109,25 +117,25 @@ public final class MaviaTutorial extends EntityInteractable {
         super.update(v);
 
         // player has collected what they needed, advance dialog stage.
-        if (givenLucidHarvestingItem
-                && player.getInventory().hasItem(LucidTreeFruitItem.class)) {
+        if (tutorialUnlocked && player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
             // also reset because we don't care anymore
-            this.givenLucidHarvestingItem = false;
+            this.tutorialUnlocked = false;
             this.dialog = entityDialog.getSection("mavia_dialog_6");
         }
 
-        if (allowedToConsumeFruitItem) {
-            final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemByType(LucidTreeFruitItem.class);
-            if (item != null) {
-                item.setAllowedToConsume(true);
-                // reset state so this isn't run continuously
-                allowedToConsumeFruitItem = false;
-            }
+        if (allowedToChopTree) {
+            player.getGameWorldIn().getByRuntimeId(TutorialTreeInteraction.RUNTIME_ID).setInteractable(true);
+            allowedToChopTree = false;
+        }
+
+        if (player.didChopTree()) {
+            player.setDidChopTree(false);
+            this.dialog = entityDialog.getSection("mavia_dialog_8");
         }
 
         if (!didUseFruitItem && player.didUseTutorialFruit()) {
             didUseFruitItem = true;
-            this.dialog = entityDialog.getSection("mavia_dialog_8");
+            this.dialog = entityDialog.getSection("mavia_dialog_9");
         }
     }
 }

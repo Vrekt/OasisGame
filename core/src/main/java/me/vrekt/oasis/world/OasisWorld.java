@@ -80,6 +80,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
+    private ParticleEffect effect;
+
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
         this.localPlayer = player;
@@ -176,7 +178,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         engine.addSystem(new EntityUpdateSystem(game, this));
     }
 
-    private void skipCurrentDialog() {
+    public void skipCurrentDialog() {
         if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
             // advance current dialog stage
             if (player.getEntitySpeakingTo().getDialog().hasOptions()) {
@@ -284,6 +286,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.setPosition(rectangle.x, rectangle.y);
             effect.start();
         });
+
+        this.effect = new ParticleEffect();
+        this.effect.load(Gdx.files.internal("world/asset/testeffect"), asset.getAtlasAssets());
+        this.effect.setPosition(player.getPosition().x, player.getPosition().y - 1.5f);
+        effect.scaleEffect(OasisGameSettings.SCALE);
+        this.effect.start();
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
     }
@@ -535,7 +543,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasObj = false;
         if (!hasEntity) {
             for (InteractableWorldObject worldObject : interactableWorldObjects) {
-                if (worldObject.clickedOn(cursorInWorld) && worldObject.getCursor() != null) {
+                if (worldObject.clickedOn(cursorInWorld) && worldObject.getCursor() != null && worldObject.isInteractable()) {
                     GameManager.setCursorInGame(worldObject.getCursor());
                     this.cursorChanged = true;
                     hasObj = true;
@@ -548,6 +556,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             GameManager.resetCursor();
             this.cursorChanged = false;
         }
+
+//        effect.setPosition(player.getPosition().x, player.getPosition().y + 1.0f);
+        //   effect.update(Gdx.graphics.getDeltaTime());
     }
 
     /**
@@ -598,6 +609,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         // render local player next
         player.render(batch, delta);
+        //   effect.draw(batch);
     }
 
     /**
@@ -645,6 +657,14 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
         return null;
+    }
+
+    public <T extends InteractableWorldObject> List<T> getByRuntimeIds(Class<T> type, int... id) {
+        final List<T> objects = new ArrayList<>();
+        int index = 0;
+
+        for (int i : id) objects.add((T) getByRuntimeId(i));
+        return objects;
     }
 
     /**

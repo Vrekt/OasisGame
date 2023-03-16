@@ -1,6 +1,7 @@
 package me.vrekt.oasis.questing;
 
 import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.utility.logging.Logging;
 
 import java.util.LinkedList;
 
@@ -35,6 +36,9 @@ public abstract class Quest {
      * Update the current quest objective and then unlock the next steps
      */
     public void updateQuestObjectiveAndUnlockNext() {
+        if (currentObjectiveStep >= objectives.size()) {
+            Logging.error(this, currentObjectiveStep + " > " + objectives.size());
+        }
         objectives.get(currentObjectiveStep).setCompleted(true);
         currentObjectiveStep++;
         if (currentObjectiveStep >= objectives.size()) return;
