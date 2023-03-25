@@ -9,7 +9,6 @@ import gdx.lunar.world.WorldConfiguration;
 import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -98,29 +97,6 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.setInInstance(true);
         player.setInstanceIn(this);
-    }
-
-    /**
-     * Add an interactable entity to this world
-     * Automatically assigns ID and to engine
-     *
-     * @param entity the entity
-     */
-    public void addInteractableEntity(EntityInteractable entity) {
-        entity.setEntityId(this.entities.size() + 1);
-        this.entities.put(entity.getEntityId(), entity);
-        engine.addEntity(entity.getEntity());
-    }
-
-    /**
-     * Remove an interactable entity from this world
-     * TODO: In update system maybe check for a state within the entity to queue to remove from world
-     *
-     * @param entity the entity
-     */
-    public void removeInteractableEntity(EntityInteractable entity) {
-        this.entities.remove(entity.getEntityId());
-        engine.removeEntity(entity.getEntity());
     }
 
     @Override

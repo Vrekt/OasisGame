@@ -1,9 +1,12 @@
 package me.vrekt.oasis.item.weapons;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.item.Item;
 
-public final class FrostbittenAvernicItem extends Item {
+/**
+ * Initial tutorial item
+ */
+public final class FrostbittenAvernicItem extends ItemWeapon {
 
     public static final int ID = 4;
     public static final String TEXTURE = "frostbitten_avernic";
@@ -11,10 +14,12 @@ public final class FrostbittenAvernicItem extends Item {
 
     public FrostbittenAvernicItem() {
         super(NAME, ID, "A special blade with magical abilities.");
+        this.baseDamage = 1.5f;
     }
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get(TEXTURE);
+        this.sprite = new Sprite(asset.get(TEXTURE));
     }
+
 }

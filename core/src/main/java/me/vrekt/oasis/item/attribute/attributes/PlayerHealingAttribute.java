@@ -1,6 +1,7 @@
 package me.vrekt.oasis.item.attribute.attributes;
 
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.item.attribute.Attributes;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
 
 /**
@@ -9,7 +10,7 @@ import me.vrekt.oasis.item.attribute.ItemAttribute;
 public final class PlayerHealingAttribute extends ItemAttribute {
 
     // ID
-    public static final int ID = 1;
+    public static final int ID = Attributes.PLAYER_HEALING_ATTRIBUTE;
 
     // amount to heal by.
     private final float amount;

@@ -1,11 +1,10 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -15,6 +14,10 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
+import gdx.lunar.network.types.ConnectionOption;
+import gdx.lunar.network.types.PlayerConnectionHandler;
+import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
+import gdx.lunar.protocol.packet.server.SPacketPlayerPosition;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
@@ -81,6 +84,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
     private ParticleEffect effect;
+    private long last;
+    private float x, y, time, rotationAngle;
+    private boolean reset = true;
+    private Animation<TextureRegion> test;
+    private Animation<TextureRegion> water;
+
+    private Sprite swordSprite;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -101,10 +111,34 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return game;
     }
 
+    private void handleConnectionOptions(PlayerConnectionHandler connection) {
+        connection.registerHandlerAsync(ConnectionOption.HANDLE_PLAYER_JOIN, packet -> handlePlayerJoin((SPacketCreatePlayer) packet));
+    }
+
+    /**
+     * Handle players joining to this world
+     * TODO
+     *
+     * @param packet the packet
+     */
+    public void handlePlayerJoin(SPacketCreatePlayer packet) {
+        if (packet.getEntityId() == player.getEntityId()) return;
+
+        Logging.info(this, "Spawning new network player with ID " + packet.getEntityId() + " and username " + packet.getUsername());
+        if (player.isInWorld()) {
+            final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
+            player.load(game.getAsset());
+
+            player.setProperties(packet.getUsername(), packet.getEntityId());
+            player.setSize(15, 25, OasisGameSettings.SCALE);
+            player.spawnEntityInWorld(this.player.getWorldIn());
+        } else {
+            Logging.warn(this, "Attempted to spawn player while not in world.");
+        }
+    }
+
     /**
      * Enter this world.
-     *
-     * @return {@code  true} if successful.
      */
     public void enterWorld(boolean fromInstance) {
         // remove player from a world they could already be in
@@ -165,10 +199,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         game.getMultiplexer().addProcessor(this);
 
         addDefaultWorldSystems();
+        addDefaultPlayerCollisionListener();
 
         // initialize player in this world.
         player.spawnEntityInWorld(this, spawn.x, spawn.y);
         player.setGameWorldIn(this);
+
+        handleConnectionOptions(game.getHandler());
 
         this.isWorldLoaded = true;
     }
@@ -248,6 +285,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void addInteractableEntity(EntityInteractable entity) {
         entity.setEntityId(this.entities.size() + 1);
         this.entities.put(entity.getEntityId(), entity);
+        // allows the entity update system to add this to the nearby entities list
+        entity.setNearby(false);
         engine.addEntity(entity.getEntity());
     }
 
@@ -292,6 +331,15 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.effect.setPosition(player.getPosition().x, player.getPosition().y - 1.5f);
         effect.scaleEffect(OasisGameSettings.SCALE);
         this.effect.start();
+
+        test = new Animation<>(0.5f, asset.get("letter", 1), asset.get("letter", 2), asset.get("letter", 3));
+        test.setPlayMode(Animation.PlayMode.LOOP);
+
+        water = new Animation<>(0.2f, asset.get("water", 1), asset.get("water", 2), asset.get("water", 3), asset.get("water", 4), asset.get("water", 5));
+        water.setPlayMode(Animation.PlayMode.NORMAL);
+
+        swordSprite = new Sprite(asset.get("prototype_timepiercer"));
+        swordSprite.setScale(OasisGameSettings.SCALE);
 
         if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
     }
@@ -557,8 +605,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             this.cursorChanged = false;
         }
 
-//        effect.setPosition(player.getPosition().x, player.getPosition().y + 1.0f);
-        //   effect.update(Gdx.graphics.getDeltaTime());
     }
 
     /**
@@ -607,9 +653,58 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             effect.draw(batch);
         }
 
+
+        final Sprite sprite = player.getInventory().getItem(0).getSprite();
+        sprite.setScale(OasisGameSettings.SCALE);
+        //  batch.draw(sprite, player.getPosition().x + 0.4f, player.getPosition().y + 0.25f, 0.0f, 0.0f, sprite.getRegionWidth() / 1.5f, sprite.getRegionHeight() / 1.5f, OasisGameSettings.SCALE, OasisGameSettings.SCALE, 45.0f);
+
         // render local player next
         player.render(batch, delta);
-        //   effect.draw(batch);
+
+        // Check if the player clicked the mouse button
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+
+            if (rotationAngle < 90) {
+                rotationAngle += delta * 360f / 0.75f; // Rotate the sword 360 degrees over half a second
+            }
+
+            if (rotationAngle >= 90) {
+                rotationAngle -= delta * 360F / 0.5f;
+            }
+
+            if (rotationAngle <= 10) {
+            }
+        } else {
+            if (rotationAngle >= 0) {
+                rotationAngle -= delta * 360F / 0.5f;
+            }
+        }
+
+        //    rotationAngle += Gdx.graphics.getDeltaTime() * 360f / 0.5f; // Rotate the sword 360 degrees over half a second
+//        swordSprite.setRotation(rotationAngle);
+        //   swordSprite.setPosition(-5, -5);
+
+        //   swordSprite.draw(batch);
+        time += delta;
+
+        ///    rotationAngle += Gdx.graphics.getDeltaTime() * 360f / 0.5f;
+
+        //    effect.setPosition(player.getPosition().x, player.getPosition().y + 1.0f);
+        //   effect.update(Gdx.graphics.getDeltaTime());
+        //    effect.draw(batch);
+
+        //   if (System.currentTimeMillis() - last >= 300) {
+        //        last = System.currentTimeMillis();
+        //       x = player.getPosition().x + (float) RandomUtils.nextDouble(0.25f, 1.0f);
+        //        y = player.getPosition().y + (float) RandomUtils.nextDouble(0.5f, 2.5f);
+        //   }
+        //    final TextureRegion test = this.water.getKeyFrame(time);
+        //   batch.draw(test, player.getPosition().x, y,
+        //           0.0f, 0.0f,
+        //           (test.getRegionWidth() / 4f) * OasisGameSettings.SCALE,
+        //           (test.getRegionHeight() / 4f) * OasisGameSettings.SCALE,
+        //           1.0f, 1.0f, 90.0f);
+
     }
 
     /**

@@ -1,5 +1,6 @@
 package me.vrekt.oasis.item.consumables.food;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
@@ -22,7 +23,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get(TEXTURE);
+        this.sprite = new Sprite(asset.get(TEXTURE));
     }
 
     @Override

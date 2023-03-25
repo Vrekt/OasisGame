@@ -47,7 +47,7 @@ public final class MaviaTutorial extends EntityInteractable {
     @Override
     public boolean advanceDialogStage(String option) {
         if (executeDialogAction(option)) return false;
-        this.dialog = entityDialog.getSection(option);
+        this.dialog = entityDialog.getSectionDefault(option, dialog);
         return true;
     }
 
@@ -89,6 +89,8 @@ public final class MaviaTutorial extends EntityInteractable {
         } else {
             Logging.error(this, "Mavia's house not found !!");
         }
+
+        this.dialog = entityDialog.getSection("mavia_dialog_10");
     }
 
     @Override

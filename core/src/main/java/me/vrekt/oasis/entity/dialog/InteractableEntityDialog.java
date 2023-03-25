@@ -33,6 +33,10 @@ public class InteractableEntityDialog implements Disposable {
         return dialog.get(key);
     }
 
+    public InteractableEntityDialogSection getSectionDefault(String key, InteractableEntityDialogSection section) {
+        return dialog.getOrDefault(key, section);
+    }
+
     public InteractableEntityDialogSection getStarting() {
         return dialog.get(starting);
     }

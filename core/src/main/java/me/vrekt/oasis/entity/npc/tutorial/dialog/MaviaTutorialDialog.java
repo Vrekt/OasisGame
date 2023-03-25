@@ -39,6 +39,8 @@ public final class MaviaTutorialDialog {
                 .create("mavia_dialog_9", "Now that you know about consumables, follow me inside my house I have a few items for you.")
                 .nextKey("mavia_dialog_end_4")
                 .next()
+                .create("mavia_dialog_10", "I left some weapons for you inside the crates over there.")
+                .next()
                 .build();
 
         dialog.setStarting("mavia_dialog_0");

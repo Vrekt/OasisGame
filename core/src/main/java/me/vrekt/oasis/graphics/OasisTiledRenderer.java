@@ -1,5 +1,6 @@
 package me.vrekt.oasis.graphics;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -29,7 +30,8 @@ public final class OasisTiledRenderer implements Disposable {
     private final ScreenViewport viewport;
 
     private int width, height;
-    private float hx, hy;
+    private float px = 16.0f, py = 6.0f;
+    private boolean offset;
 
     /**
      * Initialize a new renderer instance
@@ -67,9 +69,6 @@ public final class OasisTiledRenderer implements Disposable {
         this.width = map.getProperties().get("width", Integer.class) - 2;
         this.height = map.getProperties().get("height", Integer.class) - 2;
 
-        this.hx = camera.viewportWidth / 2f;
-        this.hy = camera.viewportHeight / 2f;
-
         camera.position.set(x, y, 0f);
         camera.update();
 
@@ -93,6 +92,10 @@ public final class OasisTiledRenderer implements Disposable {
         batch.begin();
     }
 
+    public void endRendering() {
+        batch.end();
+    }
+
     public SpriteBatch getBatch() {
         return batch;
     }
@@ -106,6 +109,19 @@ public final class OasisTiledRenderer implements Disposable {
         // update animations and render map.
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
+
+        for (TiledMapTileLayer layer : new Array.ArrayIterator<>(layers)) {
+            renderer.renderTileLayer(layer);
+        }
+    }
+
+    public void renderParallax() {
+        camera.update();
+        updateParallax();
+
+        // update animations and render map.
+        AnimatedTiledMapTile.updateAnimationBaseTime();
+        //   renderer.setView(camera);
 
         for (TiledMapTileLayer layer : new Array.ArrayIterator<>(layers)) {
             renderer.renderTileLayer(layer);
@@ -133,6 +149,46 @@ public final class OasisTiledRenderer implements Disposable {
         camera.update();
     }
 
+    private void updateParallax() {
+        if (camera.position.x == 10.0f) camera.position.x = 16.0f;
+        //  renderer.setView(camera.combined, camera.position.x, camera.position.y + height, camera.viewportWidth, camera.viewportHeight);
+
+        //   final float x = Interpolation.smooth.apply(camera.position.x, px, 1f);
+        //  final float y = Interpolation.smooth.apply(camera.position.y, py, 1f);
+
+        //  final float maxX = MathUtils.clamp(x, camera.viewportWidth / 2f, width - (camera.viewportWidth / 2f));
+        //  final float maxY = MathUtils.clamp(y, camera.viewportHeight / 2f, height - (camera.viewportHeight / 2f));
+
+
+        if (camera.position.y >= 35) {
+            offset = true;
+        }
+
+        if (!offset) {
+            renderer.setView(camera);
+        } else {
+            float width = camera.viewportWidth * 1.0f;
+            float height = camera.viewportHeight * 1.0f;
+
+            float w = width * Math.abs(camera.up.y) + height * Math.abs(camera.up.x);
+            float h = height * Math.abs(camera.up.y) + width * Math.abs(camera.up.x);
+            float x1 = camera.position.x - w / 2;
+            float y2 = camera.position.y - h / 2;
+
+            //  x1 -= 5.0f;
+            //  w -= 5.0f;
+
+            y2 -= this.height * OasisGameSettings.SCALE;
+            h -= this.height * OasisGameSettings.SCALE;
+            renderer.setView(camera.combined, x1, y2, w, h);
+            offset = false;
+        }
+
+        camera.position.y += (Gdx.graphics.getDeltaTime()) * 4f;
+        py += Gdx.graphics.getDeltaTime();
+
+    }
+
     /**
      * Invoked when a resize happens.
      *
@@ -142,9 +198,6 @@ public final class OasisTiledRenderer implements Disposable {
     public void resize(int width, int height) {
         viewport.update(width, height, false);
         camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
-
-        hx = camera.viewportWidth / 2f;
-        hy = camera.viewportHeight / 2f;
     }
 
     @Override

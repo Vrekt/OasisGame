@@ -11,6 +11,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
+import me.vrekt.oasis.item.weapons.FrostbittenAvernicItem;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
@@ -61,6 +62,8 @@ public final class TutorialOasisWorld extends OasisWorld {
         for (ChestInventoryInteraction chest : chests) chest.setInteractable(false);
 
         chests.get(0).getInventory().addItem(LucidTreeHarvestingToolItem.class, 1);
+
+        player.getInventory().addItem(FrostbittenAvernicItem.class, 1);
     }
 
     @Override

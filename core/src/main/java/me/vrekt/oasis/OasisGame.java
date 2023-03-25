@@ -26,6 +26,8 @@ import java.util.concurrent.CompletableFuture;
 
 public final class OasisGame extends Game {
 
+    public static String GAME_VERSION = "0.1-32023a";
+
     private Asset asset;
 
     private OasisTiledRenderer renderer;
@@ -40,6 +42,8 @@ public final class OasisGame extends Game {
     private LunarProtocol protocol;
     private OasisLocalServer server;
     private LunarClientServer clientServer;
+
+    private PlayerConnectionHandler handler;
 
     @Override
     public void create() {
@@ -100,6 +104,8 @@ public final class OasisGame extends Game {
         gui = new GameGui(this, asset, multiplexer);
         GameManager.initialize(this);
 
+        //setScreen(new OasisMainMenu(this));
+
         screen.setFinishedLoadingCall(() -> CompletableFuture.runAsync(this::joinLocalServer));
         setScreen(screen);
     }
@@ -111,24 +117,29 @@ public final class OasisGame extends Game {
         this.protocol = new LunarProtocol(true);
 
         // start local server for singleplayer
-        server = new OasisLocalServer(this, protocol);
-        server.start();
+        // server = new OasisLocalServer(this, protocol);
+        //  server.start();
 
         // connect to SP server
         clientServer = new LunarClientServer(protocol, "localhost", 6969);
         clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
-        clientServer.connectNoExceptions();
+        try {
+            clientServer.connect();
+        } catch (Exception e) {
+            e
+                    .printStackTrace();
+        }
 
         if (clientServer.getConnection() == null) {
             Logging.info(this, "error");
             throw new UnsupportedOperationException("Local server not started yet.");
         }
 
-        final PlayerConnectionHandler connection = (PlayerConnectionHandler) clientServer.getConnection();
-        player.setConnectionHandler(connection);
+        handler = (PlayerConnectionHandler) clientServer.getConnection();
+        player.setConnectionHandler(handler);
 
         // request to join local tutorial world.
-        connection.joinWorld("TutorialWorld", player.getName());
+        handler.joinWorld("TutorialWorld", player.getName());
     }
 
     public void executeMain(Runnable action) {
@@ -163,4 +174,7 @@ public final class OasisGame extends Game {
         return asset;
     }
 
+    public PlayerConnectionHandler getHandler() {
+        return handler;
+    }
 }

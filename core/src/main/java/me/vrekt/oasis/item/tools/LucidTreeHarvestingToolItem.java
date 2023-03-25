@@ -1,5 +1,6 @@
 package me.vrekt.oasis.item.tools;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.item.Item;
 
@@ -18,7 +19,7 @@ public final class LucidTreeHarvestingToolItem extends Item {
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get(TEXTURE);
+        this.sprite = new Sprite(asset.get(TEXTURE));
     }
 
 }

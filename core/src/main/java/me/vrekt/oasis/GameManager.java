@@ -15,7 +15,7 @@ public class GameManager {
 
     public static final String DIALOG_CURSOR = "ui/dialog_cursor.png";
     private static final Map<Integer, Runnable> KEY_ACTIONS = new HashMap<>();
-    public static OasisGame oasis;
+    private static OasisGame oasis;
     private static GameGui gui;
 
     public static void initialize(OasisGame game) {

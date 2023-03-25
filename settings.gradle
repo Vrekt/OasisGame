@@ -1,1 +1,3 @@
 include 'shared', 'lwjgl3', 'core', 'server'
+include 'OasisServer'
+

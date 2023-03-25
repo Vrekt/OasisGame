@@ -1,5 +1,6 @@
 package me.vrekt.oasis.item;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.asset.game.Asset;
@@ -20,7 +21,7 @@ public abstract class Item implements Pool.Poolable {
 
     protected String itemName;
     protected String description;
-    protected TextureRegion texture;
+    protected Sprite sprite;
 
     // amount of this item player has
     protected int amount;
@@ -50,7 +51,11 @@ public abstract class Item implements Pool.Poolable {
     }
 
     public TextureRegion getTexture() {
-        return texture;
+        return sprite;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
     }
 
     public int getAmount() {

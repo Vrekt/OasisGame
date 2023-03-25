@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
-import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.drawing.Rotation;
@@ -23,7 +22,6 @@ import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Renderable;
 import me.vrekt.oasis.questing.PlayerQuestManager;
@@ -69,6 +67,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRatesInMs(0, 0);
         setFixedRotation(true);
+        setIgnorePlayerCollision(true);
 
         this.inventory = new PlayerInventory();
 
@@ -184,7 +183,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
                 ConnectionOption.HANDLE_PLAYER_FORCE);
 
         connectionHandler.registerHandlerAsync(ConnectionOption.HANDLE_JOIN_WORLD, packet -> handleWorldJoin(((SPacketJoinWorld) packet)));
-        connectionHandler.registerHandlerAsync(ConnectionOption.HANDLE_PLAYER_JOIN, packet -> handlePlayerJoin((SPacketCreatePlayer) packet));
     }
 
     public void handleWorldJoin(SPacketJoinWorld world) {
@@ -193,22 +191,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             setEntityId(world.getEntityId());
             game.loadIntoWorld(game.getWorldManager().getWorld(world.getWorldName()));
         });
-    }
-
-    public void handlePlayerJoin(SPacketCreatePlayer packet) {
-        if (packet.getEntityId() == getEntityId()) return;
-
-        Logging.info(this, "Spawning new player " + packet.getUsername() + ":" + packet.getEntityId());
-        if (inWorld) {
-            final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
-            player.load(game.getAsset());
-
-            player.setProperties(packet.getUsername(), packet.getEntityId());
-            player.setSize(24, 24, OasisGameSettings.SCALE);
-            player.spawnEntityInWorld(getWorldIn());
-        } else {
-            Logging.warn(this, "Attempted to spawn player while not in world.");
-        }
     }
 
     public void setIdleRegionState() {

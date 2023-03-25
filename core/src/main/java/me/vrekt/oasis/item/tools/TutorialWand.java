@@ -18,7 +18,7 @@ public final class TutorialWand extends Item {
 
     @Override
     public void loadItemAsset(Asset asset) {
-        this.texture = asset.get(TEXTURE);
+       // this.texture = asset.get(TEXTURE);
     }
 
 }
