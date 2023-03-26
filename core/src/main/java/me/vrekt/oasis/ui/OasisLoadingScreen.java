@@ -5,10 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
-import me.vrekt.oasis.OasisGame;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.kotcrab.vis.ui.widget.VisProgressBar;
 
 /**
  * Handles loading anything within the game
@@ -17,25 +14,15 @@ public final class OasisLoadingScreen extends ScreenAdapter {
 
     private final Stage stage;
     private final ProgressBar progressBar;
+    private boolean waitingForServer;
 
-    private final List<Runnable> tasks;
-    private Runnable finishedLoadingCall;
-    private int index = 0;
-    private boolean invoked;
-
-    public OasisLoadingScreen(OasisGame game) {
-        this.tasks = new ArrayList<>();
-
+    public OasisLoadingScreen() {
         this.stage = new Stage();
-        this.progressBar = new ProgressBar(0.0f, 100.0f, 10.0f, false, game.getAsset().getDefaultLibgdxSkin());
+        this.progressBar = new VisProgressBar(0.0f, 100.0f, 10.0f, false);
     }
 
-    public void addTask(Runnable task) {
-        this.tasks.add(task);
-    }
-
-    public void setFinishedLoadingCall(Runnable finishedLoadingCall) {
-        this.finishedLoadingCall = finishedLoadingCall;
+    public void stepProgress() {
+        progressBar.setValue(progressBar.getValue() + 10.0f);
     }
 
     @Override
@@ -50,22 +37,7 @@ public final class OasisLoadingScreen extends ScreenAdapter {
     public void render(float delta) {
         ScreenUtils.clear(1, 1, 1, 1);
 
-        if (index >= tasks.size()) {
-            // all tasks finished.
-            if (!invoked) {
-                finishedLoadingCall.run();
-                invoked = true;
-            }
-            return;
-        }
-
-        final Runnable task = tasks.get(index);
-        task.run();
-        index++;
-
         stage.act();
         stage.draw();
-
-        progressBar.setValue(progressBar.getValue() + (progressBar.getStepSize() / 2f));
     }
 }

@@ -14,8 +14,8 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
-import me.vrekt.oasis.network.OasisLocalServer;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
+import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.management.WorldManager;
@@ -30,6 +30,8 @@ public final class OasisGame extends Game {
 
     private Asset asset;
 
+    private OasisLoadingScreen loadingScreen;
+
     private OasisTiledRenderer renderer;
     private OasisPlayerSP player;
     private SpriteBatch batch;
@@ -40,13 +42,17 @@ public final class OasisGame extends Game {
     private GameGui gui;
 
     private LunarProtocol protocol;
-    private OasisLocalServer server;
     private LunarClientServer clientServer;
 
     private PlayerConnectionHandler handler;
 
     @Override
     public void create() {
+        VisUI.load();
+
+        loadingScreen = new OasisLoadingScreen();
+        setScreen(loadingScreen);
+
         loadGame();
     }
 
@@ -73,7 +79,6 @@ public final class OasisGame extends Game {
             if (screen != null) screen.hide();
             player.getConnection().dispose();
             clientServer.dispose();
-            server.dispose();
             player.dispose();
             worldManager.dispose();
             clientServer.dispose();
@@ -85,29 +90,31 @@ public final class OasisGame extends Game {
     }
 
     private void loadGame() {
+        loadingScreen.stepProgress();
+
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
         asset = new Asset();
         asset.load();
-        VisUI.load();
 
-        final OasisLoadingScreen screen = new OasisLoadingScreen(this);
+        loadingScreen.stepProgress();
+
+        Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
         // load base assets
         player = new OasisPlayerSP(this, "Player" + RandomUtils.nextInt(0, 999));
         player.load(asset);
+        loadingScreen.stepProgress();
 
         renderer = new OasisTiledRenderer(batch, player);
         multiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(multiplexer);
         gui = new GameGui(this, asset, multiplexer);
         GameManager.initialize(this);
+        loadingScreen.stepProgress();
 
-        //setScreen(new OasisMainMenu(this));
-
-        screen.setFinishedLoadingCall(() -> CompletableFuture.runAsync(this::joinLocalServer));
-        setScreen(screen);
+        CompletableFuture.runAsync(this::joinLocalServer);
     }
 
     private void joinLocalServer() {
@@ -116,19 +123,19 @@ public final class OasisGame extends Game {
 
         this.protocol = new LunarProtocol(true);
 
-        // start local server for singleplayer
-        // server = new OasisLocalServer(this, protocol);
-        //  server.start();
-
         // connect to SP server
-        clientServer = new LunarClientServer(protocol, "localhost", 6969);
+        clientServer = new LunarClientServer(protocol, "144.202.37.207", 6969);
+        // clientServer = new LunarClientServer(protocol, "localhost", 6969);
         clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
+        loadingScreen.stepProgress();
+
         try {
             clientServer.connect();
-        } catch (Exception e) {
-            e
-                    .printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            Gdx.app.exit();
         }
+        loadingScreen.stepProgress();
 
         if (clientServer.getConnection() == null) {
             Logging.info(this, "error");
@@ -140,6 +147,7 @@ public final class OasisGame extends Game {
 
         // request to join local tutorial world.
         handler.joinWorld("TutorialWorld", player.getName());
+        loadingScreen.stepProgress();
     }
 
     public void executeMain(Runnable action) {

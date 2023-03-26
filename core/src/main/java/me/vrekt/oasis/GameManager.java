@@ -18,6 +18,10 @@ public class GameManager {
     private static OasisGame oasis;
     private static GameGui gui;
 
+    public static OasisGame getOasis() {
+        return oasis;
+    }
+
     public static void initialize(OasisGame game) {
         oasis = game;
         gui = game.getGui();

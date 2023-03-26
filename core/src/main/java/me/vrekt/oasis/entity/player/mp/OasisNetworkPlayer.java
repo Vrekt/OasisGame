@@ -1,7 +1,7 @@
 package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.World;
 import lunar.shared.drawing.Rotation;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
@@ -48,13 +48,13 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
     @Override
     public void update(float delta) {
         super.update(delta);
+        setHasMoved(!getVelocity().isZero());
 
         if (oldRotation != rotation) {
             setIdleRegionState();
         }
 
         oldRotation = rotation;
-        setHasMoved(!getVelocity().isZero());
     }
 
     @Override
@@ -78,10 +78,6 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
         }
     }
 
-    private void draw(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getInterpolated().x, getInterpolated().y, region.getRegionWidth() * getScaling(), region.getRegionHeight() * getScaling());
-    }
-
     private void setIdleRegionState() {
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
@@ -99,4 +95,9 @@ public final class OasisNetworkPlayer extends NetworkEntityPlayer implements Res
         }
     }
 
+    @Override
+    public void defineEntity(World world, float x, float y) {
+        super.defineEntity(world, x, y);
+        this.body.setUserData(this);
+    }
 }

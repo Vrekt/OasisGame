@@ -28,7 +28,7 @@ public final class HudGui extends Gui {
     private final HudInventoryHandler inventoryRenderer;
 
     // amount of item collected + icon image of item
-    private final Label amountLabel, fpsLabel;
+    private final Label amountLabel, fpsLabel, pingLabel;
     private final Image iconImage, classImage;
 
     // last hint popped up
@@ -47,6 +47,8 @@ public final class HudGui extends Gui {
         fpsTable.setVisible(true);
         fpsTable.top().left();
         fpsTable.add(fpsLabel = new Label("FPS: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
+        fpsTable.row();
+        fpsTable.add(pingLabel = new Label("Ping: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
         fpsLabel.setVisible(false);
         // info: missing item warning
         warningTable = new Table();
@@ -106,14 +108,19 @@ public final class HudGui extends Gui {
         if (warningTable.getColor().a == 1 && (System.currentTimeMillis() - lastWarning) >= 1500)
             warningTable.addAction(Actions.fadeOut(1));
 
-        if(OasisGameSettings.SHOW_FPS && !fpsLabel.isVisible()) {
+        if (OasisGameSettings.SHOW_FPS && !fpsLabel.isVisible()) {
             fpsLabel.setVisible(true);
-        } else if(!OasisGameSettings.SHOW_FPS && fpsLabel.isVisible()) {
+            pingLabel.setVisible(true);
+        } else if (!OasisGameSettings.SHOW_FPS && fpsLabel.isVisible()) {
             fpsLabel.setVisible(false);
+            pingLabel.setVisible(false);
         }
 
-        if(fpsLabel.isVisible()) {
+        if (fpsLabel.isVisible()) {
             fpsLabel.setText("FPS: " + Gdx.graphics.getFramesPerSecond());
+        }
+        if (pingLabel.isVisible()) {
+            pingLabel.setText("Ping: " + gui.getGame().getPlayer().getServerPingTime());
         }
         inventoryRenderer.update();
     }

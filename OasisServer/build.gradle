@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api group: 'io.netty', name: 'netty-all', version: '4.1.48.Final'
+    api "com.badlogicgames.ashley:ashley:1.7.4"
+    api "com.badlogicgames.gdx:gdx-freetype:1.11.0"
+    api "com.badlogicgames.gdx-controllers:gdx-controllers-core:2.2.2"
+    api "com.badlogicgames.gdx:gdx-box2d:1.11.0"
+    api "com.badlogicgames.gdx:gdx:1.11.0"
+    api files('../Core.jar')
+    api files('../Protocol.jar')
+    api files('../Server.jar')
+    api files('../Entity.jar')
+
+    //  gdxVersion = '1.11.0'
+    //        roboVMVersion = '2.3.16'
+    //        box2DLightsVersion = '1.5'
+    //        ashleyVersion = '1.7.4'
+    //        aiVersion = '1.8.2'
+    //        gdxControllersVersion = '2.2.2'
+}
+
+test {
+    useJUnitPlatform()
+}

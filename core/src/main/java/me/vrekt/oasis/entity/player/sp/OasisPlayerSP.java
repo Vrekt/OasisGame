@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
+import gdx.lunar.protocol.packet.client.CPacketPing;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
+import gdx.lunar.protocol.packet.server.SPacketPing;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.drawing.Rotation;
 import lunar.shared.entity.LunarEntity;
@@ -56,6 +58,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private EntityInteractable entitySpeakingTo;
     private boolean isSpeakingToEntity;
+    private long lastPingSent, serverPingTime;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -74,6 +77,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         // starting quest, later this won't be added here but instead on new game.
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
+    }
+
+    public long getServerPingTime() {
+        return serverPingTime;
     }
 
     public float getHealth() {
@@ -183,6 +190,14 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
                 ConnectionOption.HANDLE_PLAYER_FORCE);
 
         connectionHandler.registerHandlerAsync(ConnectionOption.HANDLE_JOIN_WORLD, packet -> handleWorldJoin(((SPacketJoinWorld) packet)));
+        connectionHandler.registerHandlerSync(ConnectionOption.PING, packet -> updatePingTime((SPacketPing) packet));
+    }
+
+    private void updatePingTime(SPacketPing packet) {
+        final long now = System.currentTimeMillis();
+        final long delta = now - packet.getClientTime();
+        final long delta2 = now - packet.getServerTime();
+        serverPingTime = (delta + delta2);
     }
 
     public void handleWorldJoin(SPacketJoinWorld world) {
@@ -270,6 +285,11 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             setIdleRegionState();
             rotationChanged = false;
         }
+
+        if (System.currentTimeMillis() - lastPingSent >= 2000) {
+            lastPingSent = System.currentTimeMillis();
+            connection.sendImmediately(new CPacketPing(System.currentTimeMillis()));
+        }
     }
 
     @Override
@@ -288,17 +308,13 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     @Override
-    public void definePlayer(World world, float x, float y) {
-        setPosition(x, y, true);
-        this.getPrevious().set(x, y);
-        this.setInterpolated(x, y);
-        this.body = this.definitionHandler.createBodyInWorld(world, x, y, this.getProperties());
-        this.definitionHandler.resetDefinition();
+    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
+        super.spawnEntityInWorld(world, x, y);
     }
 
     @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
-        super.spawnEntityInWorld(world, x, y);
-        this.getBody().setUserData(this);
+    public void defineEntity(World world, float x, float y) {
+        super.defineEntity(world, x, y);
+        this.body.setUserData(this);
     }
 }

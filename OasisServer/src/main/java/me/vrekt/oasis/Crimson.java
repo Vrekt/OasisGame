@@ -22,12 +22,12 @@ public final class Crimson {
 
     private final CrimsonWorldManager worldManager;
 
-    Crimson() {
+    Crimson(String[] arguments) {
         protocol = new LunarProtocol(true);
         gameServer = new CrimsonGameServer(protocol);
         worldManager = new CrimsonWorldManager();
 
-        server = new NettyServer("localhost", 6969, protocol, gameServer);
+        server = new NettyServer(arguments[0], Integer.parseInt(arguments[1]), protocol, gameServer);
         server.setConnectionProvider(socketChannel -> new CrimsonPlayerConnection(socketChannel, gameServer));
         server.bind();
 

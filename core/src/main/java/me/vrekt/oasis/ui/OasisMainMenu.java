@@ -4,6 +4,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.OasisGame;
@@ -38,6 +39,8 @@ public class OasisMainMenu extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        ScreenUtils.clear(64, 64, 64, 1);
+
         game.getRenderer().beginRendering();
         game.getRenderer().renderParallax();
         game.getRenderer().endRendering();
@@ -45,7 +48,7 @@ public class OasisMainMenu extends ScreenAdapter {
 
         stage.getViewport().apply();
         stage.act();
-       // stage.draw();
+        // stage.draw();
     }
 
     @Override
