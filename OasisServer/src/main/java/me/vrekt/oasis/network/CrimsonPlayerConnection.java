@@ -18,7 +18,7 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
 
     @Override
     public void handleAuthentication(CPacketAuthentication packet) {
-        Logging.info(this, "Attempting to authenticate a new player " + packet.getGameVersion());
+        Logging.info(this, "Attempting to authenticate a new player from [" + channel.localAddress() + "]");
         super.handleAuthentication(packet);
     }
 

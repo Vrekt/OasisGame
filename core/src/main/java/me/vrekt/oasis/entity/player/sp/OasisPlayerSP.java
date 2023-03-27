@@ -2,8 +2,8 @@ package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
@@ -60,6 +60,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private boolean isSpeakingToEntity;
     private long lastPingSent, serverPingTime;
 
+    private final float nametagRenderWidth;
+    private final Vector3 worldPosition = new Vector3();
+    private final Vector3 screenPosition = new Vector3();
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -71,6 +75,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setNetworkSendRatesInMs(0, 0);
         setFixedRotation(true);
         setIgnorePlayerCollision(true);
+
+        final GlyphLayout fontLayout = new GlyphLayout(game.getAsset().getSmall(), getName());
+        this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
+        fontLayout.reset();
 
         this.inventory = new PlayerInventory();
 
@@ -195,9 +203,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private void updatePingTime(SPacketPing packet) {
         final long now = System.currentTimeMillis();
-        final long delta = now - packet.getClientTime();
-        final long delta2 = now - packet.getServerTime();
-        serverPingTime = (delta + delta2);
+        serverPingTime = now - packet.getClientTime();
     }
 
     public void handleWorldJoin(SPacketJoinWorld world) {
@@ -290,6 +296,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             lastPingSent = System.currentTimeMillis();
             connection.sendImmediately(new CPacketPing(System.currentTimeMillis()));
         }
+
     }
 
     @Override
@@ -308,7 +315,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity> void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
+    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity>
+    void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
         super.spawnEntityInWorld(world, x, y);
     }
 

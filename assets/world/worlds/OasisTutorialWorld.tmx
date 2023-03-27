@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="50">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="51">
  <tileset firstgid="1" source="../asset/Overworld.tsx"/>
  <tileset firstgid="1441" source="../asset/Trees.tsx"/>
  <tileset firstgid="17825" source="../asset/Objects.tsx"/>
@@ -120,6 +120,14 @@
     <property name="instance_type" value="mavia_tutorial_house"/>
    </properties>
   </object>
+  <object id="50" x="176" y="96" width="32" height="32">
+   <properties>
+    <property name="cursor" value="ui/door_cursor.png"/>
+    <property name="enterable" type="bool" value="true"/>
+    <property name="instance_name" value="world/worlds/LairOfHopelessWidow.tmx"/>
+    <property name="instance_type" value="lair_of_hopeless_widow"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="4" name="Entities">
   <object id="2" name="Mavia" x="256" y="192">
@@ -151,7 +159,7 @@
   <object id="22" x="306.5" y="194" width="24" height="23"/>
   <object id="23" x="359.5" y="198.5" width="16" height="16.5"/>
   <object id="24" x="407" y="199.5" width="17" height="14.5"/>
-  <object id="25" x="176" y="96" width="32" height="32"/>
+  <object id="25" x="175.404" y="97.7885" width="32" height="32"/>
   <object id="26" x="80" y="192" width="32" height="32"/>
   <object id="27" x="64" y="160" width="48" height="16"/>
   <object id="30" x="128" y="64" width="80" height="32"/>

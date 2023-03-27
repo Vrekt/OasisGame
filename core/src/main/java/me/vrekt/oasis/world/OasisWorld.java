@@ -2,10 +2,9 @@ package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -230,6 +229,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void spawnEntityInWorld(LunarEntity entity, float x, float y) {
         if (entity instanceof OasisPlayerSP) return;
         super.spawnEntityInWorld(entity, x, y);
+    }
+
+    public void renderPlayerNametags(BitmapFont font, Batch batch, Camera camera) {
+        for (OasisNetworkPlayer mp : players.values()) {
+
+        }
     }
 
     /**
@@ -583,6 +588,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (OasisNetworkPlayer player : players.values()) {
             if (player.isInView(renderer.getCamera())) {
                 player.render(batch, delta);
+                player.setRenderNametag(true);
+            } else {
+                player.setRenderNametag(false);
             }
         }
 
@@ -623,6 +631,14 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * End world rendering and render GUI(s)
      */
     public void endRender() {
+        // render player name-tags last
+        batch.setProjectionMatrix(gui.getCamera().combined);
+        for (OasisNetworkPlayer player : players.values()) {
+            if (player.shouldRenderNametag()) {
+                gui.renderPlayerNametag(player, renderer.getCamera(), batch);
+            }
+        }
+
         batch.end();
         gui.updateAndRender();
     }

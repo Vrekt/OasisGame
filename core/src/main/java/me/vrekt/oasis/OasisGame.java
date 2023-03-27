@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 
 public final class OasisGame extends Game {
 
-    public static String GAME_VERSION = "0.1-32023a";
+    public static String GAME_VERSION = "0.1-32623f";
 
     private Asset asset;
 
@@ -48,6 +48,7 @@ public final class OasisGame extends Game {
 
     @Override
     public void create() {
+        Logging.info(this, "Starting game, version: " + GAME_VERSION);
         VisUI.load();
 
         loadingScreen = new OasisLoadingScreen();
@@ -124,8 +125,8 @@ public final class OasisGame extends Game {
         this.protocol = new LunarProtocol(true);
 
         // connect to SP server
-        clientServer = new LunarClientServer(protocol, "144.202.37.207", 6969);
-        // clientServer = new LunarClientServer(protocol, "localhost", 6969);
+        //  clientServer = new LunarClientServer(protocol, "144.202.37.207", 6969);
+        clientServer = new LunarClientServer(protocol, "localhost", 6969);
         clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
         loadingScreen.stepProgress();
 

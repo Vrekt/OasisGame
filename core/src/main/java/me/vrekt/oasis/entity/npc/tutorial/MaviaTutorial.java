@@ -140,4 +140,5 @@ public final class MaviaTutorial extends EntityInteractable {
             this.dialog = entityDialog.getSection("mavia_dialog_9");
         }
     }
+
 }
