@@ -2,8 +2,8 @@ package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
@@ -60,10 +60,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private boolean isSpeakingToEntity;
     private long lastPingSent, serverPingTime;
 
-    private final float nametagRenderWidth;
-    private final Vector3 worldPosition = new Vector3();
-    private final Vector3 screenPosition = new Vector3();
-
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -75,11 +71,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setNetworkSendRatesInMs(0, 0);
         setFixedRotation(true);
         setIgnorePlayerCollision(true);
-
-        final GlyphLayout fontLayout = new GlyphLayout(game.getAsset().getSmall(), getName());
-        this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
-        fontLayout.reset();
-
         this.inventory = new PlayerInventory();
 
         // starting quest, later this won't be added here but instead on new game.
