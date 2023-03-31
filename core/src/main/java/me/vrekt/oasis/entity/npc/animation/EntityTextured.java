@@ -5,8 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import lunar.shared.components.drawing.EntityTextureComponent;
 import lunar.shared.mapping.GlobalEntityMapper;
 import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.graphics.Drawable;
 
-public abstract class EntityTextured extends Entity {
+public abstract class EntityTextured extends Entity implements Drawable {
     public EntityTextured(com.badlogic.ashley.core.Entity entity, boolean initializeComponents) {
         super(entity, initializeComponents);
     }

@@ -22,7 +22,7 @@ public final class Asset implements Disposable {
     private final AssetManager assetManager = new AssetManager();
 
     private Skin defaultLibgdxSkin;
-    private BitmapFont smaller, small, medium, large;
+    private BitmapFont smaller, small, medium, large, boxy;
 
     private TextureAtlas atlasAssets;
 
@@ -76,6 +76,12 @@ public final class Asset implements Disposable {
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
         smaller = generator.generateFont(parameter);
         generator.dispose();
+
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/Boxy-Bold.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.025);
+        boxy = generator.generateFont(parameter);
+        generator.dispose();
     }
 
     public Skin getDefaultLibgdxSkin() {
@@ -96,6 +102,10 @@ public final class Asset implements Disposable {
 
     public BitmapFont getSmaller() {
         return smaller;
+    }
+
+    public BitmapFont getBoxy() {
+        return boxy;
     }
 
     public TextureRegion get(String name) {

@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
@@ -27,7 +27,7 @@ public final class DialogGui extends Gui {
 
     // dialog options and title
     private final TypingLabel dialogTitle;
-    private EntityInteractable entity;
+    private EntitySpeakable entity;
 
     // time until reset key image
     private boolean isPressed;
@@ -98,7 +98,7 @@ public final class DialogGui extends Gui {
      *
      * @param entity the entity speaking to
      */
-    public void setShowingDialog(EntityInteractable entity) {
+    public void setShowingDialog(EntitySpeakable entity) {
         if (entity == null || entity.getDialog() == null) {
             Logging.warn(this, "Failed to show dialog: " + (entity == null) + " -> entity " + (entity == null ? "[no entity]" : (entity.getDialog() == null)) + " -> dialog");
             hide();

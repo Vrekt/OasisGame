@@ -17,6 +17,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
@@ -125,7 +126,7 @@ public final class GameGui {
      *
      * @param entity the entity
      */
-    public void showEntityDialog(EntityInteractable entity) {
+    public void showEntityDialog(EntitySpeakable entity) {
         ((DialogGui) getGui(GuiType.DIALOG)).setShowingDialog(entity);
         showGui(GuiType.DIALOG);
     }

@@ -1,6 +1,7 @@
 package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.asset.game.Asset;
@@ -114,6 +115,21 @@ public abstract class Item implements Pool.Poolable {
 
     public Map<Integer, ItemAttribute> getAttributes() {
         return attributes;
+    }
+
+    public void update(float delta) {
+
+    }
+
+    public void draw(SpriteBatch batch) {
+        if (sprite != null) {
+            this.draw(batch, sprite.getRegionWidth(), sprite.getRegionHeight(), 0.0f);
+        }
+    }
+
+    protected void draw(SpriteBatch batch, float width, float height, float rotation) {
+        batch.draw(sprite, sprite.getX(), sprite.getY(), 0.0f, 0.0f,
+                width, height, 1.0f, 1.0f, rotation);
     }
 
     @Override

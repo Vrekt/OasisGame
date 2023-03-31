@@ -106,6 +106,7 @@ public final class MaviaTutorial extends EntityInteractable {
         putRegion("facing_left", asset.get("mavia_facing_left"));
         putRegion("facing_right", asset.get("mavia_facing_right"));
 
+        this.dialogFaceAsset = "face";
         currentRegionState = getRegion("facing_down");
         setSize(currentRegionState.getRegionWidth(), currentRegionState.getRegionHeight(), OasisGameSettings.SCALE);
 

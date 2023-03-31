@@ -1,12 +1,11 @@
 package me.vrekt.oasis.graphics;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
  * An interface describing the object is renderable if {@code  isInView}
  */
-public interface Renderable {
+public interface Viewable {
 
     /**
      * Check if the object or entity is in view
@@ -15,7 +14,5 @@ public interface Renderable {
      * @return {@code true} if so
      */
     boolean isInView(Camera camera);
-
-    void render(SpriteBatch batch, float delta);
 
 }

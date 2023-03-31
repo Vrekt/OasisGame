@@ -24,15 +24,16 @@ public final class HudGui extends Gui {
     private final Table classIconTable;
     private final Table notificationTable;
     private final Table warningTable;
+    private final Table introTable;
     // rendering of hud inventory
     private final HudInventoryHandler inventoryRenderer;
 
     // amount of item collected + icon image of item
-    private final Label amountLabel, fpsLabel, pingLabel;
+    private final Label amountLabel, fpsLabel, pingLabel, introLabel;
     private final Image iconImage, classImage;
 
     // last hint popped up
-    private long lastHint, lastWarning;
+    private long lastHint, lastWarning, lastIntro;
 
     public HudGui(GameGui gui, Asset asset) {
         super(gui, asset);
@@ -71,6 +72,12 @@ public final class HudGui extends Gui {
         notificationTable.setVisible(false);
         notificationTable.top().right();
 
+        introTable = new Table();
+        introTable.setVisible(false);
+        introTable.center();
+
+        introTable.add(introLabel = new Label("", new Label.LabelStyle(gui.getLarge(), Color.BLACK)));
+
         final Table notification = new Table();
         notification.setBackground(new TextureRegionDrawable(asset.get("hint_dropdown")));
         notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY));
@@ -85,6 +92,7 @@ public final class HudGui extends Gui {
         gui.createContainer(warningTable).bottom().padBottom(58);
         gui.createContainer(classIconTable).bottom().left().pad(8);
         gui.createContainer(notificationTable).top().right().pad(4);
+        gui.createContainer(introTable).center();
 
         // info: the actual table that holds the inventory slots
         final Table inventory = new Table();
@@ -106,7 +114,12 @@ public final class HudGui extends Gui {
 
         // fade warning table
         if (warningTable.getColor().a == 1 && (System.currentTimeMillis() - lastWarning) >= 1500)
-            warningTable.addAction(Actions.fadeOut(1));
+            warningTable.addAction(Actions.fadeOut(1f));
+
+        // fade intro table
+        if (introTable.getColor().a == 1 && (System.currentTimeMillis() - lastIntro) >= 2500) {
+            introTable.addAction(Actions.fadeOut(1f));
+        }
 
         if (OasisGameSettings.SHOW_FPS && !fpsLabel.isVisible()) {
             fpsLabel.setVisible(true);
@@ -123,6 +136,14 @@ public final class HudGui extends Gui {
             pingLabel.setText("Ping: " + gui.getGame().getPlayer().getServerPingTime());
         }
         inventoryRenderer.update();
+    }
+
+    public void showDungeonIntroduction(String text) {
+        this.introLabel.setText(text);
+        this.introTable.setVisible(true);
+        this.introTable.getColor().a = 0;
+        this.introTable.addAction(Actions.fadeIn(1.5f));
+        lastIntro = System.currentTimeMillis();
     }
 
     /**

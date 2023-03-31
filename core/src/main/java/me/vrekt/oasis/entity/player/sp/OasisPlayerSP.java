@@ -1,7 +1,7 @@
 package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
@@ -22,10 +22,13 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.npc.EntityEnemy;
+import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
-import me.vrekt.oasis.graphics.Renderable;
+import me.vrekt.oasis.graphics.Drawable;
+import me.vrekt.oasis.item.weapons.FrostbittenAvernicItem;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
@@ -36,7 +39,7 @@ import me.vrekt.oasis.world.instance.OasisWorldInstance;
 /**
  * Represents the local player SP
  */
-public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, Renderable {
+public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, Drawable {
 
     private final OasisGame game;
 
@@ -56,9 +59,11 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private float health = 100.0f;
     private boolean didUseTutorialFruit, didChopTree;
 
-    private EntityInteractable entitySpeakingTo;
+    private EntitySpeakable entitySpeakingTo;
     private boolean isSpeakingToEntity;
     private long lastPingSent, serverPingTime;
+
+    private ItemWeapon equippedItem;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -76,6 +81,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         // starting quest, later this won't be added here but instead on new game.
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
+
+        this.equippedItem = new FrostbittenAvernicItem();
+        this.equippedItem.loadItemAsset(game.getAsset());
+        this.inventory.addItem(equippedItem);
     }
 
     public long getServerPingTime() {
@@ -162,7 +171,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         return isSpeakingToEntity;
     }
 
-    public void setEntitySpeakingTo(EntityInteractable entitySpeakingTo) {
+    public void setEntitySpeakingTo(EntitySpeakable entitySpeakingTo) {
         this.entitySpeakingTo = entitySpeakingTo;
     }
 
@@ -174,8 +183,12 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         isInTutorialWorld = inTutorialWorld;
     }
 
-    public EntityInteractable getEntitySpeakingTo() {
+    public EntitySpeakable getEntitySpeakingTo() {
         return entitySpeakingTo;
+    }
+
+    public ItemWeapon getEquippedItem() {
+        return equippedItem;
     }
 
     public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
@@ -270,11 +283,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     @Override
-    public boolean isInView(Camera camera) {
-        return true;
-    }
-
-    @Override
     public void update(float delta) {
         super.update(delta);
 
@@ -292,6 +300,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     @Override
     public void render(SpriteBatch batch, float delta) {
+        renderEquippedItem(batch);
+
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
         } else {
@@ -299,6 +309,38 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
                 draw(batch, currentRegionState);
             }
         }
+    }
+
+    /**
+     * Render the current item the player hss equipped
+     *
+     * @param batch drawing
+     */
+    private void renderEquippedItem(SpriteBatch batch) {
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            equippedItem.swingItem(Gdx.graphics.getDeltaTime());
+        }
+
+        equippedItem.update(Gdx.graphics.getDeltaTime());
+        equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .6f);
+        equippedItem.draw(batch);
+
+        if (equippedItem.isSwinging()) {
+            final float tick = gameWorldIn.getCurrentWorldTick();
+            if (!equippedItem.isOnSwingCooldown(tick)) {
+                equippedItem.setLastSwing(tick);
+            } else {
+                return;
+            }
+
+            final boolean isCritical = equippedItem.isCriticalHit();
+            final EntityEnemy hit = gameWorldIn.hasHitEntity(equippedItem);
+            if (hit != null) {
+                final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
+                hit.damage(tick, Math.round(damage), isCritical);
+            }
+        }
+
     }
 
     private void draw(SpriteBatch batch, TextureRegion region) {

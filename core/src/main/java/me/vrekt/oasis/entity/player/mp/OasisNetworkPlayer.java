@@ -13,12 +13,12 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.player.NetworkEntityPlayer;
+import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 
 /**
  * Represents any player over the network
  */
-public final class OasisNetworkPlayer extends NetworkEntityPlayer implements ResourceLoader {
+public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
 
     private EntityAnimationComponent animationComponent;
     private float oldRotation = 0;

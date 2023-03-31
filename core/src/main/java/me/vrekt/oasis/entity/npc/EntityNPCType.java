@@ -4,6 +4,7 @@ import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
+import me.vrekt.oasis.entity.npc.tutorial.TutorialCombatDummy;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -19,6 +20,12 @@ public enum EntityNPCType {
         @Override
         public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
             return (T) new MaviaTutorial("Mavia", position, game.getPlayer(), world, game);
+        }
+    },
+    DUMMY {
+        @Override
+        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
+            return (T) new TutorialCombatDummy("CombatDummy", position, game.getPlayer(), world, game);
         }
     };
 

@@ -1,4 +1,4 @@
-package me.vrekt.oasis.graphics;
+package me.vrekt.oasis.graphics.tiled;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;

@@ -2,13 +2,13 @@
 eclipse.project.name = appName + '-core'
 
 dependencies {
-	api "com.badlogicgames.ashley:ashley:$ashleyVersion"
-	api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-	api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
-	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-	api "com.badlogicgames.gdx:gdx:$gdxVersion"
-	api project(':shared')
+	api "com.badlogicgames.ashley:ashley:1.7.4"
+	api "com.badlogicgames.gdx:gdx-freetype:1.11.0"
+	api "com.badlogicgames.gdx-controllers:gdx-controllers-core:2.2.2"
+	api "com.badlogicgames.gdx:gdx-box2d:1.11.0"
+	api "com.badlogicgames.gdx:gdx:1.11.0"
 	api "com.kotcrab.vis:vis-ui:1.5.1"
+	api "com.github.tommyettinger:textratypist:0.7.9"
 
 	// Game utilities
 	api group: 'io.netty', name: 'netty-all', version: '4.1.48.Final'
@@ -22,5 +22,4 @@ dependencies {
 	api files('../Protocol.jar')
 	api files('../Server.jar')
 	api files('../Entity.jar')
-	implementation "com.github.tommyettinger:textratypist:0.7.6"
 }

@@ -19,6 +19,7 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -200,6 +201,16 @@ public final class InventoryGui extends Gui {
                 for (ItemAttribute attribute : InventoryUiSlot.this.item.getAttributes().values()) {
                     itemAttributes.setText(attribute.getAttributeName() + "\n" + attribute.getDescription());
                 }
+                itemAttributes.restart();
+            }
+
+            if (InventoryUiSlot.this.item instanceof ItemWeapon) {
+                final ItemWeapon itemWeapon = (ItemWeapon) InventoryUiSlot.this.item;
+                itemAttributesText.setVisible(true);
+                itemAttributesText.restart();
+                itemAttributes.setVisible(true);
+
+                itemAttributes.setText("Range: " + itemWeapon.getRange() + "\n" + "CHC: " + itemWeapon.getCriticalHitChance());
                 itemAttributes.restart();
             }
 

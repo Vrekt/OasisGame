@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -26,15 +27,17 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.graphics.OasisTiledRenderer;
+import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.utility.collision.BasicPlayerCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
@@ -84,6 +87,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
+    // the current tick of this world.
+    protected float currentWorldTick;
+    protected long last;
+
+    protected ShapeRenderer shapes;
+
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
         this.localPlayer = player;
@@ -101,6 +110,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public OasisGame getGame() {
         return game;
+    }
+
+    public float getCurrentWorldTick() {
+        return currentWorldTick;
     }
 
     private void handleConnectionOptions(PlayerConnectionHandler connection) {
@@ -198,7 +211,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         player.setGameWorldIn(this);
 
         handleConnectionOptions(game.getHandler());
-
+        this.shapes = new ShapeRenderer();
         this.isWorldLoaded = true;
     }
 
@@ -513,8 +526,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param delta the delta
      */
     protected void updateAndRender(float delta) {
-        this.update(delta);
+        delta = this.update(delta);
         this.renderWorld(game.getBatch(), delta);
+
+        currentWorldTick += delta;
     }
 
     /**
@@ -526,7 +541,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         boolean hasEntity = false;
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
-            if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
+            if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
                 if (!cursorChanged) {
                     GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
@@ -634,6 +649,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
+        for (Entity entity : entities.values()) {
+            if (entity instanceof EntityEnemy) {
+                ((EntityEnemy) entity).drawDamageIndicator(batch);
+            }
+        }
+
         batch.end();
         gui.updateAndRender();
     }
@@ -654,6 +675,18 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
         return nearbyEntities;
+    }
+
+    public EntityEnemy hasHitEntity(ItemWeapon item) {
+        for (Entity value : entities.values()) {
+            if (value instanceof EntityEnemy) {
+                final EntityEnemy interactable = (EntityEnemy) value;
+                if (interactable.getBounds().overlaps(item.getBounds())) {
+                    return interactable;
+                }
+            }
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")

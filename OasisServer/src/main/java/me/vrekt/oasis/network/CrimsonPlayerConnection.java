@@ -28,5 +28,4 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
         super.handleJoinWorld(packet);
     }
 
-
 }

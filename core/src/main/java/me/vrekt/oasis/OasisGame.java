@@ -12,7 +12,7 @@ import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.LunarProtocol;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.graphics.OasisTiledRenderer;
+import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
@@ -26,7 +26,9 @@ import java.util.concurrent.CompletableFuture;
 
 public final class OasisGame extends Game {
 
-    public static String GAME_VERSION = "0.1-32623f";
+    // automatically incremented everytime the game is built/ran
+    // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
+    public static final String GAME_VERSION = "20230331-0130-133";
 
     private Asset asset;
 
@@ -124,9 +126,22 @@ public final class OasisGame extends Game {
 
         this.protocol = new LunarProtocol(true);
 
-        // connect to SP server
-        //  clientServer = new LunarClientServer(protocol, "144.202.37.207", 6969);
-        clientServer = new LunarClientServer(protocol, "localhost", 6969);
+        String ip = System.getProperty("ip");
+        int port;
+        if (ip == null) {
+            ip = "localhost";
+            port = 6969;
+        } else {
+            try {
+                port = Integer.parseInt(System.getProperty("port"));
+            } catch (NumberFormatException exception) {
+                Logging.error(this, "No valid host port! Set port to default: 6969");
+                port = 6969;
+            }
+        }
+
+        Logging.info(this, "Connecting to remote server {ip=" + ip + "} port={" + port + "}");
+        clientServer = new LunarClientServer(protocol, ip, port);
         clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
         loadingScreen.stepProgress();
 

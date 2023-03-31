@@ -1,0 +1,23 @@
+<project name="Builder" default="init" basedir=".">
+    <description>
+        ...
+    </description>
+    <!-- set global properties for this build -->
+    <property name="src" location="./core/src"/>
+
+    <tstamp>
+        <format property="TODAY_MY" pattern="yyyyMMdd-HHmm"  locale="en,US" />
+    </tstamp>
+
+    <target name="init">
+        <echo file="build.out.txt">Automatic build increment ${src} ${line.separator}</echo>
+
+        <buildnumber/>
+        <replaceregexp file="${src}/main/java/me/vrekt/oasis/OasisGame.java"
+                       match="public\s+static\s+final\s+String\s+GAME_VERSION\s+=\s+&quot;.*&quot;;"
+                       replace="public static final String GAME_VERSION = &quot;${TODAY_MY}-${build.number}&quot;;"
+                       byline="true"
+        />
+
+    </target>
+</project>
