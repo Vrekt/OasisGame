@@ -3,7 +3,7 @@ package me.vrekt.oasis.world.interior.tutorial;
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.weapons.FrostbittenAvernicItem;
+import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
@@ -31,7 +31,7 @@ public final class MaviaHouseInterior extends Instance {
         if (!chestPopulated) {
             // populate tutorial chests
             final ChestInventoryInteraction interaction = (ChestInventoryInteraction) getByRuntimeId(TUTORIAL_CHEST_RUNTIME_ID);
-            interaction.getInventory().addItem(FrostbittenAvernicItem.class, 1);
+            interaction.getInventory().addItem(EnchantedVioletItem.class, 1);
             chestPopulated = true;
         }
     }

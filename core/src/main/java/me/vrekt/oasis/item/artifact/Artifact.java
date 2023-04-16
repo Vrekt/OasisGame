@@ -24,6 +24,8 @@ public abstract class Artifact implements ResourceLoader {
     protected final Vector2 effectPosition;
     protected float effectTickActivated, effectAlpha;
 
+    protected Sprite artifactParticle;
+
     public Artifact(String name, String description) {
         this.name = name;
         this.description = description;
@@ -36,6 +38,14 @@ public abstract class Artifact implements ResourceLoader {
 
     public boolean drawEffect() {
         return drawEffect;
+    }
+
+    public int getArtifactLevel() {
+        return artifactLevel;
+    }
+
+    public float getArtifactDuration() {
+        return artifactDuration;
     }
 
     /**
@@ -74,6 +84,13 @@ public abstract class Artifact implements ResourceLoader {
         }
 
         batch.setColor(batch.getColor().r, batch.getColor().g, batch.getColor().b, 1.0f);
+    }
+
+    public void drawParticleEffect(SpriteBatch batch) {
+        batch.draw(artifactParticle, artifactParticle.getX(), artifactParticle.getY(),
+                0.0f, 0.0f,
+                artifactParticle.getWidth() / 2f, artifactParticle.getHeight() / 2f,
+                OasisGameSettings.SCALE, OasisGameSettings.SCALE, 0.0f);
     }
 
     /**

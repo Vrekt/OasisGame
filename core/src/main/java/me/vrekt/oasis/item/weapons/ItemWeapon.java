@@ -15,6 +15,8 @@ public abstract class ItemWeapon extends ItemEquippable {
 
     public ItemWeapon(String itemName, int itemId, String description) {
         super(itemName, itemId, description);
+
+        bounds = new Rectangle();
     }
 
     public boolean isOnSwingCooldown(float tick) {
@@ -57,14 +59,7 @@ public abstract class ItemWeapon extends ItemEquippable {
     }
 
     public Rectangle getBounds() {
-        if (range != 0.0f && sprite != null) {
-            bounds.set(sprite.getBoundingRectangle());
-            bounds.height += range;
-            return bounds;
-        } else if (sprite != null) {
-            return sprite.getBoundingRectangle();
-        }
-        return Rectangle.tmp;
+        return bounds;
     }
 
     public boolean isSwinging() {
@@ -73,6 +68,8 @@ public abstract class ItemWeapon extends ItemEquippable {
 
     @Override
     public void update(float delta) {
+        bounds.set(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight() + range);
+
         if (isSwinging) {
             swingItem(delta);
             if (rotationAngle >= 60) {

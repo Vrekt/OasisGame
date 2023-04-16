@@ -21,6 +21,7 @@ import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemEquippable;
+import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
@@ -41,8 +42,12 @@ public final class InventoryGui extends Gui {
     private final TypingLabel itemDescription;
     private final VisTextButton useItemButton;
 
-    private final VisImage weaponRangeImage, weaponDamageIcon, weaponCritIcon;
-    private final Tooltip weaponRangeTooltip, weaponDamageTooltip, weaponCritTooltip;
+    private final VisImage statOne, statTwo, statThree;
+    private final Tooltip statOneTooltip, statTwoTooltip, statThreeTooltip;
+
+    private final VisTable itemInformationTable, attributesTable, buttonTable;
+
+    private final InventoryIcons icons;
 
     // the current item clicked on
     private Item clickedItem;
@@ -50,6 +55,7 @@ public final class InventoryGui extends Gui {
     public InventoryGui(GameGui gui, Asset asset) {
         super(gui, asset, "inventory");
         this.player = gui.getGame().getPlayer();
+        this.icons = new InventoryIcons();
 
         rootTable = new VisTable(true);
         rootTable.setFillParent(true);
@@ -68,30 +74,44 @@ public final class InventoryGui extends Gui {
         secondary.add(itemDescription).width(175).left();
         secondary.row().padTop(16);
 
-        final VisTable attributes = new VisTable(true);
-        attributes.left();
-
-        attributes.add(weaponRangeImage = new VisImage(asset.get("weapon_range_icon"))).size(36, 36);
-        attributes.add(weaponDamageIcon = new VisImage(asset.get("weapon_damage_icon"))).size(36, 36);
-        attributes.add(weaponCritIcon = new VisImage(asset.get("weapon_crit_icon"))).size(36, 36);
-        secondary.add(attributes).left();
-        secondary.row();
-
         final NinePatch patch = new NinePatch(asset.get("artifact_slot"), 4, 4, 4, 4);
         final NinePatchDrawable drawable = new NinePatchDrawable(patch);
         final Tooltip.TooltipStyle style = new Tooltip.TooltipStyle(drawable);
 
-        weaponRangeTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponRangeImage).style(style).build();
-        weaponDamageTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponDamageIcon).style(style).build();
-        weaponCritTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponCritIcon).style(style).build();
+        itemInformationTable = new VisTable(true);
+        itemInformationTable.left();
 
-        hideWeaponStats();
+        attributesTable = new VisTable(true);
+        attributesTable.left();
+
+        attributesTable.add(statOne = new VisImage(icons.rangeIcon)).size(36, 36);
+        attributesTable.add(statTwo = new VisImage(icons.damageIcon)).size(36, 36);
+        attributesTable.add(statThree = new VisImage(icons.critIcon)).size(36, 36);
+
+        itemInformationTable.add(attributesTable).left();
+        itemInformationTable.row();
+
+        buttonTable = new VisTable(true);
+        buttonTable.left();
 
         useItemButton = new VisTextButton(StringUtils.EMPTY);
         useItemButton.setLabel(new VisLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
         useItemButton.setStyle(new TextButton.TextButtonStyle(drawable, drawable, drawable, gui.getMedium()));
         useItemButton.setVisible(false);
-        secondary.add(useItemButton).padTop(16).left();
+        buttonTable.add(useItemButton);
+
+        itemInformationTable.add(buttonTable).left();
+
+        secondary.add(itemInformationTable).left();
+        secondary.row();
+
+        statOneTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statOne).style(style).build();
+        statTwoTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statTwo).style(style).build();
+        statThreeTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statThree).style(style).build();
+
+        hideWeaponStats();
+
+        // secondary.add(useItemButton).padTop(16).left();
 
         // add use item button listener
         useItemButton.addListener(new ClickListener() {
@@ -157,7 +177,11 @@ public final class InventoryGui extends Gui {
             populateEquipmentButtons();
         }
 
-        if (slotItem.item instanceof ItemWeapon) populateWeaponStats(((ItemWeapon) slotItem.item));
+        if (slotItem.item instanceof ItemWeapon) {
+            populateStats(((ItemWeapon) slotItem.item));
+        } else if (slotItem.item instanceof ItemArtifact) {
+            populateArtifactStats(((ItemArtifact) slotItem.item));
+        }
         this.clickedItem = slotItem.item;
     }
 
@@ -165,22 +189,41 @@ public final class InventoryGui extends Gui {
         useItemButton.setVisible(false);
     }
 
-    private void populateWeaponStats(ItemWeapon item) {
-        weaponRangeTooltip.setText("Range: " + item.getRange());
-        weaponDamageTooltip.setText("Damage: " + item.getBaseDamage());
-        weaponCritTooltip.setText("Critical hit chance: " + Math.round(item.getCriticalHitChance()) + "%");
+    private void populateArtifactStats(ItemArtifact artifact) {
+        statOneTooltip.setText("Artifact Level: " + artifact.getArtifact().getArtifactLevel() + "\n" +
+                "Artifact Duration: " + artifact.getArtifact().getArtifactDuration() + " \n" +
+                "Artifact Cooldown: " + artifact.getArtifact().getArtifactCooldown());
 
-        weaponRangeImage.setVisible(true);
-        weaponRangeImage.getColor().a = 0.0f;
-        weaponRangeImage.addAction(Actions.fadeIn(1.5f));
+        statOne.setUserObject(true);
+        statOne.setDrawable(new TextureRegionDrawable(artifact.getIcon()));
 
-        weaponDamageIcon.setVisible(true);
-        weaponDamageIcon.getColor().a = 0.0f;
-        weaponDamageIcon.addAction(Actions.fadeIn(1.5f));
+        statOne.setVisible(true);
+        statOne.getColor().a = 0.0f;
+        statOne.addAction(Actions.fadeIn(1.5f));
+    }
 
-        weaponCritIcon.setVisible(true);
-        weaponCritIcon.getColor().a = 0.0f;
-        weaponCritIcon.addAction(Actions.fadeIn(1.5f));
+    private void populateStats(ItemWeapon item) {
+        statOneTooltip.setText("Range: " + item.getRange());
+        statTwoTooltip.setText("Damage: " + item.getBaseDamage());
+        statThreeTooltip.setText("Critical hit chance: " + Math.round(item.getCriticalHitChance()) + "%");
+
+        if (statOne.getUserObject() != null && (boolean) statOne.getUserObject()) {
+            // indicates this image needs to be reset to the other default icon
+            statOne.setDrawable(icons.rangeIcon);
+            statOne.setUserObject(false);
+        }
+
+        statOne.setVisible(true);
+        statOne.getColor().a = 0.0f;
+        statOne.addAction(Actions.fadeIn(1.5f));
+
+        statTwo.setVisible(true);
+        statTwo.getColor().a = 0.0f;
+        statTwo.addAction(Actions.fadeIn(1.5f));
+
+        statThree.setVisible(true);
+        statThree.getColor().a = 0.0f;
+        statThree.addAction(Actions.fadeIn(1.5f));
     }
 
     private void populateEquipmentButtons() {
@@ -192,9 +235,9 @@ public final class InventoryGui extends Gui {
     }
 
     private void hideWeaponStats() {
-        weaponRangeImage.setVisible(false);
-        weaponDamageIcon.setVisible(false);
-        weaponCritIcon.setVisible(false);
+        statOne.setVisible(false);
+        statTwo.setVisible(false);
+        statThree.setVisible(false);
     }
 
     @Override
@@ -231,6 +274,9 @@ public final class InventoryGui extends Gui {
         slots.get(slot).removeItem();
         useItemButton.setVisible(false);
         itemDescription.setVisible(false);
+        statOne.setVisible(false);
+        statTwo.setVisible(false);
+        statThree.setVisible(false);
     }
 
     /**
@@ -285,6 +331,17 @@ public final class InventoryGui extends Gui {
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
             this.lastItemId = -1;
+        }
+    }
+
+    private final class InventoryIcons {
+
+        final TextureRegionDrawable rangeIcon, damageIcon, critIcon;
+
+        public InventoryIcons() {
+            rangeIcon = new TextureRegionDrawable(asset.get("weapon_range_icon"));
+            damageIcon = new TextureRegionDrawable(asset.get("weapon_damage_icon"));
+            critIcon = new TextureRegionDrawable(asset.get("weapon_crit_icon"));
         }
     }
 

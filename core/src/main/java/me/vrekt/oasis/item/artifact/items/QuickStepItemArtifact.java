@@ -25,6 +25,7 @@ public final class QuickStepItemArtifact extends ItemArtifact {
         this.sprite.setScale(2.0f);
         this.artifact = new QuickStepArtifact();
         this.artifact.load(asset);
+        this.icon = asset.get("quickstep_artifact_icon");
     }
 
     @Override

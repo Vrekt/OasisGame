@@ -1,5 +1,6 @@
 package me.vrekt.oasis.item.artifact;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.item.ItemEquippable;
 
 /**
@@ -7,10 +8,15 @@ import me.vrekt.oasis.item.ItemEquippable;
  */
 public abstract class ItemArtifact extends ItemEquippable {
 
+    protected TextureRegion icon;
+
     public ItemArtifact(String itemName, int itemId, String description) {
         super(itemName, itemId, description);
     }
 
     public abstract Artifact getArtifact();
 
+    public TextureRegion getIcon() {
+        return icon;
+    }
 }

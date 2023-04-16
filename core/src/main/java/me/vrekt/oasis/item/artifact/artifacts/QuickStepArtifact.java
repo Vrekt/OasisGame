@@ -20,6 +20,9 @@ public final class QuickStepArtifact extends Artifact {
     @Override
     public void load(Asset asset) {
         this.sprite = new Sprite(asset.get("quickstep_artifact"));
+
+        this.artifactParticle = new Sprite(asset.get("quickstep_artifact_effect_arrow"));
+        this.artifactParticle.setColor(0, 148, 255, 1.0f);
     }
 
     @Override
@@ -29,7 +32,9 @@ public final class QuickStepArtifact extends Artifact {
         }
         this.moveSpeed = player.getMoveSpeed();
         player.setMoveSpeed(player.getMoveSpeed() + (artifactLevel * 0.75f));
+
         createEffect(player);
+        artifactParticle.setPosition(player.getInterpolated().x, player.getInterpolated().y);
 
         this.tick = tick;
         this.isApplied = true;
@@ -47,5 +52,7 @@ public final class QuickStepArtifact extends Artifact {
         if (tick - this.tick >= artifactDuration) {
             this.expire(player);
         }
+
+        artifactParticle.setPosition(player.getInterpolated().x, player.getInterpolated().y);
     }
 }

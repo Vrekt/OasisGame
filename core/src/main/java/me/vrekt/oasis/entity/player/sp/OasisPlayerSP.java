@@ -29,7 +29,7 @@ import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
-import me.vrekt.oasis.item.weapons.FrostbittenAvernicItem;
+import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.quests.QuestType;
@@ -65,8 +65,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private boolean isSpeakingToEntity;
     private long lastPingSent, serverPingTime;
 
-    private ItemWeapon equippedItem;
-    private Artifact[] artifacts = new Artifact[3];
+    private final ItemWeapon equippedItem;
+    private final Artifact[] artifacts = new Artifact[3];
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -85,7 +85,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
 
-        this.equippedItem = new FrostbittenAvernicItem();
+        this.equippedItem = new EnchantedVioletItem();
         this.equippedItem.load(game.getAsset());
         this.inventory.addItem(equippedItem);
     }
@@ -346,9 +346,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         }
 
         for (Artifact artifact : artifacts) {
-            if (artifact != null && artifact.drawEffect()) {
-                artifact.drawArtifactEffect(batch, delta, gameWorldIn.getCurrentWorldTick());
-            }
+            if (artifact == null) continue;
+
+            if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, gameWorldIn.getCurrentWorldTick());
+            if (artifact.isApplied()) artifact.drawParticleEffect(batch);
         }
     }
 
@@ -362,31 +363,25 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             equippedItem.swingItem(Gdx.graphics.getDeltaTime());
         }
 
-        //            case 1:
-        //                return FACING_DOWN;
-        //            case 2:
-        //                return FACING_UP;
-        //            case 3:
-        //            default:
-        //                return FACING_RIGHT;
-        //            case 4:
-        //                return FACING_LEFT;
-        //        }
+        float rot = rotation == 1 ? 45.0f : rotation == 2 ? 90.0f : rotation == 3 ? 0.0f : rotation == 4 ? -90.0f : 20.0f;
 
-        //  System.err.println(rotation);
-        float rot = rotation == 1 ? -180.0f : rotation == 2 ? 90.0f : rotation == 3 ? 90.0f : rotation == 4 ? -90.0f : 0.0f;
-
-        //  final Vector2 sprite = new Vector2(getInterpolated().x + .6f, getInterpolated().y + .6f);
-        //   Vector2 direction = (new Vector2(1.0f, 0.0f)).rotateDeg(rot); // unit vector of the direction of the player
-        //  Vector2 origin = new Vector2(0.5f, 0.5f); // rotation origin, rotate around the center of the image. ( 0,0 would have been upper left corner)
-        //  Vector2 offset = (new Vector2(sprite)).rotateDeg(rot).add(origin); // Rotated barrel offset
-        //   Vector2 pos = (new Vector2(getInterpolated())).add(offset);
-
-        //System.err.println(rot);
+        switch ((int) rotation) {
+            case 0:
+                equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .6f);
+                break;
+            case 1:
+                equippedItem.getSprite().setPosition(getInterpolated().x + 0.8f, getInterpolated().y + .25f);
+                break;
+            case 2:
+                equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .25f);
+                break;
+            case 3:
+                equippedItem.getSprite().setPosition(getInterpolated().x + 0.15f, getInterpolated().y + .5f);
+                break;
+        }
 
         equippedItem.update(Gdx.graphics.getDeltaTime());
         equippedItem.getSprite().setRotation(rot);
-        equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .6f);
         equippedItem.draw(batch);
 
         if (equippedItem.isSwinging()) {

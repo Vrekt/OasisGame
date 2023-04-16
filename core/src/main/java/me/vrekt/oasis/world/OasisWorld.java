@@ -216,6 +216,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         handleConnectionOptions(game.getHandler());
         this.gradient = new NinePatch(game.getAsset().get("health_gradient"), 0, 0, 0, 0);
         this.isWorldLoaded = true;
+
+        shapes = new ShapeRenderer();
     }
 
     protected void addDefaultWorldSystems() {
@@ -658,13 +660,24 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
         // draw damage indicators
         // use the stage batch to correctly scale the font.
+        EntityEnemy entityEnemy = null;
         for (Entity entity : entities.values()) {
             if (entity instanceof EntityEnemy) {
+                entityEnemy = (EntityEnemy) entity;
                 ((EntityEnemy) entity).drawDamageIndicator(batch);
             }
         }
 
         batch.end();
+
+        if (entityEnemy != null) {
+            //   shapes.setProjectionMatrix(renderer.getCamera().combined);
+            //    shapes.begin(ShapeRenderer.ShapeType.Line);
+            //   shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
+            //    shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
+            //    shapes.end();
+        }
+
         gui.updateAndRender();
     }
 
@@ -692,6 +705,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 final EntityEnemy interactable = (EntityEnemy) value;
                 if (interactable.isFacingEntity(player.getRotation())
                         && interactable.getBounds().overlaps(item.getBounds())) {
+                    System.err.println("ok");
                     return interactable;
                 }
             }
