@@ -208,8 +208,6 @@ public final class GameGui {
      * Render all active GUI elements.
      */
     public void updateAndRender() {
-        getHud().setVisible(false);
-
         stage.getViewport().apply();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));

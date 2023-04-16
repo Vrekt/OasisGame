@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
-import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.client.CPacketPing;
@@ -69,16 +66,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private long lastPingSent, serverPingTime;
 
     private ItemWeapon equippedItem;
-
-    RevoluteJointDef rightArmDef;
-    RevoluteJoint rightArmJoint;
-    Vector2 torsoArmPin, localArmPin;
-
     private Artifact[] artifacts = new Artifact[3];
-    private TextureRegion artifactEffectSprite;
-    private final Vector2 effectPosition;
-    private float effectTickActivated, effectAlpha;
-    private boolean drawArtifactEffect;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -100,8 +88,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.equippedItem = new FrostbittenAvernicItem();
         this.equippedItem.load(game.getAsset());
         this.inventory.addItem(equippedItem);
-
-        this.effectPosition = new Vector2();
     }
 
     public void activateArtifact(int which) {

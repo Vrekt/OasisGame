@@ -23,7 +23,6 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.utility.logging.Logging;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -283,9 +282,6 @@ public final class InventoryGui extends Gui {
          */
         @Override
         protected void removeItem() {
-
-            Logging.info(this, "removing item");
-
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
             this.lastItemId = -1;

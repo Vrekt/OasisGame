@@ -11,6 +11,11 @@ public abstract class ItemEquippable extends Item {
         super(itemName, itemId, description);
     }
 
+    /**
+     * Equip this item
+     *
+     * @param player the local player
+     */
     public void equip(OasisPlayerSP player) {
 
     }
