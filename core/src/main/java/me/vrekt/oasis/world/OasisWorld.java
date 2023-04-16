@@ -705,7 +705,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 final EntityEnemy interactable = (EntityEnemy) value;
                 if (interactable.isFacingEntity(player.getRotation())
                         && interactable.getBounds().overlaps(item.getBounds())) {
-                    System.err.println("ok");
                     return interactable;
                 }
             }
@@ -785,7 +784,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (worldObject.hasRequiredItem()) {
                 worldObject.interact();
             } else {
-                gui.getHud().showMissingItemWarning();
+                gui.getHud().showMissingItemWarning(worldObject.getRequiredItemTexture());
             }
             return true;
         }

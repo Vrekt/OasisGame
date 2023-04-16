@@ -49,7 +49,7 @@ public final class ContainerGui extends Gui {
         primary.add(new VisLabel("Chest", new Label.LabelStyle(gui.getMedium(), Color.WHITE))).size(48, 48);
         primary.row().padTop(-8);
 
-        final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("artifact_slot"));
+        final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("theme"));
         for (int i = 1; i < 12; i++) {
             final VisImage slot = new VisImage(drawable);
             final VisImage item = new VisImage();

@@ -11,6 +11,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
+import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 import me.vrekt.oasis.world.OasisWorld;
@@ -67,6 +68,7 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         player.getInventory().addItem(EnchantedVioletItem.class, 1);
         player.getInventory().addItem(QuickStepItemArtifact.class, 1);
+        player.getInventory().addItem(LucidTreeFruitItem.class, 1);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package me.vrekt.oasis.gui.inventory;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.util.TableUtils;
@@ -74,10 +72,6 @@ public final class InventoryGui extends Gui {
         secondary.add(itemDescription).width(175).left();
         secondary.row().padTop(16);
 
-        final NinePatch patch = new NinePatch(asset.get("artifact_slot"), 4, 4, 4, 4);
-        final NinePatchDrawable drawable = new NinePatchDrawable(patch);
-        final Tooltip.TooltipStyle style = new Tooltip.TooltipStyle(drawable);
-
         itemInformationTable = new VisTable(true);
         itemInformationTable.left();
 
@@ -96,7 +90,7 @@ public final class InventoryGui extends Gui {
 
         useItemButton = new VisTextButton(StringUtils.EMPTY);
         useItemButton.setLabel(new VisLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
-        useItemButton.setStyle(new TextButton.TextButtonStyle(drawable, drawable, drawable, gui.getMedium()));
+        useItemButton.setStyle(new TextButton.TextButtonStyle(gui.getStyles().getTheme(), gui.getStyles().getTheme(), gui.getStyles().getTheme(), gui.getMedium()));
         useItemButton.setVisible(false);
         buttonTable.add(useItemButton);
 
@@ -105,9 +99,9 @@ public final class InventoryGui extends Gui {
         secondary.add(itemInformationTable).left();
         secondary.row();
 
-        statOneTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statOne).style(style).build();
-        statTwoTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statTwo).style(style).build();
-        statThreeTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statThree).style(style).build();
+        statOneTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statOne).style(gui.getStyles().getTooltipStyle()).build();
+        statTwoTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statTwo).style(gui.getStyles().getTooltipStyle()).build();
+        statThreeTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(statThree).style(gui.getStyles().getTooltipStyle()).build();
 
         hideWeaponStats();
 
@@ -127,7 +121,7 @@ public final class InventoryGui extends Gui {
 
         // populate a total of 21 inventory slots
         primary.top().padTop(52).padLeft(84);
-        final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(asset.get("artifact_slot"));
+        final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(asset.get("theme"));
         for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
             // background image of the actual slot
             final Image slot = new Image(slotDrawable);
@@ -143,7 +137,7 @@ public final class InventoryGui extends Gui {
             final Stack overlay = new Stack(slot, itemTable);
 
             // add all of this to a list that stores our UI slots.
-            this.slots.add(new InventoryUiSlot(overlay, item, style));
+            this.slots.add(new InventoryUiSlot(overlay, item, gui.getStyles().getTooltipStyle()));
             primary.add(overlay).size(48, 48);
             if (i % 3 == 0) primary.row();
         }

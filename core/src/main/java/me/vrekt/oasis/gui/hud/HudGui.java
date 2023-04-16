@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.github.tommyettinger.textra.TextraLabel;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -36,6 +37,7 @@ public final class HudGui extends Gui {
     private final VisLabel dungeonIntroLabel;
 
     private final VisTable missingItemWarningTable;
+    private final VisImage missingItemImage;
 
     private final VisImage playerClassImage;
     private final VisLabel fpsLabel, pingLabel;
@@ -61,6 +63,8 @@ public final class HudGui extends Gui {
         playerHealthTable = initializePlayerHealthTable();
         dungeonIntroLabel = new VisLabel("", new Label.LabelStyle(gui.getLarge(), Color.WHITE));
         dungeonIntroTable = initializeDungeonIntroTable();
+
+        missingItemImage = new VisImage();
         missingItemWarningTable = initializeMissingItemWarningTable();
 
         hintItemImage = new VisImage();
@@ -114,22 +118,6 @@ public final class HudGui extends Gui {
             dungeonIntroTable.addAction(Actions.fadeOut(1f));
     }
 
-    /**
-     * TODO: Come back to this later
-     */
-    private void comeBackLater() {
-        final VisTable mana = new VisTable(true);
-        mana.setVisible(true);
-        mana.bottom();
-
-        final VisTable bk = new VisTable(true);
-        bk.setBackground(new TextureRegionDrawable(asset.get("manabar")));
-        bk.add(new VisLabel("Ability", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
-
-        mana.add(bk).size(256, 32);
-        gui.createContainer(mana).bottom().padBottom(8);
-    }
-
     private VisTable initializeDebugTable() {
         final VisTable fpsTable = new VisTable(true);
         fpsTable.setVisible(true);
@@ -154,13 +142,18 @@ public final class HudGui extends Gui {
     }
 
     private VisTable initializePlayerHealthTable() {
-        final VisTable playerHealthTable = new VisTable(true);
-        playerHealthTable.setVisible(true);
-        playerHealthTable.right();
 
-        playerHealthTable.add(new VisImage(asset.get("heart"))).size(64, 64);
-        gui.createContainer(playerHealthTable).bottom().right().pad(8);
-        return playerHealthTable;
+        final VisTable health = new VisTable(true);
+        health.setVisible(true);
+        health.bottom();
+
+        final VisTable bk = new VisTable(true);
+        bk.setBackground(new TextureRegionDrawable(asset.get("healthbar")));
+        bk.add(new VisLabel("HP", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
+
+        health.add(bk);
+        gui.createContainer(health).bottom().padBottom(8);
+        return health;
     }
 
     private VisTable initializeDungeonIntroTable() {
@@ -179,8 +172,9 @@ public final class HudGui extends Gui {
         warningTable.bottom().padBottom(16);
 
         final Table warning = new Table();
-        warning.setBackground(new TextureRegionDrawable(asset.get("warning_display")));
-        warning.add(new Label("Missing required item!", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).padLeft(28);
+        warning.setBackground(gui.getStyles().getTheme());
+        warning.add(new TextraLabel("[YELLOW](!) [WHITE]You need a: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE))).top();
+        warning.add(missingItemImage);
         warningTable.add(warning);
 
         gui.createContainer(warningTable).bottom().padBottom(16);
@@ -206,7 +200,7 @@ public final class HudGui extends Gui {
         playerArtifactsTable.setVisible(true);
         playerArtifactsTable.left();
 
-        final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("artifact_slot"));
+        final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("theme"));
         for (int i = 0; i < 3; i++) {
             createArtifactContainer(slot, playerArtifactsTable, i);
         }
@@ -258,13 +252,16 @@ public final class HudGui extends Gui {
 
     /**
      * Show a warning displaying an item is required
+     *
+     * @param texture the texture of the item required
      */
-    public void showMissingItemWarning() {
+    public void showMissingItemWarning(String texture) {
         final float now = GameManager.getCurrentGameWorldTick();
         if (now - lastWarningTick < 2.5f) {
             return;
         }
 
+        missingItemImage.setDrawable(new TextureRegionDrawable(asset.get(texture)));
         itemHintTable.setVisible(false);
 
         lastWarningTick = now;

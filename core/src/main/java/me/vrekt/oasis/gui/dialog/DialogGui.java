@@ -45,8 +45,11 @@ public final class DialogGui extends Gui {
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
         final Table name = new Table();
+        final Table key = new Table();
+        key.right().bottom();
+        key.add(keybindImage = new Image(asset.get("fkey"))).size(32, 32);
+
         name.add(this.entityNameLabel = new TypingLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
-        name.add(keybindImage = new Image(asset.get("fkey"))).size(32, 32).padLeft(8).padBottom(-10);
 
         final Table optionsTable = new Table();
         this.optionsGroup = new Table();
@@ -59,21 +62,22 @@ public final class DialogGui extends Gui {
         rootTable.row();
 
         final Table table = new Table();
-        table.setBackground(new TextureRegionDrawable(asset.get("interaction_dialog")));
+        table.setBackground(gui.getStyles().getTheme());
         table.left();
 
         final Table entity = new Table();
         entity.add(this.entityImage = new Image()).left();
         table.add(entity).padLeft(16);
 
-        table.add(this.dialogTitle = new TypingLabel("DialogTitle", new Label.LabelStyle(asset.getMedium(), Color.BLACK)))
+        table.add(this.dialogTitle = new TypingLabel("DialogTitle", new Label.LabelStyle(asset.getMedium(), Color.WHITE)))
                 .width(448)
                 .padBottom(16)
                 .padRight(8)
                 .padLeft(8);
         this.dialogTitle.setWrap(true);
+        table.add(key).right().bottom();
 
-        rootTable.add(table);
+        rootTable.add(table).padBottom(8);
     }
 
     /**
@@ -110,7 +114,7 @@ public final class DialogGui extends Gui {
         this.entityImage.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
         this.entityNameLabel.setText("{COLOR=WHITE}" + entity.getName());
         // append black color to typing label.
-        this.dialogTitle.restart("{COLOR=BLACK}" + parseDialogText(entity.getDialog().getTitle()));
+        this.dialogTitle.restart("{COLOR=WHITE}" + parseDialogText(entity.getDialog().getTitle()));
 
         optionsGroup.clear();
         if (entity.getDialog().hasOptions()) {

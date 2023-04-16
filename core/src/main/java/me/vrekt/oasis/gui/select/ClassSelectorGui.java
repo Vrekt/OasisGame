@@ -42,7 +42,6 @@ public final class ClassSelectorGui extends Gui {
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
         final Table name = new Table();
-        name.add(new Label("Pick A Class", gui.getSkin(), "medium", Color.WHITE));
 
         final Table optionsTable = new Table();
         Table optionsGroup = new Table();
@@ -56,7 +55,7 @@ public final class ClassSelectorGui extends Gui {
         rootTable.row();
 
         final Table table = new Table();
-        table.setBackground(new TextureRegionDrawable(asset.get("interaction_dialog")));
+        table.setBackground(gui.getStyles().getTheme());
         table.left();
 
         final Table entity = new Table();
@@ -121,7 +120,7 @@ public final class ClassSelectorGui extends Gui {
         selector.add(option);
         table.add(selector).padLeft(16);
 
-        rootTable.add(table);
+        rootTable.add(table).padBottom(8);
 
         optionsGroup.clear();
 

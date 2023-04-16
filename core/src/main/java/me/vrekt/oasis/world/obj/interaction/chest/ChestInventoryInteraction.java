@@ -31,6 +31,11 @@ public final class ChestInventoryInteraction extends InteractableWorldObject {
     }
 
     @Override
+    public String getRequiredItemTexture() {
+        return null;
+    }
+
+    @Override
     public void update() {
         // hide the GUI if the player moves too far
         if (isShowing && world.getLocalPlayer().getPosition().dst2(interactionLocation) >= 0.05f) {

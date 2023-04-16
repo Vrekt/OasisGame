@@ -19,7 +19,7 @@ public final class EnchantedVioletItem extends ItemWeapon {
     private long startTime;
 
     public EnchantedVioletItem() {
-        super(NAME, ID, "A special blade with magical abilities.");
+        super(NAME, ID, "An enchanted dagger dipped in violet.");
         this.baseDamage = 1.5f;
         this.rotationAngle = 0.0f;
         this.swingCooldown = 0.25f;

@@ -25,6 +25,11 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     }
 
     @Override
+    public String getRequiredItemTexture() {
+        return LucidTreeHarvestingToolItem.TEXTURE;
+    }
+
+    @Override
     public void interact() {
         world.getLocalPlayer().setDidChopTree(true);
         world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.class, 1);

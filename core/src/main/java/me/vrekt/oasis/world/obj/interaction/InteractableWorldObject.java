@@ -30,6 +30,8 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
         return world;
     }
 
+    public abstract String getRequiredItemTexture();
+
     @Override
     public WorldInteractionType getInteractionType() {
         return interactionType;

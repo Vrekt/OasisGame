@@ -23,7 +23,7 @@ import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
 import me.vrekt.oasis.gui.pause.PauseGui;
-import me.vrekt.oasis.gui.quest.QuestingGui;
+import me.vrekt.oasis.gui.select.quest.QuestingGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
 import me.vrekt.oasis.gui.settings.SettingsGui;
 
@@ -44,6 +44,8 @@ public final class GameGui {
 
     private final Map<GuiType, Gui> guis = new HashMap<>();
     private final InputMultiplexer multiplexer;
+
+    private final Styles styles;
 
     public GameGui(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.stage = new Stage(new ScreenViewport());
@@ -69,6 +71,8 @@ public final class GameGui {
         skin.add("medium", medium);
         skin.add("large", large);
 
+        this.styles = new Styles(asset);
+
         multiplexer.addProcessor(stage);
         guis.put(GuiType.DIALOG, new DialogGui(this, asset));
         guis.put(GuiType.CLASS, new ClassSelectorGui(this, asset));
@@ -79,6 +83,10 @@ public final class GameGui {
         guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
 
+    }
+
+    public Styles getStyles() {
+        return styles;
     }
 
     public InputMultiplexer getMultiplexer() {
