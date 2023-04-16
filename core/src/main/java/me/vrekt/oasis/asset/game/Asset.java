@@ -79,7 +79,7 @@ public final class Asset implements Disposable {
 
         generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/Boxy-Bold.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.025);
+        parameter.size = (int) Math.ceil((Gdx.graphics.getWidth() * 0.025));
         boxy = generator.generateFont(parameter);
         generator.dispose();
     }

@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.dialog.DialogGui;
@@ -79,6 +78,7 @@ public final class GameGui {
         guis.put(GuiType.PAUSE, new PauseGui(this, asset));
         guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
+
     }
 
     public InputMultiplexer getMultiplexer() {
@@ -208,6 +208,8 @@ public final class GameGui {
      * Render all active GUI elements.
      */
     public void updateAndRender() {
+        getHud().setVisible(false);
+
         stage.getViewport().apply();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));

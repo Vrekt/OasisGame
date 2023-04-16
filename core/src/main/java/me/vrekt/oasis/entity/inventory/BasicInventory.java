@@ -35,7 +35,7 @@ public abstract class BasicInventory implements Inventory {
         final Item item = Pools.obtain(type);
         item.setAmount(amount);
 
-        item.loadItemAsset(GameManager.getAssets());
+        item.load(GameManager.getAssets());
         slots.put(getAnyEmptySlot(), new InventorySlot(item));
         return item;
     }
@@ -85,7 +85,7 @@ public abstract class BasicInventory implements Inventory {
 
     @Override
     public void removeItem(int slot) {
-        Pools.free(slots.remove(slot).getItem());
+        slots.get(slot).setMarkedForDeletion(true);
     }
 
     @Override

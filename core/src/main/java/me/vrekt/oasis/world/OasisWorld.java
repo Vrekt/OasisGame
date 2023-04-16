@@ -3,6 +3,7 @@ package me.vrekt.oasis.world;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -92,6 +93,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected long last;
 
     protected ShapeRenderer shapes;
+
+    protected NinePatch gradient;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
         super(player, world);
@@ -211,7 +214,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         player.setGameWorldIn(this);
 
         handleConnectionOptions(game.getHandler());
-        this.shapes = new ShapeRenderer();
+        this.gradient = new NinePatch(game.getAsset().get("health_gradient"), 0, 0, 0, 0);
         this.isWorldLoaded = true;
     }
 
@@ -608,6 +611,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (entity.isInView(renderer.getCamera())) {
                 entity.render(batch, delta);
             }
+
+            if (entity instanceof EntityEnemy) {
+                entity.renderHealthBar(batch, gradient);
+            }
         }
 
         // general world objects
@@ -649,6 +656,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
+        // draw damage indicators
+        // use the stage batch to correctly scale the font.
         for (Entity entity : entities.values()) {
             if (entity instanceof EntityEnemy) {
                 ((EntityEnemy) entity).drawDamageIndicator(batch);
@@ -681,7 +690,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (Entity value : entities.values()) {
             if (value instanceof EntityEnemy) {
                 final EntityEnemy interactable = (EntityEnemy) value;
-                if (interactable.getBounds().overlaps(item.getBounds())) {
+                if (interactable.isFacingEntity(player.getRotation())
+                        && interactable.getBounds().overlaps(item.getBounds())) {
                     return interactable;
                 }
             }
@@ -712,7 +722,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     public <T extends InteractableWorldObject> List<T> getByRuntimeIds(Class<T> type, int... id) {
         final List<T> objects = new ArrayList<>();
-        int index = 0;
 
         for (int i : id) objects.add((T) getByRuntimeId(i));
         return objects;

@@ -23,7 +23,8 @@ public final class PlayerInventory extends BasicInventory {
         for (Iterator<Map.Entry<Integer, InventorySlot>> it = slots.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Integer, InventorySlot> entry = it.next();
             final Item item = entry.getValue().getItem();
-            if (item.getAmount() == 0) {
+            if (item.getAmount() == 0
+                    || entry.getValue().isMarkedForDeletion()) {
                 Pools.free(item);
                 it.remove();
 

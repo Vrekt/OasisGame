@@ -16,6 +16,10 @@ dependencies {
     api "com.badlogicgames.gdx-controllers:gdx-controllers-core:2.2.2"
     api "com.badlogicgames.gdx:gdx-box2d:1.11.0"
     api "com.badlogicgames.gdx:gdx:1.11.0"
+
+    api "com.google.flogger:flogger:0.7.4"
+    api "com.google.flogger:flogger-system-backend:0.7.4"
+
     api files('../Core.jar')
     api files('../Protocol.jar')
     api files('../Server.jar')

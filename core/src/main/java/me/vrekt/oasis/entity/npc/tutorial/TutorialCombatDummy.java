@@ -11,10 +11,14 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.world.OasisWorld;
 
+/**
+ * Mainly used for testing combat features!
+ */
 public final class TutorialCombatDummy extends EntityEnemy {
 
     public TutorialCombatDummy(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.DUMMY);
+        this.rotation = 1.0f;
     }
 
     @Override

@@ -1,12 +1,15 @@
 package me.vrekt.oasis.gui.inventory;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.util.TableUtils;
@@ -17,9 +20,10 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.utility.logging.Logging;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -30,12 +34,17 @@ import java.util.LinkedList;
 public final class InventoryGui extends Gui {
     private final VisTable rootTable;
     private final OasisPlayerSP player;
+    final VisSplitPane splitPane;
 
     private final LinkedList<InventoryUiSlot> slots = new LinkedList<>();
 
-    // the item description of whatever item is clicked + attrs
-    private final TypingLabel itemDescription, itemAttributesText, itemAttributes;
+    // the item description of whatever item is clicked
+    private final TypingLabel itemDescription;
     private final VisTextButton useItemButton;
+
+    private final VisImage weaponRangeImage, weaponDamageIcon, weaponCritIcon;
+    private final Tooltip weaponRangeTooltip, weaponDamageTooltip, weaponCritTooltip;
+
     // the current item clicked on
     private Item clickedItem;
 
@@ -48,7 +57,7 @@ public final class InventoryGui extends Gui {
         rootTable.setVisible(false);
         TableUtils.setSpacingDefaults(rootTable);
 
-        rootTable.setBackground(new TextureRegionDrawable(asset.get("book_tab")));
+        rootTable.setBackground(new TextureRegionDrawable(asset.get("inventory")));
         final VisTable primary = new VisTable(true);
         final VisTable secondary = new VisTable(true);
 
@@ -58,20 +67,30 @@ public final class InventoryGui extends Gui {
         this.itemDescription.setWrap(true);
         this.itemDescription.setWidth(175);
         secondary.add(itemDescription).width(175).left();
+        secondary.row().padTop(16);
+
+        final VisTable attributes = new VisTable(true);
+        attributes.left();
+
+        attributes.add(weaponRangeImage = new VisImage(asset.get("weapon_range_icon"))).size(36, 36);
+        attributes.add(weaponDamageIcon = new VisImage(asset.get("weapon_damage_icon"))).size(36, 36);
+        attributes.add(weaponCritIcon = new VisImage(asset.get("weapon_crit_icon"))).size(36, 36);
+        secondary.add(attributes).left();
         secondary.row();
 
-        this.itemAttributes = new TypingLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.BLACK));
-        this.itemAttributes.setVisible(false);
-        this.itemAttributesText = new TypingLabel("[BLACK]-- Attributes --", new Label.LabelStyle(gui.getMedium(), Color.BLACK));
-        this.itemAttributesText.setVisible(false);
+        final NinePatch patch = new NinePatch(asset.get("artifact_slot"), 4, 4, 4, 4);
+        final NinePatchDrawable drawable = new NinePatchDrawable(patch);
+        final Tooltip.TooltipStyle style = new Tooltip.TooltipStyle(drawable);
 
-        secondary.add(itemAttributesText).padTop(16);
-        secondary.row();
-        secondary.add(itemAttributes).padTop(16).left();
-        secondary.row();
+        weaponRangeTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponRangeImage).style(style).build();
+        weaponDamageTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponDamageIcon).style(style).build();
+        weaponCritTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(weaponCritIcon).style(style).build();
+
+        hideWeaponStats();
 
         useItemButton = new VisTextButton(StringUtils.EMPTY);
         useItemButton.setLabel(new VisLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
+        useItemButton.setStyle(new TextButton.TextButtonStyle(drawable, drawable, drawable, gui.getMedium()));
         useItemButton.setVisible(false);
         secondary.add(useItemButton).padTop(16).left();
 
@@ -79,34 +98,104 @@ public final class InventoryGui extends Gui {
         useItemButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (clickedItem != null) {
+                if (clickedItem instanceof ItemConsumable) {
                     clickedItem.useItem(player);
+                } else if (clickedItem instanceof ItemEquippable) {
+                    ((ItemEquippable) clickedItem).equip(player);
                 }
             }
         });
 
         // populate a total of 21 inventory slots
         primary.top().padTop(52).padLeft(84);
-        final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("inventory_slot"));
+        final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(asset.get("artifact_slot"));
         for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
-            final VisImage slot = new VisImage(drawable);
-            final VisImage item = new VisImage();
+            // background image of the actual slot
+            final Image slot = new Image(slotDrawable);
+            // the container for our item image
+            final Image item = new Image();
+            item.setOrigin(16 / 2f, 16 / 2f);
+
+            // just holds our item image container
+            final VisTable itemTable = new VisTable(false);
+            itemTable.add(item);
 
             // create a separate container for the item image... so it doesn't get stretched.
-            final VisTable itemTable = new VisTable(true);
-            itemTable.add(item);
-            final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
+            final Stack overlay = new Stack(slot, itemTable);
 
-            this.slots.add(new InventoryUiSlot(overlay, item));
+            // add all of this to a list that stores our UI slots.
+            this.slots.add(new InventoryUiSlot(overlay, item, style));
             primary.add(overlay).size(48, 48);
             if (i % 3 == 0) primary.row();
         }
 
-        VisSplitPane splitPane = new VisSplitPane(primary, secondary, false);
+        splitPane = new VisSplitPane(primary, secondary, false);
         rootTable.add(splitPane).fill().expand();
 
         rootTable.pack();
         gui.createContainer(rootTable).fill();
+    }
+
+    /**
+     * Update the text for selected items
+     *
+     * @param slotItem the slot item selected.
+     */
+    private void updateSelectedItem(InventoryUiSlot slotItem) {
+        hideItemOptionals();
+        hideWeaponStats();
+
+        itemDescription.setText(slotItem.itemDescription);
+        itemDescription.restart();
+        itemDescription.setVisible(true);
+
+        // populate consume item button
+        if (slotItem.item instanceof ItemConsumable
+                && ((ItemConsumable) slotItem.item).isAllowedToConsume()) {
+            useItemButton.setVisible(true);
+            useItemButton.setText("Eat");
+        } else if (slotItem.item instanceof ItemEquippable) {
+            populateEquipmentButtons();
+        }
+
+        if (slotItem.item instanceof ItemWeapon) populateWeaponStats(((ItemWeapon) slotItem.item));
+        this.clickedItem = slotItem.item;
+    }
+
+    private void hideItemOptionals() {
+        useItemButton.setVisible(false);
+    }
+
+    private void populateWeaponStats(ItemWeapon item) {
+        weaponRangeTooltip.setText("Range: " + item.getRange());
+        weaponDamageTooltip.setText("Damage: " + item.getBaseDamage());
+        weaponCritTooltip.setText("Critical hit chance: " + Math.round(item.getCriticalHitChance()) + "%");
+
+        weaponRangeImage.setVisible(true);
+        weaponRangeImage.getColor().a = 0.0f;
+        weaponRangeImage.addAction(Actions.fadeIn(1.5f));
+
+        weaponDamageIcon.setVisible(true);
+        weaponDamageIcon.getColor().a = 0.0f;
+        weaponDamageIcon.addAction(Actions.fadeIn(1.5f));
+
+        weaponCritIcon.setVisible(true);
+        weaponCritIcon.getColor().a = 0.0f;
+        weaponCritIcon.addAction(Actions.fadeIn(1.5f));
+    }
+
+    private void populateEquipmentButtons() {
+        useItemButton.setVisible(true);
+        useItemButton.setText("Equip");
+
+        useItemButton.getColor().a = 0.0f;
+        useItemButton.addAction(Actions.fadeIn(1.0f));
+    }
+
+    private void hideWeaponStats() {
+        weaponRangeImage.setVisible(false);
+        weaponDamageIcon.setVisible(false);
+        weaponCritIcon.setVisible(false);
     }
 
     @Override
@@ -142,23 +231,21 @@ public final class InventoryGui extends Gui {
     public void removeItemSlot(int slot) {
         slots.get(slot).removeItem();
         useItemButton.setVisible(false);
-        itemAttributesText.setVisible(false);
-        itemAttributes.setVisible(false);
         itemDescription.setVisible(false);
     }
 
     /**
      * Handles data required for the UI inventory slot
      */
-    private final class InventoryUiSlot extends AbstractInventoryUiSlot {
+    final class InventoryUiSlot extends AbstractInventoryUiSlot {
 
         // item description of whatever is in this slot
         private String itemDescription = StringUtils.EMPTY;
         // the last item in this slot, for comparison when updating
         private long lastItemId = -1;
 
-        public InventoryUiSlot(Stack stack, VisImage item) {
-            super(stack, item);
+        public InventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style) {
+            super(stack, item, style);
 
             // add click action
             stack.addListener(new ClickListener() {
@@ -175,46 +262,7 @@ public final class InventoryGui extends Gui {
          * Handle actions and updating when clicking an item in this inventory GUI
          */
         private void handleClickActionListener() {
-            // hide optional
-            useItemButton.setVisible(false);
-            itemAttributesText.setVisible(false);
-            itemAttributes.setVisible(false);
-
-            InventoryGui.this.itemDescription.setText("[BLACK]" + itemDescription);
-            InventoryGui.this.itemDescription.restart();
-            if (!InventoryGui.this.itemDescription.isVisible()) {
-                InventoryGui.this.itemDescription.setVisible(true);
-            }
-
-            // update consume buttons, only if allowed and an actual item to eat
-            if (InventoryUiSlot.this.item instanceof ItemConsumable
-                    && ((ItemConsumable) InventoryUiSlot.this.item).isAllowedToConsume()) {
-                useItemButton.setVisible(true);
-                useItemButton.setText("Consume");
-            }
-
-            // add attributes
-            if (InventoryUiSlot.this.item.hasAttributes()) {
-                itemAttributesText.setVisible(true);
-                itemAttributesText.restart();
-                itemAttributes.setVisible(true);
-                for (ItemAttribute attribute : InventoryUiSlot.this.item.getAttributes().values()) {
-                    itemAttributes.setText(attribute.getAttributeName() + "\n" + attribute.getDescription());
-                }
-                itemAttributes.restart();
-            }
-
-            if (InventoryUiSlot.this.item instanceof ItemWeapon) {
-                final ItemWeapon itemWeapon = (ItemWeapon) InventoryUiSlot.this.item;
-                itemAttributesText.setVisible(true);
-                itemAttributesText.restart();
-                itemAttributes.setVisible(true);
-
-                itemAttributes.setText("Range: " + itemWeapon.getRange() + "\n" + "CHC: " + itemWeapon.getCriticalHitChance());
-                itemAttributes.restart();
-            }
-
-            InventoryGui.this.clickedItem = InventoryUiSlot.this.item;
+            updateSelectedItem(this);
         }
 
         /**
@@ -225,6 +273,7 @@ public final class InventoryGui extends Gui {
         @Override
         protected void setItem(Item item) {
             super.setItem(item);
+            this.imageItem.setScale(item.getSprite().getScaleX(), item.getSprite().getScaleY());
             this.lastItemId = item.getItemId();
             this.itemDescription = item.getDescription();
         }
@@ -234,6 +283,9 @@ public final class InventoryGui extends Gui {
          */
         @Override
         protected void removeItem() {
+
+            Logging.info(this, "removing item");
+
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
             this.lastItemId = -1;

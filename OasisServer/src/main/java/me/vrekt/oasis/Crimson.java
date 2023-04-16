@@ -1,17 +1,23 @@
 package me.vrekt.oasis;
 
+import com.google.common.flogger.FluentLogger;
 import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
-import me.vrekt.oasis.logging.Logging;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;
 import me.vrekt.oasis.world.CrimsonWorld;
 import me.vrekt.oasis.world.CrimsonWorldManager;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
 
 /**
  * Crimson server for Oasis.
  */
 public final class Crimson {
+
+    private static final FluentLogger logger = FluentLogger.forEnclosingClass();
 
     public static String GAME_VERSION = "0.1-32023a";
     public static String CRIMSON_VERSION = "0.1a";
@@ -23,19 +29,52 @@ public final class Crimson {
     private final CrimsonWorldManager worldManager;
 
     Crimson(String[] arguments) {
+        log("Starting Crimson version: " + GAME_VERSION);
+
+        String ip = arguments[0];
+        int port;
+        if (ip == null) {
+            ip = "localhost";
+            port = 6969;
+        } else {
+            try {
+                port = Integer.parseInt(arguments[1]);
+            } catch (NumberFormatException exception) {
+                warning("No valid host port! Set port to default: 6969");
+                port = 6969;
+            }
+        }
+
         protocol = new LunarProtocol(true);
         gameServer = new CrimsonGameServer(protocol);
         worldManager = new CrimsonWorldManager();
 
-        server = new NettyServer(arguments[0], Integer.parseInt(arguments[1]), protocol, gameServer);
+        server = new NettyServer(ip, port, protocol, gameServer);
         server.setConnectionProvider(socketChannel -> new CrimsonPlayerConnection(socketChannel, gameServer));
         server.bind();
+
+        log("Netty server successfully started!");
 
         gameServer.setWorldManager(worldManager);
         gameServer.getWorldManager().addWorld("TutorialWorld", new CrimsonWorld(new ServerWorldConfiguration(), "TutorialWorld"));
         gameServer.start();
 
-        Logging.info(this, "Server started successfully, version: " + CRIMSON_VERSION + ", game version: " + GAME_VERSION);
+        final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));
+
+        log("Server started successfully at " + localTime + ", version: " + CRIMSON_VERSION + ", game version: " + GAME_VERSION);
     }
+
+    public static void log(String information) {
+        logger.at(Level.INFO).log(information);
+    }
+
+    public static void error(String information) {
+        logger.at(Level.SEVERE).log(information);
+    }
+
+    public static void warning(String information) {
+        logger.at(Level.WARNING).log(information);
+    }
+
 }
 

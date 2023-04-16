@@ -3,124 +3,73 @@ package me.vrekt.oasis.gui.hud;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.inventory.renderer.HudInventoryHandler;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.artifact.Artifact;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * Hud GUI includes on screen inventory, class, mini-map, etc.
- */
 public final class HudGui extends Gui {
 
-    private final Table rootTable;
-    private final Table classIconTable;
-    private final Table notificationTable;
-    private final Table warningTable;
-    private final Table introTable;
-    // rendering of hud inventory
-    private final HudInventoryHandler inventoryRenderer;
+    private final OasisPlayerSP player;
 
-    // amount of item collected + icon image of item
-    private final Label amountLabel, fpsLabel, pingLabel, introLabel;
-    private final Image iconImage, classImage;
+    // FPS, Ping, other information
+    private final VisTable debugTable;
+    private final VisTable classIconTable;
+    private final VisTable playerArtifactsTable;
+    private final VisTable playerHealthTable;
+    private final VisTable itemHintTable;
 
-    // last hint popped up
-    private long lastHint, lastWarning, lastIntro;
+    private final VisTable dungeonIntroTable;
+    private final VisLabel dungeonIntroLabel;
+
+    private final VisTable missingItemWarningTable;
+
+    private final VisImage playerClassImage;
+    private final VisLabel fpsLabel, pingLabel;
+
+    private final VisImage hintItemImage;
+    private final VisLabel hintItemLabel;
+    private float lastHintTick, lastIntroTick, lastWarningTick;
+
+    private final ArtifactSlot[] slots = new ArtifactSlot[3];
 
     public HudGui(GameGui gui, Asset asset) {
         super(gui, asset);
-        OasisPlayerSP player = gui.getGame().getPlayer();
 
-        rootTable = new Table();
-        rootTable.setVisible(true);
-        rootTable.left();
+        this.player = gui.getGame().getPlayer();
+        this.isShowing = true;
+        playerClassImage = new VisImage();
+        fpsLabel = new VisLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE));
+        pingLabel = new VisLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE));
+        debugTable = initializeDebugTable();
+        classIconTable = initializeClassIconTable(gui);
+        playerArtifactsTable = initializePlayerArtifactsTable();
 
-        // info: FPS
-        final Table fpsTable = new Table();
-        fpsTable.setVisible(true);
-        fpsTable.top().left();
-        fpsTable.add(fpsLabel = new Label("FPS: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
-        fpsTable.row();
-        fpsTable.add(pingLabel = new Label("Ping: ", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
-        fpsLabel.setVisible(false);
-        // info: missing item warning
-        warningTable = new Table();
-        warningTable.setVisible(false);
-        warningTable.bottom().padBottom(16);
+        playerHealthTable = initializePlayerHealthTable();
+        dungeonIntroLabel = new VisLabel("", new Label.LabelStyle(gui.getLarge(), Color.WHITE));
+        dungeonIntroTable = initializeDungeonIntroTable();
+        missingItemWarningTable = initializeMissingItemWarningTable();
 
-        final Table warning = new Table();
-        warning.setBackground(new TextureRegionDrawable(asset.get("warning_display")));
-        warning.add(new Label("Missing required item!", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).padLeft(28);
-        warningTable.add(warning);
-
-        // info: the table holding player class information
-        classIconTable = new Table();
-        classIconTable.setVisible(true);
-        classIconTable.left();
-        classIconTable.add(classImage = new Image(asset.get("nature_class"))).size(48, 48);
-
-        // info: notifications
-        notificationTable = new Table();
-        notificationTable.setVisible(false);
-        notificationTable.top().right();
-
-        introTable = new Table();
-        introTable.setVisible(false);
-        introTable.center();
-
-        introTable.add(introLabel = new Label("", new Label.LabelStyle(gui.getLarge(), Color.BLACK)));
-
-        final Table notification = new Table();
-        notification.setBackground(new TextureRegionDrawable(asset.get("hint_dropdown")));
-        notification.add(new Label("You received ", gui.getSkin(), "medium", Color.DARK_GRAY));
-        notification.add(iconImage = new Image()).size(32, 32).padBottom(6).padTop(6).padRight(2).padLeft(-1f);
-        notification.add(new Label("x", gui.getSkin(), "small", Color.DARK_GRAY));
-        notification.add(amountLabel = new Label("1", gui.getSkin(), "medium", Color.DARK_GRAY));
-        notificationTable.add(notification).size(256, 32);
-
-        // info: init all containers
-        gui.createContainer(rootTable).bottom();
-        gui.createContainer(fpsTable).top().left();
-        gui.createContainer(warningTable).bottom().padBottom(58);
-        gui.createContainer(classIconTable).bottom().left().pad(8);
-        gui.createContainer(notificationTable).top().right().pad(4);
-        gui.createContainer(introTable).center();
-
-        // info: the actual table that holds the inventory slots
-        final Table inventory = new Table();
-
-        // initialize HUD inventory.
-        final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("inventory_slot"));
-        this.inventoryRenderer = new HudInventoryHandler(player.getInventory().getInventorySize(), gui, player);
-        this.inventoryRenderer.initialize(inventory, slot);
-
-        rootTable.add(inventory).padBottom(8);
-        isShowing = true;
+        hintItemImage = new VisImage();
+        hintItemLabel = new VisLabel("(1)", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        itemHintTable = initializeItemHintTable();
     }
 
     @Override
     public void update() {
-        // fade notification table
-        if (notificationTable.getColor().a == 1 && (System.currentTimeMillis() - lastHint >= 2500))
-            notificationTable.addAction(Actions.fadeOut(1f));
-
-        // fade warning table
-        if (warningTable.getColor().a == 1 && (System.currentTimeMillis() - lastWarning) >= 1500)
-            warningTable.addAction(Actions.fadeOut(1f));
-
-        // fade intro table
-        if (introTable.getColor().a == 1 && (System.currentTimeMillis() - lastIntro) >= 2500) {
-            introTable.addAction(Actions.fadeOut(1f));
-        }
-
         if (OasisGameSettings.SHOW_FPS && !fpsLabel.isVisible()) {
             fpsLabel.setVisible(true);
             pingLabel.setVisible(true);
@@ -135,15 +84,167 @@ public final class HudGui extends Gui {
         if (pingLabel.isVisible()) {
             pingLabel.setText("Ping: " + gui.getGame().getPlayer().getServerPingTime());
         }
-        inventoryRenderer.update();
+
+        // update player artifact slots
+        for (int i = 0; i < player.getArtifacts().length; i++) {
+            final Artifact artifact = player.getArtifacts()[i];
+            if (artifact != null) {
+                slots[i].updateIfRequired(artifact);
+            }
+        }
+
+        updateAlphaActions();
     }
 
+    /**
+     * Update alpha actions for various GUI elements
+     */
+    private void updateAlphaActions() {
+        final float now = GameManager.getCurrentGameWorldTick();
+
+        if (itemHintTable.getColor().a == 1 && (now - lastHintTick >= 2.5f))
+            itemHintTable.addAction(Actions.fadeOut(1f));
+
+        // fade warning table
+        if (missingItemWarningTable.getColor().a == 1 && (now - lastWarningTick) >= 1.5f)
+            missingItemWarningTable.addAction(Actions.fadeOut(1f));
+
+        // fade intro table
+        if (dungeonIntroTable.getColor().a == 1 && (now - lastIntroTick) >= 2.5f)
+            dungeonIntroTable.addAction(Actions.fadeOut(1f));
+    }
+
+    /**
+     * TODO: Come back to this later
+     */
+    private void comeBackLater() {
+        final VisTable mana = new VisTable(true);
+        mana.setVisible(true);
+        mana.bottom();
+
+        final VisTable bk = new VisTable(true);
+        bk.setBackground(new TextureRegionDrawable(asset.get("manabar")));
+        bk.add(new VisLabel("Ability", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
+
+        mana.add(bk).size(256, 32);
+        gui.createContainer(mana).bottom().padBottom(8);
+    }
+
+    private VisTable initializeDebugTable() {
+        final VisTable fpsTable = new VisTable(true);
+        fpsTable.setVisible(true);
+        fpsTable.top().left();
+        fpsTable.add(fpsLabel).left();
+        fpsTable.row();
+        fpsTable.add(pingLabel).left();
+        fpsLabel.setVisible(false);
+
+        gui.createContainer(fpsTable).top().left();
+
+        return fpsTable;
+    }
+
+    private VisTable initializeClassIconTable(GameGui gui) {
+        final VisTable classIconTable = new VisTable(true);
+        classIconTable.setVisible(true);
+        classIconTable.left();
+        classIconTable.add(playerClassImage).size(48, 48);
+        gui.createContainer(classIconTable).bottom().left().pad(8);
+        return classIconTable;
+    }
+
+    private VisTable initializePlayerHealthTable() {
+        final VisTable playerHealthTable = new VisTable(true);
+        playerHealthTable.setVisible(true);
+        playerHealthTable.right();
+
+        playerHealthTable.add(new VisImage(asset.get("heart"))).size(64, 64);
+        gui.createContainer(playerHealthTable).bottom().right().pad(8);
+        return playerHealthTable;
+    }
+
+    private VisTable initializeDungeonIntroTable() {
+        final VisTable introTable = new VisTable(true);
+        introTable.setVisible(false);
+        introTable.center();
+        introTable.add(dungeonIntroLabel);
+
+        gui.createContainer(introTable).center();
+        return introTable;
+    }
+
+    private VisTable initializeMissingItemWarningTable() {
+        final VisTable warningTable = new VisTable();
+        warningTable.setVisible(false);
+        warningTable.bottom().padBottom(16);
+
+        final Table warning = new Table();
+        warning.setBackground(new TextureRegionDrawable(asset.get("warning_display")));
+        warning.add(new Label("Missing required item!", new Label.LabelStyle(asset.getMedium(), Color.BLACK))).padLeft(28);
+        warningTable.add(warning);
+
+        gui.createContainer(warningTable).bottom().padBottom(16);
+
+        return warningTable;
+    }
+
+    /**
+     * Show the dungeon introduction
+     *
+     * @param text the text
+     */
     public void showDungeonIntroduction(String text) {
-        this.introLabel.setText(text);
-        this.introTable.setVisible(true);
-        this.introTable.getColor().a = 0;
-        this.introTable.addAction(Actions.fadeIn(1.5f));
-        lastIntro = System.currentTimeMillis();
+        this.dungeonIntroLabel.setText(text);
+        this.dungeonIntroTable.setVisible(true);
+        this.dungeonIntroTable.getColor().a = 0;
+        this.dungeonIntroTable.addAction(Actions.fadeIn(1.5f));
+        lastIntroTick = GameManager.getCurrentGameWorldTick();
+    }
+
+    private VisTable initializePlayerArtifactsTable() {
+        final VisTable playerArtifactsTable = new VisTable(true);
+        playerArtifactsTable.setVisible(true);
+        playerArtifactsTable.left();
+
+        final TextureRegionDrawable slot = new TextureRegionDrawable(asset.get("artifact_slot"));
+        for (int i = 0; i < 3; i++) {
+            createArtifactContainer(slot, playerArtifactsTable, i);
+        }
+
+        gui.createContainer(playerArtifactsTable).bottom().left().padLeft(8).padBottom(64);
+        return playerArtifactsTable;
+    }
+
+    private VisTable initializeItemHintTable() {
+        final VisTable root = new VisTable(true);
+        final VisTable hint = new VisTable(true);
+        root.setVisible(false);
+        hint.setBackground(new TextureRegionDrawable(asset.get("hintdropdown")));
+        hint.add(new VisLabel("You received ", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
+        root.add(hint).size(256, 32);
+        hint.add(hintItemImage).size(32, 32).padBottom(6).padTop(6);
+        hint.add(hintItemLabel);
+
+        gui.createContainer(root).bottom().padBottom(16);
+        return root;
+    }
+
+    /**
+     * Create a container for the players artifact slots
+     *
+     * @param background the background slot
+     * @param parent     the parent
+     */
+    private void createArtifactContainer(TextureRegionDrawable background, VisTable parent, int index) {
+        final VisImage slot = new VisImage(background);
+        final VisTable table = new VisTable(true);
+        final ArtifactSlot artifact = new ArtifactSlot(new VisImage());
+        table.add(artifact.artifactImage).size(32, 32);
+        final Stack stack = new Stack(slot, new Container<Table>(table));
+        parent.add(stack).size(48, 48);
+        parent.row().padTop(-6);
+
+        slots[index] = artifact;
     }
 
     /**
@@ -152,21 +253,24 @@ public final class HudGui extends Gui {
      * @param icon the icon string from assets
      */
     public void setClassIcon(String icon) {
-        classImage.setDrawable(new TextureRegionDrawable(asset.get(icon)));
+        playerClassImage.setDrawable(new TextureRegionDrawable(asset.get(icon)));
     }
 
     /**
      * Show a warning displaying an item is required
      */
     public void showMissingItemWarning() {
-        if (System.currentTimeMillis() - lastWarning <= 2000) {
+        final float now = GameManager.getCurrentGameWorldTick();
+        if (now - lastWarningTick < 2.5f) {
             return;
         }
 
-        lastWarning = System.currentTimeMillis();
-        warningTable.setVisible(true);
-        warningTable.getColor().a = 0;
-        warningTable.addAction(Actions.fadeIn(1));
+        itemHintTable.setVisible(false);
+
+        lastWarningTick = now;
+        missingItemWarningTable.setVisible(true);
+        missingItemWarningTable.getColor().a = 0.0f;
+        missingItemWarningTable.addAction(Actions.fadeIn(1f));
     }
 
     /**
@@ -176,33 +280,66 @@ public final class HudGui extends Gui {
      * @param item the item
      */
     public void showItemCollected(Item item) {
-        if (System.currentTimeMillis() - lastHint <= 2500) {
+        final float now = GameManager.getCurrentGameWorldTick();
+        if (now - lastHintTick < 2.5f) {
             return;
         }
 
-        notificationTable.setVisible(true);
-        notificationTable.getColor().a = 0;
-        notificationTable.addAction(Actions.fadeIn(1f));
+        itemHintTable.setVisible(true);
+        itemHintTable.getColor().a = 0;
+        itemHintTable.addAction(Actions.fadeIn(1f));
 
-        iconImage.setDrawable(new TextureRegionDrawable(item.getTexture()));
-        amountLabel.setText("" + item.getAmount());
-        lastHint = System.currentTimeMillis();
+        hintItemImage.setDrawable(new TextureRegionDrawable(item.getTexture()));
+        hintItemLabel.setText("" + item.getAmount());
+        lastHintTick = now;
+    }
+
+    public void artifactUsed(int slot, float cooldown) {
+        slots[slot].artifactImage.getColor().a = 0.0f;
+        slots[slot].artifactImage.addAction(Actions.fadeIn(cooldown));
     }
 
     @Override
     public void show() {
-        rootTable.setVisible(true);
+        super.show();
+        debugTable.setVisible(true);
         classIconTable.setVisible(true);
-        isShowing = true;
+        playerArtifactsTable.setVisible(true);
+        playerHealthTable.setVisible(true);
     }
 
     @Override
     public void hide() {
-        rootTable.setVisible(false);
+        super.hide();
+        debugTable.setVisible(false);
         classIconTable.setVisible(false);
-        warningTable.setVisible(false);
-        notificationTable.setVisible(false);
-        isShowing = false;
+        playerArtifactsTable.setVisible(false);
+        playerHealthTable.setVisible(false);
+        itemHintTable.setVisible(false);
+        missingItemWarningTable.setVisible(false);
+        dungeonIntroTable.setVisible(false);
+    }
+
+    /**
+     * Contains information about an artifact slot
+     */
+    private final class ArtifactSlot {
+        private final VisImage artifactImage;
+        private Artifact artifactSlot;
+
+        public ArtifactSlot(VisImage artifactImage) {
+            this.artifactImage = artifactImage;
+        }
+
+        void updateIfRequired(Artifact artifact) {
+            if (this.artifactSlot == null ||
+                    !StringUtils.equals(this.artifactSlot.getName(), artifact.getName())) {
+                // no artifact or different, update.
+                this.artifactSlot = artifact;
+                this.artifactImage.setDrawable(new TextureRegionDrawable(artifact.getSprite()));
+            }
+        }
+
     }
 
 }

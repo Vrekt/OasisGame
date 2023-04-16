@@ -9,6 +9,7 @@ public final class InventorySlot {
 
     // the item in this slot;
     private Item item;
+    private boolean markedForDeletion;
 
     public InventorySlot(Item item) {
         this.item = item;
@@ -20,6 +21,14 @@ public final class InventorySlot {
 
     public void setItem(Item item) {
         this.item = item;
+    }
+
+    public void setMarkedForDeletion(boolean markedForDeletion) {
+        this.markedForDeletion = markedForDeletion;
+    }
+
+    public boolean isMarkedForDeletion() {
+        return markedForDeletion;
     }
 
     public boolean isOccupied() {

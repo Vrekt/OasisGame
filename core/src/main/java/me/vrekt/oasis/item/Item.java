@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
-import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
 
@@ -15,7 +15,7 @@ import java.util.Map;
  * Represents an item within the game
  * Pooled to save resources when lots of items are used.
  */
-public abstract class Item implements Pool.Poolable {
+public abstract class Item implements Pool.Poolable, ResourceLoader {
 
     // the item ID of this item
     protected long itemId;
@@ -37,10 +37,6 @@ public abstract class Item implements Pool.Poolable {
         this.itemName = itemName;
         this.description = description;
         this.itemId = itemId;
-    }
-
-    public void loadItemAsset(Asset asset) {
-
     }
 
     public void useItem(OasisPlayerSP player) {
@@ -123,7 +119,7 @@ public abstract class Item implements Pool.Poolable {
 
     public void draw(SpriteBatch batch) {
         if (sprite != null) {
-            this.draw(batch, sprite.getRegionWidth(), sprite.getRegionHeight(), 0.0f);
+            this.draw(batch, sprite.getRegionWidth(), sprite.getRegionHeight(), sprite.getRotation());
         }
     }
 

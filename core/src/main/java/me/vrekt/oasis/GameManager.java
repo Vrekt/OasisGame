@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
@@ -32,6 +33,8 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.INVENTORY_KEY, () -> gui.showGuiType(GuiType.INVENTORY, GuiType.QUEST));
         KEY_ACTIONS.put(OasisKeybindings.QUEST_BOOK_KEY, () -> gui.showGuiType(GuiType.QUEST, GuiType.INVENTORY));
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().getGameWorldIn().skipCurrentDialog());
+
+        KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> oasis.getPlayer().activateArtifact(0));
     }
 
     public static void setCursorInGame(String cursorInWorld) {
@@ -62,6 +65,14 @@ public class GameManager {
 
     public static Asset getAssets() {
         return oasis.getAsset();
+    }
+
+    public static float getCurrentGameWorldTick() {
+        return oasis.getPlayer().getGameWorldIn().getCurrentWorldTick();
+    }
+
+    public static OasisPlayerSP getPlayer() {
+        return oasis.getPlayer();
     }
 
 }

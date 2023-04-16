@@ -13,4 +13,6 @@ public final class OasisKeybindings {
     public static int SKIP_DIALOG_KEY = Input.Keys.F;
     public static int PAUSE_GAME_KEY = Input.Keys.ESCAPE;
 
+    public static int ARTIFACT_ONE = Input.Keys.NUM_1;
+
 }

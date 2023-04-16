@@ -2,9 +2,9 @@ package me.vrekt.oasis.item.weapons;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
-import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemEquippable;
 
-public abstract class ItemWeapon extends Item {
+public abstract class ItemWeapon extends ItemEquippable {
 
     protected float baseDamage = 1.0f, rotationAngle, criticalHitChance, criticalHitDamage;
     protected float swingCooldown, lastSwing, swingTime, range;
@@ -34,7 +34,7 @@ public abstract class ItemWeapon extends Item {
 
     public boolean isCriticalHit() {
         final float percentage = ((float) (Math.random() * 100));
-        return percentage <= criticalHitChance;
+        return percentage < criticalHitChance;
     }
 
     public float getLastSwing() {

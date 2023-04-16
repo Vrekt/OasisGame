@@ -27,13 +27,13 @@ public final class FrostbittenAvernicItem extends ItemWeapon {
         this.rotationAngle = 0.0f;
         this.swingCooldown = 0.25f;
         this.swingTime = .75f;
-        this.criticalHitChance = 5.0f;
+        this.criticalHitChance = 15.0f;
         this.criticalHitDamage = 6.5f;
-        this.range = 0.0f;
+        this.range = 3.5f;
     }
 
     @Override
-    public void loadItemAsset(Asset asset) {
+    public void load(Asset asset) {
         this.sprite = new Sprite(asset.get(TEXTURE));
         this.sprite.setSize((sprite.getRegionWidth() / 1.4f) * OasisGameSettings.SCALE, (sprite.getRegionHeight() / 1.4f) * OasisGameSettings.SCALE);
         this.swipe = new Sprite(asset.get("swipetest", 2));
@@ -57,7 +57,7 @@ public final class FrostbittenAvernicItem extends ItemWeapon {
     public void draw(SpriteBatch batch) {
         if (sprite != null) {
             // TODO: Account for rotation angle height changes within the item bounding box
-            this.draw(batch, sprite.getWidth(), sprite.getHeight(), rotationAngle);
+            this.draw(batch, sprite.getWidth(), sprite.getHeight(), sprite.getRotation());
         }
     }
 }

@@ -9,10 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.util.TableUtils;
-import com.kotcrab.vis.ui.widget.VisImage;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisSplitPane;
-import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -52,7 +49,7 @@ public final class ContainerGui extends Gui {
         primary.add(new VisLabel("Chest", new Label.LabelStyle(gui.getMedium(), Color.WHITE))).size(48, 48);
         primary.row().padTop(-8);
 
-        final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("inventory_slot"));
+        final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("artifact_slot"));
         for (int i = 1; i < 12; i++) {
             final VisImage slot = new VisImage(drawable);
             final VisImage item = new VisImage();
@@ -131,7 +128,7 @@ public final class ContainerGui extends Gui {
         private int slot;
 
         public ContainerUiSlot(Stack stack, VisImage item) {
-            super(stack, item);
+            super(stack, item, new Tooltip.TooltipStyle());
 
             stack.addListener(new ClickListener() {
                 @Override

@@ -18,7 +18,7 @@ public final class LucidTreeHarvestingToolItem extends Item {
     }
 
     @Override
-    public void loadItemAsset(Asset asset) {
+    public void load(Asset asset) {
         this.sprite = new Sprite(asset.get(TEXTURE));
     }
 

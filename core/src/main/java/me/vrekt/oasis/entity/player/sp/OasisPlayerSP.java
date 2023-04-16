@@ -4,7 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.client.CPacketPing;
@@ -27,6 +30,8 @@ import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
+import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.FrostbittenAvernicItem;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.questing.PlayerQuestManager;
@@ -65,6 +70,16 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     private ItemWeapon equippedItem;
 
+    RevoluteJointDef rightArmDef;
+    RevoluteJoint rightArmJoint;
+    Vector2 torsoArmPin, localArmPin;
+
+    private Artifact[] artifacts = new Artifact[3];
+    private TextureRegion artifactEffectSprite;
+    private final Vector2 effectPosition;
+    private float effectTickActivated, effectAlpha;
+    private boolean drawArtifactEffect;
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -83,8 +98,31 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
 
         this.equippedItem = new FrostbittenAvernicItem();
-        this.equippedItem.loadItemAsset(game.getAsset());
+        this.equippedItem.load(game.getAsset());
         this.inventory.addItem(equippedItem);
+
+        this.effectPosition = new Vector2();
+    }
+
+    public void activateArtifact(int which) {
+        this.applyArtifact(which, this.artifacts[which]);
+    }
+
+    private void applyArtifact(int slot, Artifact artifact) {
+        if (artifact == null) return;
+        if (artifact.apply(this, gameWorldIn.getCurrentWorldTick()))
+            game.getGui().getHud().artifactUsed(slot, artifact.getArtifactCooldown());
+    }
+
+    public void equipArtifact(ItemArtifact artifact) {
+        getInventory().removeItem(getInventory().getItemSlot(artifact));
+
+        for (int i = 0; i < artifacts.length; i++) {
+            if (artifacts[i] == null) {
+                artifacts[i] = artifact.getArtifact();
+                break;
+            }
+        }
     }
 
     public long getServerPingTime() {
@@ -141,6 +179,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public PlayerInventory getInventory() {
         return inventory;
+    }
+
+    public Artifact[] getArtifacts() {
+        return artifacts;
     }
 
     public PlayerQuestManager getQuestManager() {
@@ -259,6 +301,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     public void pollInput() {
+
         float rotation = getRotation();
         setVelocity(0.0f, 0.0f, false);
 
@@ -296,17 +339,29 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             connection.sendImmediately(new CPacketPing(System.currentTimeMillis()));
         }
 
+        for (Artifact artifact : artifacts) {
+            if (artifact != null) {
+                artifact.updateArtifact(this, gameWorldIn.getCurrentWorldTick());
+            }
+        }
+
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        renderEquippedItem(batch);
+        updateAndRenderEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
         } else {
             if (currentRegionState != null) {
                 draw(batch, currentRegionState);
+            }
+        }
+
+        for (Artifact artifact : artifacts) {
+            if (artifact != null && artifact.drawEffect()) {
+                artifact.drawArtifactEffect(batch, delta, gameWorldIn.getCurrentWorldTick());
             }
         }
     }
@@ -316,12 +371,35 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
      *
      * @param batch drawing
      */
-    private void renderEquippedItem(SpriteBatch batch) {
+    private void updateAndRenderEquippedItem(SpriteBatch batch) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             equippedItem.swingItem(Gdx.graphics.getDeltaTime());
         }
 
+        //            case 1:
+        //                return FACING_DOWN;
+        //            case 2:
+        //                return FACING_UP;
+        //            case 3:
+        //            default:
+        //                return FACING_RIGHT;
+        //            case 4:
+        //                return FACING_LEFT;
+        //        }
+
+        //  System.err.println(rotation);
+        float rot = rotation == 1 ? -180.0f : rotation == 2 ? 90.0f : rotation == 3 ? 90.0f : rotation == 4 ? -90.0f : 0.0f;
+
+        //  final Vector2 sprite = new Vector2(getInterpolated().x + .6f, getInterpolated().y + .6f);
+        //   Vector2 direction = (new Vector2(1.0f, 0.0f)).rotateDeg(rot); // unit vector of the direction of the player
+        //  Vector2 origin = new Vector2(0.5f, 0.5f); // rotation origin, rotate around the center of the image. ( 0,0 would have been upper left corner)
+        //  Vector2 offset = (new Vector2(sprite)).rotateDeg(rot).add(origin); // Rotated barrel offset
+        //   Vector2 pos = (new Vector2(getInterpolated())).add(offset);
+
+        //System.err.println(rot);
+
         equippedItem.update(Gdx.graphics.getDeltaTime());
+        equippedItem.getSprite().setRotation(rot);
         equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .6f);
         equippedItem.draw(batch);
 
@@ -357,5 +435,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public void defineEntity(World world, float x, float y) {
         super.defineEntity(world, x, y);
         this.body.setUserData(this);
+
     }
 }

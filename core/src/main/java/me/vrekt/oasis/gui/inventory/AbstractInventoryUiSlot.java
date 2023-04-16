@@ -1,10 +1,10 @@
 package me.vrekt.oasis.gui.inventory;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
-import com.kotcrab.vis.ui.widget.VisImage;
 import me.vrekt.oasis.item.Item;
 
 /**
@@ -12,14 +12,16 @@ import me.vrekt.oasis.item.Item;
  */
 public abstract class AbstractInventoryUiSlot {
 
-    protected final VisImage imageItem;
+    protected final Image imageItem;
     protected final Tooltip tooltip;
     protected Item item;
     protected boolean occupied;
+    protected Stack stack;
 
-    public AbstractInventoryUiSlot(Stack stack, VisImage item) {
+    public AbstractInventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style) {
         this.imageItem = item;
-        tooltip = new Tooltip.Builder("Empty Slot").target(stack).build();
+        this.stack = stack;
+        tooltip = new Tooltip.Builder("Empty Slot").style(style).target(stack).build();
         tooltip.setAppearDelayTime(0.35f);
     }
 
