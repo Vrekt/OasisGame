@@ -7,13 +7,21 @@ Oasis is a multiplayer game built with [Lunar](https://github.com/Vrekt/LunarGdx
   - Robust entity system
 
 <p align="center">
-  <img src="showcase.gif" alt="DIALOG UI">
+  <img src="default.png" alt="Home">
 </p>
 
 <p align="center">
-  <img src="1TKJbNr.gif" alt="SHOWCASE 2">
+  <img src="inventory.png" alt="Inventory">
 </p>
 
 <p align="center">
-  <img src="T0m73QE.gif" alt="SHOWCASE 3">
+  <img src="quest.png" alt="Quest UI">
+</p>
+
+<p align="center">
+  <img src="house.png" alt="Home Interior">
+</p>
+
+<p align="center">
+  <img src="dungeon.png" alt="Dungeon">
 </p>
