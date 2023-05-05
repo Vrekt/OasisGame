@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.sp.inventory;
 import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.BasicInventory;
+import me.vrekt.oasis.entity.inventory.InventoryType;
 import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
 import me.vrekt.oasis.item.Item;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 public final class PlayerInventory extends BasicInventory {
 
     public PlayerInventory() {
-        super(22);
+        super(22, InventoryType.PLAYER);
     }
 
     @Override

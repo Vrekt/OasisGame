@@ -3,6 +3,7 @@ package me.vrekt.oasis.item.artifact.items;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.artifact.artifacts.QuickStepArtifact;
@@ -26,6 +27,7 @@ public final class QuickStepItemArtifact extends ItemArtifact {
         this.artifact = new QuickStepArtifact();
         this.artifact.load(asset);
         this.icon = asset.get("quickstep_artifact_icon");
+        this.rarity = ItemRarity.COMSIC;
     }
 
     @Override

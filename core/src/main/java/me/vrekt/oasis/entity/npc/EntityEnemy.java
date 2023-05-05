@@ -3,15 +3,29 @@ package me.vrekt.oasis.entity.npc;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.*;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.combat.CombatDamageAnimator;
+import me.vrekt.oasis.entity.ai.AbstractMobSteering;
+import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.world.OasisWorld;
 
 public abstract class EntityEnemy extends EntityDamageable {
-    private final Vector3 worldPosition = new Vector3();
-    private final Vector3 screenPosition = new Vector3();
-    private final CombatDamageAnimator animator;
+    protected final Vector3 worldPosition = new Vector3();
+    protected final Vector3 screenPosition = new Vector3();
+    protected final CombatDamageAnimator animator;
+
+    protected Body body;
+
+    protected EntityRotation entityRotation;
+    protected EntityRotation lastRotation;
+
+    protected AbstractMobSteering ai;
+    protected EntityAnimationComponent animationComponent;
+
+    protected boolean ignoreCollision;
 
     public EntityEnemy(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
@@ -19,6 +33,63 @@ public abstract class EntityEnemy extends EntityDamageable {
         this.speakable = false;
         this.isEnemy = true;
         this.setDrawDialogAnimationTile(false);
+        this.lastRotation = EntityRotation.UP;
+        this.entityRotation = EntityRotation.DOWN;
+    }
+
+    public void createBoxBody(World world) {
+        final BodyDef definition = new BodyDef();
+        final FixtureDef fixture = new FixtureDef();
+
+        definition.type = BodyDef.BodyType.DynamicBody;
+        definition.fixedRotation = false;
+        definition.position.set(getPosition());
+
+        body = world.createBody(definition);
+        PolygonShape shape;
+
+        shape = new PolygonShape();
+        shape.setAsBox(getWidthScaled() / 2.0F, getHeightScaled() / 2.0F);
+        fixture.shape = shape;
+        fixture.density = 1.0f;
+
+        body.createFixture(fixture);
+        body.setUserData(this);
+        body.setLinearDamping(1.0f);
+        shape.dispose();
+    }
+
+    public void setIgnoreCollision(boolean ignoreCollision) {
+        this.ignoreCollision = ignoreCollision;
+    }
+
+    public boolean isIgnoreCollision() {
+        return ignoreCollision;
+    }
+
+    @Override
+    public Body getBody() {
+        return body;
+    }
+
+    public void setUseAnimations() {
+        entity.add(animationComponent = new EntityAnimationComponent());
+    }
+
+    public EntityRotation getEntityRotation() {
+        return entityRotation;
+    }
+
+    public void setEntityRotation(EntityRotation entityRotation) {
+        this.entityRotation = entityRotation;
+    }
+
+    public EntityRotation getLastRotation() {
+        return lastRotation;
+    }
+
+    public void setLastRotation(EntityRotation lastRotation) {
+        this.lastRotation = lastRotation;
     }
 
     /**
@@ -33,7 +104,7 @@ public abstract class EntityEnemy extends EntityDamageable {
     }
 
     @Override
-    public void damage(float tick, float amount, boolean isCritical) {
+    public void damage(float tick, float amount, float knockback, boolean isCritical) {
         this.animator.accumulateDamage(amount, game.getPlayer().getRotation(), isCritical);
         this.health -= amount;
     }
@@ -41,8 +112,25 @@ public abstract class EntityEnemy extends EntityDamageable {
     @Override
     public void update(float v) {
         super.update(v);
-        this.bounds.set(getPosition().x, getPosition().y, getWidthScaled(), getHeightScaled());
+
+        bounds.set(getPosition().x, getPosition().y, getWidthScaled(), getHeightScaled());
         animator.update(v);
+    }
+
+    @Override
+    public Vector2 getPosition() {
+        if (body == null) {
+            return super.getPosition();
+        }
+        return body.getPosition();
+    }
+
+    @Override
+    public Vector2 getVelocity() {
+        if (body == null) {
+            return super.getVelocity();
+        }
+        return body.getLinearVelocity();
     }
 
     public void drawDamageIndicator(SpriteBatch batch) {

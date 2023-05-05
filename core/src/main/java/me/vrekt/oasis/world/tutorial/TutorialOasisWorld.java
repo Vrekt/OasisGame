@@ -41,6 +41,7 @@ public final class TutorialOasisWorld extends OasisWorld {
         getConfiguration().updateEntities = false;
         getConfiguration().updateNetworkPlayers = true;
         getConfiguration().updateLocalPlayer = true;
+        this.worldName = "TutorialWorld";
     }
 
     @Override
@@ -66,15 +67,22 @@ public final class TutorialOasisWorld extends OasisWorld {
         chests.get(0).getInventory().addItem(LucidTreeHarvestingToolItem.class, 1);
         chests.get(0).getInventory().addItem(QuickStepItemArtifact.class, 1);
 
-        player.getInventory().addItem(EnchantedVioletItem.class, 1);
-        player.getInventory().addItem(QuickStepItemArtifact.class, 1);
-        player.getInventory().addItem(LucidTreeFruitItem.class, 1);
+        if (game.isNewGame()) {
+            player.getInventory().addItem(EnchantedVioletItem.class, 1);
+            player.getInventory().addItem(QuickStepItemArtifact.class, 1);
+            player.getInventory().addItem(LucidTreeFruitItem.class, 1);
+        }
     }
 
     @Override
     public void renderWorld(SpriteBatch batch, float delta) {
         super.renderWorld(batch, delta);
         endRender();
+    }
+
+    @Override
+    public float update(float d) {
+        return super.update(d);
     }
 
     @Override

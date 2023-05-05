@@ -23,6 +23,16 @@ public interface Inventory {
     <T extends Item> Item addItem(Class<T> type, int amount);
 
     /**
+     * Add an item from the save game file
+     *
+     * @param slot     the slot
+     * @param itemName the item name
+     * @param itemId   the item ID
+     * @param amount   the amount
+     */
+    void addItemFromSave(int slot, String itemName, int itemId, int amount);
+
+    /**
      * Add an item
      *
      * @param item the item
@@ -89,6 +99,11 @@ public interface Inventory {
     int getInventorySize();
 
     /**
+     * @return the inventory type
+     */
+    InventoryType getType();
+
+    /**
      * @param size the new size
      */
     void setSize(int size);
@@ -99,5 +114,17 @@ public interface Inventory {
      * @param other other
      */
     void transferItemTo(int slot, Inventory other);
+
+    /**
+     * Transfer items from another inventory
+     *
+     * @param other the other
+     */
+    void transferItemsFrom(Inventory other);
+
+    /**
+     * Clear this inventory
+     */
+    void clear();
 
 }

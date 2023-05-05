@@ -80,7 +80,7 @@ public class Instance extends OasisWorldInstance {
     @Override
     public float update(float delta) {
         // check if mouse is over exit
-        if (exit.contains(cursorInWorld.x, cursorInWorld.y) && !cursorChanged) {
+        if (!gui.isAnyInterfaceOpen() && exit.contains(cursorInWorld.x, cursorInWorld.y) && !cursorChanged) {
             GameManager.setCursorInGame(getCursor());
             this.cursorChanged = true;
         } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y) && cursorChanged) {

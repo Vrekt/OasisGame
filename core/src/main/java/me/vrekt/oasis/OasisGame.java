@@ -14,7 +14,10 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
+import me.vrekt.oasis.ui.OasisSaveScreen;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
@@ -28,7 +31,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20230416-1135-516";
+    public static final String GAME_VERSION = "20230505-0228-966";
 
     private Asset asset;
 
@@ -47,6 +50,10 @@ public final class OasisGame extends Game {
     private LunarClientServer clientServer;
 
     private PlayerConnectionHandler handler;
+    private OasisSaveScreen saveScreen;
+
+    // if no save was loaded
+    private boolean isNewGame;
 
     @Override
     public void create() {
@@ -76,22 +83,6 @@ public final class OasisGame extends Game {
         player.getConnection().updateWorldLoaded();
     }
 
-    @Override
-    public void dispose() {
-        try {
-            if (screen != null) screen.hide();
-            player.getConnection().dispose();
-            clientServer.dispose();
-            player.dispose();
-            worldManager.dispose();
-            clientServer.dispose();
-            batch.dispose();
-            asset.dispose();
-        } catch (Exception a) {
-            a.printStackTrace();
-        }
-    }
-
     private void loadGame() {
         loadingScreen.stepProgress();
 
@@ -102,6 +93,7 @@ public final class OasisGame extends Game {
         asset.load();
 
         loadingScreen.stepProgress();
+        ItemRegistry.registerItems();
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
@@ -154,16 +146,49 @@ public final class OasisGame extends Game {
         loadingScreen.stepProgress();
 
         if (clientServer.getConnection() == null) {
-            Logging.info(this, "error");
-            throw new UnsupportedOperationException("Local server not started yet.");
+            throw new UnsupportedOperationException("Remote server not started yet.");
         }
 
         handler = (PlayerConnectionHandler) clientServer.getConnection();
         player.setConnectionHandler(handler);
 
-        // request to join local tutorial world.
-        handler.joinWorld("TutorialWorld", player.getName());
+        // Attempt to read an existing save file.
+        // TODO: Remove later for better system
+        final boolean result = SaveManager.load(1);
+        if (!result) {
+            // request to join local tutorial world since no save game
+            handler.joinWorld("TutorialWorld", player.getName());
+        }
         loadingScreen.stepProgress();
+    }
+
+
+    @Override
+    public void dispose() {
+        try {
+            if (screen != null) screen.hide();
+            player.getConnection().dispose();
+            clientServer.dispose();
+            player.dispose();
+            worldManager.dispose();
+            clientServer.dispose();
+            batch.dispose();
+            asset.dispose();
+        } catch (Exception a) {
+            a.printStackTrace();
+        }
+    }
+
+    public void showSavingGameScreen() {
+        setScreen(saveScreen = new OasisSaveScreen());
+    }
+
+    public void saveGameFinished() {
+        setScreen(player.getGameWorldIn());
+    }
+
+    public OasisSaveScreen getSaveScreen() {
+        return saveScreen;
     }
 
     public void executeMain(Runnable action) {
@@ -200,5 +225,9 @@ public final class OasisGame extends Game {
 
     public PlayerConnectionHandler getHandler() {
         return handler;
+    }
+
+    public boolean isNewGame() {
+        return isNewGame;
     }
 }

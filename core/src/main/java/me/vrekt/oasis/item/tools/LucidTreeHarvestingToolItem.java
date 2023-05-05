@@ -3,6 +3,7 @@ package me.vrekt.oasis.item.tools;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRarity;
 
 /**
  * Allows the player to harvest fruit from a Lucid tree.
@@ -15,6 +16,9 @@ public final class LucidTreeHarvestingToolItem extends Item {
 
     public LucidTreeHarvestingToolItem() {
         super(NAME, ID, "Allows you to cut down Lucid trees.");
+        this.rarity = ItemRarity.BASIC;
+
+        setDescriptor(TEXTURE, NAME);
     }
 
     @Override

@@ -21,7 +21,9 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.classes.ClassType;
+import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
@@ -34,6 +36,8 @@ import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
+import me.vrekt.oasis.save.loading.SaveStateLoader;
+import me.vrekt.oasis.save.player.PlayerSaveState;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
@@ -41,7 +45,7 @@ import me.vrekt.oasis.world.instance.OasisWorldInstance;
 /**
  * Represents the local player SP
  */
-public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, Drawable {
+public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveState> {
 
     private final OasisGame game;
 
@@ -68,6 +72,9 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private final ItemWeapon equippedItem;
     private final Artifact[] artifacts = new Artifact[3];
 
+    private EntityRotation rotation = EntityRotation.UP;
+    private final PlayerSteeringLocation location;
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
@@ -85,9 +92,18 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
 
+        // TODO: Remove later
         this.equippedItem = new EnchantedVioletItem();
         this.equippedItem.load(game.getAsset());
         this.inventory.addItem(equippedItem);
+        this.location = new PlayerSteeringLocation(this);
+    }
+
+    @Override
+    public void loadFromSave(PlayerSaveState state) {
+        setPosition(state.getPosition(), true);
+        inventory.clear();
+        inventory.transferItemsFrom(state.getInventoryState().getInventory());
     }
 
     public void activateArtifact(int which) {
@@ -219,6 +235,14 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         return equippedItem;
     }
 
+    public EntityRotation getPlayerRotation() {
+        return rotation;
+    }
+
+    public PlayerSteeringLocation getSteeringLocation() {
+        return location;
+    }
+
     public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
@@ -288,27 +312,26 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public void pollInput() {
 
-        float rotation = getRotation();
         setVelocity(0.0f, 0.0f, false);
 
         if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_UP_KEY)) {
-            rotation = 0f;
+            rotation = EntityRotation.UP;
             setVelocity(0.0f, moveSpeed, false);
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_DOWN_KEY)) {
-            rotation = 1f;
+            rotation = EntityRotation.DOWN;
             setVelocity(0.0f, -moveSpeed, false);
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_LEFT_KEY)) {
-            rotation = 2f;
+            rotation = EntityRotation.LEFT;
             setVelocity(-moveSpeed, 0.0f, false);
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_RIGHT_KEY)) {
-            rotation = 3f;
+            rotation = EntityRotation.RIGHT;
             setVelocity(moveSpeed, 0.0f, false);
         }
 
         setHasMoved(!getVelocity().isZero());
 
-        rotationChanged = getRotation() != rotation;
-        setRotation(rotation);
+        rotationChanged = getRotation() != rotation.ordinal();
+        setRotation(rotation.ordinal());
     }
 
     @Override
@@ -338,7 +361,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         updateAndRenderEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
+            draw(batch, animationComponent.playWalkingAnimation(rotation.ordinal(), delta));
         } else {
             if (currentRegionState != null) {
                 draw(batch, currentRegionState);
@@ -360,28 +383,11 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
      */
     private void updateAndRenderEquippedItem(SpriteBatch batch) {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            equippedItem.swingItem(Gdx.graphics.getDeltaTime());
+            equippedItem.swingItem();
         }
 
-        float rot = rotation == 1 ? 45.0f : rotation == 2 ? 90.0f : rotation == 3 ? 0.0f : rotation == 4 ? -90.0f : 20.0f;
-
-        switch ((int) rotation) {
-            case 0:
-                equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .6f);
-                break;
-            case 1:
-                equippedItem.getSprite().setPosition(getInterpolated().x + 0.8f, getInterpolated().y + .25f);
-                break;
-            case 2:
-                equippedItem.getSprite().setPosition(getInterpolated().x + .6f, getInterpolated().y + .25f);
-                break;
-            case 3:
-                equippedItem.getSprite().setPosition(getInterpolated().x + 0.15f, getInterpolated().y + .5f);
-                break;
-        }
-
-        equippedItem.update(Gdx.graphics.getDeltaTime());
-        equippedItem.getSprite().setRotation(rot);
+        equippedItem.calculateItemPositionAndRotation(getInterpolated(), rotation);
+        equippedItem.update(Gdx.graphics.getDeltaTime(), this);
         equippedItem.draw(batch);
 
         if (equippedItem.isSwinging()) {
@@ -396,7 +402,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
             final EntityEnemy hit = gameWorldIn.hasHitEntity(equippedItem);
             if (hit != null) {
                 final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
-                hit.damage(tick, Math.round(damage), isCritical);
+                hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
             }
         }
 
@@ -416,6 +422,5 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public void defineEntity(World world, float x, float y) {
         super.defineEntity(world, x, y);
         this.body.setUserData(this);
-
     }
 }

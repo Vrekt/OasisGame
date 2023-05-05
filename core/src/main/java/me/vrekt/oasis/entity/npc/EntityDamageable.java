@@ -16,7 +16,15 @@ public abstract class EntityDamageable extends EntityInteractable {
         super.update(v);
     }
 
-    public void damage(float tick, float amount, boolean isCritical) {
+    /**
+     * Damage this entity
+     *
+     * @param tick       the current world tick
+     * @param amount     the amount of damage
+     * @param knockback  the knockback multiplier
+     * @param isCritical if this damage was a critical
+     */
+    public void damage(float tick, float amount, float knockback, boolean isCritical) {
 
     }
 

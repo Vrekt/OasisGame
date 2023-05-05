@@ -3,14 +3,12 @@ package me.vrekt.oasis.gui.inventory;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.util.TableUtils;
+import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -19,12 +17,15 @@ import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemEquippable;
+import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Inventory Gui
@@ -35,15 +36,16 @@ public final class InventoryGui extends Gui {
     final VisSplitPane splitPane;
 
     private final LinkedList<InventoryUiSlot> slots = new LinkedList<>();
+    private final Map<ItemRarity, TextureRegionDrawable> rarityIcons = new HashMap<>();
 
     // the item description of whatever item is clicked
-    private final TypingLabel itemDescription;
+    private final TypingLabel itemName, itemDescription;
+    private final VisImage itemRarityIcon;
     private final VisTextButton useItemButton;
+    private final Tooltip itemNameTooltip;
 
     private final VisImage statOne, statTwo, statThree;
     private final Tooltip statOneTooltip, statTwoTooltip, statThreeTooltip;
-
-    private final VisTable itemInformationTable, attributesTable, buttonTable;
 
     private final InventoryIcons icons;
 
@@ -55,6 +57,8 @@ public final class InventoryGui extends Gui {
         this.player = gui.getGame().getPlayer();
         this.icons = new InventoryIcons();
 
+        rarityIcons.put(ItemRarity.VOID, new TextureRegionDrawable(asset.get("void_rarity")));
+
         rootTable = new VisTable(true);
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
@@ -64,18 +68,33 @@ public final class InventoryGui extends Gui {
         final VisTable primary = new VisTable(true);
         final VisTable secondary = new VisTable(true);
 
-        secondary.top().padTop(52).padLeft(32).left();
-        this.itemDescription = new TypingLabel("", new Label.LabelStyle(gui.getMedium(), Color.BLACK));
-        this.itemDescription.setVisible(false);
-        this.itemDescription.setWrap(true);
-        this.itemDescription.setWidth(175);
-        secondary.add(itemDescription).width(175).left();
+        secondary.top().padTop(36).padLeft(32).left();
+        itemName = new TypingLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.BLACK));
+        itemNameTooltip = new Tooltip.Builder(StringUtils.EMPTY).target(itemName).style(gui.getStyles().getTooltipStyle()).build();
+
+        final Table itemNameAndRarityTable = new Table();
+        itemNameAndRarityTable.left();
+
+        itemName.setVisible(false);
+        itemName.setWrap(true);
+        itemName.setWidth(140);
+        itemDescription = new TypingLabel(StringUtils.EMPTY, new Label.LabelStyle(gui.getMedium(), Color.BLACK));
+        itemDescription.setVisible(false);
+        itemDescription.setWrap(true);
+        itemDescription.setWidth(175);
+
+        itemNameAndRarityTable.add(itemName).width(140).left();
+        itemNameAndRarityTable.add(itemRarityIcon = new VisImage()).size(36, 36).left().padTop(10);
+
+        secondary.add(itemNameAndRarityTable).left();
+        secondary.row();
+        secondary.add(itemDescription).width(175).padTop(8).left();
         secondary.row().padTop(16);
 
-        itemInformationTable = new VisTable(true);
+        final VisTable itemInformationTable = new VisTable(true);
         itemInformationTable.left();
 
-        attributesTable = new VisTable(true);
+        final VisTable attributesTable = new VisTable(true);
         attributesTable.left();
 
         attributesTable.add(statOne = new VisImage(icons.rangeIcon)).size(36, 36);
@@ -85,7 +104,7 @@ public final class InventoryGui extends Gui {
         itemInformationTable.add(attributesTable).left();
         itemInformationTable.row();
 
-        buttonTable = new VisTable(true);
+        final VisTable buttonTable = new VisTable(true);
         buttonTable.left();
 
         useItemButton = new VisTextButton(StringUtils.EMPTY);
@@ -158,6 +177,13 @@ public final class InventoryGui extends Gui {
         hideItemOptionals();
         hideWeaponStats();
 
+        itemName.setText(slotItem.item.getRarity().getColorName() + slotItem.item.getItemName());
+        itemNameTooltip.setText(slotItem.item.getRarity().getColoredRarityName());
+        itemName.setVisible(true);
+        itemName.restart();
+
+        itemRarityIcon.setDrawable((com.badlogic.gdx.scenes.scene2d.utils.Drawable) null);
+
         itemDescription.setText(slotItem.itemDescription);
         itemDescription.restart();
         itemDescription.setVisible(true);
@@ -176,6 +202,13 @@ public final class InventoryGui extends Gui {
         } else if (slotItem.item instanceof ItemArtifact) {
             populateArtifactStats(((ItemArtifact) slotItem.item));
         }
+
+        final ItemRarity rarity = slotItem.item.getRarity();
+        if (rarity != ItemRarity.BASIC
+                && rarityIcons.containsKey(rarity)) {
+            itemRarityIcon.setDrawable(rarityIcons.get(rarity));
+        }
+
         this.clickedItem = slotItem.item;
     }
 

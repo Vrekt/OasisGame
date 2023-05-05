@@ -49,6 +49,10 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
         return isEnemy;
     }
 
+    public void setEnemy(boolean enemy) {
+        isEnemy = enemy;
+    }
+
     public Rectangle getBounds() {
         return bounds;
     }

@@ -1,6 +1,6 @@
 package me.vrekt.oasis.questing;
 
-import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.utility.logging.Logging;
 
 import java.util.LinkedList;
@@ -14,8 +14,8 @@ public abstract class Quest {
     protected final String name, description;
     // quest objectives
     protected final LinkedList<QuestObjective> objectives = new LinkedList<>();
-    protected final LinkedList<ItemRegistry.Item> itemsRequired = new LinkedList<>();
-    protected final LinkedList<ItemRegistry.Item> rewards = new LinkedList<>();
+    protected final LinkedList<ItemDescriptor> itemsRequired = new LinkedList<>();
+    protected final LinkedList<ItemDescriptor> rewards = new LinkedList<>();
 
     protected int currentObjectiveStep = 0;
 
@@ -46,16 +46,16 @@ public abstract class Quest {
     }
 
     /**
-     * @return {@link  me.vrekt.oasis.item.ItemRegistry.Item} basic items that are required to do this quest.
+     * @return {@link  ItemDescriptor} basic items that are required to do this quest.
      */
-    public LinkedList<ItemRegistry.Item> getItemsRequired() {
+    public LinkedList<ItemDescriptor> getItemsRequired() {
         return itemsRequired;
     }
 
     /**
-     * @return {@link  me.vrekt.oasis.item.ItemRegistry.Item} basic items that could be rewards.
+     * @return {@link  ItemDescriptor} basic items that could be rewards.
      */
-    public LinkedList<ItemRegistry.Item> getRewards() {
+    public LinkedList<ItemDescriptor> getRewards() {
         return rewards;
     }
 

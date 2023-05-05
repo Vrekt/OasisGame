@@ -42,13 +42,13 @@ public final class CombatDamageAnimator {
             switch (Rotation.of(esd.rotation)) {
                 case FACING_UP:
                 case FACING_DOWN:
-                    font.draw(batch, Float.toString(esd.damage), x + esd.offsetX, y + esd.offsetY);
+                    font.draw(batch, "-" + Float.toString(esd.damage), x + esd.offsetX, y + esd.offsetY);
                     break;
                 case FACING_LEFT:
-                    font.draw(batch, Float.toString(esd.damage), x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
+                    font.draw(batch, "-" + Float.toString(esd.damage), x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
                     break;
                 case FACING_RIGHT:
-                    font.draw(batch, Float.toString(esd.damage), (x + esd.offsetX) + width, y + esd.offsetY);
+                    font.draw(batch, "-" + Float.toString(esd.damage), (x + esd.offsetX) + width, y + esd.offsetY);
                     break;
             }
         }

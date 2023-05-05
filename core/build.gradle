@@ -9,6 +9,8 @@ dependencies {
 	api "com.badlogicgames.gdx:gdx:1.11.0"
 	api "com.kotcrab.vis:vis-ui:1.5.1"
 	api "com.github.tommyettinger:textratypist:0.7.9"
+	api group: 'com.badlogicgames.gdx', name: 'gdx-ai', version: '1.8.2'
+
 
 	// Game utilities
 	api group: 'io.netty', name: 'netty-all', version: '4.1.48.Final'

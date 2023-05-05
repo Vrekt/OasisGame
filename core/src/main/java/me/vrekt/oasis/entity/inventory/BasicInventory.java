@@ -4,6 +4,8 @@ import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.utility.logging.Logging;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,9 +19,11 @@ public abstract class BasicInventory implements Inventory {
     protected final Map<Integer, InventorySlot> slots = new ConcurrentHashMap<>();
     // default inventory size is 6.
     protected int inventorySize;
+    protected InventoryType type;
 
-    public BasicInventory(int inventorySize) {
+    public BasicInventory(int inventorySize, InventoryType type) {
         this.inventorySize = inventorySize;
+        this.type = type;
     }
 
     /**
@@ -38,6 +42,20 @@ public abstract class BasicInventory implements Inventory {
         item.load(GameManager.getAssets());
         slots.put(getAnyEmptySlot(), new InventorySlot(item));
         return item;
+    }
+
+    @Override
+    public void addItemFromSave(int slot, String itemName, int itemId, int amount) {
+        if (isInventoryFull()) return;
+        if (ItemRegistry.doesItemExist(itemId)) {
+            final Item item = ItemRegistry.createItemFromId(itemId);
+            item.load(GameManager.getAssets());
+            item.setItemName(itemName);
+            item.setAmount(amount);
+            slots.put(slot, new InventorySlot(item));
+        } else {
+            Logging.error("Inventory", "Failed to find an item id: " + itemId);
+        }
     }
 
     @Override
@@ -132,6 +150,11 @@ public abstract class BasicInventory implements Inventory {
     }
 
     @Override
+    public InventoryType getType() {
+        return type;
+    }
+
+    @Override
     public void setSize(int size) {
         this.inventorySize = size;
     }
@@ -144,5 +167,15 @@ public abstract class BasicInventory implements Inventory {
 
         // TODO: Do NOT use removeItem since the object will be freed.
         slots.remove(slot);
+    }
+
+    @Override
+    public void transferItemsFrom(Inventory other) {
+        slots.putAll(other.getSlots());
+    }
+
+    @Override
+    public void clear() {
+        slots.clear();
     }
 }

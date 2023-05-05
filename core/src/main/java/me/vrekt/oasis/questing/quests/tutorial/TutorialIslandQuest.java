@@ -1,6 +1,6 @@
 package me.vrekt.oasis.questing.quests.tutorial;
 
-import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.questing.Quest;
 import me.vrekt.oasis.questing.QuestObjective;
 
@@ -14,7 +14,9 @@ public final class TutorialIslandQuest extends Quest {
         this.objectives.add(new QuestObjective("Speak with Mavia", true));
         this.objectives.add(new QuestObjective("Choose a player class"));
         this.objectives.add(new QuestObjective("Cut down the Lucid Tree"));
-        this.itemsRequired.add(ItemRegistry.LUCID_TREE_HARVESTING_TOOL);
-        this.rewards.add(ItemRegistry.TUTORIAL_WAND);
+
+        // TODO: Placeholders
+        this.itemsRequired.add(LucidTreeHarvestingToolItem.getDescriptor());
+        this.rewards.add(LucidTreeHarvestingToolItem.getDescriptor());
     }
 }

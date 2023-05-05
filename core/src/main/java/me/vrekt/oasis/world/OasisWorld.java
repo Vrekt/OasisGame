@@ -39,6 +39,9 @@ import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.save.entity.EntitySaveState;
+import me.vrekt.oasis.save.loading.SaveStateLoader;
+import me.vrekt.oasis.save.world.WorldSaveState;
 import me.vrekt.oasis.utility.collision.BasicPlayerCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.Logging;
@@ -60,12 +63,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Represents a base world within the game
  */
-public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity> implements InputProcessor {
+public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity>
+        implements InputProcessor, SaveStateLoader<WorldSaveState> {
 
     protected final OasisGame game;
     protected final OasisPlayerSP localPlayer;
 
     protected TiledMap map;
+    protected String mapName, worldName;
 
     protected final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
@@ -93,7 +98,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected long last;
 
     protected ShapeRenderer shapes;
-
     protected NinePatch gradient;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
@@ -105,6 +109,37 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         this.gui = game.getGui();
 
         configuration.stepTime = 1 / 240f;
+    }
+
+    @Override
+    public void loadFromSave(WorldSaveState state) {
+        loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
+
+
+        for (EntitySaveState entityState : state.getEntities()) {
+            if (entityState.getType() != null) {
+                final EntityInteractable interactable = getEntityByType(entityState.getType());
+                interactable.setEntityName(entityState.getName());
+                interactable.setEntityId(entityState.getEntityId());
+                interactable.setPosition(entityState.getPosition(), true);
+                interactable.setHealth(entityState.getHealth());
+                interactable.setEnemy(entityState.isEnemy());
+
+                // TODO: Interactable stuffs
+
+                Logging.info(this, "Found an entity from save and loaded it: " + entityState.getType());
+            }
+        }
+
+        GameManager.getPlayer().getConnection().joinWorld(worldName, "Testing1234");
+    }
+
+    public String getMapName() {
+        return mapName;
+    }
+
+    public String getWorldName() {
+        return worldName;
     }
 
     public OasisPlayerSP getLocalPlayer() {
@@ -150,7 +185,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      */
     public void enterWorld(boolean fromInstance) {
         // remove player from a world they could already be in
-        if (player.getWorldIn() != null) {
+        // ensure we are not already in this world
+        if (player.getGameWorldIn() != null
+                && !player.getGameWorldIn().getWorldName().equals(worldName)) {
             player.removeEntityInWorld(player.getWorldIn());
             player.setGameWorldIn(null);
         }
@@ -184,6 +221,22 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     /**
+     * Pause this world while we are saving the game
+     */
+    public void pauseGameWhileSaving() {
+        this.pause();
+    }
+
+    /**
+     * Saving game is finished.
+     */
+    public void saveGameFinished() {
+        if (!GameManager.isSaving()) {
+            this.resume();
+        }
+    }
+
+    /**
      * Load the local player into this world.
      *
      * @param worldMap   the map of the world
@@ -209,8 +262,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         addDefaultWorldSystems();
         world.setContactListener(new BasicPlayerCollisionHandler());
 
-        // initialize player in this world.
-        player.spawnEntityInWorld(this, spawn.x, spawn.y);
+        // if player was loaded from save
+        if (player.getPosition().isZero()) {
+            player.spawnEntityInWorld(this, spawn.x, spawn.y);
+        } else {
+            player.spawnEntityInWorld(this, player.getPosition().x, player.getPosition().y);
+        }
+
         player.setGameWorldIn(this);
 
         handleConnectionOptions(game.getHandler());
@@ -548,7 +606,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
             if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
-                if (!cursorChanged) {
+                if (!cursorChanged && !gui.isAnyInterfaceOpen()) {
                     GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
                     this.cursorChanged = true;
                 }
@@ -560,7 +618,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasInterior = false;
         for (Instance interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
-                if (!cursorChanged) {
+                if (!cursorChanged && !gui.isAnyInterfaceOpen()) {
                     GameManager.setCursorInGame(interior.getCursor());
                     this.cursorChanged = true;
                 }
@@ -573,7 +631,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasObj = false;
         if (!hasEntity) {
             for (InteractableWorldObject worldObject : interactableWorldObjects) {
-                if (worldObject.clickedOn(cursorInWorld) && worldObject.getCursor() != null && worldObject.isInteractable()) {
+                if (!gui.isAnyInterfaceOpen() && worldObject.clickedOn(cursorInWorld)
+                        && worldObject.getCursor() != null
+                        && worldObject.isInteractable()) {
                     GameManager.setCursorInGame(worldObject.getCursor());
                     this.cursorChanged = true;
                     hasObj = true;
@@ -671,11 +731,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         batch.end();
 
         if (entityEnemy != null) {
-            //   shapes.setProjectionMatrix(renderer.getCamera().combined);
-            //    shapes.begin(ShapeRenderer.ShapeType.Line);
-            //   shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
-            //    shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
-            //    shapes.end();
+            shapes.setProjectionMatrix(renderer.getCamera().combined);
+            shapes.begin(ShapeRenderer.ShapeType.Line);
+            shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
+            shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
+            shapes.end();
         }
 
         gui.updateAndRender();
@@ -826,6 +886,10 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             if (gui.hideGuiType(GuiType.INVENTORY)) return true;
             if (gui.hideGuiType(GuiType.CONTAINER)) return true;
             if (gui.hideGuiType(GuiType.SETTINGS)) {
+                gui.showGui(GuiType.PAUSE);
+                return true;
+            }
+            if (gui.hideGuiType(GuiType.SAVE_GAME)) {
                 gui.showGui(GuiType.PAUSE);
                 return true;
             }

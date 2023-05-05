@@ -23,7 +23,8 @@ import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
 import me.vrekt.oasis.gui.pause.PauseGui;
-import me.vrekt.oasis.gui.select.quest.QuestingGui;
+import me.vrekt.oasis.gui.quest.QuestingGui;
+import me.vrekt.oasis.gui.save.SaveGameGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
 import me.vrekt.oasis.gui.settings.SettingsGui;
 
@@ -55,10 +56,10 @@ public final class GameGui {
         root.setFillParent(true);
         stage.addActor(root);
 
+
         stack = new Stack();
         stack.setFillParent(true);
         root.add(stack).grow();
-        stage.setDebugAll(false);
 
         this.skin = asset.getDefaultLibgdxSkin();
         this.small = asset.getSmall();
@@ -82,7 +83,7 @@ public final class GameGui {
         guis.put(GuiType.PAUSE, new PauseGui(this, asset));
         guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
-
+        guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
     }
 
     public Styles getStyles() {
@@ -127,6 +128,19 @@ public final class GameGui {
 
     public void updateDialogKeyPress() {
         ((DialogGui) getGui(GuiType.DIALOG)).updateKeyPress();
+    }
+
+    /**
+     * Avoid changing cursors if any interface is open
+     *
+     * @return {@code  true} if so
+     */
+    public boolean isAnyInterfaceOpen() {
+        return isGuiVisible(GuiType.CONTAINER)
+                || isGuiVisible(GuiType.INVENTORY)
+                || isGuiVisible(GuiType.QUEST)
+                || isGuiVisible(GuiType.PAUSE)
+                || isGuiVisible(GuiType.DIALOG);
     }
 
     /**

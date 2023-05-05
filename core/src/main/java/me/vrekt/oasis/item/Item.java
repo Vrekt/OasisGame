@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,8 @@ import java.util.Map;
  */
 public abstract class Item implements Pool.Poolable, ResourceLoader {
 
+    public static ItemDescriptor descriptor;
+
     // the item ID of this item
     protected long itemId;
 
@@ -26,6 +29,8 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
 
     // amount of this item player has
     protected int amount;
+
+    protected ItemRarity rarity = ItemRarity.BASIC;
 
     // attributes
     protected final Map<Integer, ItemAttribute> attributes = new HashMap<>();
@@ -39,12 +44,20 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
         this.itemId = itemId;
     }
 
+    public ItemRarity getRarity() {
+        return rarity;
+    }
+
     public void useItem(OasisPlayerSP player) {
 
     }
 
     public String getItemName() {
         return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     public TextureRegion getTexture() {
@@ -113,7 +126,7 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
         return attributes;
     }
 
-    public void update(float delta) {
+    public void update(float delta, OasisPlayerSP player) {
 
     }
 
@@ -132,4 +145,15 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
     public void reset() {
         amount = 0;
     }
+
+    protected void setDescriptor(String name, String texture) {
+        if (descriptor == null) {
+            descriptor = new ItemDescriptor(texture, name);
+        }
+    }
+
+    public static ItemDescriptor getDescriptor() {
+        return descriptor;
+    }
+
 }

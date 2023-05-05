@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.util.TableUtils;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
@@ -35,11 +36,17 @@ public final class PauseGui extends Gui {
         primary.padTop(-64);
         final TypingLabel resume = new TypingLabel("Resume", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         final TypingLabel settings = new TypingLabel("Settings", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        final TypingLabel saveGame = new TypingLabel("Save Game", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         final TypingLabel exit = new TypingLabel("Exit", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
-        addDefaultActions(resume, () -> gui.getGame().getPlayer().getGameWorldIn().resume());
+
+        addDefaultActions(resume, () -> GameManager.getPlayer().getGameWorldIn().resume());
         addDefaultActions(settings, () -> {
             hide();
             gui.showGui(GuiType.SETTINGS);
+        });
+        addDefaultActions(saveGame, () -> {
+            hide();
+            gui.showGui(GuiType.SAVE_GAME);
         });
         addDefaultActions(exit, () -> Gdx.app.exit());
 
@@ -48,6 +55,8 @@ public final class PauseGui extends Gui {
         primary.add(resume);
         primary.row().padTop(6);
         primary.add(settings);
+        primary.row().padTop(6);
+        primary.add(saveGame);
         primary.row().padTop(6);
         primary.add(exit);
 

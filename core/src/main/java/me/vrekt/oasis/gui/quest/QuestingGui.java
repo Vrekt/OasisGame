@@ -1,4 +1,4 @@
-package me.vrekt.oasis.gui.select.quest;
+package me.vrekt.oasis.gui.quest;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,7 +13,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
 import me.vrekt.oasis.questing.QuestObjective;
@@ -200,15 +200,15 @@ public final class QuestingGui extends Gui {
             }
         }
 
-        for (ItemRegistry.Item item : quest.getItemsRequired()) {
-            final VisImageButton image = new VisImageButton(new TextureRegionDrawable(asset.get(item.texture)));
-            new Tooltip.Builder(item.itemName).target(image).build().setAppearDelayTime(0.1f);
+        for (ItemDescriptor item : quest.getItemsRequired()) {
+            final VisImageButton image = new VisImageButton(new TextureRegionDrawable(asset.get(item.itemTexture)), gui.getStyles().getTheme());
+            new Tooltip.Builder(item.itemName).target(image).style(gui.getStyles().getTooltipStyle()).build().setAppearDelayTime(0.1f);
             activeQuestItems.add(image).size(48, 48);
         }
 
-        for (ItemRegistry.Item item : quest.getRewards()) {
-            final VisImageButton image = new VisImageButton(new TextureRegionDrawable(asset.get(item.texture)));
-            new Tooltip.Builder(item.itemName).target(image).build().setAppearDelayTime(0.1f);
+        for (ItemDescriptor item : quest.getRewards()) {
+            final VisImageButton image = new VisImageButton(new TextureRegionDrawable(asset.get(item.itemTexture)), gui.getStyles().getTheme());
+            new Tooltip.Builder(item.itemName).target(image).style(gui.getStyles().getTooltipStyle()).build().setAppearDelayTime(0.1f);
             activeQuestRewards.add(image).size(48, 48);
         }
 
