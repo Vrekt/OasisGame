@@ -32,6 +32,8 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
 
     protected ItemRarity rarity = ItemRarity.BASIC;
 
+    protected boolean isStackable = true;
+
     // attributes
     protected final Map<Integer, ItemAttribute> attributes = new HashMap<>();
 
@@ -46,6 +48,10 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
 
     public ItemRarity getRarity() {
         return rarity;
+    }
+
+    public boolean isStackable() {
+        return isStackable;
     }
 
     public void useItem(OasisPlayerSP player) {

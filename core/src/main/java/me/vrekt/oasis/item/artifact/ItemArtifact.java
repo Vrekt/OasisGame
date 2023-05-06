@@ -12,6 +12,7 @@ public abstract class ItemArtifact extends ItemEquippable {
 
     public ItemArtifact(String itemName, int itemId, String description) {
         super(itemName, itemId, description);
+        isStackable = false;
     }
 
     public abstract Artifact getArtifact();

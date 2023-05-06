@@ -15,4 +15,6 @@ public final class OasisKeybindings {
 
     public static int ARTIFACT_ONE = Input.Keys.NUM_1;
 
+    public static int DEBUG_MENU_KEY = Input.Keys.F2;
+
 }

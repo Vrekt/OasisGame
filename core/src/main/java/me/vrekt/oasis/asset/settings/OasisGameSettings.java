@@ -9,4 +9,6 @@ public final class OasisGameSettings {
 
     public static boolean V_SYNC = true;
 
+    public static boolean ENABLE_DEBUG_MENU = true;
+
 }

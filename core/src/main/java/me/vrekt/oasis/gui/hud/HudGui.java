@@ -70,6 +70,7 @@ public final class HudGui extends Gui {
         hintItemImage = new VisImage();
         hintItemLabel = new VisLabel("(1)", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         itemHintTable = initializeItemHintTable();
+
     }
 
     @Override

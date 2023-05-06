@@ -31,7 +31,6 @@ import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
-import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.quests.QuestType;
@@ -69,7 +68,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private boolean isSpeakingToEntity;
     private long lastPingSent, serverPingTime;
 
-    private final ItemWeapon equippedItem;
+    private ItemWeapon equippedItem;
     private final Artifact[] artifacts = new Artifact[3];
 
     private EntityRotation rotation = EntityRotation.UP;
@@ -92,10 +91,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
 
-        // TODO: Remove later
-        this.equippedItem = new EnchantedVioletItem();
-        this.equippedItem.load(game.getAsset());
-        this.inventory.addItem(equippedItem);
         this.location = new PlayerSteeringLocation(this);
     }
 
@@ -233,6 +228,10 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public ItemWeapon getEquippedItem() {
         return equippedItem;
+    }
+
+    public void equipItem(ItemWeapon item) {
+        this.equippedItem = item;
     }
 
     public EntityRotation getPlayerRotation() {
@@ -382,6 +381,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
      * @param batch drawing
      */
     private void updateAndRenderEquippedItem(SpriteBatch batch) {
+        if (equippedItem == null) return;
+
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             equippedItem.swingItem();
         }

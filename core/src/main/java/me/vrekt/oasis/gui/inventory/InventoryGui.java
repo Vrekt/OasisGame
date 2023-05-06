@@ -152,11 +152,19 @@ public final class InventoryGui extends Gui {
             final VisTable itemTable = new VisTable(false);
             itemTable.add(item);
 
+            final VisTable itemAmount = new VisTable(true);
+            final VisLabel amountLabel = new VisLabel("", new Label.LabelStyle(gui.getSmall(), Color.LIGHT_GRAY));
+            amountLabel.setVisible(false);
+
+            itemAmount.bottom().right();
+            itemAmount.add(amountLabel).bottom().right().padBottom(4).padRight(4);
+
             // create a separate container for the item image... so it doesn't get stretched.
             final Stack overlay = new Stack(slot, itemTable);
+            overlay.add(itemAmount);
 
             // add all of this to a list that stores our UI slots.
-            this.slots.add(new InventoryUiSlot(overlay, item, gui.getStyles().getTooltipStyle()));
+            this.slots.add(new InventoryUiSlot(overlay, item, gui.getStyles().getTooltipStyle(), amountLabel));
             primary.add(overlay).size(48, 48);
             if (i % 3 == 0) primary.row();
         }
@@ -194,7 +202,7 @@ public final class InventoryGui extends Gui {
             useItemButton.setVisible(true);
             useItemButton.setText("Eat");
         } else if (slotItem.item instanceof ItemEquippable) {
-            populateEquipmentButtons();
+            populateEquipmentButtons(slotItem.item instanceof ItemArtifact);
         }
 
         if (slotItem.item instanceof ItemWeapon) {
@@ -253,9 +261,9 @@ public final class InventoryGui extends Gui {
         statThree.addAction(Actions.fadeIn(1.5f));
     }
 
-    private void populateEquipmentButtons() {
+    private void populateEquipmentButtons(boolean isArtifact) {
         useItemButton.setVisible(true);
-        useItemButton.setText("Equip");
+        useItemButton.setText(isArtifact ? "Equip Artifact" : "Equip");
 
         useItemButton.getColor().a = 0.0f;
         useItemButton.addAction(Actions.fadeIn(1.0f));
@@ -273,7 +281,17 @@ public final class InventoryGui extends Gui {
         player.getInventory().getSlots().forEach((slot, item) -> {
             final InventoryUiSlot ui = slots.get(slot);
             // only update this inventory slot IF the last item does not match the current
-            if (ui.lastItemId != item.getItem().getItemId()) ui.setItem(item.getItem());
+            if (ui.lastItemId != item.getItem().getItemId()) {
+                ui.setItem(item.getItem());
+            } else {
+                // update amount label otherwise
+                if (ui.item.isStackable()) {
+                    ui.amountLabel.setText(String.valueOf(ui.item.getAmount()));
+                    ui.amountLabel.setVisible(true);
+                } else if (!ui.item.isStackable() && ui.amountLabel.isVisible()) {
+                    ui.amountLabel.setVisible(false);
+                }//
+            }
         });
     }
 
@@ -316,7 +334,9 @@ public final class InventoryGui extends Gui {
         // the last item in this slot, for comparison when updating
         private long lastItemId = -1;
 
-        public InventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style) {
+        private final VisLabel amountLabel;
+
+        public InventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style, VisLabel amountLabel) {
             super(stack, item, style);
 
             // add click action
@@ -328,6 +348,7 @@ public final class InventoryGui extends Gui {
                 }
             });
 
+            this.amountLabel = amountLabel;
         }
 
         /**
@@ -348,6 +369,7 @@ public final class InventoryGui extends Gui {
             this.imageItem.setScale(item.getSprite().getScaleX(), item.getSprite().getScaleY());
             this.lastItemId = item.getItemId();
             this.itemDescription = item.getDescription();
+            this.amountLabel.setText(String.valueOf(item.getAmount()));
         }
 
         /**
@@ -358,6 +380,8 @@ public final class InventoryGui extends Gui {
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
             this.lastItemId = -1;
+            amountLabel.setText("");
+            amountLabel.setVisible(false);
         }
     }
 

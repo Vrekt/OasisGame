@@ -27,6 +27,7 @@ import me.vrekt.oasis.gui.quest.QuestingGui;
 import me.vrekt.oasis.gui.save.SaveGameGui;
 import me.vrekt.oasis.gui.select.ClassSelectorGui;
 import me.vrekt.oasis.gui.settings.SettingsGui;
+import me.vrekt.oasis.gui.utility.DebugMenuGui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +85,7 @@ public final class GameGui {
         guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
         guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
+        guis.put(GuiType.DEBUG_MENU, new DebugMenuGui(this, asset));
     }
 
     public Styles getStyles() {
@@ -140,7 +142,10 @@ public final class GameGui {
                 || isGuiVisible(GuiType.INVENTORY)
                 || isGuiVisible(GuiType.QUEST)
                 || isGuiVisible(GuiType.PAUSE)
-                || isGuiVisible(GuiType.DIALOG);
+                || isGuiVisible(GuiType.DIALOG)
+                || isGuiVisible(GuiType.SETTINGS)
+                || isGuiVisible(GuiType.SAVE_GAME)
+                || isGuiVisible(GuiType.DEBUG_MENU);
     }
 
     /**

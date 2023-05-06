@@ -66,13 +66,14 @@ public class SaveManager {
                     // load the world state they were in
                     final String worldName = save.getWorldState().getWorldName();
 
-                    GameManager.getOasis().executeMain(() -> {
+                    GameManager.executeOnMainThread(() -> {
                         // load player state
                         GameManager.getPlayer().loadFromSave(save.getPlayerState());
+
+                        // load world state
                         final OasisWorld world = GameManager.getWorldManager().getWorld(worldName);
                         world.loadFromSave(save.getWorldState());
                     });
-
                 }
 
                 Logging.info("SaveSystem", "Finished loading game save... took: " + (System.currentTimeMillis() - now) + " ms.");

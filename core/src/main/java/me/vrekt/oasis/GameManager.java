@@ -51,6 +51,11 @@ public class GameManager {
             oasis.getPlayer().getGameWorldIn().skipCurrentDialog();
         });
 
+        KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
+            if(isSaving) return;
+            gui.showGui(GuiType.DEBUG_MENU);
+        });
+
         KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> {
             if (isSaving) return;
             oasis.getPlayer().activateArtifact(0);
@@ -76,6 +81,11 @@ public class GameManager {
         setCursorInGame("ui/cursor.png");
     }
 
+    /**
+     * Save the game to a slot
+     *
+     * @param slot the slot
+     */
     public static void saveGame(int slot) {
         isSaving = true;
         getPlayer().getGameWorldIn().pauseGameWhileSaving();
@@ -83,10 +93,22 @@ public class GameManager {
         SaveManager.save(slot);
     }
 
+    /**
+     * Save game is finished, cleanup
+     */
     public static void saveGameFinished() {
         isSaving = false;
         oasis.saveGameFinished();
         getPlayer().getGameWorldIn().saveGameFinished();
+    }
+
+    /**
+     * Execute an action on the main game thread
+     *
+     * @param action the action
+     */
+    public static void executeOnMainThread(Runnable action) {
+        oasis.executeMain(action);
     }
 
     /**

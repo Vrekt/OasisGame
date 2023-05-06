@@ -115,19 +115,20 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public void loadFromSave(WorldSaveState state) {
         loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
-
         for (EntitySaveState entityState : state.getEntities()) {
             if (entityState.getType() != null) {
                 final EntityInteractable interactable = getEntityByType(entityState.getType());
-                interactable.setEntityName(entityState.getName());
-                interactable.setEntityId(entityState.getEntityId());
-                interactable.setPosition(entityState.getPosition(), true);
-                interactable.setHealth(entityState.getHealth());
-                interactable.setEnemy(entityState.isEnemy());
+                if (interactable != null) {
+                    interactable.setEntityName(entityState.getName());
+                    interactable.setEntityId(entityState.getEntityId());
+                    interactable.setPosition(entityState.getPosition(), true);
+                    interactable.setHealth(entityState.getHealth());
+                    interactable.setEnemy(entityState.isEnemy());
 
-                // TODO: Interactable stuffs
-
-                Logging.info(this, "Found an entity from save and loaded it: " + entityState.getType());
+                    Logging.info(this, "Found an entity from save and loaded it: " + entityState.getType());
+                } else {
+                    Logging.warn(this, "Failed to find an entity from save by type: " + entityState.getType());
+                }
             }
         }
 
@@ -734,7 +735,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             shapes.setProjectionMatrix(renderer.getCamera().combined);
             shapes.begin(ShapeRenderer.ShapeType.Line);
             shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
-            shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
+            if (player.getEquippedItem() != null) {
+                shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
+            }
             shapes.end();
         }
 
@@ -881,10 +884,12 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     public boolean keyDown(int keycode) {
         if (!paused && GameManager.handleGuiKeyPress(keycode)) return true;
 
+        // handle returning to previous menus
         if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
             if (gui.hideGuiType(GuiType.QUEST)) return true;
             if (gui.hideGuiType(GuiType.INVENTORY)) return true;
             if (gui.hideGuiType(GuiType.CONTAINER)) return true;
+            if (gui.hideGuiType(GuiType.DEBUG_MENU)) return true;
             if (gui.hideGuiType(GuiType.SETTINGS)) {
                 gui.showGui(GuiType.PAUSE);
                 return true;
@@ -894,6 +899,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                 return true;
             }
 
+            // actually handle pausing/resuming the game
             if (paused) {
                 resume();
             } else {

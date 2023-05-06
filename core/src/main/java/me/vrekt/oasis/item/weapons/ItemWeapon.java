@@ -25,8 +25,8 @@ public abstract class ItemWeapon extends ItemEquippable {
 
     public ItemWeapon(String itemName, int itemId, String description) {
         super(itemName, itemId, description);
-
         bounds = new Rectangle();
+        isStackable = false;
     }
 
     public float getKnockbackMultiplier() {
