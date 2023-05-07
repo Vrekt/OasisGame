@@ -1,70 +1,44 @@
-package me.vrekt.oasis.entity.ai;
+package me.vrekt.oasis.entity.ai.utilities;
 
 import com.badlogic.gdx.ai.steer.Steerable;
-import com.badlogic.gdx.ai.steer.SteeringAcceleration;
-import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.entity.ai.utilities.BasicSteeringLocation;
-import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
-import me.vrekt.oasis.entity.npc.EntityEnemy;
+import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.utility.logging.Logging;
 
 /**
- * Basic implementation of {@link  Steerable} for mobs
+ * The local player has a steerable object.
  */
-public abstract class AbstractMobSteering implements Steerable<Vector2> {
+public final class PlayerAsSteerable implements Steerable<Vector2> {
 
-    protected final SteeringAcceleration<Vector2> output =
-            new SteeringAcceleration<>(new Vector2());
+    private final OasisPlayerSP player;
 
-    protected final EntityEnemy owner;
+    private float orientation, maxSpeed;
 
-    protected final Vector2 position, velocity;
-    protected float orientation, angleVelocity, maxSpeed;
-    protected SteeringBehavior<Vector2> behavior;
+    private boolean tagged;
+    private float minThreshold, maxAngleSpeed = 10.0f, maxAngleAcceleration;
 
-    protected boolean tagged;
-    protected float minThreshold, maxAngleSpeed = 10.0f, maxAngleAcceleration;
-
-    protected final BasicSteeringLocation location;
-    protected final PlayerSteeringLocation target;
-
-    protected Vector2 lastPosition, lastVelocity, directionPosition;
-
-    public AbstractMobSteering(EntityEnemy owner, Vector2 position, Vector2 velocity, PlayerSteeringLocation location) {
-        this.owner = owner;
-        this.position = position;
-        this.velocity = velocity;
-        this.target = location;
-
-        this.minThreshold = 0.01f;
-        this.maxSpeed = 3.0f;
+    public PlayerAsSteerable(OasisPlayerSP player) {
+        this.player = player;
+        this.minThreshold = 0.1f;
+        this.maxSpeed = player.getMoveSpeed();
         this.orientation = 1f;
-        this.angleVelocity = 5.0f;
         this.maxAngleAcceleration = 10.0f;
-
-        this.location = new BasicSteeringLocation(position);
-        this.lastPosition = new Vector2();
-        this.lastVelocity = new Vector2();
-    }
-
-    public void setBehavior(SteeringBehavior<Vector2> behavior) {
-        this.behavior = behavior;
     }
 
     @Override
     public Vector2 getLinearVelocity() {
-        return velocity;
+        return player.getVelocity();
     }
 
     @Override
     public float getAngularVelocity() {
-        return angleVelocity;
+        return 0.0f;
     }
 
     @Override
     public float getBoundingRadius() {
-        return 1.0f;
+        return player.getWidthScaled() + player.getHeightScaled();
     }
 
     @Override
@@ -129,7 +103,7 @@ public abstract class AbstractMobSteering implements Steerable<Vector2> {
 
     @Override
     public Vector2 getPosition() {
-        return position;
+        return player.getInterpolated();
     }
 
     @Override
@@ -144,8 +118,8 @@ public abstract class AbstractMobSteering implements Steerable<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        this.location.setPosition(position);
-        return location;
+        Logging.error(this, "Something wants a new PlayerAsSteerable new location.");
+        return null;
     }
 
     @Override
@@ -159,17 +133,5 @@ public abstract class AbstractMobSteering implements Steerable<Vector2> {
         outVector.y = (float) Math.cos(angle);
         return outVector;
     }
-
-    public void update(float delta) {
-        behavior.calculateSteering(output);
-        apply(delta);
-    }
-
-    /**
-     * Apply the steering output.
-     *
-     * @param delta delta time
-     */
-    protected abstract void apply(float delta);
 
 }

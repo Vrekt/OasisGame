@@ -7,7 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.ai.SeekingMobSteering;
+import me.vrekt.oasis.entity.ai.SeekAndPursuePlayer;
+import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
@@ -23,7 +24,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
         super(name, position, player, worldIn, game, EntityNPCType.DUMMY);
         this.rotation = 1.0f;
 
-        this.ai = new SeekingMobSteering(this, player.getSteeringLocation(), position, new Vector2());
+        this.ai = new SeekAndPursuePlayer(this, player, new PlayerSteeringLocation(player), position);
         this.setIgnoreCollision(true);
     }
 
@@ -93,8 +94,8 @@ public final class TutorialCombatDummy extends EntityEnemy {
     public void update(float v) {
         super.update(v);
 
-        if (ai != null) ai.update(v);
-        // TODO: Set current region state to rotation
+        if (ai != null)
+            ai.update(v);
 
         speakable = false;
     }

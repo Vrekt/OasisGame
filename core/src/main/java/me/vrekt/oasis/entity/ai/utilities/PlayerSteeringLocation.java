@@ -37,11 +37,13 @@ public final class PlayerSteeringLocation implements Location<Vector2> {
 
     @Override
     public Vector2 angleToVector(Vector2 outVector, float angle) {
+        System.err.println("NEED");
         return Vector2.Zero;
     }
 
     @Override
     public Location<Vector2> newLocation() {
+        System.err.println("NEED2");
         return null;
     }
 }
