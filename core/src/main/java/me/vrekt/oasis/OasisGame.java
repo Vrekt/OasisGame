@@ -15,8 +15,10 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.save.GameSaveState;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
+import me.vrekt.oasis.ui.OasisMainMenu;
 import me.vrekt.oasis.ui.OasisSaveScreen;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.utility.logging.Logging;
@@ -25,16 +27,18 @@ import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 import org.apache.commons.lang3.RandomUtils;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20230506-1911-1046";
+    public static final String GAME_VERSION = "20230507-0300-1101";
 
     private Asset asset;
 
+    private OasisMainMenu menu;
     private OasisLoadingScreen loadingScreen;
 
     private OasisTiledRenderer renderer;
@@ -52,70 +56,138 @@ public final class OasisGame extends Game {
     private PlayerConnectionHandler handler;
     private OasisSaveScreen saveScreen;
 
-    // if no save was loaded
+    private ExecutorService service;
     private boolean isNewGame;
 
     @Override
     public void create() {
         Logging.info(this, "Starting game, version: " + GAME_VERSION);
-        VisUI.load();
-
-        loadingScreen = new OasisLoadingScreen();
-        setScreen(loadingScreen);
-
-        loadGame();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        gui.resize(width, height);
+        initializeTheBasics();
     }
 
     /**
-     * Load into a new world
-     *
-     * @param world the world
+     * Initialize bare-bones so we can go ahead and show the main menu
      */
-    public void loadIntoWorld(OasisWorld world) {
-        world.enterWorld(false);
-        setScreen(world);
-        player.getConnection().updateWorldLoaded();
-    }
+    private void initializeTheBasics() {
+        Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
-    private void loadGame() {
-        loadingScreen.stepProgress();
+        this.service = Executors.newFixedThreadPool(1);
 
-        batch = new SpriteBatch();
-        worldManager = new WorldManager();
+        VisUI.load();
+        SaveManager.readGameSaveTimes();
 
         asset = new Asset();
         asset.load();
 
-        loadingScreen.stepProgress();
+        GameManager.setOasis(this);
+
+        // ideally, not here but there's not many items in the game
         ItemRegistry.registerItems();
 
-        Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
+        multiplexer = new InputMultiplexer();
+        Gdx.input.setInputProcessor(multiplexer);
+
+        loadingScreen = new OasisLoadingScreen();
 
         // load base assets
         player = new OasisPlayerSP(this, "Player" + RandomUtils.nextInt(0, 999));
         player.load(asset);
+
+        menu = new OasisMainMenu(this);
+        setScreen(menu);
+    }
+
+    /**
+     * Load other requirements for getting into the game
+     */
+    public void loadGameRequirements(boolean joinWorld) {
+        batch = new SpriteBatch();
+        worldManager = new WorldManager();
+
+        loadingScreen.stepProgress();
+
         loadingScreen.stepProgress();
 
         renderer = new OasisTiledRenderer(batch, player);
-        multiplexer = new InputMultiplexer();
-        Gdx.input.setInputProcessor(multiplexer);
         gui = new GameGui(this, asset, multiplexer);
-        GameManager.initialize(this);
         loadingScreen.stepProgress();
 
-        CompletableFuture.runAsync(this::joinLocalServer);
-    }
+        GameManager.initialize(this);
 
-    private void joinLocalServer() {
         final TutorialOasisWorld world = new TutorialOasisWorld(this, player, new World(Vector2.Zero, true));
         worldManager.addWorld("TutorialWorld", world);
 
+        joinRemoteServer(joinWorld);
+    }
+
+    /**
+     * Load a game from a save state
+     *
+     * @param state the state
+     */
+    public void loadGameFromSave(GameSaveState state) {
+        loadGameRequirements(false);
+
+        player.loadFromSave(state.getPlayerState());
+        final String worldName = state.getWorldState().getWorldName();
+        worldManager.getWorld(worldName).loadFromSave(state.getWorldState());
+
+        // TODO: Depending on how things go, probably just use CompleteableFuture instead
+        service.shutdown();
+        handler.joinWorld(worldName, player.getName());
+    }
+
+    /**
+     * Load a new game
+     */
+    public void loadNewGame() {
+        isNewGame = true;
+        setScreen(loadingScreen);
+        loadGameRequirements(true);
+    }
+
+    /**
+     * Load a save game slot
+     *
+     * @param slot the slot
+     */
+    public void loadSaveGame(int slot) {
+        setScreen(loadingScreen);
+        updateLoadingProgress();
+        loadGameSaveAsync(slot);
+    }
+
+    /**
+     * Load a game save file async
+     *
+     * @param slot the slot
+     */
+    private void loadGameSaveAsync(int slot) {
+        service.execute(() -> {
+            final GameSaveState state = SaveManager.load(slot);
+            if (state == null) {
+                executeMain(() -> setScreen(menu));
+            } else {
+                executeMain(() -> loadGameFromSave(state));
+            }
+        });
+    }
+
+    /**
+     * Update loading progress from another thread
+     */
+    private void updateLoadingProgress() {
+        // TODO: This doesn't work :(
+        // Loading bar is blocked by sync tasks
+        // not sure how to fix since all things needed to be loaded
+        // should be loaded sync game thread
+        // For now, no loading bar :(
+    }
+
+    /**
+     * Join the remote server (if any)
+     */
+    private void joinRemoteServer(boolean joinWorld) {
         this.protocol = new LunarProtocol(true);
 
         String ip = System.getProperty("ip");
@@ -146,22 +218,33 @@ public final class OasisGame extends Game {
         loadingScreen.stepProgress();
 
         if (clientServer.getConnection() == null) {
-            throw new UnsupportedOperationException("Remote server not started yet.");
+            throw new UnsupportedOperationException("An error occurred with the remote server.");
         }
 
         handler = (PlayerConnectionHandler) clientServer.getConnection();
         player.setConnectionHandler(handler);
 
-        // Attempt to read an existing save file.
-        // TODO: Remove later for better system
-        final boolean result = SaveManager.load(1);
-        if (!result) {
-            // request to join local tutorial world since no save game
+        if (joinWorld) {
             handler.joinWorld("TutorialWorld", player.getName());
         }
-        loadingScreen.stepProgress();
     }
 
+    /**
+     * Load into a new world
+     *
+     * @param world the world
+     */
+    public void loadIntoWorld(OasisWorld world) {
+        world.enterWorld(false);
+        setScreen(world);
+        player.getConnection().updateWorldLoaded();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        if (gui != null) gui.resize(width, height);
+    }
 
     @Override
     public void dispose() {
@@ -180,15 +263,16 @@ public final class OasisGame extends Game {
     }
 
     public void showSavingGameScreen() {
-        setScreen(saveScreen = new OasisSaveScreen());
+        if(saveScreen == null) {
+            saveScreen = new OasisSaveScreen();
+        } else {
+            saveScreen.reset();
+        }
+        setScreen(saveScreen);
     }
 
     public void saveGameFinished() {
         setScreen(player.getGameWorldIn());
-    }
-
-    public OasisSaveScreen getSaveScreen() {
-        return saveScreen;
     }
 
     public void executeMain(Runnable action) {

@@ -22,6 +22,8 @@ public final class SaveGameGui extends Gui {
 
     private final VisTable rootTable;
 
+    private final VisLabel slot1Info, slot2Info, slot3Info;
+
     public SaveGameGui(GameGui gui, Asset asset) {
         super(gui, asset, "saveGame");
 
@@ -34,21 +36,28 @@ public final class SaveGameGui extends Gui {
         final VisTable primary = new VisTable();
         final VisTable secondary = new VisTable();
 
-        // TODO: Maybe later try getting save times for each, without loading each save ideally
         final VisLabel slot1 = new VisLabel("Save game to slot 1", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        slot1Info = new VisLabel("(Last saved: 0000-00-00AM)", new Label.LabelStyle(gui.getSmall(), Color.BLACK));
         final VisLabel slot2 = new VisLabel("Save game to slot 2", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        slot2Info = new VisLabel("(Last saved: 0000-00-00AM)", new Label.LabelStyle(gui.getSmall(), Color.BLACK));
         final VisLabel slot3 = new VisLabel("Save game to slot 3", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        slot3Info = new VisLabel("(Last saved: 0000-00-00AM)", new Label.LabelStyle(gui.getSmall(), Color.BLACK));
 
-        addDefaultActions(slot1, 1);
-        addDefaultActions(slot2, 2);
-        addDefaultActions(slot3, 3);
+        addDefaultActions(slot1, slot1Info, 1);
+        addDefaultActions(slot2, slot2Info, 2);
+        addDefaultActions(slot3, slot3Info, 3);
 
         primary.add(slot1);
         primary.row();
+        primary.add(slot1Info);
+        primary.row().padTop(8);
         primary.add(slot2);
         primary.row();
+        primary.add(slot2Info);
+        primary.row().padTop(8);
         primary.add(slot3);
         primary.row();
+        primary.add(slot3Info);
 
         final VisLabel back = new VisLabel("<- Back", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         back.addListener(new ClickListener() {
@@ -77,7 +86,7 @@ public final class SaveGameGui extends Gui {
         gui.createContainer(rootTable).fill();
     }
 
-    private void addDefaultActions(Label label, int slot) {
+    private void addDefaultActions(Label label, Label info, int slot) {
         label.addListener(new ClickListener() {
 
             @Override
@@ -94,6 +103,7 @@ public final class SaveGameGui extends Gui {
             public void clicked(InputEvent event, float x, float y) {
                 // Save the game to the provided slot
                 GameManager.saveGame(slot);
+                info.setText("(Last saved: Now)");
             }
         });
     }
@@ -102,6 +112,10 @@ public final class SaveGameGui extends Gui {
     public void show() {
         super.show();
         rootTable.setVisible(true);
+
+        slot1Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(1) + ")");
+        slot2Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(2) + ")");
+        slot3Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(3) + ")");
     }
 
     @Override

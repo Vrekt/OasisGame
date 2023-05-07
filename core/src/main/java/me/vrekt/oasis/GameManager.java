@@ -8,10 +8,10 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.save.SaveGameTimes;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.world.management.WorldManager;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,15 +23,19 @@ public class GameManager {
     private static GameGui gui;
 
     private static boolean isSaving;
+    private static SaveGameTimes saveGameTimes;
 
     public static OasisGame getOasis() {
         return oasis;
     }
 
     public static void initialize(OasisGame game) {
-        oasis = game;
         gui = game.getGui();
         registerGlobalKeyActions();
+    }
+
+    public static void setOasis(OasisGame oasis) {
+        GameManager.oasis = oasis;
     }
 
     /**
@@ -111,14 +115,12 @@ public class GameManager {
         oasis.executeMain(action);
     }
 
-    /**
-     * TODO: Get time of saved slot
-     *
-     * @param slot the slot
-     * @return the time
-     */
-    public static LocalDateTime getTimeOfSave(int slot) {
-        return LocalDateTime.now();
+    public static void setSaveGameTimes(SaveGameTimes saveGameTimes) {
+        GameManager.saveGameTimes = saveGameTimes;
+    }
+
+    public static SaveGameTimes getSaveGameTimes() {
+        return saveGameTimes;
     }
 
     public static boolean isSaving() {

@@ -132,7 +132,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             }
         }
 
-        GameManager.getPlayer().getConnection().joinWorld(worldName, "Testing1234");
     }
 
     public String getMapName() {

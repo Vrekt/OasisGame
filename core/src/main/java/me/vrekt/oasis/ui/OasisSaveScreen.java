@@ -30,6 +30,10 @@ public final class OasisSaveScreen extends ScreenAdapter {
         progressBar.setValue(progressBar.getValue() + 10.0f);
     }
 
+    public void reset() {
+        progressBar.setValue(0.0f);
+    }
+
     @Override
     public void show() {
         final Table table = new Table();

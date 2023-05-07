@@ -12,9 +12,9 @@ import com.kotcrab.vis.ui.widget.VisProgressBar;
  */
 public final class OasisLoadingScreen extends ScreenAdapter {
 
+
     private final Stage stage;
     private final ProgressBar progressBar;
-    private boolean waitingForServer;
 
     public OasisLoadingScreen() {
         this.stage = new Stage();

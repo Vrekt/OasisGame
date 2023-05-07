@@ -6,7 +6,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.save.inventory.InventorySaveState;
 import me.vrekt.oasis.save.world.WorldSaveState;
 import me.vrekt.oasis.utility.logging.Logging;
-import me.vrekt.oasis.world.OasisWorld;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,26 +14,33 @@ import java.io.IOException;
 
 public class SaveManager {
 
-    public static void save(int slot) {
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapter(InventorySaveState.class, new InventorySaveState.InventorySaver())
-                .registerTypeAdapter(WorldSaveState.class, new WorldSaveState.WorldSaver())
-                .setPrettyPrinting()
-                .create();
+    private static final Gson SAVE_GAME_GSON = new GsonBuilder()
+            .registerTypeAdapter(InventorySaveState.class, new InventorySaveState.InventorySaver())
+            .registerTypeAdapter(WorldSaveState.class, new WorldSaveState.WorldSaver())
+            .setPrettyPrinting()
+            .create();
 
+    private static final Gson LOAD_GAME_GSON = new GsonBuilder()
+            .registerTypeAdapter(InventorySaveState.class, new InventorySaveState.InventoryLoader())
+            .registerTypeAdapter(WorldSaveState.class, new WorldSaveState.WorldLoader())
+            .create();
+
+    public static void save(int slot) {
         final long now = System.currentTimeMillis();
 
         try {
             File newFile = new File("save" + slot + ".json");
-            boolean success = newFile.createNewFile();
-            if (success) {
-                Logging.info("SaveSystem", "Created new save file since one did not exist.");
-            } else {
-                Logging.info("SaveSystem", "Save game file already exists, overwriting...");
-            }
+
+            createFile(newFile, "Successfully created a new save file since one did not exist", "Overwriting existing save file.");
 
             try (FileWriter writer = new FileWriter(newFile, false)) {
-                gson.toJson(new GameSaveState(slot, GameManager.getPlayer()), writer);
+                final GameSaveState state = new GameSaveState(slot, GameManager.getPlayer());
+                final String time = state.getSaveTime();
+                // write save game times to a new file to avoid
+                // having to load each save individually and read it then
+                writeGameSaveTime(slot, time);
+
+                SAVE_GAME_GSON.toJson(new GameSaveState(slot, GameManager.getPlayer()), writer);
             }
 
         } catch (IOException exception) {
@@ -45,46 +51,78 @@ public class SaveManager {
     }
 
     /**
+     * Read game save times
+     */
+    public static void readGameSaveTimes() {
+        File saveTimeFile = new File("savetimes.json");
+
+        if (saveTimeFile.exists()) {
+            try {
+                try (FileReader reader = new FileReader(saveTimeFile)) {
+                    final SaveGameTimes data = LOAD_GAME_GSON.fromJson(reader, SaveGameTimes.class);
+                    GameManager.setSaveGameTimes(data);
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+                GameManager.setSaveGameTimes(new SaveGameTimes());
+            }
+        } else {
+            GameManager.setSaveGameTimes(new SaveGameTimes());
+        }
+    }
+
+    private static void writeGameSaveTime(int slot, String now) {
+        File saveTimeFile = new File("savetimes.json");
+        try {
+            createFile(saveTimeFile, "Successfully created save game times file.", "Overwriting save game times file.");
+
+            try (FileWriter writer = new FileWriter(saveTimeFile, false)) {
+                final SaveGameTimes times = GameManager.getSaveGameTimes();
+                times.setSaveTimeFor(slot, now);
+                SAVE_GAME_GSON.toJson(times, writer);
+            }
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
      * Load a save game, if exists.
      * TODO: Later: multiple saves
      *
      * @param slot the save slot to load
      * @return {@code  true} if successful, otherwise default new game state
      */
-    public static boolean load(int slot) {
+    public static GameSaveState load(int slot) {
         final File file = new File("save" + slot + ".json");
+        readGameSaveTimes();
+
         if (file.exists()) {
-            final Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(InventorySaveState.class, new InventorySaveState.InventoryLoader())
-                    .registerTypeAdapter(WorldSaveState.class, new WorldSaveState.WorldLoader())
-                    .create();
 
             final long now = System.currentTimeMillis();
             try {
                 try (FileReader reader = new FileReader(file)) {
-                    GameSaveState save = gson.fromJson(reader, GameSaveState.class);
-                    // load the world state they were in
-                    final String worldName = save.getWorldState().getWorldName();
-
-                    GameManager.executeOnMainThread(() -> {
-                        // load player state
-                        GameManager.getPlayer().loadFromSave(save.getPlayerState());
-
-                        // load world state
-                        final OasisWorld world = GameManager.getWorldManager().getWorld(worldName);
-                        world.loadFromSave(save.getWorldState());
-                    });
+                    GameSaveState save = LOAD_GAME_GSON.fromJson(reader, GameSaveState.class);
+                    Logging.info("SaveSystem", "Finished loading game save... took: " + (System.currentTimeMillis() - now) + " ms.");
+                    return save;
                 }
-
-                Logging.info("SaveSystem", "Finished loading game save... took: " + (System.currentTimeMillis() - now) + " ms.");
-                return true;
             } catch (Exception any) {
                 any.printStackTrace();
-                return false;
+                return null;
             }
         } else {
             Logging.info("SaveSystem", "No save game found, assume default state.");
-            return false;
+            return null;
+        }
+    }
+
+    private static void createFile(File file, String successMsg, String overwriteMsg) throws IOException {
+        boolean success = file.createNewFile();
+        if (success) {
+            Logging.info("SaveSystem", successMsg);
+        } else {
+            Logging.info("SaveSystem", overwriteMsg);
         }
     }
 
