@@ -412,7 +412,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                         worldObject.initialize(this, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
                     }
 
-                    loadWorldObjectEffects(worldObject, object, rectangle);
+                    loadWorldObjEffects(worldObject, object, rectangle);
                     if (hasCollision && hasTexture) {
                         loadWorldObjectBody(worldObject, rectangle, texture);
                     } else if (!hasTexture) {
@@ -425,7 +425,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
                     wb.load(asset);
                     // TODO: init WorldObjectType
 
-                    loadWorldObjectEffects(wb, object, rectangle);
+                    loadWorldObjEffects(wb, object, rectangle);
                     if (hasTexture) {
                         loadWorldObjectBody(wb, rectangle, texture);
                     } else {
@@ -451,7 +451,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * @param object    obj
      * @param rectangle rect
      */
-    private void loadWorldObjectEffects(WorldObject wb, MapObject object, Rectangle rectangle) {
+    private void loadWorldObjEffects(WorldObject wb, MapObject object, Rectangle rectangle) {
         // load each particle within properties
         object.getProperties().getKeys().forEachRemaining(key -> {
             // find a particle + int identifier
