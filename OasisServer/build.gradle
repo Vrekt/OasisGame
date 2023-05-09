@@ -20,6 +20,8 @@ dependencies {
     api "com.google.flogger:flogger:0.7.4"
     api "com.google.flogger:flogger-system-backend:0.7.4"
 
+    api project(":shared")
+
     api files('../Core.jar')
     api files('../Protocol.jar')
     api files('../Server.jar')

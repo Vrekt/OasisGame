@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.ai.steer.behaviors.Seek;
+import com.badlogic.gdx.ai.steer.limiters.LinearLimiter;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
 import me.vrekt.oasis.entity.ai.utilities.PlayerAsSteerable;
@@ -40,26 +41,33 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
         seek = new Seek<>(this, target);
         pursue = new Pursue<>(this, new PlayerAsSteerable(player));
 
+        seek.setLimiter(new LinearLimiter(2.0f, 3.0f));
+        pursue.setLimiter(new LinearLimiter(2.0f, 3.0f));
+
         this.nearPlayerDistance = 4.0f;
         this.closeToPlayerDistance = 1.0f;
     }
 
     @Override
+    public float getBoundingRadius() {
+        return owner.getWidthScaled() * owner.getHeightScaled();
+    }
+
+    @Override
     public void update(float delta) {
+
         if (!isCloseToPlayer()) {
             if (isNearPlayer()) {
                 pursue.calculateSteering(pursueOutput);
 
                 position.mulAdd(velocity, delta);
                 velocity.mulAdd(pursueOutput.linear, delta).limit(getMaxLinearSpeed());
-
                 owner.getBody().setLinearVelocity(velocity.x, velocity.y);
             } else {
                 seek.calculateSteering(seekOutput);
 
                 position.mulAdd(velocity, delta);
                 velocity.mulAdd(seekOutput.linear, delta).limit(getMaxLinearSpeed());
-
                 owner.getBody().setLinearVelocity(velocity.x, velocity.y);
             }
         } else {
@@ -78,10 +86,17 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
     private void updateDirection(Vector2 direction) {
         if (direction.isZero()) return;
 
-        if (Math.abs(direction.x) > Math.abs(direction.y)) {
-            owner.setEntityRotation((direction.x > 0) ? EntityRotation.RIGHT : EntityRotation.LEFT);
+        final float x = Math.abs(direction.x);
+        final float y = Math.abs(direction.y);
+
+        if (x > y) {
+            if (x > 0.25f) {
+                owner.setEntityRotation((direction.x > 0) ? EntityRotation.RIGHT : EntityRotation.LEFT);
+            }
         } else {
-            owner.setEntityRotation((direction.y > 0) ? EntityRotation.UP : EntityRotation.DOWN);
+            if (y > 0.25f) {
+                owner.setEntityRotation((direction.y > 0) ? EntityRotation.UP : EntityRotation.DOWN);
+            }
         }
     }
 

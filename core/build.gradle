@@ -19,6 +19,8 @@ dependencies {
 	api group: 'org.apache.commons', name: 'commons-text', version: '1.9'
 	api group: 'com.google.guava', name: 'guava', version: '31.0.1-jre'
 
+	api project(":shared")
+
 	// Lunar networking
 	api files('../Core.jar')
 	api files('../Protocol.jar')

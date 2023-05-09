@@ -1,5 +1,6 @@
 package me.vrekt.oasis.entity.player.mp;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,8 +13,12 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
+import me.vrekt.oasis.item.ItemEquippable;
+import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 
 /**
  * Represents any player over the network
@@ -21,13 +26,17 @@ import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
 
     private EntityAnimationComponent animationComponent;
-    private float oldRotation = 0;
 
     private float nametagRenderWidth;
     private final Vector3 worldPosition = new Vector3();
     private final Vector3 screenPosition = new Vector3();
 
     private boolean renderNametag;
+
+    private ItemEquippable equippedItem;
+
+    private EntityRotation lastRotation = EntityRotation.UP;
+    private EntityRotation entityRotation = EntityRotation.UP;
 
     public OasisNetworkPlayer(boolean initializeComponents) {
         super(initializeComponents);
@@ -48,6 +57,21 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         return renderNametag;
     }
 
+    public void setEquippingItem(int itemId) {
+        if (itemId == -1) {
+            // player has stopped equipping an item
+            this.equippedItem = null;
+        } else {
+            this.equippedItem = (ItemEquippable) ItemRegistry.createItemFromId(itemId);
+            this.equippedItem.load(GameManager.getAssets());
+        }
+    }
+
+    public void setSwingingItem(int id) {
+        if (equippedItem == null || equippedItem.getItemId() != id) return;
+        ((ItemWeapon) equippedItem).swingItem();
+    }
+
     @Override
     public void setEntityName(String name) {
         super.setEntityName(name);
@@ -55,7 +79,6 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGui().getSmall(), getName());
         this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
         fontLayout.reset();
-
     }
 
     @Override
@@ -81,11 +104,11 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         super.update(delta);
         setHasMoved(!getVelocity().isZero());
 
-        if (oldRotation != rotation) {
+        if (lastRotation != entityRotation) {
             setIdleRegionState();
         }
 
-        oldRotation = rotation;
+        lastRotation = entityRotation;
     }
 
     @Override
@@ -100,12 +123,22 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
 
     @Override
     public void render(SpriteBatch batch, float delta) {
+        drawEquippedItem(batch);
+
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
+            draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
         } else {
             if (currentRegionState != null) {
                 draw(batch, currentRegionState);
             }
+        }
+    }
+
+    private void drawEquippedItem(SpriteBatch batch) {
+        if (ItemRegistry.isWeapon(equippedItem)) {
+            equippedItem.calculateItemPositionAndRotation(getInterpolated(), entityRotation);
+            equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
+            equippedItem.draw(batch);
         }
     }
 
@@ -127,15 +160,19 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
                 currentRegionState = getRegion("healer_walking_up_idle");
+                entityRotation = EntityRotation.UP;
                 break;
             case FACING_DOWN:
                 currentRegionState = getRegion("healer_walking_down_idle");
+                entityRotation = EntityRotation.DOWN;
                 break;
             case FACING_LEFT:
                 currentRegionState = getRegion("healer_walking_left_idle");
+                entityRotation = EntityRotation.LEFT;
                 break;
             case FACING_RIGHT:
                 currentRegionState = getRegion("healer_walking_right_idle");
+                entityRotation = EntityRotation.RIGHT;
                 break;
         }
     }

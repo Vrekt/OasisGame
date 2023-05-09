@@ -207,6 +207,13 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         GameManager.resetCursor();
     }
 
+    public void spawnEntityTypeAt(EntityNPCType type, Vector2 position) {
+        Logging.info(this, "Spawning a new entity: " + type);
+        final EntityInteractable entity = type.create(position, game, this);
+        entity.load(game.getAsset());
+        addInteractableEntity(entity);
+    }
+
     /**
      * Unload the collision within this world
      */
@@ -318,9 +325,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final EntityNPCType type = EntityNPCType.findType(object);
             if (type != null) {
-                final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
-                entity.load(asset);
-                addInteractableEntity(entity);
+               // final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
+            //    entity.load(asset);
+            //    addInteractableEntity(entity);
             } else {
                 Logging.warn(this, "Found invalid entity: " + object);
             }

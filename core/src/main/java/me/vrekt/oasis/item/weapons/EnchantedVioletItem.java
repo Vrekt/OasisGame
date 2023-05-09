@@ -5,14 +5,17 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class EnchantedVioletItem extends ItemWeapon {
 
     public static final int ID = 4;
     public static final String TEXTURE = "enchanted_violet";
     public static final String NAME = "Enchanted Violet";
+
+    public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     private ParticleEffect swingEffect;
 
@@ -26,8 +29,6 @@ public final class EnchantedVioletItem extends ItemWeapon {
         this.knockbackMultiplier = 3.5f;
         this.range = 0.8f;
         this.rarity = ItemRarity.VOID;
-
-        setDescriptor(TEXTURE, NAME);
     }
 
     @Override
@@ -52,8 +53,8 @@ public final class EnchantedVioletItem extends ItemWeapon {
     }
 
     @Override
-    public void update(float delta, OasisPlayerSP player) {
-        super.update(delta, player);
+    public void update(float delta, EntityRotation rotation) {
+        super.update(delta, rotation);
         if (!isSwinging) swingEffect.reset();
     }
 
@@ -75,4 +76,6 @@ public final class EnchantedVioletItem extends ItemWeapon {
             }
         }
     }
+
+
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
@@ -21,7 +22,7 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
     public static ItemDescriptor descriptor;
 
     // the item ID of this item
-    protected long itemId;
+    protected int itemId;
 
     protected String itemName;
     protected String description;
@@ -94,12 +95,8 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
         this.description = description;
     }
 
-    public long getItemId() {
+    public int getItemId() {
         return itemId;
-    }
-
-    public void setItemId(long itemId) {
-        this.itemId = itemId;
     }
 
     public void addAttribute(ItemAttribute attribute) {
@@ -132,7 +129,7 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
         return attributes;
     }
 
-    public void update(float delta, OasisPlayerSP player) {
+    public void update(float delta, EntityRotation rotation) {
 
     }
 
@@ -150,16 +147,6 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
     @Override
     public void reset() {
         amount = 0;
-    }
-
-    protected void setDescriptor(String name, String texture) {
-        if (descriptor == null) {
-            descriptor = new ItemDescriptor(texture, name);
-        }
-    }
-
-    public static ItemDescriptor getDescriptor() {
-        return descriptor;
     }
 
 }

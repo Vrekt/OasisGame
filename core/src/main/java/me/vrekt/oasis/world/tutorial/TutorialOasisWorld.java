@@ -71,6 +71,7 @@ public final class TutorialOasisWorld extends OasisWorld {
             player.getInventory().addItem(EnchantedVioletItem.class, 1);
             player.getInventory().addItem(QuickStepItemArtifact.class, 1);
             player.getInventory().addItem(LucidTreeFruitItem.class, 1);
+            //   player.getConnection().send(new ClientSpawnEntity(EntityType.TUTORIAL_COMBAT_DUMMY, player.getPosition()));
         }
     }
 

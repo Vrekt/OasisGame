@@ -6,6 +6,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 /**
  * Fruit from a lucid tree
@@ -16,13 +17,13 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     public static final String TEXTURE = "lucid_fruit";
     public static final String NAME = "Lucid Tree Fruit";
 
+    public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
+
     public LucidTreeFruitItem() {
         super(NAME, ID, "Heals you by [GREEN]+20 [BLACK]HP.");
         addAttribute(new PlayerHealingAttribute(20.0f));
         this.allowedToConsume = false;
         this.rarity = ItemRarity.BASIC;
-
-        setDescriptor(TEXTURE, NAME);
     }
 
     @Override

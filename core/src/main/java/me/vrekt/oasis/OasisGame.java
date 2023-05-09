@@ -15,6 +15,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.save.GameSaveState;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
@@ -34,7 +35,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20230507-0300-1101";
+    public static final String GAME_VERSION = "20230509-0333-1213";
 
     private Asset asset;
 
@@ -53,7 +54,7 @@ public final class OasisGame extends Game {
     private LunarProtocol protocol;
     private LunarClientServer clientServer;
 
-    private PlayerConnectionHandler handler;
+    private PlayerConnection handler;
     private OasisSaveScreen saveScreen;
 
     private ExecutorService service;
@@ -206,7 +207,7 @@ public final class OasisGame extends Game {
 
         Logging.info(this, "Connecting to remote server {ip=" + ip + "} port={" + port + "}");
         clientServer = new LunarClientServer(protocol, ip, port);
-        clientServer.setConnectionProvider(channel -> new PlayerConnectionHandler(channel, protocol));
+        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, player));
         loadingScreen.stepProgress();
 
         try {
@@ -215,13 +216,14 @@ public final class OasisGame extends Game {
             exception.printStackTrace();
             Gdx.app.exit();
         }
+
         loadingScreen.stepProgress();
 
         if (clientServer.getConnection() == null) {
             throw new UnsupportedOperationException("An error occurred with the remote server.");
         }
 
-        handler = (PlayerConnectionHandler) clientServer.getConnection();
+        handler = (PlayerConnection) clientServer.getConnection();
         player.setConnectionHandler(handler);
 
         if (joinWorld) {
@@ -263,7 +265,7 @@ public final class OasisGame extends Game {
     }
 
     public void showSavingGameScreen() {
-        if(saveScreen == null) {
+        if (saveScreen == null) {
             saveScreen = new OasisSaveScreen();
         } else {
             saveScreen.reset();

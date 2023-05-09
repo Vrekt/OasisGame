@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
-import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.client.CPacketPing;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.SPacketPing;
@@ -32,6 +31,7 @@ import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
@@ -40,6 +40,8 @@ import me.vrekt.oasis.save.player.PlayerSaveState;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
+import me.vrekt.shared.network.ClientEquipItem;
+import me.vrekt.shared.network.ClientSwingItem;
 
 /**
  * Represents the local player SP
@@ -54,7 +56,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     private OasisWorld gameWorldIn;
     private ClassType classType;
 
-    private PlayerConnectionHandler connectionHandler;
+    private PlayerConnection connectionHandler;
     private final PlayerInventory inventory;
 
     private boolean isInInstance, isInTutorialWorld = true;
@@ -232,6 +234,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
+
+        connection.sendImmediately(new ClientEquipItem(getEntityId(), item.getItemId()));
     }
 
     public EntityRotation getPlayerRotation() {
@@ -242,7 +246,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         return location;
     }
 
-    public void setConnectionHandler(PlayerConnectionHandler connectionHandler) {
+    public void setConnectionHandler(PlayerConnection connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
 
@@ -385,10 +389,13 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             equippedItem.swingItem();
+
+            // update network players
+            connection.sendImmediately(new ClientSwingItem(getEntityId(), equippedItem.getItemId()));
         }
 
         equippedItem.calculateItemPositionAndRotation(getInterpolated(), rotation);
-        equippedItem.update(Gdx.graphics.getDeltaTime(), this);
+        equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
         equippedItem.draw(batch);
 
         if (equippedItem.isSwinging()) {

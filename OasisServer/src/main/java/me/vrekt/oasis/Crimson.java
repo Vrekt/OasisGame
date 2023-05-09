@@ -4,6 +4,7 @@ import com.google.common.flogger.FluentLogger;
 import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
+import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;
 import me.vrekt.oasis.world.CrimsonWorld;
 import me.vrekt.oasis.world.CrimsonWorldManager;
@@ -62,6 +63,10 @@ public final class Crimson {
         final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));
 
         log("Server started successfully at " + localTime + ", version: " + CRIMSON_VERSION + ", game version: " + GAME_VERSION);
+    }
+
+    private void handlePacket(int id, ByteBuf in) {
+
     }
 
     public static void log(String information) {

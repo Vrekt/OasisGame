@@ -33,12 +33,18 @@ public abstract class ItemWeapon extends ItemEquippable {
         return knockbackMultiplier;
     }
 
+    @Override
+    public void equip(OasisPlayerSP player) {
+        player.equipItem(this);
+    }
+
     /**
      * Calculate the offset for the players item based on where they face.;
      *
      * @param position the position of the player
      * @param rotation the players rotation
      */
+    @Override
     public void calculateItemPositionAndRotation(Vector2 position, EntityRotation rotation) {
         switch (rotation) {
             case UP:
@@ -145,17 +151,17 @@ public abstract class ItemWeapon extends ItemEquippable {
     }
 
     @Override
-    public void update(float delta, OasisPlayerSP player) {
+    public void update(float delta, EntityRotation rotation) {
 
         // TODO: Fix this, bounding box is correct position wise but does not actually extend correctly
-        final float posX = player.getPlayerRotation() == EntityRotation.LEFT ?
+        final float posX = rotation == EntityRotation.LEFT ?
                 sprite.getX() - (sprite.getWidth() + range) : sprite.getX();
-        final float posY = player.getPlayerRotation() == EntityRotation.DOWN ?
+        final float posY = rotation == EntityRotation.DOWN ?
                 sprite.getY() - (sprite.getHeight() + range) : sprite.getY();
 
-        final float boundsX = player.getPlayerRotation() == EntityRotation.RIGHT ?
+        final float boundsX = rotation == EntityRotation.RIGHT ?
                 sprite.getWidth() + range : sprite.getWidth();
-        final float boundsY = player.getPlayerRotation() == EntityRotation.UP ?
+        final float boundsY = rotation == EntityRotation.UP ?
                 sprite.getHeight() + range : sprite.getHeight();
 
         bounds.set(posX, posY, boundsX, boundsY);

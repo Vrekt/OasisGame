@@ -16,7 +16,7 @@ public final class TutorialIslandQuest extends Quest {
         this.objectives.add(new QuestObjective("Cut down the Lucid Tree"));
 
         // TODO: Placeholders
-        this.itemsRequired.add(LucidTreeHarvestingToolItem.getDescriptor());
-        this.rewards.add(LucidTreeHarvestingToolItem.getDescriptor());
+        this.itemsRequired.add(LucidTreeHarvestingToolItem.DESCRIPTOR);
+        this.rewards.add(LucidTreeHarvestingToolItem.DESCRIPTOR);
     }
 }

@@ -7,12 +7,15 @@ import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.artifact.artifacts.QuickStepArtifact;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class QuickStepItemArtifact extends ItemArtifact {
 
     public static final int ID = 5;
     public static final String TEXTURE = "quickstep_artifact_item";
     public static final String NAME = "Quickstep Artifact";
+
+    public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     private Artifact artifact;
 
