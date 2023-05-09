@@ -312,6 +312,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public void spawnEntityInWorld(LunarEntity entity, float x, float y) {
         if (entity instanceof OasisPlayerSP) return;
+        entity.getInterpolated().set(x, y);
+        entity.getPrevious().set(x, y);
         super.spawnEntityInWorld(entity, x, y);
     }
 
@@ -325,9 +327,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final EntityNPCType type = EntityNPCType.findType(object);
             if (type != null) {
-               // final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
-            //    entity.load(asset);
-            //    addInteractableEntity(entity);
+                // final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
+                //    entity.load(asset);
+                //    addInteractableEntity(entity);
             } else {
                 Logging.warn(this, "Found invalid entity: " + object);
             }

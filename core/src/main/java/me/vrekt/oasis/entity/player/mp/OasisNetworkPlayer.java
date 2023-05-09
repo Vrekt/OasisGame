@@ -41,7 +41,7 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     public OasisNetworkPlayer(boolean initializeComponents) {
         super(initializeComponents);
 
-        setDoPositionInterpolation(true);
+        setInterpolatePosition(true);
         setSnapToPositionIfDesync(true);
         setInterpolateDesyncDistance(2.5f);
         setInterpolateAlpha(1.0f);
@@ -114,16 +114,19 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     @Override
     public void updatePosition(float x, float y, float angle) {
         super.updatePosition(x, y, angle);
+        entityRotation = EntityRotation.values()[(int) angle];
     }
 
     @Override
     public void updateVelocity(float x, float y, float angle) {
         super.updateVelocity(x, y, angle);
+        entityRotation = EntityRotation.values()[(int) angle];
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         drawEquippedItem(batch);
+
 
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
