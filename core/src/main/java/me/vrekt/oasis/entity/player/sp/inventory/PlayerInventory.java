@@ -1,6 +1,5 @@
 package me.vrekt.oasis.entity.player.sp.inventory;
 
-import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.BasicInventory;
 import me.vrekt.oasis.entity.inventory.InventoryType;
@@ -26,7 +25,6 @@ public final class PlayerInventory extends BasicInventory {
             final Item item = entry.getValue().getItem();
             if (item.getAmount() == 0
                     || entry.getValue().isMarkedForDeletion()) {
-                Pools.free(item);
                 it.remove();
 
                 // update gui

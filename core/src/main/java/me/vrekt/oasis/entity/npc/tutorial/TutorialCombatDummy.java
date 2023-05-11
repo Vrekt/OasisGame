@@ -25,7 +25,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
         this.rotation = 1.0f;
 
         this.ai = new SeekAndPursuePlayer(this, player, new PlayerSteeringLocation(player), position);
-        this.setIgnoreCollision(true);
+        setIgnoreCollision(true);
     }
 
     @Override
@@ -69,7 +69,8 @@ public final class TutorialCombatDummy extends EntityEnemy {
 
     @Override
     public void load(Asset asset) {
-        this.setUseAnimations();
+        super.load(asset);
+        setUseAnimations();
 
         putRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
         putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));

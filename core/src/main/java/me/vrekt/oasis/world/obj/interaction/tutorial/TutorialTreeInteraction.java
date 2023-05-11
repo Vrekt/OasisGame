@@ -21,7 +21,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
     @Override
     public boolean hasRequiredItem() {
-        return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.class);
+        return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.ID);
     }
 
     @Override
@@ -32,7 +32,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     @Override
     public void interact() {
         world.getLocalPlayer().setDidChopTree(true);
-        world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.class, 1);
+        world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.ID, 1);
 
         this.interactable = false;
         this.interactedWith = false;

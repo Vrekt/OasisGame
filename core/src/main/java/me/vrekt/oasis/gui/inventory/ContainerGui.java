@@ -141,6 +141,7 @@ public final class ContainerGui extends Gui {
         private void handleClickActionListener() {
             if (!occupied) return;
             if (player.getInventory().isInventoryFull()) return;
+
             if (inventory == null) {
                 Logging.error(this, "Inventory is null?");
                 return;

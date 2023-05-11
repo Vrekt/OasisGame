@@ -18,6 +18,7 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable {
 
     // describes the view/renderable stuff
     protected boolean withinUpdateDistance, isNearby;
+    protected NinePatch gradient;
 
     protected float health = 100.0f;
 
@@ -41,11 +42,10 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable {
      * Render the health bar of this entity
      * Usually only used for enemies.
      *
-     * @param batch    the batch
-     * @param gradient the gradient
+     * @param batch the batch
      */
-    public void renderHealthBar(SpriteBatch batch, NinePatch gradient) {
-        if (health <= 0) return;
+    public void renderHealthBar(SpriteBatch batch) {
+        if (health <= 0 || gradient == null) return;
 
         final float width = (health / 100.0f * getWidth()) * OasisGameSettings.SCALE;
         gradient.draw(batch, getX(), getY() + (getHeightScaled() + 0.1f), width, 3.0f * OasisGameSettings.SCALE);

@@ -1,6 +1,5 @@
 package me.vrekt.oasis.entity.inventory;
 
-import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
 import me.vrekt.oasis.item.Item;
@@ -29,19 +28,25 @@ public abstract class BasicInventory implements Inventory {
     /**
      * Give the entity an item.
      *
-     * @param type   the item class type
+     * @param id     the item ID
      * @param amount the item amount to give
      * @return {@code true} if the addition was successful.
      */
     @Override
-    public <T extends Item> Item addItem(Class<T> type, int amount) {
+    public Item addItem(int id, int amount) {
         if (isInventoryFull()) return null;
-        final Item item = Pools.obtain(type);
+        final Item item = ItemRegistry.createItemFromId(id);
         item.setAmount(amount);
-
         item.load(GameManager.getAssets());
         slots.put(getAnyEmptySlot(), new InventorySlot(item));
         return item;
+    }
+
+    @Override
+    public void addItems(InventoryItemMap... items) {
+        for (InventoryItemMap item : items) {
+            addItem(item.id, item.amount);
+        }
     }
 
     @Override
@@ -64,19 +69,13 @@ public abstract class BasicInventory implements Inventory {
         slots.put(getAnyEmptySlot(), new InventorySlot(item));
     }
 
-    /**
-     * Get an item by type
-     * This method will return the first instance of the item
-     *
-     * @param type the type
-     * @param <T>  T
-     * @return the item or {@code  null} if non-existent
-     */
     @Override
-    public <T extends Item> Item getItemByType(Class<T> type) {
+    public Item getItemById(int id) {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
-            if (entry.getValue() != null && entry.getValue().isOccupied() &&
-                    entry.getValue().getItem().getClass().equals(type)) {
+            if (entry.getValue() != null
+                    && entry.getValue().isOccupied()
+                    && !entry.getValue().isMarkedForDeletion()
+                    && entry.getValue().getItem().getItemId() == id) {
                 return entry.getValue().getItem();
             }
         }
@@ -107,10 +106,12 @@ public abstract class BasicInventory implements Inventory {
     }
 
     @Override
-    public <T> boolean hasItem(Class<T> type) {
+    public boolean hasItem(int id) {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
-            if (entry.getValue() != null && entry.getValue().isOccupied() &&
-                    entry.getValue().getItem().getClass().equals(type)) {
+            if (entry.getValue() != null
+                    && entry.getValue().isOccupied()
+                    && !entry.getValue().isMarkedForDeletion()
+                    && entry.getValue().getItem().getItemId() == id) {
                 return true;
             }
         }

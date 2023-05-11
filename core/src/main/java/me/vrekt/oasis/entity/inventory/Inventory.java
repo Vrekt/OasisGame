@@ -15,12 +15,18 @@ public interface Inventory {
     /**
      * Add an item to this inventory
      *
-     * @param type   the type item
+     * @param id     the item ID
      * @param amount the amount
-     * @param <T>    Type
      * @return a new {@link Item}
      */
-    <T extends Item> Item addItem(Class<T> type, int amount);
+    Item addItem(int id, int amount);
+
+    /**
+     * Add many items to this inventory
+     *
+     * @param items the items
+     */
+    void addItems(InventoryItemMap... items);
 
     /**
      * Add an item from the save game file
@@ -40,13 +46,12 @@ public interface Inventory {
     void addItem(Item item);
 
     /**
-     * Get an item by type
+     * Get an item by ID
      *
-     * @param type the type
-     * @param <T>  type
+     * @param id the id
      * @return the item or {@code null}
      */
-    <T extends Item> Item getItemByType(Class<T> type);
+    Item getItemById(int id);
 
     /**
      * Get the slot an item is in
@@ -72,11 +77,10 @@ public interface Inventory {
     void removeItem(int slot);
 
     /**
-     * @param type class type
-     * @param <T>  type
+     * @param id the item ID
      * @return {@code  true} if the item is present in this inventory
      */
-    <T> boolean hasItem(Class<T> type);
+    boolean hasItem(int id);
 
     /**
      * @return {@code  true} if this inventory is full
@@ -126,5 +130,15 @@ public interface Inventory {
      * Clear this inventory
      */
     void clear();
+
+    final class InventoryItemMap {
+
+        public int id, amount;
+
+        public InventoryItemMap(int id, int amount) {
+            this.id = id;
+            this.amount = amount;
+        }
+    }
 
 }

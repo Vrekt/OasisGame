@@ -53,10 +53,7 @@ import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -95,7 +92,6 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
     // the current tick of this world.
     protected float currentWorldTick;
-    protected long last;
 
     protected ShapeRenderer shapes;
     protected NinePatch gradient;
@@ -204,7 +200,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             game.setScreen(this);
         }
 
-        GameManager.resetCursor();
+        resetCursorState();
     }
 
     public void spawnEntityTypeAt(EntityNPCType type, Vector2 position) {
@@ -327,9 +323,9 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final EntityNPCType type = EntityNPCType.findType(object);
             if (type != null) {
-                // final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
-                //    entity.load(asset);
-                //    addInteractableEntity(entity);
+                final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
+                entity.load(asset);
+                addInteractableEntity(entity);
             } else {
                 Logging.warn(this, "Found invalid entity: " + object);
             }
@@ -563,8 +559,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     @Override
     public float update(float d) {
         d = super.update(d);
-        this.player.getInventory().update();
-        this.updateCursorState();
+        updateCursorState();
         return d;
     }
 
@@ -608,6 +603,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
      * Update cursor state
      */
     protected void updateCursorState() {
+        if (gui.isAnyInterfaceOpen()) return;
+
         // update world cursor
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
@@ -615,7 +612,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
             if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
-                if (!cursorChanged && !gui.isAnyInterfaceOpen()) {
+                if (!cursorChanged) {
                     GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
                     this.cursorChanged = true;
                 }
@@ -627,7 +624,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasInterior = false;
         for (Instance interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
-                if (!cursorChanged && !gui.isAnyInterfaceOpen()) {
+                if (!cursorChanged) {
                     GameManager.setCursorInGame(interior.getCursor());
                     this.cursorChanged = true;
                 }
@@ -640,7 +637,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         boolean hasObj = false;
         if (!hasEntity) {
             for (InteractableWorldObject worldObject : interactableWorldObjects) {
-                if (!gui.isAnyInterfaceOpen() && worldObject.clickedOn(cursorInWorld)
+                if (worldObject.clickedOn(cursorInWorld)
                         && worldObject.getCursor() != null
                         && worldObject.isInteractable()) {
                     GameManager.setCursorInGame(worldObject.getCursor());
@@ -652,10 +649,14 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         }
 
         if (!hasEntity && !hasObj && !hasInterior && cursorChanged) {
-            GameManager.resetCursor();
-            this.cursorChanged = false;
+            resetCursorState();
         }
 
+    }
+
+    public void resetCursorState() {
+        GameManager.resetCursor();
+        this.cursorChanged = false;
     }
 
     /**
@@ -681,10 +682,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         for (Entity entity : entities.values()) {
             if (entity.isInView(renderer.getCamera())) {
                 entity.render(batch, delta);
-            }
-
-            if (entity instanceof EntityEnemy) {
-                entity.renderHealthBar(batch, gradient);
+                entity.renderHealthBar(batch);
             }
         }
 
@@ -804,11 +802,23 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         return null;
     }
 
-    public <T extends InteractableWorldObject> List<T> getByRuntimeIds(Class<T> type, int... id) {
+    public <T extends InteractableWorldObject> List<T> getByRuntimeIds(int... id) {
         final List<T> objects = new ArrayList<>();
 
-        for (int i : id) objects.add((T) getByRuntimeId(i));
+        for (int i : id) {
+            final T t = (T) getByRuntimeId(i);
+            if (t != null) objects.add(t);
+        }
         return objects;
+    }
+
+    public <T extends InteractableWorldObject> Map<Integer, T> getByRuntimeIdsMap(int... id) {
+        final Map<Integer, T> map = new HashMap<>();
+        for (int i : id) {
+            final T t = (T) getByRuntimeId(i);
+            if (t != null) map.put(i, t);
+        }
+        return map;
     }
 
     /**

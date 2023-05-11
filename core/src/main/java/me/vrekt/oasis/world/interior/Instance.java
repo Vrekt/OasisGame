@@ -84,8 +84,7 @@ public class Instance extends OasisWorldInstance {
             GameManager.setCursorInGame(getCursor());
             this.cursorChanged = true;
         } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y) && cursorChanged) {
-            GameManager.resetCursor();
-            this.cursorChanged = false;
+            resetCursorState();
         }
 
         return super.update(delta);

@@ -31,7 +31,7 @@ public final class MaviaHouseInterior extends Instance {
         if (!chestPopulated) {
             // populate tutorial chests
             final ChestInventoryInteraction interaction = (ChestInventoryInteraction) getByRuntimeId(TUTORIAL_CHEST_RUNTIME_ID);
-            interaction.getInventory().addItem(EnchantedVioletItem.class, 1);
+            interaction.getInventory().addItem(EnchantedVioletItem.ID, 1);
             chestPopulated = true;
         }
     }

@@ -71,7 +71,7 @@ public final class MaviaTutorial extends EntityInteractable {
     }
 
     private void updateEndStage3() {
-        final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemByType(LucidTreeFruitItem.class);
+        final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemById(LucidTreeFruitItem.ID);
         if (item != null) {
             item.setAllowedToConsume(true);
         }
@@ -120,7 +120,7 @@ public final class MaviaTutorial extends EntityInteractable {
         super.update(v);
 
         // player has collected what they needed, advance dialog stage.
-        if (tutorialUnlocked && player.getInventory().hasItem(LucidTreeHarvestingToolItem.class)) {
+        if (tutorialUnlocked && player.getInventory().hasItem(LucidTreeHarvestingToolItem.ID)) {
             // also reset because we don't care anymore
             this.tutorialUnlocked = false;
             this.dialog = entityDialog.getSection("mavia_dialog_6");

@@ -3,7 +3,6 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -17,7 +16,7 @@ import java.util.Map;
  * Represents an item within the game
  * Pooled to save resources when lots of items are used.
  */
-public abstract class Item implements Pool.Poolable, ResourceLoader {
+public abstract class Item implements ResourceLoader {
 
     public static ItemDescriptor descriptor;
 
@@ -39,6 +38,7 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
     protected final Map<Integer, ItemAttribute> attributes = new HashMap<>();
 
     public Item() {
+
     }
 
     public Item(String itemName, int itemId, String description) {
@@ -143,10 +143,4 @@ public abstract class Item implements Pool.Poolable, ResourceLoader {
         batch.draw(sprite, sprite.getX(), sprite.getY(), 0.0f, 0.0f,
                 width, height, 1.0f, 1.0f, rotation);
     }
-
-    @Override
-    public void reset() {
-        amount = 0;
-    }
-
 }

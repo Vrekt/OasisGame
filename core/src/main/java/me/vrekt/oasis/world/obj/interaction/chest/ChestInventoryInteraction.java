@@ -50,6 +50,7 @@ public final class ChestInventoryInteraction extends InteractableWorldObject {
         this.interactedWith = true;
         if (!isShowing) {
             GameManager.getGui().populateContainerGui(inventory);
+            GameManager.resetCursor();
             GameManager.getGui().showGui(GuiType.CONTAINER);
             interactionLocation.set(world.getLocalPlayer().getPosition());
             isShowing = true;

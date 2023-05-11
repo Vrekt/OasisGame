@@ -1,10 +1,12 @@
 package me.vrekt.oasis.entity.npc;
 
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.combat.CombatDamageAnimator;
 import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
@@ -37,6 +39,11 @@ public abstract class EntityEnemy extends EntityDamageable {
         this.entityRotation = EntityRotation.DOWN;
     }
 
+    @Override
+    public void load(Asset asset) {
+        this.gradient = new NinePatch(asset.get("health_gradient"), 0, 0, 0, 0);
+    }
+
     public void createBoxBody(World world) {
         final BodyDef definition = new BodyDef();
         final FixtureDef fixture = new FixtureDef();
@@ -55,7 +62,6 @@ public abstract class EntityEnemy extends EntityDamageable {
 
         body.createFixture(fixture);
         body.setUserData(this);
-        body.setLinearDamping(1.0f);
         shape.dispose();
     }
 
@@ -75,21 +81,8 @@ public abstract class EntityEnemy extends EntityDamageable {
     public void setUseAnimations() {
         entity.add(animationComponent = new EntityAnimationComponent());
     }
-
-    public EntityRotation getEntityRotation() {
-        return entityRotation;
-    }
-
     public void setEntityRotation(EntityRotation entityRotation) {
         this.entityRotation = entityRotation;
-    }
-
-    public EntityRotation getLastRotation() {
-        return lastRotation;
-    }
-
-    public void setLastRotation(EntityRotation lastRotation) {
-        this.lastRotation = lastRotation;
     }
 
     /**

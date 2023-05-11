@@ -341,6 +341,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public void update(float delta) {
         super.update(delta);
 
+        inventory.update();
+
         if (rotationChanged) {
             setIdleRegionState();
             rotationChanged = false;
