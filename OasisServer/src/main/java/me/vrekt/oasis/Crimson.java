@@ -6,8 +6,8 @@ import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;
-import me.vrekt.oasis.world.CrimsonWorld;
 import me.vrekt.oasis.world.CrimsonWorldManager;
+import me.vrekt.oasis.world.tutorial.ServerGameTutorialWorld;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,6 +46,13 @@ public final class Crimson {
             }
         }
 
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                e.printStackTrace();
+            }
+        });
+
         protocol = new LunarProtocol(true);
         gameServer = new CrimsonGameServer(protocol);
         worldManager = new CrimsonWorldManager();
@@ -57,7 +64,7 @@ public final class Crimson {
         log("Netty server successfully started!");
 
         gameServer.setWorldManager(worldManager);
-        gameServer.getWorldManager().addWorld("TutorialWorld", new CrimsonWorld(new ServerWorldConfiguration(), "TutorialWorld"));
+        gameServer.getWorldManager().addWorld("TutorialWorld", new ServerGameTutorialWorld(new ServerWorldConfiguration(), "TutorialWorld"));
         gameServer.start();
 
         final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));

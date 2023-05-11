@@ -100,6 +100,7 @@ public final class ContainerGui extends Gui {
 
     /**
      * Populate the GUI
+     * TODO: Bigger container support for containers > 12 slots in size
      *
      * @param inventory the inventory
      */
