@@ -66,6 +66,7 @@ public abstract class BasicInventory implements Inventory {
     @Override
     public void addItem(Item item) {
         if (isInventoryFull()) return;
+
         slots.put(getAnyEmptySlot(), new InventorySlot(item));
     }
 
@@ -166,7 +167,6 @@ public abstract class BasicInventory implements Inventory {
         final Item item = slots.get(slot).getItem();
         other.addItem(item);
 
-        // TODO: Do NOT use removeItem since the object will be freed.
         slots.remove(slot);
     }
 

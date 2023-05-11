@@ -2,21 +2,23 @@ package me.vrekt.oasis.gui.inventory;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.util.TableUtils;
-import com.kotcrab.vis.ui.widget.*;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisSplitPane;
+import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
+import me.vrekt.oasis.entity.inventory.container.containers.ChestInventory;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.GuiUtilities;
 
 import java.util.LinkedList;
 
@@ -27,10 +29,12 @@ public final class ContainerGui extends Gui {
 
     private final VisTable rootTable;
     private final LinkedList<ContainerUiSlot> chestSlots = new LinkedList<>();
-    private final LinkedList<ContainerUiSlot> inventorySlots = new LinkedList<>();
+    private final LinkedList<ContainerPlayerInventoryUiSlot> inventorySlots = new LinkedList<>();
 
     private final OasisPlayerSP player;
     private ContainerInventory inventory;
+
+    private boolean containerContentsChanged;
 
     public ContainerGui(GameGui gui, Asset asset) {
         super(gui, asset, "Container");
@@ -50,35 +54,26 @@ public final class ContainerGui extends Gui {
         primary.row().padTop(-8);
 
         final TextureRegionDrawable drawable = new TextureRegionDrawable(asset.get("theme"));
-        for (int i = 1; i < 12; i++) {
-            final VisImage slot = new VisImage(drawable);
-            final VisImage item = new VisImage();
+        this.inventory = new ChestInventory(12);
 
-            // create a separate container for the item image... so it doesn't get stretched.
-            final VisTable itemTable = new VisTable(true);
-            itemTable.add(item);
-
-            final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
-            chestSlots.add(new ContainerUiSlot(overlay, item));
-            primary.add(overlay).size(48, 48);
-            if (i % 3 == 0) primary.row();
-        }
+        // populate inventory components
+        // the provided inventory context is temporary and may be modified
+        GuiUtilities.populateInventoryComponents(inventory, drawable, gui, consumer -> {
+            chestSlots.add(new ContainerUiSlot(consumer.overlay, consumer.item, consumer.amountLabel));
+            primary.add(consumer.overlay).size(48, 48);
+            if (consumer.index % 3 == 0) primary.row();
+        });
 
         secondary.top();
         secondary.add(new VisLabel("Your Inventory", new Label.LabelStyle(gui.getMedium(), Color.WHITE))).size(48, 48);
         secondary.row().padTop(-8);
-        for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
-            final VisImage slot = new VisImage(drawable);
-            final VisImage item = new VisImage();
 
-            // create a separate container for the item image... so it doesn't get stretched.
-            final VisTable itemTable = new VisTable(true);
-            itemTable.add(item);
-            final Stack overlay = new Stack(slot, new Container<Table>(itemTable));
-            inventorySlots.add(new ContainerUiSlot(overlay, item));
-            secondary.add(overlay).size(48, 48);
-            if (i % 3 == 0) secondary.row();
-        }
+        // populate player inventory components
+        GuiUtilities.populateInventoryComponents(player.getInventory(), drawable, gui, consumer -> {
+            inventorySlots.add(new ContainerPlayerInventoryUiSlot(consumer.overlay, consumer.item, consumer.amountLabel));
+            secondary.add(consumer.overlay).size(48, 48);
+            if (consumer.index % 3 == 0) secondary.row();
+        });
 
         VisSplitPane splitPane = new VisSplitPane(primary, secondary, false);
         rootTable.add(splitPane).fill().expand();
@@ -87,13 +82,20 @@ public final class ContainerGui extends Gui {
 
     @Override
     public void update() {
-        // update ui based on player inventory status
-        player.getInventory().getSlots().forEach((slot, item) -> {
-            final ContainerUiSlot ui = inventorySlots.get(slot);
-            if (!ui.occupied) {
-                ui.setItem(item.getItem());
+        // update player context
+        player.getInventory().getSlots().forEach((index, slot) -> {
+            final ContainerPlayerInventoryUiSlot ui = inventorySlots.get(index);
+            if (slot.isOccupied() && !ui.occupied) {
+                ui.setItem(slot.getItem());
+                ui.setStackableState();
+                ui.setSlot(index);
             }
         });
+
+        // update container context if changed
+        if (containerContentsChanged) {
+            populate(inventory);
+        }
     }
 
     /**
@@ -102,12 +104,16 @@ public final class ContainerGui extends Gui {
      * @param inventory the inventory
      */
     public void populate(ContainerInventory inventory) {
+        this.inventory = inventory;
+
         inventory.getSlots().forEach((slot, item) -> {
             final ContainerUiSlot ui = chestSlots.get(slot);
-            ui.setItem(item.getItem());
-            ui.setSlot(slot);
+            if (!ui.occupied) {
+                ui.setItem(item.getItem());
+                ui.setStackableState();
+                ui.setSlot(slot);
+            }
         });
-        this.inventory = inventory;
     }
 
     @Override
@@ -124,11 +130,50 @@ public final class ContainerGui extends Gui {
         rootTable.setVisible(false);
     }
 
-    private final class ContainerUiSlot extends AbstractInventoryUiSlot {
+    /**
+     * Handles the player's inventory context and when they transfer an item from -> to
+     */
+    private final class ContainerPlayerInventoryUiSlot extends AbstractInventoryUiSlot {
         private int slot;
 
-        public ContainerUiSlot(Stack stack, VisImage item) {
-            super(stack, item, new Tooltip.TooltipStyle());
+        public ContainerPlayerInventoryUiSlot(Stack stack, Image item, VisLabel amountLabel) {
+            super(stack, item, amountLabel, gui.getStyles().getTooltipStyle());
+
+            // transfer this item into the container
+            stack.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    handleClickActionListener();
+                }
+            });
+        }
+
+        public void setSlot(int slot) {
+            this.slot = slot;
+        }
+
+        private void handleClickActionListener() {
+            // if this slot isn't occupied or our container inventory is full, ignore
+            if (!occupied || inventory.isInventoryFull()) return;
+
+            // update this container GUI
+            player.getInventory().transferItemTo(slot, inventory);
+            containerContentsChanged = true;
+            removeItem();
+        }
+
+        @Override
+        protected void removeItem() {
+            this.slot = -1;
+            reset();
+        }
+    }
+
+    private class ContainerUiSlot extends AbstractInventoryUiSlot {
+        private int slot;
+
+        public ContainerUiSlot(Stack stack, Image item, VisLabel amountLabel) {
+            super(stack, item, amountLabel, gui.getStyles().getTooltipStyle());
 
             stack.addListener(new ClickListener() {
                 @Override
@@ -139,15 +184,10 @@ public final class ContainerGui extends Gui {
         }
 
         private void handleClickActionListener() {
-            if (!occupied) return;
-            if (player.getInventory().isInventoryFull()) return;
+            if (!occupied || player.getInventory().isInventoryFull()) return;
 
-            if (inventory == null) {
-                Logging.error(this, "Inventory is null?");
-                return;
-            }
             inventory.transferItemTo(slot, player.getInventory());
-            this.removeItem();
+            removeItem();
         }
 
         public void setSlot(int slot) {
@@ -156,7 +196,8 @@ public final class ContainerGui extends Gui {
 
         @Override
         protected void removeItem() {
-            super.reset();
+            this.slot = -1;
+            reset();
         }
 
     }

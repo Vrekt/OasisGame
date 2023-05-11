@@ -12,7 +12,6 @@ import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
-import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 import me.vrekt.oasis.utility.logging.Logging;
 import me.vrekt.oasis.world.OasisWorld;
@@ -69,10 +68,12 @@ public final class TutorialOasisWorld extends OasisWorld {
             Logging.error(this, "Failed to find tutorial chests to populate!");
         } else {
             tutorialChestInteractions.values().forEach(interaction -> interaction.setInteractable(true));
+
+            // TODO: Change these items later
             tutorialChestInteractions.get(TUTORIAL_CHEST_RUNTIME_ID)
                     .getInventory()
                     .addItems(
-                            new Inventory.InventoryItemMap(LucidTreeHarvestingToolItem.ID, 1),
+                            new Inventory.InventoryItemMap(EnchantedVioletItem.ID, 1),
                             new Inventory.InventoryItemMap(QuickStepItemArtifact.ID, 1)
                     );
         }

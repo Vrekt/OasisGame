@@ -21,6 +21,7 @@ import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.utility.GuiUtilities;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -141,33 +142,12 @@ public final class InventoryGui extends Gui {
         // populate a total of 21 inventory slots
         primary.top().padTop(52).padLeft(84);
         final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(asset.get("theme"));
-        for (int i = 1; i < player.getInventory().getInventorySize(); i++) {
-            // background image of the actual slot
-            final Image slot = new Image(slotDrawable);
-            // the container for our item image
-            final Image item = new Image();
-            item.setOrigin(16 / 2f, 16 / 2f);
 
-            // just holds our item image container
-            final VisTable itemTable = new VisTable(false);
-            itemTable.add(item);
-
-            final VisTable itemAmount = new VisTable(true);
-            final VisLabel amountLabel = new VisLabel("", new Label.LabelStyle(gui.getSmall(), Color.LIGHT_GRAY));
-            amountLabel.setVisible(false);
-
-            itemAmount.bottom().right();
-            itemAmount.add(amountLabel).bottom().right().padBottom(4).padRight(4);
-
-            // create a separate container for the item image... so it doesn't get stretched.
-            final Stack overlay = new Stack(slot, itemTable);
-            overlay.add(itemAmount);
-
-            // add all of this to a list that stores our UI slots.
-            this.slots.add(new InventoryUiSlot(overlay, item, gui.getStyles().getTooltipStyle(), amountLabel));
-            primary.add(overlay).size(48, 48);
-            if (i % 3 == 0) primary.row();
-        }
+        GuiUtilities.populateInventoryComponents(player.getInventory(), slotDrawable, gui, consumer -> {
+            slots.add(new InventoryUiSlot(consumer.overlay, consumer.item, consumer.style, consumer.amountLabel));
+            primary.add(consumer.overlay).size(48, 48);
+            if (consumer.index % 3 == 0) primary.row();
+        });
 
         splitPane = new VisSplitPane(primary, secondary, false);
         rootTable.add(splitPane).fill().expand();
@@ -275,6 +255,7 @@ public final class InventoryGui extends Gui {
         statThree.setVisible(false);
     }
 
+
     @Override
     public void update() {
         // update ui based on player inventory status
@@ -285,12 +266,7 @@ public final class InventoryGui extends Gui {
                 ui.setItem(item.getItem());
             } else {
                 // update amount label otherwise
-                if (ui.item.isStackable()) {
-                    ui.amountLabel.setText(String.valueOf(ui.item.getAmount()));
-                    ui.amountLabel.setVisible(true);
-                } else if (!ui.item.isStackable() && ui.amountLabel.isVisible()) {
-                    ui.amountLabel.setVisible(false);
-                }//
+                ui.setStackableState();
             }
         });
     }
@@ -334,10 +310,8 @@ public final class InventoryGui extends Gui {
         // the last item in this slot, for comparison when updating
         private long lastItemId = -1;
 
-        private final VisLabel amountLabel;
-
         public InventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style, VisLabel amountLabel) {
-            super(stack, item, style);
+            super(stack, item, amountLabel, style);
 
             // add click action
             stack.addListener(new ClickListener() {
@@ -347,8 +321,6 @@ public final class InventoryGui extends Gui {
                     handleClickActionListener();
                 }
             });
-
-            this.amountLabel = amountLabel;
         }
 
         /**
@@ -366,10 +338,8 @@ public final class InventoryGui extends Gui {
         @Override
         protected void setItem(Item item) {
             super.setItem(item);
-            this.imageItem.setScale(item.getSprite().getScaleX(), item.getSprite().getScaleY());
             this.lastItemId = item.getItemId();
             this.itemDescription = item.getDescription();
-            this.amountLabel.setText(String.valueOf(item.getAmount()));
         }
 
         /**
@@ -380,8 +350,6 @@ public final class InventoryGui extends Gui {
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
             this.lastItemId = -1;
-            amountLabel.setText("");
-            amountLabel.setVisible(false);
         }
     }
 
