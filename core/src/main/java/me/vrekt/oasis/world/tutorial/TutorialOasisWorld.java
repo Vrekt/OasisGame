@@ -83,6 +83,7 @@ public final class TutorialOasisWorld extends OasisWorld {
             player.getInventory().addItem(EnchantedVioletItem.ID, 1);
             player.getInventory().addItem(QuickStepItemArtifact.ID, 1);
             player.getInventory().addItem(LucidTreeFruitItem.ID, 1);
+            game.setNewGame(false); // prevent duplication of items when coming back from instances
             // player.getConnection().send(new ClientSpawnEntity(EntityType.TUTORIAL_COMBAT_DUMMY, player.getPosition()));
         }
     }
@@ -111,7 +112,7 @@ public final class TutorialOasisWorld extends OasisWorld {
 
             if (tutorialEntity != null) {
                 // spawn mavia in this instance
-                tutorialEntity.setPosition(instance.getSpawn().x, instance.getSpawn().y + 4.0f, false);
+                tutorialEntity.setPosition(instance.getWorldSpawn().x, instance.getWorldSpawn().y + 4.0f, false);
                 instance.addInteractableEntity(tutorialEntity);
             }
             return true;

@@ -7,7 +7,7 @@ import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.SPacketWorldInvalid;
 import gdx.lunar.server.game.LunarServer;
 import gdx.lunar.server.network.connection.ServerPlayerConnection;
-import gdx.lunar.server.world.testing.World;
+import gdx.lunar.server.world.World;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.entity.CrimsonPlayer;
 import me.vrekt.oasis.logging.Logging;
@@ -57,7 +57,7 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
         this.worldIn = (CrimsonWorld) world;
         this.localPlayer = new CrimsonPlayer(true, server, this);
         this.localPlayer.setEntityName(packet.getUsername());
-        this.localPlayer.setWorldIn(world);
+        this.localPlayer.setServerWorldIn(world);
         this.localPlayer.setEntityId(world.assignEntityIdFor(true));
         this.player = localPlayer;
         sendImmediately(new SPacketJoinWorld(packet.getWorldName(), localPlayer.getEntityId()));

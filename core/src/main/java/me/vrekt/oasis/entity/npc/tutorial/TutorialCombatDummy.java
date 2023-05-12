@@ -88,7 +88,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
         this.bounds = new Rectangle(getPosition().x, getPosition().y, getWidthScaled(), getHeightScaled());
         setSize(currentRegionState.getRegionWidth(), currentRegionState.getRegionHeight(), OasisGameSettings.SCALE);
 
-        createBoxBody(gameWorldIn.getWorld());
+        createBoxBody(gameWorldIn.getEntityWorld());
     }
 
     @Override

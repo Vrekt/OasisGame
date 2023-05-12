@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.WorldConfiguration;
-import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -36,7 +35,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         config.updateNetworkPlayers = true;
         config.updateLocalPlayer = true;
         config.stepTime = 1 / 240f;
-        setConfiguration(config);
+        ;
     }
 
     @Override
@@ -84,7 +83,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
 
         if (player.isInWorld()) {
             Logging.info(this, "Removing local player from parent world.");
-            player.removeEntityInWorld(player.getGameWorldIn());
+            player.removeFromWorld(player.getGameWorldIn());
         }
 
         spawnPlayerInInstance();
@@ -94,14 +93,9 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
     }
 
     private void spawnPlayerInInstance() {
-        player.spawnEntityInWorld(this, spawn.x, spawn.y);
+        player.spawnInWorld(this, spawn);
         player.setInInstance(true);
         player.setInstanceIn(this);
     }
 
-    @Override
-    public void spawnEntityInWorld(LunarEntity entity, float x, float y) {
-        if (entity instanceof OasisPlayerSP) return;
-        super.spawnEntityInWorld(entity, x, y);
-    }
 }

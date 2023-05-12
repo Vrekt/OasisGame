@@ -1,7 +1,7 @@
 package me.vrekt.oasis.world;
 
+import gdx.lunar.server.world.AbstractServerWorld;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
-import gdx.lunar.server.world.testing.AbstractServerWorld;
 import me.vrekt.oasis.entity.CrimsonEntity;
 import me.vrekt.oasis.entity.CrimsonPlayer;
 

@@ -3,7 +3,7 @@ package me.vrekt.oasis.entity.player;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import lunar.shared.player.mp.LunarNetworkEntityPlayer;
+import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 

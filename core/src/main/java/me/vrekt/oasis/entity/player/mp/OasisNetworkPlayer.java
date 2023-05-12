@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import lunar.shared.drawing.Rotation;
+import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -45,7 +45,7 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         setSnapToPositionIfDesync(true);
         setInterpolateDesyncDistance(2.5f);
         setInterpolateAlpha(1.0f);
-        setIgnorePlayerCollision(true);
+        //TODO:   setIgnorePlayerCollision(true);
         setHasMoved(true);
     }
 
@@ -90,7 +90,7 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
         putRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
         putRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        currentRegionState = getRegion("healer_walking_up_idle");
+        textureRegion = getRegion("healer_walking_up_idle");
 
         // up, down, left, right
         animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
@@ -131,8 +131,8 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
         } else {
-            if (currentRegionState != null) {
-                draw(batch, currentRegionState);
+            if (textureRegion != null) {
+                draw(batch, textureRegion);
             }
         }
     }
@@ -162,19 +162,19 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     private void setIdleRegionState() {
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
-                currentRegionState = getRegion("healer_walking_up_idle");
+                textureRegion = getRegion("healer_walking_up_idle");
                 entityRotation = EntityRotation.UP;
                 break;
             case FACING_DOWN:
-                currentRegionState = getRegion("healer_walking_down_idle");
+                textureRegion = getRegion("healer_walking_down_idle");
                 entityRotation = EntityRotation.DOWN;
                 break;
             case FACING_LEFT:
-                currentRegionState = getRegion("healer_walking_left_idle");
+                textureRegion = getRegion("healer_walking_left_idle");
                 entityRotation = EntityRotation.LEFT;
                 break;
             case FACING_RIGHT:
-                currentRegionState = getRegion("healer_walking_right_idle");
+                textureRegion = getRegion("healer_walking_right_idle");
                 entityRotation = EntityRotation.RIGHT;
                 break;
         }

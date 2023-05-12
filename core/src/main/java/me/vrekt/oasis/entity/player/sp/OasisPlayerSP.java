@@ -4,17 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.protocol.packet.client.CPacketPing;
 import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.SPacketPing;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.drawing.Rotation;
-import lunar.shared.entity.LunarEntity;
-import lunar.shared.player.LunarEntityPlayer;
-import lunar.shared.player.impl.LunarPlayer;
-import lunar.shared.player.mp.LunarNetworkEntityPlayer;
+import lunar.shared.entity.player.impl.Player;
+import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -46,7 +44,7 @@ import me.vrekt.shared.network.ClientSwingItem;
 /**
  * Represents the local player SP
  */
-public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveState> {
+public final class OasisPlayerSP extends Player implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveState> {
 
     private final OasisGame game;
 
@@ -86,7 +84,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRatesInMs(0, 0);
         setFixedRotation(true);
-        setIgnorePlayerCollision(true);
+        // TOOD: setIgnorePlayerCollision(true);
         this.inventory = new PlayerInventory();
 
         // starting quest, later this won't be added here but instead on new game.
@@ -276,16 +274,16 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     public void setIdleRegionState() {
         switch (Rotation.of(getRotation())) {
             case FACING_UP:
-                currentRegionState = getRegion("healer_walking_up_idle");
+                textureRegion = getRegion("healer_walking_up_idle");
                 break;
             case FACING_DOWN:
-                currentRegionState = getRegion("healer_walking_down_idle");
+                textureRegion = getRegion("healer_walking_down_idle");
                 break;
             case FACING_LEFT:
-                currentRegionState = getRegion("healer_walking_left_idle");
+                textureRegion = getRegion("healer_walking_left_idle");
                 break;
             case FACING_RIGHT:
-                currentRegionState = getRegion("healer_walking_right_idle");
+                textureRegion = getRegion("healer_walking_right_idle");
                 break;
         }
     }
@@ -299,7 +297,7 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
         putRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
         putRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        currentRegionState = getRegion("healer_walking_up_idle");
+        textureRegion = getRegion("healer_walking_up_idle");
 
         // up, down, left, right
         animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
@@ -368,8 +366,8 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(rotation.ordinal(), delta));
         } else {
-            if (currentRegionState != null) {
-                draw(batch, currentRegionState);
+            if (textureRegion != null) {
+                draw(batch, textureRegion);
             }
         }
 
@@ -391,8 +389,6 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             equippedItem.swingItem();
-
-            // update network players
             connection.sendImmediately(new ClientSwingItem(getEntityId(), equippedItem.getItemId()));
         }
 
@@ -423,9 +419,9 @@ public final class OasisPlayerSP extends LunarPlayer implements ResourceLoader, 
     }
 
     @Override
-    public <P extends LunarEntityPlayer, N extends LunarNetworkEntityPlayer, E extends LunarEntity>
-    void spawnEntityInWorld(LunarWorld<P, N, E> world, float x, float y) {
-        super.spawnEntityInWorld(world, x, y);
+    public void spawnInWorld(LunarWorld world, Vector2 position) {
+        this.defineEntity(world.getEntityWorld(), position.x, position.y);
+        setPosition(position, true);
     }
 
     @Override

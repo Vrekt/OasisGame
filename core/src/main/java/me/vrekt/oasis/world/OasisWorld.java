@@ -1,7 +1,9 @@
 package me.vrekt.oasis.world;
 
+import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -20,7 +22,8 @@ import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
-import gdx.lunar.world.LunarWorld;
+import gdx.lunar.world.AbstractGameWorld;
+import gdx.lunar.world.WorldConfiguration;
 import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
@@ -53,18 +56,21 @@ import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Represents a base world within the game
  */
-public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkPlayer, Entity>
-        implements InputProcessor, SaveStateLoader<WorldSaveState> {
+public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, Entity>
+        implements InputProcessor, SaveStateLoader<WorldSaveState>, Screen {
 
     protected final OasisGame game;
-    protected final OasisPlayerSP localPlayer;
+    protected final OasisPlayerSP player;
 
     protected TiledMap map;
     protected String mapName, worldName;
@@ -97,8 +103,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     protected NinePatch gradient;
 
     public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
-        super(player, world);
-        this.localPlayer = player;
+        super(player, world, new WorldConfiguration(), new PooledEngine());
+        this.player = player;
         this.game = game;
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
@@ -139,7 +145,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     public OasisPlayerSP getLocalPlayer() {
-        return localPlayer;
+        return player;
     }
 
     public OasisGame getGame() {
@@ -170,7 +176,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
 
             player.setProperties(packet.getUsername(), packet.getEntityId());
             player.setSize(15, 25, OasisGameSettings.SCALE);
-            player.spawnEntityInWorld(this.player.getWorldIn());
+
+            player.spawnInWorld(this);
         } else {
             Logging.warn(this, "Attempted to spawn player while not in world.");
         }
@@ -184,7 +191,7 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         // ensure we are not already in this world
         if (player.getGameWorldIn() != null
                 && !player.getGameWorldIn().getWorldName().equals(worldName)) {
-            player.removeEntityInWorld(player.getWorldIn());
+            player.removeFromWorld(this);
             player.setGameWorldIn(null);
         }
 
@@ -195,7 +202,8 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
             player.setInWorld(true);
 
             renderer.setTiledMap(map, spawn.x, spawn.y);
-            player.spawnEntityInWorld(this, player.getX(), player.getY());
+
+            player.spawnInWorld(this, player.getPosition());
             game.getMultiplexer().addProcessor(this);
             game.setScreen(this);
         }
@@ -265,11 +273,16 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
         addDefaultWorldSystems();
         world.setContactListener(new BasicPlayerCollisionHandler());
 
-        // if player was loaded from save
+        // player was NOT loaded from a save
         if (player.getPosition().isZero()) {
-            player.spawnEntityInWorld(this, spawn.x, spawn.y);
+            player.spawnInWorld(this, spawn);
+            player.setWorldIn(this);
+            player.setGameWorldIn(this);
         } else {
-            player.spawnEntityInWorld(this, player.getPosition().x, player.getPosition().y);
+            // player was loaded from a save, reference their current position
+            player.spawnInWorld(this, player.getPosition());
+            player.setWorldIn(this);
+            player.setGameWorldIn(this);
         }
 
         player.setGameWorldIn(this);
@@ -306,11 +319,11 @@ public abstract class OasisWorld extends LunarWorld<OasisPlayerSP, OasisNetworkP
     }
 
     @Override
-    public void spawnEntityInWorld(LunarEntity entity, float x, float y) {
+    public <T extends LunarEntity> void spawnEntityInWorld(T entity, Vector2 position) {
         if (entity instanceof OasisPlayerSP) return;
-        entity.getInterpolated().set(x, y);
-        entity.getPrevious().set(x, y);
-        super.spawnEntityInWorld(entity, x, y);
+        entity.getInterpolated().set(position.x, position.y);
+        entity.getPrevious().set(position.x, position.y);
+        super.spawnEntityInWorld(entity, position);
     }
 
     /**

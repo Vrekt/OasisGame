@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import lunar.shared.drawing.Rotation;
+import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
@@ -33,7 +33,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
 
         setPosition(position.x, position.y, true);
         setEntityName(name);
-        getWorlds().worldIn = worldIn;
+        this.worldIn = worldIn;
         this.gameWorldIn = worldIn;
         this.player = player;
         this.game = game;

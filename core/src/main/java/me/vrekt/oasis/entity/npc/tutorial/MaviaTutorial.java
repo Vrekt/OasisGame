@@ -81,7 +81,7 @@ public final class MaviaTutorial extends EntityInteractable {
         setSpeakingTo(false);
         // at this point dialog is finished and NPC needs to be moved
         gameWorldIn.removeInteractableEntity(this);
-        getWorlds().worldIn = null;
+        // TODO: this.worldIN = null
         // set instance allowed to enter
         final Instance house = gameWorldIn.getInstance(InstanceType.MAVIA_TUTORIAL_HOUSE);
         if (house != null) {

@@ -37,9 +37,9 @@ public class PlayerConnection extends PlayerConnectionHandler {
     }
 
     private void handlePlayerEquippedItem(ServerPlayerEquippedItem packet) {
-        if (player.getGameWorldIn().hasNetworkPlayer(packet.getEntityId())) {
+        if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
             player.getGameWorldIn()
-                    .getNetworkPlayer(packet.getEntityId())
+                    .getPlayer(packet.getEntityId())
                     .setEquippingItem(packet.getItemId());
         } else {
             Logging.warn(this, "No player by ID (equip)" + packet.getEntityId());
@@ -47,9 +47,9 @@ public class PlayerConnection extends PlayerConnectionHandler {
     }
 
     private void handleSwingItem(ServerPlayerSwungItem packet) {
-        if (player.getGameWorldIn().hasNetworkPlayer(packet.getEntityId())) {
+        if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
             player.getGameWorldIn()
-                    .getNetworkPlayer(packet.getEntityId())
+                    .getPlayer(packet.getEntityId())
                     .setSwingingItem(packet.getItemId());
         } else {
             Logging.warn(this, "No player by ID (swing)" + packet.getEntityId());
