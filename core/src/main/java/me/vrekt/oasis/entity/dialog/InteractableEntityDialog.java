@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Entity dialog
+ * OasisEntity dialog
  */
 public class InteractableEntityDialog implements Disposable {
 

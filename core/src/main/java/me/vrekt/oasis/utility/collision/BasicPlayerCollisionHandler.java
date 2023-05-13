@@ -44,8 +44,8 @@ public final class BasicPlayerCollisionHandler implements ContactListener {
             // ignore player collisions
             if (fixtureA.getBody().getUserData() instanceof OasisPlayerSP
                     && fixtureB.getBody().getUserData() instanceof OasisNetworkPlayer) {
-                if (((OasisPlayerSP) fixtureA.getBody().getUserData()).doIgnorePlayerCollision()
-                        || ((OasisNetworkPlayer) fixtureB.getBody().getUserData()).doIgnorePlayerCollision()) {
+                if (((OasisPlayerSP) fixtureA.getBody().getUserData()).isPlayerCollisionDisabled()
+                        || ((OasisNetworkPlayer) fixtureB.getBody().getUserData()).isPlayerCollisionDisabled()) {
                     contact.setEnabled(false);
                 }
             }

@@ -25,8 +25,6 @@ public final class LoadGameMenu extends ScreenAdapter {
     public LoadGameMenu(OasisGame game, OasisMainMenu mainMenu) {
         this.stage = new Stage();
 
-        game.getMultiplexer().addProcessor(stage);
-
         final VisTable rootTable = new VisTable(true);
         rootTable.setFillParent(true);
         rootTable.setBackground(new TextureRegionDrawable(game.getAsset().get("pause")));
@@ -59,6 +57,16 @@ public final class LoadGameMenu extends ScreenAdapter {
         addDefaultActions(slot2, () -> game.loadSaveGame(2));
         addDefaultActions(slot3, () -> game.loadSaveGame(3));
 
+    }
+
+    @Override
+    public void show() {
+        GameManager.getOasis().getMultiplexer().addProcessor(stage);
+    }
+
+    @Override
+    public void hide() {
+        GameManager.getOasis().getMultiplexer().removeProcessor(stage);
     }
 
     private void addDefaultActions(Label label, Runnable action) {

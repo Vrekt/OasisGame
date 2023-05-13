@@ -38,7 +38,7 @@ public final class PlayerAsSteerable implements Steerable<Vector2> {
 
     @Override
     public float getBoundingRadius() {
-        return player.getWidthScaled() + player.getHeightScaled();
+        return player.getScaledWidth() + player.getScaledHeight();
     }
 
     @Override
@@ -103,7 +103,7 @@ public final class PlayerAsSteerable implements Steerable<Vector2> {
 
     @Override
     public Vector2 getPosition() {
-        return player.getInterpolated();
+        return player.getInterpolatedPosition();
     }
 
     @Override

@@ -22,7 +22,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
 
     public TutorialCombatDummy(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.DUMMY);
-        this.rotation = 1.0f;
+        setAngle(1.0f);
 
         this.ai = new SeekAndPursuePlayer(this, player, new PlayerSteeringLocation(player), position);
         setIgnoreCollision(true);
@@ -64,7 +64,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
     }
 
     private void draw(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, body.getPosition().x, body.getPosition().y, getWidthScaled(), getHeightScaled());
+        batch.draw(region, body.getPosition().x, body.getPosition().y, getScaledWidth(), getScaledHeight());
     }
 
     @Override
@@ -85,7 +85,7 @@ public final class TutorialCombatDummy extends EntityEnemy {
         animationComponent.registerWalkingAnimation(2, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
         animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
 
-        this.bounds = new Rectangle(getPosition().x, getPosition().y, getWidthScaled(), getHeightScaled());
+        this.bounds = new Rectangle(getPosition().x, getPosition().y, getScaledWidth(), getScaledHeight());
         setSize(currentRegionState.getRegionWidth(), currentRegionState.getRegionHeight(), OasisGameSettings.SCALE);
 
         createBoxBody(gameWorldIn.getEntityWorld());

@@ -30,7 +30,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.OasisEntity;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
@@ -66,7 +66,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Represents a base world within the game
  */
-public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, Entity>
+public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, OasisEntity>
         implements InputProcessor, SaveStateLoader<WorldSaveState>, Screen {
 
     protected final OasisGame game;
@@ -121,7 +121,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             if (entityState.getType() != null) {
                 final EntityInteractable interactable = getEntityByType(entityState.getType());
                 if (interactable != null) {
-                    interactable.setEntityName(entityState.getName());
+                    interactable.setName(entityState.getName());
                     interactable.setEntityId(entityState.getEntityId());
                     interactable.setPosition(entityState.getPosition(), true);
                     interactable.setHealth(entityState.getHealth());
@@ -201,6 +201,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             player.setGameWorldIn(this);
             player.setInWorld(true);
 
+
             renderer.setTiledMap(map, spawn.x, spawn.y);
 
             player.spawnInWorld(this, player.getPosition());
@@ -276,15 +277,11 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         // player was NOT loaded from a save
         if (player.getPosition().isZero()) {
             player.spawnInWorld(this, spawn);
-            player.setWorldIn(this);
-            player.setGameWorldIn(this);
         } else {
             // player was loaded from a save, reference their current position
             player.spawnInWorld(this, player.getPosition());
-            player.setWorldIn(this);
-            player.setGameWorldIn(this);
         }
-
+        player.setWorldIn(this);
         player.setGameWorldIn(this);
 
         handleConnectionOptions(game.getHandler());
@@ -321,8 +318,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     @Override
     public <T extends LunarEntity> void spawnEntityInWorld(T entity, Vector2 position) {
         if (entity instanceof OasisPlayerSP) return;
-        entity.getInterpolated().set(position.x, position.y);
-        entity.getPrevious().set(position.x, position.y);
+        entity.getInterpolatedPosition().set(position.x, position.y);
+        entity.getPreviousPosition().set(position.x, position.y);
         super.spawnEntityInWorld(entity, position);
     }
 
@@ -374,7 +371,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     public EntityInteractable getLoadedEntity(EntityNPCType type) {
-        for (Entity entity : entities.values()) {
+        for (OasisEntity entity : entities.values()) {
             if (entity.isInteractable() && entity.asInteractable().getType() == type) {
                 return entity.asInteractable();
             }
@@ -692,7 +689,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             }
         }
 
-        for (Entity entity : entities.values()) {
+        for (OasisEntity entity : entities.values()) {
             if (entity.isInView(renderer.getCamera())) {
                 entity.render(batch, delta);
                 entity.renderHealthBar(batch);
@@ -741,7 +738,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         // draw damage indicators
         // use the stage batch to correctly scale the font.
         EntityEnemy entityEnemy = null;
-        for (Entity entity : entities.values()) {
+        for (OasisEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy) {
                 entityEnemy = (EntityEnemy) entity;
                 ((EntityEnemy) entity).drawDamageIndicator(batch);
@@ -782,10 +779,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     public EntityEnemy hasHitEntity(ItemWeapon item) {
-        for (Entity value : entities.values()) {
+        for (OasisEntity value : entities.values()) {
             if (value instanceof EntityEnemy) {
                 final EntityEnemy interactable = (EntityEnemy) value;
-                if (interactable.isFacingEntity(player.getRotation())
+                if (interactable.isFacingEntity(player.getAngle())
                         && interactable.getBounds().overlaps(item.getBounds())) {
                     return interactable;
                 }

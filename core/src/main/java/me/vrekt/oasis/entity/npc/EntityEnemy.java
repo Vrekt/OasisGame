@@ -56,7 +56,7 @@ public abstract class EntityEnemy extends EntityDamageable {
         PolygonShape shape;
 
         shape = new PolygonShape();
-        shape.setAsBox(getWidthScaled() / 2.0F, getHeightScaled() / 2.0F);
+        shape.setAsBox(getScaledWidth() / 2.0F, getScaledHeight() / 2.0F);
         fixture.shape = shape;
         fixture.density = 1.0f;
 
@@ -98,15 +98,15 @@ public abstract class EntityEnemy extends EntityDamageable {
 
     @Override
     public void damage(float tick, float amount, float knockback, boolean isCritical) {
-        this.animator.accumulateDamage(amount, game.getPlayer().getRotation(), isCritical);
-        this.health -= amount;
+        this.animator.accumulateDamage(amount, game.getPlayer().getAngle(), isCritical);
+        setHealth(getHealth() - amount);
     }
 
     @Override
     public void update(float v) {
         super.update(v);
 
-        bounds.set(getPosition().x, getPosition().y, getWidthScaled(), getHeightScaled());
+        bounds.set(getPosition().x, getPosition().y, getScaledWidth(), getScaledHeight());
         animator.update(v);
     }
 
@@ -130,7 +130,7 @@ public abstract class EntityEnemy extends EntityDamageable {
         if (animator.hasDamage()) {
             worldPosition.set(game.getRenderer().getCamera().project(worldPosition.set(getPosition().x + 1.0f, getPosition().y + 2.5f, 0.0f)));
             screenPosition.set(game.getGui().getCamera().project(worldPosition));
-            animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth(), getHeight());
+            animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
         }
     }
 

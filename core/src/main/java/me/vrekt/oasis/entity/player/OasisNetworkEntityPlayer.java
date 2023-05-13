@@ -3,14 +3,14 @@ package me.vrekt.oasis.entity.player;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import lunar.shared.entity.player.mp.LunarNetworkEntityPlayer;
+import lunar.shared.entity.player.mp.AbstractLunarEntityNetworkPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 
 /**
  * A multiplayer player entity
  */
-public abstract class OasisNetworkEntityPlayer extends LunarNetworkEntityPlayer implements Viewable, Drawable {
+public abstract class OasisNetworkEntityPlayer extends AbstractLunarEntityNetworkPlayer implements Viewable, Drawable {
 
     public OasisNetworkEntityPlayer(boolean initializeComponents) {
         super(initializeComponents);
@@ -23,7 +23,7 @@ public abstract class OasisNetworkEntityPlayer extends LunarNetworkEntityPlayer 
     }
 
     protected void draw(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getInterpolated().x, getInterpolated().y, region.getRegionWidth() * getScaling(), region.getRegionHeight() * getScaling());
+        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
     }
 
 }

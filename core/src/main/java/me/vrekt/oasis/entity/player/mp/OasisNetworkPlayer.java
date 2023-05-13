@@ -42,11 +42,10 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         super(initializeComponents);
 
         setInterpolatePosition(true);
-        setSnapToPositionIfDesync(true);
-        setInterpolateDesyncDistance(2.5f);
-        setInterpolateAlpha(1.0f);
-        //TODO:   setIgnorePlayerCollision(true);
-        setHasMoved(true);
+        setSnapToPositionIfDesynced(true);
+        setDesyncDistanceToInterpolate(2.5f);
+        setInterpolationAlpha(1.0f);
+        disablePlayerCollision(true);
     }
 
     public void setRenderNametag(boolean renderNametag) {
@@ -73,8 +72,8 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     }
 
     @Override
-    public void setEntityName(String name) {
-        super.setEntityName(name);
+    public void setName(String name) {
+        super.setName(name);
 
         final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGui().getSmall(), getName());
         this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
@@ -86,11 +85,11 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        putRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        putRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        putRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        textureRegion = getRegion("healer_walking_up_idle");
+        addRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
+        addRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
+        addRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
+        addRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
+        currentRegion = getRegion("healer_walking_up_idle");
 
         // up, down, left, right
         animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
@@ -102,7 +101,6 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     @Override
     public void update(float delta) {
         super.update(delta);
-        setHasMoved(!getVelocity().isZero());
 
         if (lastRotation != entityRotation) {
             setIdleRegionState();
@@ -131,15 +129,15 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
         } else {
-            if (textureRegion != null) {
-                draw(batch, textureRegion);
+            if (currentRegion != null) {
+                draw(batch, currentRegion);
             }
         }
     }
 
     private void drawEquippedItem(SpriteBatch batch) {
         if (ItemRegistry.isWeapon(equippedItem)) {
-            equippedItem.calculateItemPositionAndRotation(getInterpolated(), entityRotation);
+            equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
             equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
             equippedItem.draw(batch);
         }
@@ -154,27 +152,27 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
      * @param guiCamera   the gui camera
      */
     public void renderNametag(BitmapFont font, Batch batch, Camera worldCamera, Camera guiCamera) {
-        worldPosition.set(worldCamera.project(worldPosition.set(getInterpolated().x - nametagRenderWidth, getInterpolated().y + 2.25f, 0.0f)));
+        worldPosition.set(worldCamera.project(worldPosition.set(getInterpolatedPosition().x - nametagRenderWidth, getInterpolatedPosition().y + 2.25f, 0.0f)));
         screenPosition.set(guiCamera.project(worldPosition));
         font.draw(batch, getName(), screenPosition.x, screenPosition.y);
     }
 
     private void setIdleRegionState() {
-        switch (Rotation.of(getRotation())) {
+        switch (Rotation.of(getAngle())) {
             case FACING_UP:
-                textureRegion = getRegion("healer_walking_up_idle");
+                currentRegion = getRegion("healer_walking_up_idle");
                 entityRotation = EntityRotation.UP;
                 break;
             case FACING_DOWN:
-                textureRegion = getRegion("healer_walking_down_idle");
+                currentRegion = getRegion("healer_walking_down_idle");
                 entityRotation = EntityRotation.DOWN;
                 break;
             case FACING_LEFT:
-                textureRegion = getRegion("healer_walking_left_idle");
+                currentRegion = getRegion("healer_walking_left_idle");
                 entityRotation = EntityRotation.LEFT;
                 break;
             case FACING_RIGHT:
-                textureRegion = getRegion("healer_walking_right_idle");
+                currentRegion = getRegion("healer_walking_right_idle");
                 entityRotation = EntityRotation.RIGHT;
                 break;
         }

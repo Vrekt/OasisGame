@@ -74,16 +74,19 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     private EntityRotation rotation = EntityRotation.UP;
     private final PlayerSteeringLocation location;
 
+    private boolean moved;
+
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
         this.game = game;
 
-        setEntityName(name);
+        setName(name);
         setMoveSpeed(6.0f);
-        setHasMoved(true);
+        moved = true;
+        //  setHasMoved(true);
         setSize(15, 25, OasisGameSettings.SCALE);
-        setNetworkSendRatesInMs(0, 0);
-        setFixedRotation(true);
+        setNetworkSendRateInMs(0, 0);
+        //setFixedRotation(true);
         // TOOD: setIgnorePlayerCollision(true);
         this.inventory = new PlayerInventory();
 
@@ -272,18 +275,18 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     }
 
     public void setIdleRegionState() {
-        switch (Rotation.of(getRotation())) {
+        switch (Rotation.of(getAngle())) {
             case FACING_UP:
-                textureRegion = getRegion("healer_walking_up_idle");
+                currentRegion = getRegion("healer_walking_up_idle");
                 break;
             case FACING_DOWN:
-                textureRegion = getRegion("healer_walking_down_idle");
+                currentRegion = getRegion("healer_walking_down_idle");
                 break;
             case FACING_LEFT:
-                textureRegion = getRegion("healer_walking_left_idle");
+                currentRegion = getRegion("healer_walking_left_idle");
                 break;
             case FACING_RIGHT:
-                textureRegion = getRegion("healer_walking_right_idle");
+                currentRegion = getRegion("healer_walking_right_idle");
                 break;
         }
     }
@@ -293,11 +296,11 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        putRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        putRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        putRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        putRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        textureRegion = getRegion("healer_walking_up_idle");
+        addRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
+        addRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
+        addRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
+        addRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
+        currentRegion = getRegion("healer_walking_up_idle");
 
         // up, down, left, right
         animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
@@ -306,33 +309,34 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
     }
 
-    @Override
-    public void setInterpolated(float x, float y) {
-        super.setInterpolated(x - getWidthScaled() / 2f, y - getHeightScaled() / 2f);
-    }
+
+    //  @Override
+    // public void setInterpolated(float x, float y) {
+    //     super.setInterpolated(x - getWidthScaled() / 2f, y - getHeightScaled() / 2f);
+    //  }
 
     public void pollInput() {
 
-        setVelocity(0.0f, 0.0f, false);
+        setVelocity(0.0f, 0.0f);
 
         if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_UP_KEY)) {
             rotation = EntityRotation.UP;
-            setVelocity(0.0f, moveSpeed, false);
+            setVelocity(0.0f, getMoveSpeed());
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_DOWN_KEY)) {
             rotation = EntityRotation.DOWN;
-            setVelocity(0.0f, -moveSpeed, false);
+            setVelocity(0.0f, -getMoveSpeed());
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_LEFT_KEY)) {
             rotation = EntityRotation.LEFT;
-            setVelocity(-moveSpeed, 0.0f, false);
+            setVelocity(-getMoveSpeed(), 0.0f);
         } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_RIGHT_KEY)) {
             rotation = EntityRotation.RIGHT;
-            setVelocity(moveSpeed, 0.0f, false);
+            setVelocity(getMoveSpeed(), 0.0f);
         }
 
-        setHasMoved(!getVelocity().isZero());
+        moved = (!getVelocity().isZero());
 
-        rotationChanged = getRotation() != rotation.ordinal();
-        setRotation(rotation.ordinal());
+        rotationChanged = getAngle() != rotation.ordinal();
+        setAngle(rotation.ordinal());
     }
 
     @Override
@@ -366,8 +370,8 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(rotation.ordinal(), delta));
         } else {
-            if (textureRegion != null) {
-                draw(batch, textureRegion);
+            if (currentRegion != null) {
+                draw(batch, currentRegion);
             }
         }
 
@@ -392,7 +396,7 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
             connection.sendImmediately(new ClientSwingItem(getEntityId(), equippedItem.getItemId()));
         }
 
-        equippedItem.calculateItemPositionAndRotation(getInterpolated(), rotation);
+        equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), rotation);
         equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
         equippedItem.draw(batch);
 
@@ -415,7 +419,7 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     }
 
     private void draw(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getInterpolated().x, getInterpolated().y, region.getRegionWidth() * getScaling(), region.getRegionHeight() * getScaling());
+        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
     }
 
     @Override

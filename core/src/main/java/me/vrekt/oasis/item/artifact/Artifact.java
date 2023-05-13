@@ -55,7 +55,7 @@ public abstract class Artifact implements ResourceLoader {
      */
     protected void createEffect(OasisPlayerSP player) {
         effectTickActivated = GameManager.getCurrentGameWorldTick();
-        effectPosition.set(player.getInterpolated());
+        effectPosition.set(player.getInterpolatedPosition());
         effectAlpha = 1.0f;
         drawEffect = true;
     }

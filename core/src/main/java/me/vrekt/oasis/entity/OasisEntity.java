@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
-import lunar.shared.entity.LunarEntity;
+import lunar.shared.entity.AbstractLunarEntity;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
@@ -14,28 +14,15 @@ import me.vrekt.oasis.graphics.Viewable;
 /**
  * Represents a basic entity within Oasis
  */
-public abstract class Entity extends LunarEntity implements Viewable, Drawable {
+public abstract class OasisEntity extends AbstractLunarEntity implements Viewable, Drawable {
 
-    // describes the view/renderable stuff
-    protected boolean withinUpdateDistance, isNearby;
+    protected boolean isNearby;
     protected NinePatch gradient;
 
-    protected float health = 100.0f;
-
-    public Entity(com.badlogic.ashley.core.Entity entity, boolean initializeComponents) {
-        super(entity, initializeComponents);
-    }
-
-    public Entity(boolean initializeComponents) {
+    public OasisEntity(boolean initializeComponents) {
         super(initializeComponents);
-    }
 
-    public float getHealth() {
-        return health;
-    }
-
-    public void setHealth(float health) {
-        this.health = health;
+        setHealth(100.0f);
     }
 
     /**
@@ -45,10 +32,10 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable {
      * @param batch the batch
      */
     public void renderHealthBar(SpriteBatch batch) {
-        if (health <= 0 || gradient == null) return;
+        if (getHealth() <= 0 || gradient == null) return;
 
-        final float width = (health / 100.0f * getWidth()) * OasisGameSettings.SCALE;
-        gradient.draw(batch, getX(), getY() + (getHeightScaled() + 0.1f), width, 3.0f * OasisGameSettings.SCALE);
+        final float width = (getHealth() / 100.0f * getWidth()) * OasisGameSettings.SCALE;
+        gradient.draw(batch, getX(), getY() + (getScaledHeight() + 0.1f), width, 3.0f * OasisGameSettings.SCALE);
     }
 
     /**
@@ -58,7 +45,7 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable {
      * @return {@code  true} if so
      */
     public boolean isMouseInEntityBounds(Vector3 clicked) {
-        return clicked.x > getX() && clicked.x < (getX() + getWidthScaled()) && clicked.y > getY() && clicked.y < (getY() + getHeightScaled());
+        return clicked.x > getX() && clicked.x < (getX() + getScaledWidth()) && clicked.y > getY() && clicked.y < (getY() + getScaledHeight());
     }
 
     public boolean isInteractable() {
@@ -67,14 +54,6 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable {
 
     public EntityInteractable asInteractable() {
         return null;
-    }
-
-    public boolean isWithinUpdateDistance() {
-        return withinUpdateDistance;
-    }
-
-    public void setWithinUpdateDistance(boolean withinUpdateDistance) {
-        this.withinUpdateDistance = withinUpdateDistance;
     }
 
     public boolean isNearby() {

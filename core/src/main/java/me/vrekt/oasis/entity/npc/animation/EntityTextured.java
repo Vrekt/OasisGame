@@ -4,13 +4,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import lunar.shared.components.drawing.EntityTextureComponent;
 import lunar.shared.mapping.GlobalEntityMapper;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.OasisEntity;
 import me.vrekt.oasis.graphics.Drawable;
 
-public abstract class EntityTextured extends Entity implements Drawable {
-    public EntityTextured(com.badlogic.ashley.core.Entity entity, boolean initializeComponents) {
-        super(entity, initializeComponents);
-    }
+public abstract class EntityTextured extends OasisEntity implements Drawable {
 
     public EntityTextured(boolean initializeComponents) {
         super(initializeComponents);
@@ -44,9 +41,9 @@ public abstract class EntityTextured extends Entity implements Drawable {
     }
 
     @Override
-    protected void addComponents() {
-        entity.add(new EntityTextureComponent());
+    public void addComponents() {
         super.addComponents();
+        entity.add(new EntityTextureComponent());
     }
 
 }

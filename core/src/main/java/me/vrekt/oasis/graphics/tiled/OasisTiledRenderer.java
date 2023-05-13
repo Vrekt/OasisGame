@@ -30,7 +30,6 @@ public final class OasisTiledRenderer implements Disposable {
     private final ScreenViewport viewport;
 
     private int width, height;
-    private float px = 16.0f, py = 6.0f;
     private boolean offset;
 
     /**
@@ -140,8 +139,8 @@ public final class OasisTiledRenderer implements Disposable {
      * Clamps camera position so it doesn't scroll out of bounds
      */
     private void update() {
-        final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolated().x, 1f);
-        final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolated().y, 1f);
+        final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolatedPosition().x, 1f);
+        final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolatedPosition().y, 1f);
 
         camera.position.x = MathUtils.clamp(x, camera.viewportWidth / 2f, width - (camera.viewportWidth / 2f));
         camera.position.y = MathUtils.clamp(y, camera.viewportHeight / 2f, height - (camera.viewportHeight / 2f));
@@ -167,8 +166,8 @@ public final class OasisTiledRenderer implements Disposable {
         if (!offset) {
             renderer.setView(camera);
         } else {
-            float width = camera.viewportWidth * 1.0f;
-            float height = camera.viewportHeight * 1.0f;
+            float width = camera.viewportWidth;
+            float height = camera.viewportHeight;
 
             float w = width * Math.abs(camera.up.y) + height * Math.abs(camera.up.x);
             float h = height * Math.abs(camera.up.y) + width * Math.abs(camera.up.x);
@@ -185,7 +184,6 @@ public final class OasisTiledRenderer implements Disposable {
         }
 
         camera.position.y += (Gdx.graphics.getDeltaTime()) * 4f;
-        py += Gdx.graphics.getDeltaTime();
 
     }
 

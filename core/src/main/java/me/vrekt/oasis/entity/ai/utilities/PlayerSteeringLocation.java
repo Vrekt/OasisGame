@@ -17,7 +17,7 @@ public final class PlayerSteeringLocation implements Location<Vector2> {
 
     @Override
     public Vector2 getPosition() {
-        return player.getInterpolated();
+        return player.getInterpolatedPosition();
     }
 
     @Override

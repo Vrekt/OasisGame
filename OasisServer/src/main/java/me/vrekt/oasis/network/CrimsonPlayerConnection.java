@@ -56,7 +56,7 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
 
         this.worldIn = (CrimsonWorld) world;
         this.localPlayer = new CrimsonPlayer(true, server, this);
-        this.localPlayer.setEntityName(packet.getUsername());
+        this.localPlayer.setName(packet.getUsername());
         this.localPlayer.setServerWorldIn(world);
         this.localPlayer.setEntityId(world.assignEntityIdFor(true));
         this.player = localPlayer;

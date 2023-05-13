@@ -2,7 +2,7 @@ package me.vrekt.oasis.combat;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import lunar.shared.drawing.Rotation;
+import lunar.shared.entity.texture.Rotation;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.Iterator;
@@ -31,7 +31,7 @@ public final class CombatDamageAnimator {
      * @param x     X
      * @param y     Y
      */
-    public void drawAccumulatedDamage(SpriteBatch batch, BitmapFont font, float x, float y, float width, float height) {
+    public void drawAccumulatedDamage(SpriteBatch batch, BitmapFont font, float x, float y, float width) {
         for (EntityStoredDamage esd : damage) {
             if (esd.isCritical) {
                 font.setColor(255, 0, 0, esd.fade);
@@ -42,13 +42,13 @@ public final class CombatDamageAnimator {
             switch (Rotation.of(esd.rotation)) {
                 case FACING_UP:
                 case FACING_DOWN:
-                    font.draw(batch, "-" + Float.toString(esd.damage), x + esd.offsetX, y + esd.offsetY);
+                    font.draw(batch, "-" + esd.damage, x + esd.offsetX, y + esd.offsetY);
                     break;
                 case FACING_LEFT:
-                    font.draw(batch, "-" + Float.toString(esd.damage), x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
+                    font.draw(batch, "-" + esd.damage, x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
                     break;
                 case FACING_RIGHT:
-                    font.draw(batch, "-" + Float.toString(esd.damage), (x + esd.offsetX) + width, y + esd.offsetY);
+                    font.draw(batch, "-" + esd.damage, (x + esd.offsetX) + width, y + esd.offsetY);
                     break;
             }
         }

@@ -32,13 +32,13 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
         super(player);
 
         setPosition(position.x, position.y, true);
-        setEntityName(name);
+        setName(name);
         this.worldIn = worldIn;
         this.gameWorldIn = worldIn;
         this.player = player;
         this.game = game;
         this.type = type;
-        this.rotation = Rotation.FACING_DOWN.ordinal();
+        setAngle(Rotation.FACING_DOWN.ordinal());
     }
 
     public EntityNPCType getType() {
@@ -68,9 +68,9 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
     public void render(SpriteBatch batch, float delta) {
         // draw generic texture
         if (currentRegionState != null) {
-            batch.draw(currentRegionState, getX(), getY(), getWidth() * getScaling(), getHeight() * getScaling());
+            batch.draw(currentRegionState, getX(), getY(), getWidth() * getWorldScale(), getHeight() * getWorldScale());
         } else if (currentTextureState != null) {
-            batch.draw(currentTextureState, getX(), getY(), getWidth() * getScaling(), getHeight() * getScaling());
+            batch.draw(currentTextureState, getX(), getY(), getWidth() * getWorldScale(), getHeight() * getWorldScale());
         }
         super.render(batch, delta);
     }

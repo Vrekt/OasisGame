@@ -3,7 +3,6 @@ package me.vrekt.oasis.entity.npc;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
@@ -76,7 +75,7 @@ public abstract class EntitySpeakable extends EntityTextured {
      */
     protected void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
         if (region == null) return;
-        batch.draw(region, getX() + 0.2f, getY() + getHeightScaled() + 0.1f,
+        batch.draw(region, getX() + 0.2f, getY() + getScaledHeight() + 0.1f,
                 region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
@@ -117,7 +116,7 @@ public abstract class EntitySpeakable extends EntityTextured {
         // set rotation to face the player.
         // TODO: Fix this
         if (speakingTo) {
-            player.setRotation(Rotation.getOppositeRotation(rotation).ordinal());
+            //   player.setAngle(Rotation.getOppositeRotation(rotation).ordinal());
             player.setIdleRegionState();
             player.setSpeakingToEntity(true);
             player.setEntitySpeakingTo(this);

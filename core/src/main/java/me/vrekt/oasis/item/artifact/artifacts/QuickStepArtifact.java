@@ -34,7 +34,7 @@ public final class QuickStepArtifact extends Artifact {
         player.setMoveSpeed(player.getMoveSpeed() + (artifactLevel * 0.75f));
 
         createEffect(player);
-        artifactParticle.setPosition(player.getInterpolated().x, player.getInterpolated().y);
+        artifactParticle.setPosition(player.getInterpolatedPosition().x, player.getInterpolatedPosition().y);
 
         this.tick = tick;
         this.isApplied = true;
@@ -53,6 +53,6 @@ public final class QuickStepArtifact extends Artifact {
             this.expire(player);
         }
 
-        artifactParticle.setPosition(player.getInterpolated().x, player.getInterpolated().y);
+        artifactParticle.setPosition(player.getInterpolatedPosition().x, player.getInterpolatedPosition().y);
     }
 }

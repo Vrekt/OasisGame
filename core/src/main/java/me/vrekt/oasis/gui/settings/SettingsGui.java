@@ -36,7 +36,7 @@ public final class SettingsGui extends Gui {
         final VisTable primary = new VisTable();
         final VisTable secondary = new VisTable();
 
-        final VisLabel eudLabel = new VisLabel("Entity Update Distance (100)", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        final VisLabel eudLabel = new VisLabel("OasisEntity Update Distance (100)", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         final VisSlider eudSlider = new VisSlider(10.0f, 500.0f, 10.0f, false);
         eudSlider.setValue(OasisGameSettings.ENTITY_UPDATE_DISTANCE);
 
@@ -44,7 +44,7 @@ public final class SettingsGui extends Gui {
         eudSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                eudLabel.setText("Entity Update Distance (" + eudSlider.getValue() + ")");
+                eudLabel.setText("OasisEntity Update Distance (" + eudSlider.getValue() + ")");
                 OasisGameSettings.ENTITY_UPDATE_DISTANCE = eudSlider.getValue();
             }
         });

@@ -50,7 +50,7 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
 
     @Override
     public float getBoundingRadius() {
-        return owner.getWidthScaled() * owner.getHeightScaled();
+        return owner.getScaledWidth() * owner.getScaledHeight();
     }
 
     @Override
@@ -104,7 +104,7 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
      * @return {@code  true} if {@code owner} is the near the player
      */
     private boolean isNearPlayer() {
-        float distance = player.getInterpolated().dst2(owner.getPosition());
+        float distance = player.getInterpolatedPosition().dst2(owner.getPosition());
         return distance < nearPlayerDistance;
     }
 
@@ -112,7 +112,7 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
      * @return {@code  true} if {@code owner} is close to the player
      */
     private boolean isCloseToPlayer() {
-        float distance = player.getInterpolated().dst2(owner.getPosition());
+        float distance = player.getInterpolatedPosition().dst2(owner.getPosition());
         return distance < closeToPlayerDistance;
     }
 
