@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -158,20 +157,20 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     }
 
     private void setIdleRegionState() {
-        switch (Rotation.of(getAngle())) {
-            case FACING_UP:
+        switch (entityRotation) {
+            case UP:
                 currentRegion = getRegion("healer_walking_up_idle");
                 entityRotation = EntityRotation.UP;
                 break;
-            case FACING_DOWN:
+            case DOWN:
                 currentRegion = getRegion("healer_walking_down_idle");
                 entityRotation = EntityRotation.DOWN;
                 break;
-            case FACING_LEFT:
+            case LEFT:
                 currentRegion = getRegion("healer_walking_left_idle");
                 entityRotation = EntityRotation.LEFT;
                 break;
-            case FACING_RIGHT:
+            case RIGHT:
                 currentRegion = getRegion("healer_walking_right_idle");
                 entityRotation = EntityRotation.RIGHT;
                 break;

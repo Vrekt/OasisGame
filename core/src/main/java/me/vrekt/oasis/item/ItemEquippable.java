@@ -17,6 +17,10 @@ public abstract class ItemEquippable extends Item {
 
     }
 
+    public boolean canEquip(OasisPlayerSP player) {
+        return player.canEquipItem();
+    }
+
     /**
      * Equip this item
      *

@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.world.OasisWorld;
@@ -38,7 +38,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
         this.player = player;
         this.game = game;
         this.type = type;
-        setAngle(Rotation.FACING_DOWN.ordinal());
+        setAngle(EntityRotation.DOWN.ordinal());
     }
 
     public EntityNPCType getType() {

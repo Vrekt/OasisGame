@@ -2,7 +2,7 @@ package me.vrekt.oasis.combat;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import lunar.shared.entity.texture.Rotation;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.Iterator;
@@ -15,7 +15,7 @@ public final class CombatDamageAnimator {
 
     private final LinkedList<EntityStoredDamage> damage = new LinkedList<>();
 
-    public void accumulateDamage(float damage, float rotation, boolean isCritical) {
+    public void accumulateDamage(float damage, EntityRotation rotation, boolean isCritical) {
         this.damage.add(new EntityStoredDamage(damage, rotation, isCritical));
     }
 
@@ -39,15 +39,15 @@ public final class CombatDamageAnimator {
                 font.setColor(255, 77, 56, esd.fade);
             }
 
-            switch (Rotation.of(esd.rotation)) {
-                case FACING_UP:
-                case FACING_DOWN:
+            switch (esd.rotation) {
+                case UP:
+                case DOWN:
                     font.draw(batch, "-" + esd.damage, x + esd.offsetX, y + esd.offsetY);
                     break;
-                case FACING_LEFT:
+                case LEFT:
                     font.draw(batch, "-" + esd.damage, x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
                     break;
-                case FACING_RIGHT:
+                case RIGHT:
                     font.draw(batch, "-" + esd.damage, (x + esd.offsetX) + width, y + esd.offsetY);
                     break;
             }
@@ -63,13 +63,13 @@ public final class CombatDamageAnimator {
             if (esd.fade <= 0.0f) {
                 it.remove();
             } else {
-                switch (Rotation.of(esd.rotation)) {
-                    case FACING_UP:
-                    case FACING_DOWN:
+                switch (esd.rotation) {
+                    case UP:
+                    case DOWN:
                         esd.offsetY += 0.5f;
                         break;
-                    case FACING_LEFT:
-                    case FACING_RIGHT:
+                    case LEFT:
+                    case RIGHT:
                         esd.offsetX += 0.5f;
                         esd.offsetY += RandomUtils.nextFloat(0.25f, 0.5f);
                         break;
@@ -84,9 +84,9 @@ public final class CombatDamageAnimator {
         final float damage;
         float offsetX, offsetY, fade;
         final boolean isCritical;
-        final float rotation;
+        final EntityRotation rotation;
 
-        public EntityStoredDamage(float damage, float rotation, boolean isCritical) {
+        public EntityStoredDamage(float damage, EntityRotation rotation, boolean isCritical) {
             this.damage = damage;
             this.rotation = rotation;
             this.fade = 1.0f;

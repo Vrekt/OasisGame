@@ -98,7 +98,7 @@ public abstract class EntityEnemy extends EntityDamageable {
 
     @Override
     public void damage(float tick, float amount, float knockback, boolean isCritical) {
-        this.animator.accumulateDamage(amount, game.getPlayer().getAngle(), isCritical);
+        this.animator.accumulateDamage(amount, game.getPlayer().getPlayerRotation(), isCritical);
         setHealth(getHealth() - amount);
     }
 

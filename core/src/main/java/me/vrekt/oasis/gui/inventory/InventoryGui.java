@@ -133,8 +133,13 @@ public final class InventoryGui extends Gui {
             public void clicked(InputEvent event, float x, float y) {
                 if (clickedItem instanceof ItemConsumable) {
                     clickedItem.useItem(player);
+                    if (clickedItem.getAmount() <= 0) {
+                        useItemButton.setVisible(false);
+                    }
                 } else if (clickedItem instanceof ItemEquippable) {
                     ((ItemEquippable) clickedItem).equip(player);
+                    useItemButton.setVisible(false);
+                    // TODO: Un-equip button
                 }
             }
         });
@@ -242,11 +247,22 @@ public final class InventoryGui extends Gui {
     }
 
     private void populateEquipmentButtons(boolean isArtifact) {
-        useItemButton.setVisible(true);
-        useItemButton.setText(isArtifact ? "Equip Artifact" : "Equip");
+        if (isArtifact) {
+            if (player.canEquipArtifact()) {
+                useItemButton.setVisible(true);
+                useItemButton.setText("Equip Artifact");
+            }
+        } else {
+            if (player.canEquipItem()) {
+                useItemButton.setVisible(true);
+                useItemButton.setText("Equip");
+            }
+        }
 
-        useItemButton.getColor().a = 0.0f;
-        useItemButton.addAction(Actions.fadeIn(1.0f));
+        if (useItemButton.isVisible()) {
+            useItemButton.getColor().a = 0.0f;
+            useItemButton.addAction(Actions.fadeIn(1.0f));
+        }
     }
 
     private void hideWeaponStats() {

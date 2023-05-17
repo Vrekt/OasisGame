@@ -12,7 +12,6 @@ import gdx.lunar.protocol.packet.server.SPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.SPacketPing;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.impl.Player;
-import lunar.shared.entity.texture.Rotation;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -83,11 +82,11 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         setName(name);
         setMoveSpeed(6.0f);
         moved = true;
-        //  setHasMoved(true);
+        setMoving(true);
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRateInMs(0, 0);
-        //setFixedRotation(true);
-        // TOOD: setIgnorePlayerCollision(true);
+        getBodyHandler().setHasFixedRotation(true);
+        disablePlayerCollision(true);
         this.inventory = new PlayerInventory();
 
         // starting quest, later this won't be added here but instead on new game.
@@ -233,10 +232,34 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         return equippedItem;
     }
 
+    public void removeEquippedItem() {
+        this.equippedItem = null;
+        // -1 indicates un-equip item
+        connection.sendImmediately(new ClientEquipItem(getEntityId(), -1));
+    }
+
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
 
         connection.sendImmediately(new ClientEquipItem(getEntityId(), item.getItemId()));
+    }
+
+    public boolean canEquipItem() {
+        return this.equippedItem == null;
+    }
+
+    /**
+     * Check if you can equip an artifact by checking if any slot is null
+     *
+     * @return {@code true} if so
+     */
+    public boolean canEquipArtifact() {
+        for (Artifact artifact : artifacts) {
+            if (artifact == null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public EntityRotation getPlayerRotation() {
@@ -275,17 +298,17 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     }
 
     public void setIdleRegionState() {
-        switch (Rotation.of(getAngle())) {
-            case FACING_UP:
+        switch (rotation) {
+            case UP:
                 currentRegion = getRegion("healer_walking_up_idle");
                 break;
-            case FACING_DOWN:
+            case DOWN:
                 currentRegion = getRegion("healer_walking_down_idle");
                 break;
-            case FACING_LEFT:
+            case LEFT:
                 currentRegion = getRegion("healer_walking_left_idle");
                 break;
-            case FACING_RIGHT:
+            case RIGHT:
                 currentRegion = getRegion("healer_walking_right_idle");
                 break;
         }
