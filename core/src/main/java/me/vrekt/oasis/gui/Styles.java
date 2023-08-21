@@ -7,12 +7,11 @@ import me.vrekt.oasis.asset.game.Asset;
 
 public class Styles {
 
-    private final NinePatch themePatch;
     private final NinePatchDrawable theme;
     private final Tooltip.TooltipStyle tooltipStyle;
 
     public Styles(Asset asset) {
-        themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
+        final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
         theme = new NinePatchDrawable(themePatch);
         tooltipStyle = new Tooltip.TooltipStyle(theme);
     }

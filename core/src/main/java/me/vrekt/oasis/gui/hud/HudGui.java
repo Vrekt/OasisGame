@@ -196,6 +196,10 @@ public final class HudGui extends Gui {
         lastIntroTick = GameManager.getCurrentGameWorldTick();
     }
 
+    public void stopDungeonIntroduction() {
+        dungeonIntroTable.setVisible(false);
+    }
+
     private VisTable initializePlayerArtifactsTable() {
         final VisTable playerArtifactsTable = new VisTable(true);
         playerArtifactsTable.setVisible(true);

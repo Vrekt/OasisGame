@@ -1,6 +1,7 @@
 package me.vrekt.oasis;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
@@ -10,6 +11,7 @@ import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.save.SaveGameTimes;
 import me.vrekt.oasis.save.SaveManager;
+import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.HashMap;
@@ -24,6 +26,9 @@ public class GameManager {
 
     private static boolean isSaving;
     private static SaveGameTimes saveGameTimes;
+
+    private static boolean hasCursorChanged;
+    private static boolean isCursorActive;
 
     public static OasisGame getOasis() {
         return oasis;
@@ -56,7 +61,7 @@ public class GameManager {
         });
 
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            if(isSaving) return;
+            if (isSaving) return;
             gui.showGui(GuiType.DEBUG_MENU);
         });
 
@@ -66,11 +71,24 @@ public class GameManager {
         });
     }
 
+    public static boolean isCursorActive() {
+        return isCursorActive;
+    }
+
+    public static boolean hasCursorChanged() {
+        return hasCursorChanged;
+    }
+
+    public static void setIsCursorActive(boolean isCursorActive) {
+        GameManager.isCursorActive = isCursorActive;
+    }
 
     public static void setCursorInGame(String cursorInWorld) {
         Pixmap pm = new Pixmap(Gdx.files.internal(cursorInWorld));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
+
+        hasCursorChanged = true;
     }
 
     public static boolean handleGuiKeyPress(int key) {
@@ -83,6 +101,9 @@ public class GameManager {
 
     public static void resetCursor() {
         setCursorInGame("ui/cursor.png");
+
+        isCursorActive = false;
+        hasCursorChanged = false;
     }
 
     /**
@@ -104,6 +125,16 @@ public class GameManager {
         isSaving = false;
         oasis.saveGameFinished();
         getPlayer().getGameWorldIn().saveGameFinished();
+    }
+
+    /**
+     * Fade the screen when entering a new area
+     *
+     * @param current          current screen
+     * @param runWhenCompleted the task to complete afterwards
+     */
+    public static void transitionScreen(Screen current, Screen next, Runnable runWhenCompleted) {
+        GameManager.getOasis().setScreen(new FadeScreen(current, new FadeScreen(next, null, null, true), runWhenCompleted, false));
     }
 
     /**

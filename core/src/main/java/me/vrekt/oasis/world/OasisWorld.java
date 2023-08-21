@@ -78,7 +78,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
     protected final SpriteBatch batch;
     protected final OasisTiledRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
-    protected boolean cursorChanged, isWorldLoaded;
+    protected boolean isWorldLoaded;
 
     protected int width, height;
 
@@ -187,6 +187,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
      * Enter this world.
      */
     public void enterWorld(boolean fromInstance) {
+
         // remove player from a world they could already be in
         // ensure we are not already in this world
         if (player.getGameWorldIn() != null
@@ -206,10 +207,18 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
             player.spawnInWorld(this, player.getPosition());
             game.getMultiplexer().addProcessor(this);
-            game.setScreen(this);
+            // game.setScreen(this);
         }
 
-        resetCursorState();
+        GameManager.resetCursor();
+    }
+
+    /**
+     * Fade in when entering an instance
+     */
+    public void enterInstanceAndFadeIn(Instance entering) {
+        GameManager.resetCursor();
+        GameManager.transitionScreen(this, entering, () -> entering.enter(false));
     }
 
     public void spawnEntityTypeAt(EntityNPCType type, Vector2 position) {
@@ -622,10 +631,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
             if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
-                if (!cursorChanged) {
-                    GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
-                    this.cursorChanged = true;
-                }
+                if (!GameManager.hasCursorChanged()) GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
                 hasEntity = true;
                 break;
             }
@@ -634,10 +640,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
         boolean hasInterior = false;
         for (Instance interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
-                if (!cursorChanged) {
-                    GameManager.setCursorInGame(interior.getCursor());
-                    this.cursorChanged = true;
-                }
+                if (!GameManager.hasCursorChanged()) GameManager.setCursorInGame(interior.getCursor());
                 hasInterior = true;
                 break;
             }
@@ -651,22 +654,20 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                         && worldObject.getCursor() != null
                         && worldObject.isInteractable()) {
                     GameManager.setCursorInGame(worldObject.getCursor());
-                    this.cursorChanged = true;
                     hasObj = true;
                     break;
                 }
             }
         }
 
-        if (!hasEntity && !hasObj && !hasInterior && cursorChanged) {
-            resetCursorState();
+        // only reset cursor to default state if not currently active
+        // and no interactions are being made
+        if (!GameManager.isCursorActive()
+                && !(hasEntity || hasObj || hasInterior)
+                && GameManager.hasCursorChanged()) {
+            GameManager.resetCursor();
         }
 
-    }
-
-    public void resetCursorState() {
-        GameManager.resetCursor();
-        this.cursorChanged = false;
     }
 
     /**

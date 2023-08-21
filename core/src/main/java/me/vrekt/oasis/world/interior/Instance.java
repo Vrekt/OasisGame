@@ -20,7 +20,7 @@ public class Instance extends OasisWorldInstance {
 
     protected final Vector2 worldExitSpawn = new Vector2();
     protected final Rectangle bounds;
-    protected boolean enterable = true, cursorChanged;
+    protected boolean enterable = true;
     protected float distance = 2.5f;
     protected final String cursor, instanceName;
 
@@ -55,11 +55,12 @@ public class Instance extends OasisWorldInstance {
         return position.dst2(bounds.x, bounds.y) <= distance;
     }
 
+
     @Override
-    public void enter() {
+    public void enter(boolean setScreen) {
         Logging.info(this, "Entering instance: " + instanceName);
         worldExitSpawn.set(player.getPosition());
-        super.enter();
+        super.enter(setScreen);
     }
 
     /**
@@ -80,11 +81,15 @@ public class Instance extends OasisWorldInstance {
     @Override
     public float update(float delta) {
         // check if mouse is over exit
-        if (!gui.isAnyInterfaceOpen() && exit.contains(cursorInWorld.x, cursorInWorld.y) && !cursorChanged) {
+
+        if (!gui.isAnyInterfaceOpen()
+                && exit.contains(cursorInWorld.x, cursorInWorld.y)
+                && !GameManager.hasCursorChanged()) {
             GameManager.setCursorInGame(getCursor());
-            this.cursorChanged = true;
-        } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y) && cursorChanged) {
-            resetCursorState();
+            GameManager.setIsCursorActive(true);
+        } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y)
+                && GameManager.hasCursorChanged()) {
+            GameManager.resetCursor();
         }
 
         return super.update(delta);
@@ -95,11 +100,16 @@ public class Instance extends OasisWorldInstance {
      */
     protected void handleExitIfClicked() {
         // check if player is close enough to exit
-        if (cursorChanged // indicates mouse is over exit
-                && player.getPosition().dst(exit.x, exit.y) <= 4.5f) {
+        if (GameManager.isCursorActive() // indicates mouse is over exit
+                && player.getPosition().dst(exit.x, exit.y) <= 2.5f) {
+            this.exit();
+
             Logging.info(this, "Exiting instance: " + instanceName);
-            player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
-            worldIn.enterWorld(true);
+
+            GameManager.transitionScreen(this, worldIn, () -> {
+                player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
+                worldIn.enterWorld(true);
+            });
         }
     }
 

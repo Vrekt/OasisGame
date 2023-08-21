@@ -19,6 +19,7 @@ import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.dialog.DialogGui;
+import me.vrekt.oasis.gui.hud.FaderGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
@@ -54,9 +55,9 @@ public final class GameGui {
         this.game = game;
         this.multiplexer = multiplexer;
         Table root = new Table();
+
         root.setFillParent(true);
         stage.addActor(root);
-
 
         stack = new Stack();
         stack.setFillParent(true);
@@ -86,6 +87,7 @@ public final class GameGui {
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
         guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
         guis.put(GuiType.DEBUG_MENU, new DebugMenuGui(this, asset));
+        guis.put(GuiType.FADER, new FaderGui(this, asset));
     }
 
     public Styles getStyles() {
@@ -218,6 +220,10 @@ public final class GameGui {
 
     public ContainerGui getContainerGui() {
         return (ContainerGui) guis.get(GuiType.CONTAINER);
+    }
+
+    public FaderGui getFader() {
+        return (FaderGui) guis.get(GuiType.FADER);
     }
 
     /**

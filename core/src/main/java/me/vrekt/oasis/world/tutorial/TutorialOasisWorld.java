@@ -2,6 +2,7 @@ package me.vrekt.oasis.world.tutorial;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -61,7 +62,6 @@ public final class TutorialOasisWorld extends OasisWorld {
             loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
         }
 
-
         // populate tutorial chests, lock them as-well until a certain point in the tutorial
         tutorialChestInteractions = getByRuntimeIdsMap(TUTORIAL_CHEST_RUNTIME_ID, TUTORIAL_CHEST_RUNTIME_ID_2, TUTORIAL_CHEST_RUNTIME_ID_3);
         if (tutorialChestInteractions.isEmpty()) {
@@ -107,14 +107,15 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         final Instance instance = getInstanceToEnterIfAny();
         if (instance != null) {
-            resetCursorState();
-            instance.enter();
+            enterInstanceAndFadeIn(instance);
 
             if (tutorialEntity != null) {
                 // spawn mavia in this instance
                 tutorialEntity.setPosition(instance.getWorldSpawn().x, instance.getWorldSpawn().y + 4.0f, false);
                 instance.addInteractableEntity(tutorialEntity);
             }
+
+            GameManager.resetCursor();
             return true;
         }
 

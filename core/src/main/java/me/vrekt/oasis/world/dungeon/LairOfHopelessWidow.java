@@ -16,10 +16,15 @@ public final class LairOfHopelessWidow extends Instance {
         super(game, player, world, name, cursor, bounds);
     }
 
+    @Override
+    public void enter(boolean setScreen) {
+        super.enter(setScreen);
+        GameManager.getGui().getHud().showDungeonIntroduction("Lair Of The Hopeless Widow");
+    }
 
     @Override
-    public void enter() {
-        super.enter();
-        GameManager.getGui().getHud().showDungeonIntroduction("Lair Of The Hopeless Widow");
+    protected void exit() {
+        // prevent text persisting if leaving dungeon fast
+        GameManager.getGui().getHud().stopDungeonIntroduction();
     }
 }

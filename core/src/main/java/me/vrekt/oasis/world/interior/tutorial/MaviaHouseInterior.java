@@ -24,9 +24,8 @@ public final class MaviaHouseInterior extends Instance {
     }
 
     @Override
-    public void enter() {
-        super.enter();
-
+    public void enter(boolean setScreen) {
+        super.enter(setScreen);
         // prevent duplicating of items when entering/exiting
         if (!chestPopulated) {
             // populate tutorial chests

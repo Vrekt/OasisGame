@@ -5,7 +5,6 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
-import gdx.lunar.world.WorldConfiguration;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -28,14 +27,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         this.worldIn = worldIn;
         this.instanceName = instanceName;
 
-        final WorldConfiguration config = new WorldConfiguration();
-        config.handlePhysics = true;
-        config.updateEntityEngine = true;
-        config.updateEntities = true;
-        config.updateNetworkPlayers = true;
-        config.updateLocalPlayer = true;
-        config.stepTime = 1 / 240f;
-        ;
+        getConfiguration().stepTime = 1 / 240f;
     }
 
     @Override
@@ -51,13 +43,22 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
 
     /**
      * Enter this instance.
+     *
+     * @param setScreen if set screen should be used after loading this instance
      */
-    public void enter() {
+    public void enter(boolean setScreen) {
         loadInstance(game.getAsset().getWorldMap(instanceName), OasisGameSettings.SCALE);
         isWorldLoaded = true;
 
         game.getMultiplexer().removeProcessor(worldIn);
-        game.setScreen(this);
+        if (setScreen) game.setScreen(this);
+    }
+
+    /**
+     * Exit this instance
+     */
+    protected void exit() {
+
     }
 
     /**
