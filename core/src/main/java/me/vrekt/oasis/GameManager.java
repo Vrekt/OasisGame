@@ -3,6 +3,7 @@ package me.vrekt.oasis;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
@@ -43,31 +44,26 @@ public class GameManager {
         GameManager.oasis = oasis;
     }
 
+    private static void registerGlobalKeyAction(int key, GuiType gui) {
+        KEY_ACTIONS.put(key, () -> GameManager.gui.toggleGui(gui));
+    }
+
     /**
      * TODO: Dirty with saving, need better system
      */
     private static void registerGlobalKeyActions() {
-        KEY_ACTIONS.put(OasisKeybindings.INVENTORY_KEY, () -> {
-            if (isSaving) return;
-            gui.showGuiType(GuiType.INVENTORY, GuiType.QUEST);
-        });
-        KEY_ACTIONS.put(OasisKeybindings.QUEST_BOOK_KEY, () -> {
-            if (isSaving) return;
-            gui.showGuiType(GuiType.QUEST, GuiType.INVENTORY);
-        });
+        registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
+        registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
+        registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.DEBUG_MENU);
+
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> {
             if (isSaving) return;
             oasis.getPlayer().getGameWorldIn().skipCurrentDialog();
         });
 
-        KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            if (isSaving) return;
-            gui.showGui(GuiType.DEBUG_MENU);
-        });
-
         KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> {
-            if (isSaving) return;
-            oasis.getPlayer().activateArtifact(0);
+            //   if (isSaving) return;
+            //    oasis.getPlayer().activateArtifact(0);
         });
     }
 
@@ -85,10 +81,15 @@ public class GameManager {
 
     public static void setCursorInGame(String cursorInWorld) {
         Pixmap pm = new Pixmap(Gdx.files.internal(cursorInWorld));
+
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
 
         hasCursorChanged = true;
+    }
+
+    public static Texture getCursor() {
+        return new Texture(new Pixmap(Gdx.files.internal("ui/cursor.png")));
     }
 
     public static boolean handleGuiKeyPress(int key) {

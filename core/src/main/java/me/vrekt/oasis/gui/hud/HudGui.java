@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TextraLabel;
+import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -41,10 +42,11 @@ public final class HudGui extends Gui {
 
     private final VisImage playerClassImage;
     private final VisLabel fpsLabel, pingLabel;
+    private TypingLabel hintLabel;
 
     private final VisImage hintItemImage;
     private final VisLabel hintItemLabel;
-    private float lastHintTick, lastIntroTick, lastWarningTick;
+    private float lastHintTick, lastIntroTick, lastWarningTick, hintDuration;
 
     private final ArtifactSlot[] slots = new ArtifactSlot[3];
 
@@ -69,7 +71,7 @@ public final class HudGui extends Gui {
 
         hintItemImage = new VisImage();
         hintItemLabel = new VisLabel("(1)", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
-        itemHintTable = initializeItemHintTable();
+        itemHintTable = initializeHintTable();
 
     }
 
@@ -106,9 +108,9 @@ public final class HudGui extends Gui {
      */
     private void updateAlphaActions() {
         final float now = GameManager.getCurrentGameWorldTick();
-
-        if (itemHintTable.getColor().a == 1 && (now - lastHintTick >= 2.5f))
+        if (itemHintTable.getColor().a == 1 && (hintDuration != 0.0 && now - lastHintTick >= hintDuration)) {
             itemHintTable.addAction(Actions.fadeOut(1f));
+        }
 
         // fade warning table
         if (missingItemWarningTable.getColor().a == 1 && (now - lastWarningTick) >= 1.5f)
@@ -165,6 +167,26 @@ public final class HudGui extends Gui {
 
         gui.createContainer(introTable).center();
         return introTable;
+    }
+
+    private VisTable initializeHintTable() {
+        final VisTable hintTable = new VisTable();
+        hintTable.setVisible(false);
+
+        final Table hint = new Table();
+        hint.setBackground(gui.getStyles().getTheme());
+
+        hint.add(this.hintLabel = new TypingLabel("HintLabel", new Label.LabelStyle(asset.getMedium(), Color.WHITE)))
+                .width(448)
+                .padBottom(16)
+                .padRight(8)
+                .padLeft(8);
+        this.hintLabel.setWrap(true);
+        hintTable.add(hint);
+
+        gui.createContainer(hintTable).top().padTop(2);
+
+        return hintTable;
     }
 
     private VisTable initializeMissingItemWarningTable() {
@@ -295,6 +317,32 @@ public final class HudGui extends Gui {
         hintItemLabel.setText("" + item.getAmount());
         lastHintTick = now;
     }
+
+    public void showHintWithNoFade(String text) {
+        showHint(text, 0.0f);
+    }
+
+    public void expireCurrentHint() {
+        itemHintTable.addAction(Actions.fadeOut(.5f));
+        itemHintTable.setVisible(false);
+    }
+
+    public void showHint(String text, float duration) {
+        final float now = GameManager.getCurrentGameWorldTick();
+        if (lastHintTick != 0.0f && now - lastHintTick < 2.5f) {
+            return;
+        }
+
+        this.hintDuration = duration;
+
+        itemHintTable.setVisible(true);
+        itemHintTable.getColor().a = 0.0f;
+        itemHintTable.addAction(Actions.fadeIn(1f));
+        hintLabel.setText(text);
+        hintLabel.restart();
+        lastHintTick = now;
+    }
+
 
     public void artifactUsed(int slot, float cooldown) {
         slots[slot].artifactImage.getColor().a = 0.0f;

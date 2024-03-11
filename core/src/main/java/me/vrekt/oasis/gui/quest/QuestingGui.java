@@ -12,7 +12,6 @@ import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
@@ -217,7 +216,6 @@ public final class QuestingGui extends Gui {
     @Override
     public void show() {
         super.show();
-        super.gui.hideGui(GuiType.HUD);
 
         // update quest objectives once this window is re-opened.
         if (currentSelectedQuest != null) {
@@ -229,7 +227,6 @@ public final class QuestingGui extends Gui {
     @Override
     public void hide() {
         super.hide();
-        super.gui.showGui(GuiType.HUD);
         table.setVisible(false);
     }
 }

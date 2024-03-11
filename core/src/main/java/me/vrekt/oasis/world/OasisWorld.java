@@ -153,6 +153,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
     }
 
     public float getCurrentWorldTick() {
+        // check if player is in instance to avoid
+        // ui problems. Parent world isn't updated so
+        // must return instance tick.
+        if (player.isInInstance()) {
+            return player.getInstanceIn().currentWorldTick;
+        }
         return currentWorldTick;
     }
 
@@ -915,15 +921,16 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
         // handle returning to previous menus
         if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
-            if (gui.hideGuiType(GuiType.QUEST)) return true;
-            if (gui.hideGuiType(GuiType.INVENTORY)) return true;
-            if (gui.hideGuiType(GuiType.CONTAINER)) return true;
-            if (gui.hideGuiType(GuiType.DEBUG_MENU)) return true;
-            if (gui.hideGuiType(GuiType.SETTINGS)) {
+            if (gui.toggleGui(GuiType.QUEST)) return true;
+            if (gui.toggleGui(GuiType.INVENTORY)) return true;
+            if (gui.toggleGui(GuiType.CONTAINER)) return true;
+            if (gui.toggleGui(GuiType.DEBUG_MENU)) return true;
+
+            if (gui.toggleGui(GuiType.SETTINGS)) {
                 gui.showGui(GuiType.PAUSE);
                 return true;
             }
-            if (gui.hideGuiType(GuiType.SAVE_GAME)) {
+            if (gui.toggleGui(GuiType.SAVE_GAME)) {
                 gui.showGui(GuiType.PAUSE);
                 return true;
             }

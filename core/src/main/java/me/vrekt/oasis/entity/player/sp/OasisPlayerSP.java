@@ -73,7 +73,8 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     private EntityRotation rotation = EntityRotation.UP;
     private final PlayerSteeringLocation location;
 
-    private boolean moved;
+    // disable movement listening while in dialogs
+    private boolean disableMovement, moved;
 
     public OasisPlayerSP(OasisGame game, String name) {
         super(true);
@@ -101,6 +102,10 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
         setPosition(state.getPosition(), true);
         inventory.clear();
         inventory.transferItemsFrom(state.getInventoryState().getInventory());
+    }
+
+    public void setDisableMovement(boolean disableMovement) {
+        this.disableMovement = disableMovement;
     }
 
     public void activateArtifact(int which) {
@@ -341,7 +346,9 @@ public final class OasisPlayerSP extends Player implements ResourceLoader, Drawa
     public void pollInput() {
 
         setVelocity(0.0f, 0.0f);
-
+        if (disableMovement) {
+            return;
+        }
         if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_UP_KEY)) {
             rotation = EntityRotation.UP;
             setVelocity(0.0f, getMoveSpeed());

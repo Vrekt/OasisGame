@@ -8,7 +8,7 @@ public final class OasisKeybindings {
     public static int WALK_DOWN_KEY = Input.Keys.S;
     public static int WALK_LEFT_KEY = Input.Keys.A;
     public static int WALK_RIGHT_KEY = Input.Keys.D;
-    public static int QUEST_BOOK_KEY = Input.Keys.Q;
+    public static int QUEST_KEY = Input.Keys.Q;
     public static int INVENTORY_KEY = Input.Keys.I;
     public static int SKIP_DIALOG_KEY = Input.Keys.F;
     public static int PAUSE_GAME_KEY = Input.Keys.ESCAPE;

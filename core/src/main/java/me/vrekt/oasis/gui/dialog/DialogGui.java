@@ -7,7 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.github.tommyettinger.textra.TypingLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.gui.GameGui;
@@ -19,8 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 public final class DialogGui extends Gui {
 
     private final Table rootTable;
-    private final Table optionsGroup;
+    private final Table optionsGroup, suggestions;
     private final TypingLabel entityNameLabel;
+    private final VisTextField input;
+    private final Label suggestion1, suggestion2, suggestion3;
     private final Image entityImage, keybindImage;
 
     private final TextureRegionDrawable start, middle, end;
@@ -44,19 +49,66 @@ public final class DialogGui extends Gui {
         this.middle = new TextureRegionDrawable(asset.get("dialog_option"));
         this.end = new TextureRegionDrawable(asset.get("dialog_end_picture"));
 
+        suggestions = new VisTable();
+        suggestions.setVisible(false);
+        suggestions.setBackground(gui.getStyles().getTheme());
+
+        final Table suggestion1 = new Table();
+        final Table suggestion2 = new Table();
+        final Table suggestion3 = new Table();
+
+        this.suggestion1 = new Label("Suggestion 1", new Label.LabelStyle(asset.getSmall(), Color.LIGHT_GRAY));
+        this.suggestion1.setAlignment(Align.center);
+        this.suggestion2 = new Label("Suggestion 2", new Label.LabelStyle(asset.getSmall(), Color.LIGHT_GRAY));
+        this.suggestion2.setAlignment(Align.center);
+        this.suggestion3 = new Label("Suggestion 3", new Label.LabelStyle(asset.getSmall(), Color.LIGHT_GRAY));
+        this.suggestion3.setAlignment(Align.center);
+
+        suggestion1.add(this.suggestion1).left();
+        suggestion2.add(this.suggestion2).left();
+        suggestion3.add(this.suggestion3).left();
+        suggestions.add(suggestion1).center();
+        suggestions.row().padTop(4);
+        suggestions.add(suggestion2);
+        suggestions.row().padTop(4);
+        suggestions.add(suggestion3);
+
         final Table name = new Table();
         final Table key = new Table();
         key.right().bottom();
         key.add(keybindImage = new Image(asset.get("fkey"))).size(32, 32);
 
         name.add(this.entityNameLabel = new TypingLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE)));
+        //name.add(this.input = new TypingLabel("> ", new Label.LabelStyle(asset.getMedium(), Color.LIGHT_GRAY))).padLeft(16);
+
+        name.add(this.input = new VisTextField("", gui.getStyles().getFieldStyle())).padLeft(16);
+
+        input.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gui.getGame().getPlayer().setDisableMovement(true);
+            }
+        });
+
+        input.setTextFieldListener((visTextField, c) -> {
+            if (entity.getDialog().hasSuggestions()) {
+                for (String suggestion : entity.getDialog().getSuggestions()) {
+                    if (suggestion.contains(Character.toString(c))) {
+
+                    }
+                }
+            }
+        });
 
         final Table optionsTable = new Table();
         this.optionsGroup = new Table();
         optionsTable.add(optionsGroup);
 
         gui.createContainer(rootTable).bottom();
+        rootTable.add(suggestions).left().padBottom(12).padLeft(90);
+        rootTable.row();
         // TODO: Might cause bugs will check later
+        // 1-15-24: ??
         rootTable.add(name).left().padBottom(12);
         rootTable.add(optionsTable).right().padBottom(4);
         rootTable.row();
@@ -74,9 +126,9 @@ public final class DialogGui extends Gui {
                 .padBottom(16)
                 .padRight(8)
                 .padLeft(8);
+
         this.dialogTitle.setWrap(true);
         table.add(key).right().bottom();
-
         rootTable.add(table).padBottom(8);
     }
 
@@ -115,6 +167,23 @@ public final class DialogGui extends Gui {
         this.entityNameLabel.setText("{COLOR=WHITE}" + entity.getName());
         // append black color to typing label.
         this.dialogTitle.restart("{COLOR=WHITE}" + parseDialogText(entity.getDialog().getTitle()));
+
+        if (entity.getDialog().hasSuggestions()) {
+            int currentIndex = 0;
+            for (String suggestion : entity.getDialog().getSuggestions()) {
+                if (currentIndex == 0) {
+                    suggestion1.setText(suggestion);
+                } else if (currentIndex == 1) {
+                    suggestion2.setText(suggestion);
+                } else if (currentIndex == 3) {
+                    suggestion3.setText(suggestion);
+                }
+                currentIndex++;
+                if (currentIndex > 3) {
+                    break;
+                }
+            }
+        }
 
         optionsGroup.clear();
         if (entity.getDialog().hasOptions()) {
@@ -172,6 +241,7 @@ public final class DialogGui extends Gui {
     @Override
     public void hide() {
         rootTable.setVisible(false);
+        gui.getGame().getPlayer().setDisableMovement(false);
         isShowing = false;
     }
 

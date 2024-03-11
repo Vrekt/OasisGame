@@ -57,6 +57,29 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
         return bounds;
     }
 
+    /**
+     * Set facing direction texture of this entity
+     *
+     * @param rotation the rotation desired
+     */
+    public void setFacingDirectionTexture(EntityRotation rotation) {
+        switch (rotation) {
+            case UP:
+                currentRegionState = getRegion("facing_up");
+                break;
+            case DOWN:
+                currentRegionState = getRegion("facing_down");
+                break;
+            case LEFT:
+                currentRegionState = getRegion("facing_left");
+                break;
+            case RIGHT:
+                currentRegionState = getRegion("facing_right");
+                break;
+        }
+        setAngle(rotation.ordinal());
+    }
+
     @Override
     public void update(float v) {
         super.update(v);

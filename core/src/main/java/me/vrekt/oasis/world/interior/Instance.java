@@ -92,6 +92,9 @@ public class Instance extends OasisWorldInstance {
             GameManager.resetCursor();
         }
 
+        // update tick here to avoid UI problems
+        currentWorldTick += delta;
+
         return super.update(delta);
     }
 

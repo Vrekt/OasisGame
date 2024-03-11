@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.npc;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.npc.tutorial.TutorialCombatDummy;
 import me.vrekt.oasis.world.OasisWorld;
@@ -11,12 +12,12 @@ import me.vrekt.shared.entities.EntityType;
 /**
  * All NPC entities within the game
  */
+@SuppressWarnings("unchecked")
 public enum EntityNPCType {
 
     /**
      * Mavia is a tutorial entity on Tutorial World.
      */
-    @SuppressWarnings("unchecked")
     MAVIA {
         @Override
         public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
@@ -27,6 +28,12 @@ public enum EntityNPCType {
         @Override
         public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
             return (T) new TutorialCombatDummy("CombatDummy", position, game.getPlayer(), world, game);
+        }
+    },
+    WRYNN {
+        @Override
+        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
+            return (T) new WrynnEntity("Wrynn", position, game.getPlayer(), world, game, EntityNPCType.WRYNN);
         }
     },
 

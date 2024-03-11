@@ -116,8 +116,8 @@
    <properties>
     <property name="cursor" value="ui/door_cursor.png"/>
     <property name="enterable" type="bool" value="true"/>
-    <property name="instance_name" value="world/interiors/House1.tmx"/>
-    <property name="instance_type" value="mavia_tutorial_house"/>
+    <property name="instance_name" value="world/interiors/Office.tmx"/>
+    <property name="instance_type" value="boss_house"/>
    </properties>
   </object>
   <object id="50" x="176" y="101.962" width="32" height="32">
@@ -133,12 +133,6 @@
   <object id="2" name="Mavia" x="256" y="192">
    <properties>
     <property name="entity_type" value="MAVIA"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="51" name="CombatDummy" x="255.165" y="263.512">
-   <properties>
-    <property name="entity_type" value="DUMMY"/>
    </properties>
    <point/>
   </object>

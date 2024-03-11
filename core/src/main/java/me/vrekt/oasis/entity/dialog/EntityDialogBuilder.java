@@ -1,11 +1,17 @@
 package me.vrekt.oasis.entity.dialog;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 /**
  * Allows easy building of an entities dialog
  */
 public final class EntityDialogBuilder {
+
+    public static EntityDialogBuilder builder(String keyFormat) {
+        return new EntityDialogBuilder(keyFormat);
+    }
 
     public static EntityDialogBuilder builder() {
         return new EntityDialogBuilder();
@@ -13,8 +19,15 @@ public final class EntityDialogBuilder {
 
     // all dialog while building is stored here
     private final LinkedHashMap<String, InteractableEntityDialogSection> dialog = new LinkedHashMap<>();
+    private final String keyFormat;
+    private int textIndex = 0;
 
-    private EntityDialogBuilder() {
+    public EntityDialogBuilder(String keyFormat) {
+        this.keyFormat = keyFormat;
+    }
+
+    public EntityDialogBuilder() {
+        this.keyFormat = null;
     }
 
     /**
@@ -26,6 +39,12 @@ public final class EntityDialogBuilder {
      */
     public EntityDialogBuilderSection create(String key, String title) {
         return new EntityDialogBuilderSection(this, key, title, true);
+    }
+
+    public EntityDialogBuilderSection create(String text) {
+        final EntityDialogBuilderSection section = create(keyFormat + "_" + textIndex, text);
+        textIndex++;
+        return section;
     }
 
     /**
@@ -72,6 +91,7 @@ public final class EntityDialogBuilder {
         final boolean skip;
         // map of options by key and line
         final LinkedHashMap<String, String> options = new LinkedHashMap<>();
+        final LinkedList<String> suggestions = new LinkedList<>();
 
         String nextKey;
 
@@ -87,8 +107,22 @@ public final class EntityDialogBuilder {
             return this;
         }
 
+        public EntityDialogBuilder assumeNext() {
+            nextKey(keyFormat + "_" + textIndex);
+            return next();
+        }
+
         public EntityDialogBuilderSection withOption(String key, String option) {
             options.put(key, option);
+            return this;
+        }
+
+        public EntityDialogBuilderSection withSuggestion(String suggestion) {
+            suggestions.add(suggestion);
+            return this;
+        }
+        public EntityDialogBuilderSection withSuggestions(String... suggestions) {
+            this.suggestions.addAll(Arrays.asList(suggestions));
             return this;
         }
 

@@ -17,7 +17,6 @@ import me.vrekt.oasis.entity.inventory.container.containers.ChestInventory;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.utility.GuiUtilities;
 
 import java.util.LinkedList;
@@ -120,14 +119,12 @@ public final class ContainerGui extends Gui {
     @Override
     public void show() {
         super.show();
-        gui.hideGui(GuiType.HUD);
         rootTable.setVisible(true);
     }
 
     @Override
     public void hide() {
         super.hide();
-        gui.showGui(GuiType.HUD);
         rootTable.setVisible(false);
     }
 

@@ -17,6 +17,7 @@ public final class Asset implements Disposable {
     public static final String TUTORIAL_WORLD = "world/worlds/OasisTutorialWorld.tmx";
     public static final String LAIR_OF_HOPELESS_WIDOW = "world/worlds/LairOfHopelessWidow.tmx";
     public static final String HOUSE1 = "world/interiors/House1.tmx";
+    public static final String BOSS_HOUSE = "world/interiors/Office.tmx";
     public static final String ASSETS = "Assets.atlas";
 
     private final AssetManager assetManager = new AssetManager();
@@ -51,6 +52,7 @@ public final class Asset implements Disposable {
         assetManager.load(TUTORIAL_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(HOUSE1, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(LAIR_OF_HOPELESS_WIDOW, TiledMap.class, new TmxMapLoader.Parameters());
+        assetManager.load(BOSS_HOUSE, TiledMap.class, new TmxMapLoader.Parameters());
     }
 
     private void loadSkins() {

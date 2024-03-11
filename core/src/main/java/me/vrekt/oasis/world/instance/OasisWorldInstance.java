@@ -31,11 +31,6 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
     }
 
     @Override
-    public void render(float delta) {
-        preRender(delta);
-    }
-
-    @Override
     public void renderWorld(SpriteBatch batch, float delta) {
         super.renderWorld(batch, delta);
         endRender();
@@ -78,6 +73,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
         loadWorldObjects(map, game.getAsset(), worldScale);
+        loadInteractableEntities(game, game.getAsset(), map, worldScale);
 
         renderer.setTiledMap(map, spawn.x, spawn.y);
         game.getMultiplexer().addProcessor(this);

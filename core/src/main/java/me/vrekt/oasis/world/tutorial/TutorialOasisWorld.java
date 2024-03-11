@@ -80,12 +80,14 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         // if new game, spawn with a few debug items... for now
         if (game.isNewGame()) {
+            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
             player.getInventory().addItem(EnchantedVioletItem.ID, 1);
             player.getInventory().addItem(QuickStepItemArtifact.ID, 1);
             player.getInventory().addItem(LucidTreeFruitItem.ID, 1);
             game.setNewGame(false); // prevent duplication of items when coming back from instances
             // player.getConnection().send(new ClientSpawnEntity(EntityType.TUTORIAL_COMBAT_DUMMY, player.getPosition()));
         }
+
     }
 
     @Override

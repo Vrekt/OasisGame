@@ -19,7 +19,7 @@ import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.dialog.DialogGui;
-import me.vrekt.oasis.gui.hud.FaderGui;
+import me.vrekt.oasis.gui.hints.HintGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
@@ -56,8 +56,10 @@ public final class GameGui {
         this.multiplexer = multiplexer;
         Table root = new Table();
 
+
         root.setFillParent(true);
         stage.addActor(root);
+
 
         stack = new Stack();
         stack.setFillParent(true);
@@ -87,7 +89,7 @@ public final class GameGui {
         guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
         guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
         guis.put(GuiType.DEBUG_MENU, new DebugMenuGui(this, asset));
-        guis.put(GuiType.FADER, new FaderGui(this, asset));
+        guis.put(GuiType.HINT, new HintGui(this, asset));
     }
 
     public Styles getStyles() {
@@ -160,7 +162,65 @@ public final class GameGui {
         showGui(GuiType.DIALOG);
     }
 
-    public void showGuiType(GuiType type, GuiType hideOther) {
+    /**
+     * Show a gui
+     *
+     * @param type the type
+     */
+    public void showGui(GuiType type) {
+        guis.get(type).show();
+    }
+
+    /**
+     * Hide any amount of GUIs
+     *
+     * @param type the type
+     */
+    public void hideGui(GuiType... type) {
+        for (GuiType guiType : type) {
+            guis.get(guiType).hide();
+        }
+    }
+
+    /**
+     * Toggle a gui
+     *
+     * @param gui the gui
+     */
+    public boolean toggleGui(GuiType gui) {
+        if (isGuiVisible(gui)) {
+            hideGui(gui);
+            gui.showOtherGuis(this);
+            return true;
+        } else {
+            showGui(gui);
+            gui.hideOtherGuis(this);
+            return false;
+        }
+    }
+
+    /**
+     * Check if a GUI is currently visible
+     *
+     * @param type the type
+     * @return {@code true} if so
+     */
+    public boolean isGuiVisible(GuiType type) {
+        return guis.get(type).isGuiVisible();
+    }
+
+    /**
+     * Hide a gui and then show another
+     *
+     * @param hide the one to hide
+     * @param show the one to show
+     */
+    public void hideThenShowGui(GuiType hide, GuiType show) {
+        hideGui(hide);
+        showGui(show);
+    }
+
+   /* public void showGuiType(GuiType type, GuiType hideOther) {
         if (isGuiVisible(type)) {
             hideGui(type);
         } else {
@@ -177,22 +237,11 @@ public final class GameGui {
         return false;
     }
 
-    public void showGui(GuiType type) {
-        guis.get(type).show();
-    }
 
-    public void hideGui(GuiType type) {
-        guis.get(type).hide();
-    }
 
-    public void hideThenShowGui(GuiType hide, GuiType show) {
-        hideGui(hide);
-        showGui(show);
-    }
-
-    public boolean isGuiVisible(GuiType type) {
-        return guis.get(type).isGuiVisible();
-    }
+    public void showGuiIfNotOpen(GuiType type) {
+        if (!isGuiVisible(type)) showGui(type);
+    }*/
 
     public <T extends Gui> T getGui(GuiType type) {
         return (T) guis.get(type);
@@ -220,10 +269,6 @@ public final class GameGui {
 
     public ContainerGui getContainerGui() {
         return (ContainerGui) guis.get(GuiType.CONTAINER);
-    }
-
-    public FaderGui getFader() {
-        return (FaderGui) guis.get(GuiType.FADER);
     }
 
     /**

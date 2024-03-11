@@ -14,7 +14,6 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRarity;
@@ -290,15 +289,12 @@ public final class InventoryGui extends Gui {
     @Override
     public void show() {
         super.show();
-        gui.hideGui(GuiType.HUD);
-        gui.hideGui(GuiType.CONTAINER);
         rootTable.setVisible(true);
     }
 
     @Override
     public void hide() {
         super.hide();
-        gui.showGui(GuiType.HUD);
         rootTable.setVisible(false);
     }
 
