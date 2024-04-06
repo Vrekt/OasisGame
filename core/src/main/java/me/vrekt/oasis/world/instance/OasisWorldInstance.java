@@ -7,8 +7,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.OasisWorld;
 
@@ -22,7 +22,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
 
     protected final Rectangle exit = new Rectangle();
 
-    public OasisWorldInstance(OasisGame game, OasisPlayerSP player, World world, OasisWorld worldIn, String instanceName) {
+    public OasisWorldInstance(OasisGame game, OasisPlayer player, World world, OasisWorld worldIn, String instanceName) {
         super(game, player, world);
         this.worldIn = worldIn;
         this.instanceName = instanceName;
@@ -79,14 +79,14 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         game.getMultiplexer().addProcessor(this);
 
         if (player.isInWorld()) {
-            Logging.info(this, "Removing local player from parent world.");
+            GameLogging.info(this, "Removing local player from parent world.");
             player.removeFromWorld(player.getGameWorldIn());
         }
 
         spawnPlayerInInstance();
         addDefaultWorldSystems();
 
-        Logging.info(this, "Loaded instance successfully.");
+        GameLogging.info(this, "Loaded instance successfully.");
     }
 
     private void spawnPlayerInInstance() {

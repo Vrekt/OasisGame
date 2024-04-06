@@ -1,12 +1,9 @@
 eclipse.project.name = appName + '-shared'
 
 dependencies {
-    api group: 'io.netty', name: 'netty-all', version: '4.1.48.Final'
-    api "com.badlogicgames.gdx:gdx:1.11.0"
+    api group: 'io.netty', name: 'netty-all', version: '4.1.100.Final'
+    api "com.badlogicgames.gdx:gdx:1.12.1"
 
-    api project(":core")
-    api files('../Core.jar')
     api files('../Protocol.jar')
-    api files('../Server.jar')
     api files('../Entity.jar')
 }

@@ -29,6 +29,9 @@ public abstract class AbstractInventoryUiSlot {
         tooltip.setAppearDelayTime(0.35f);
     }
 
+    /**
+     * Reset this slot
+     */
     protected void reset() {
         this.occupied = false;
         this.imageItem.setDrawable(null);
@@ -39,6 +42,9 @@ public abstract class AbstractInventoryUiSlot {
         amountLabel.setVisible(false);
     }
 
+    /**
+     *
+     */
     protected void setStackableState() {
         if (item.isStackable()) {
             amountLabel.setText(String.valueOf(item.getAmount()));
@@ -51,7 +57,7 @@ public abstract class AbstractInventoryUiSlot {
     protected void setItem(Item item) {
         this.item = item;
 
-        this.imageItem.setDrawable(new TextureRegionDrawable(item.getTexture()));
+        this.imageItem.setDrawable(new TextureRegionDrawable(item.getSprite()));
         this.imageItem.setScale(item.getSprite().getScaleX(), item.getSprite().getScaleY());
         this.amountLabel.setText(String.valueOf(item.getAmount()));
         this.tooltip.setText(item.getItemName());

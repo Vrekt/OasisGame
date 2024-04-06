@@ -17,7 +17,6 @@ import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRegistry;
-import me.vrekt.oasis.item.weapons.ItemWeapon;
 
 /**
  * Represents any player over the network
@@ -60,14 +59,16 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
             // player has stopped equipping an item
             this.equippedItem = null;
         } else {
-            this.equippedItem = (ItemEquippable) ItemRegistry.createItemFromId(itemId);
-            this.equippedItem.load(GameManager.getAssets());
+            // TODO
+            // this.equippedItem = (ItemEquippable) ItemRegistry.createItemFromId(itemId);
+            // this.equippedItem.load(GameManager.getAssets());
         }
     }
 
     public void setSwingingItem(int id) {
-        if (equippedItem == null || equippedItem.getItemId() != id) return;
-        ((ItemWeapon) equippedItem).swingItem();
+        // TODO
+        // if (equippedItem == null || equippedItem.getItemId() != id) return;
+        // ((ItemWeapon) equippedItem).swingItem();
     }
 
     @Override

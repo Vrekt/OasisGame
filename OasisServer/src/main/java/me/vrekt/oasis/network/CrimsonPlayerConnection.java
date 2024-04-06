@@ -25,9 +25,9 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
     public CrimsonPlayerConnection(Channel channel, LunarServer server) {
         super(channel, server);
 
-        registerPacket(ClientSpawnEntity.ID, ClientSpawnEntity::new, this::handleSpawnEntity);
-        registerPacket(ClientEquipItem.ID, ClientEquipItem::new, this::handleEquipItem);
-        registerPacket(ClientSwingItem.ID, ClientSwingItem::new, this::handleSwingItem);
+        registerPacket(ClientPacketSpawnEntity.ID, ClientPacketSpawnEntity::new, this::handleSpawnEntity);
+        registerPacket(ClientPacketEquipItem.ID, ClientPacketEquipItem::new, this::handleEquipItem);
+        registerPacket(ClientPacketSwingItem.ID, ClientPacketSwingItem::new, this::handleSwingItem);
     }
 
     @Override
@@ -69,23 +69,23 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
         worldIn.handlePlayerLoaded(localPlayer);
     }
 
-    private void handleSpawnEntity(ClientSpawnEntity packet) {
+    private void handleSpawnEntity(ClientPacketSpawnEntity packet) {
         Logging.info(this, "Spawning a new entity by request from player, type=" + packet.getType() + ", pos=" + packet.getPosition());
 
         if (worldIn != null) {
             worldIn.spawnEntityInWorld(packet.getType(), packet.getPosition());
 
-            final ServerSpawnEntity entity = new ServerSpawnEntity(worldIn.assignEntityIdFor(false), packet.getType(), packet.getPosition());
+            final ServerPacketSpawnEntity entity = new ServerPacketSpawnEntity(worldIn.assignEntityIdFor(false), packet.getType(), packet.getPosition());
             sendImmediately(entity);
         }
     }
 
-    private void handleEquipItem(ClientEquipItem packet) {
-        worldIn.broadcastNowWithExclusion(packet.getEntityId(), new ServerPlayerEquippedItem(packet.getEntityId(), packet.getItemId()));
+    private void handleEquipItem(ClientPacketEquipItem packet) {
+        worldIn.broadcastNowWithExclusion(packet.getEntityId(), new ServerPacketPlayerEquippedItem(packet.getEntityId(), packet.getItemId()));
     }
 
-    private void handleSwingItem(ClientSwingItem packet) {
-        worldIn.broadcastNowWithExclusion(packet.getEntityId(), new ServerPlayerSwungItem(packet.getEntityId(), packet.getItemId()));
+    private void handleSwingItem(ClientPacketSwingItem packet) {
+        worldIn.broadcastNowWithExclusion(packet.getEntityId(), new ServerPacketPlayerSwingItem(packet.getEntityId(), packet.getItemId()));
     }
 
 }

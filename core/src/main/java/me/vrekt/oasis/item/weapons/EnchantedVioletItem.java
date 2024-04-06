@@ -11,16 +11,15 @@ import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class EnchantedVioletItem extends ItemWeapon {
 
-    public static final int ID = 4;
+    public static final String KEY = "oasis:enchanted_violet_sword";
+    public static final String NAME = "Enchanted Sword";
     public static final String TEXTURE = "enchanted_violet";
-    public static final String NAME = "Enchanted Violet";
-
     public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     private ParticleEffect swingEffect;
 
     public EnchantedVioletItem() {
-        super(NAME, ID, "An enchanted dagger dipped in violet.");
+        super(KEY, NAME, "Something something this item is special.");
         this.baseDamage = 1.5f;
         this.swingCooldown = 0.25f;
         this.swingTime = .25f;
@@ -36,7 +35,7 @@ public final class EnchantedVioletItem extends ItemWeapon {
         this.sprite = new Sprite(asset.get(TEXTURE));
         this.sprite.setScale(2.0f);
         this.sprite.setSize(sprite.getRegionWidth() * OasisGameSettings.SCALE, sprite.getRegionHeight() * OasisGameSettings.SCALE);
-        this.swipe = new Sprite(asset.get("swipetest", 2));
+        //this.swipe = new Sprite(asset.get("swipetest", 2));
 
         this.swingEffect = new ParticleEffect();
         this.swingEffect.load(Gdx.files.internal("world/asset/swordparticle"), asset.getAtlasAssets());

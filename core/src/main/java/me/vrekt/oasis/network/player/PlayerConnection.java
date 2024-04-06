@@ -1,29 +1,29 @@
 package me.vrekt.oasis.network.player;
 
 import gdx.lunar.network.types.PlayerConnectionHandler;
-import gdx.lunar.protocol.LunarProtocol;
+import gdx.lunar.v2.GdxProtocol;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.utility.logging.Logging;
-import me.vrekt.shared.network.ServerPlayerEquippedItem;
-import me.vrekt.shared.network.ServerPlayerSwungItem;
-import me.vrekt.shared.network.ServerSpawnEntity;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.shared.network.ServerPacketPlayerEquippedItem;
+import me.vrekt.shared.network.ServerPacketPlayerSwingItem;
+import me.vrekt.shared.network.ServerPacketSpawnEntity;
 
 public class PlayerConnection extends PlayerConnectionHandler {
 
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
 
-    public PlayerConnection(Channel channel, LunarProtocol protocol, OasisPlayerSP player) {
+    public PlayerConnection(Channel channel, GdxProtocol protocol, OasisPlayer player) {
         super(channel, protocol);
         this.player = player;
 
-        registerPacket(ServerSpawnEntity.ID, ServerSpawnEntity::new, this::handleSpawnEntity);
-        registerPacket(ServerPlayerEquippedItem.ID, ServerPlayerEquippedItem::new, this::handlePlayerEquippedItem);
-        registerPacket(ServerPlayerSwungItem.ID, ServerPlayerSwungItem::new, this::handleSwingItem);
+        registerPacket(ServerPacketSpawnEntity.ID, ServerPacketSpawnEntity::new, this::handleSpawnEntity);
+        registerPacket(ServerPacketPlayerEquippedItem.ID, ServerPacketPlayerEquippedItem::new, this::handlePlayerEquippedItem);
+        registerPacket(ServerPacketPlayerSwingItem.ID, ServerPacketPlayerSwingItem::new, this::handleSwingItem);
     }
 
-    private void handleSpawnEntity(ServerSpawnEntity packet) {
+    private void handleSpawnEntity(ServerPacketSpawnEntity packet) {
         switch (packet.getType()) {
             case INVALID:
                 break;
@@ -36,23 +36,23 @@ public class PlayerConnection extends PlayerConnectionHandler {
         }
     }
 
-    private void handlePlayerEquippedItem(ServerPlayerEquippedItem packet) {
+    private void handlePlayerEquippedItem(ServerPacketPlayerEquippedItem packet) {
         if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
             player.getGameWorldIn()
                     .getPlayer(packet.getEntityId())
                     .setEquippingItem(packet.getItemId());
         } else {
-            Logging.warn(this, "No player by ID (equip)" + packet.getEntityId());
+            GameLogging.warn(this, "No player by ID (equip)" + packet.getEntityId());
         }
     }
 
-    private void handleSwingItem(ServerPlayerSwungItem packet) {
+    private void handleSwingItem(ServerPacketPlayerSwingItem packet) {
         if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
             player.getGameWorldIn()
                     .getPlayer(packet.getEntityId())
                     .setSwingingItem(packet.getItemId());
         } else {
-            Logging.warn(this, "No player by ID (swing)" + packet.getEntityId());
+            GameLogging.warn(this, "No player by ID (swing)" + packet.getEntityId());
         }
     }
 

@@ -16,7 +16,7 @@ import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 
 public final class DialogGui extends Gui {
@@ -92,11 +92,7 @@ public final class DialogGui extends Gui {
 
         input.setTextFieldListener((visTextField, c) -> {
             if (entity.getDialog().hasSuggestions()) {
-                for (String suggestion : entity.getDialog().getSuggestions()) {
-                    if (suggestion.contains(Character.toString(c))) {
 
-                    }
-                }
             }
         });
 
@@ -156,7 +152,7 @@ public final class DialogGui extends Gui {
      */
     public void setShowingDialog(EntitySpeakable entity) {
         if (entity == null || entity.getDialog() == null) {
-            Logging.warn(this, "Failed to show dialog: " + (entity == null) + " -> entity " + (entity == null ? "[no entity]" : (entity.getDialog() == null)) + " -> dialog");
+            GameLogging.warn(this, "Failed to show dialog: " + (entity == null) + " -> entity " + (entity == null ? "[no entity]" : (entity.getDialog() == null)) + " -> dialog");
             hide();
             return;
         }
@@ -166,23 +162,10 @@ public final class DialogGui extends Gui {
         this.entityImage.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
         this.entityNameLabel.setText("{COLOR=WHITE}" + entity.getName());
         // append black color to typing label.
-        this.dialogTitle.restart("{COLOR=WHITE}" + parseDialogText(entity.getDialog().getTitle()));
+        this.dialogTitle.restart("{COLOR=WHITE}" + parseDialogText(entity.getDialog().getText()));
 
         if (entity.getDialog().hasSuggestions()) {
             int currentIndex = 0;
-            for (String suggestion : entity.getDialog().getSuggestions()) {
-                if (currentIndex == 0) {
-                    suggestion1.setText(suggestion);
-                } else if (currentIndex == 1) {
-                    suggestion2.setText(suggestion);
-                } else if (currentIndex == 3) {
-                    suggestion3.setText(suggestion);
-                }
-                currentIndex++;
-                if (currentIndex > 3) {
-                    break;
-                }
-            }
         }
 
         optionsGroup.clear();

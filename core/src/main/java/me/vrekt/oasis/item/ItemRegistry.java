@@ -1,5 +1,6 @@
 package me.vrekt.oasis.item;
 
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
@@ -17,23 +18,22 @@ import java.util.Map;
 public final class ItemRegistry {
 
     // stores all item creators
-    private static final Map<Integer, InstanceFactory<Item>> registry = new HashMap<>();
+    private static final Map<String, InstanceFactory<Item>> registry = new HashMap<>();
 
-    private static final Map<Integer, ItemDescriptor> descriptors = new HashMap<>();
+    private static final Map<String, ItemDescriptor> descriptors = new HashMap<>();
 
     /**
      * Register all items within the game
      */
     public static void registerItems() {
-        registry.put(LucidTreeHarvestingToolItem.ID, LucidTreeHarvestingToolItem::new);
-        registry.put(LucidTreeFruitItem.ID, LucidTreeFruitItem::new);
-        registry.put(EnchantedVioletItem.ID, EnchantedVioletItem::new);
-        registry.put(QuickStepItemArtifact.ID, QuickStepItemArtifact::new);
+        registry.put(LucidTreeFruitItem.KEY, LucidTreeFruitItem::new);
+        registry.put(EnchantedVioletItem.KEY, EnchantedVioletItem::new);
+        registry.put(QuickStepItemArtifact.KEY, QuickStepItemArtifact::new);
 
-        descriptors.put(LucidTreeHarvestingToolItem.ID, LucidTreeHarvestingToolItem.DESCRIPTOR);
-        descriptors.put(LucidTreeFruitItem.ID, LucidTreeFruitItem.DESCRIPTOR);
-        descriptors.put(EnchantedVioletItem.ID, EnchantedVioletItem.DESCRIPTOR);
-        descriptors.put(QuickStepItemArtifact.ID, QuickStepItemArtifact.DESCRIPTOR);
+        descriptors.put(LucidTreeHarvestingToolItem.KEY, LucidTreeHarvestingToolItem.DESCRIPTOR);
+        descriptors.put(LucidTreeFruitItem.KEY, LucidTreeFruitItem.DESCRIPTOR);
+        descriptors.put(EnchantedVioletItem.KEY, EnchantedVioletItem.DESCRIPTOR);
+        descriptors.put(QuickStepItemArtifact.KEY, QuickStepItemArtifact.DESCRIPTOR);
     }
 
     public static boolean isWeapon(Item item) {
@@ -54,14 +54,19 @@ public final class ItemRegistry {
         return registry.containsKey(id);
     }
 
-    /**
-     * Create an item from an ID
-     *
-     * @param id the ID
-     * @return the item
-     */
-    public static Item createItemFromId(int id) {
-        return registry.get(id).newItem();
+    public static boolean doesItemExist(String key) {
+        return registry.containsKey(key);
+    }
+
+    public static Item createItem(Items item, int amount) {
+        final Item newItem = registry.get(item.getKey()).newItem();
+        newItem.setAmount(amount);
+        newItem.load(GameManager.getAssets());
+        return newItem;
+    }
+
+    public static Item createItem(String key) {
+        return registry.get(key).newItem();
     }
 
 }

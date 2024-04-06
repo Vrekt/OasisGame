@@ -1,6 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.tutorial;
 
-import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -21,7 +21,8 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
     @Override
     public boolean hasRequiredItem() {
-        return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.ID);
+        return false;
+        // TODO return world.getLocalPlayer().getInventory().hasItem(LucidTreeHarvestingToolItem.ID);
     }
 
     @Override
@@ -32,7 +33,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     @Override
     public void interact() {
         world.getLocalPlayer().setDidChopTree(true);
-        world.getLocalPlayer().getInventory().addItem(LucidTreeFruitItem.ID, 1);
+        world.getLocalPlayer().getInventory().addItem(Items.LUCID_FRUIT_TREE_ITEM, 1);
 
         this.interactable = false;
         this.interactedWith = false;

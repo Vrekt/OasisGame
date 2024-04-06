@@ -21,7 +21,7 @@ import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * A {@code Box2dRadiusProximity} is a {@link Proximity} that queries the world for all fixtures that potentially overlap the
@@ -37,7 +37,7 @@ public class Box2dRadiusProximity extends Box2dSquareAABBProximity {
 
     @SuppressWarnings("unchecked")
     protected Steerable<Vector2> getSteerable(Fixture fixture) {
-        if (fixture.getBody().getUserData() instanceof OasisPlayerSP) {
+        if (fixture.getBody().getUserData() instanceof OasisPlayer) {
             return null;
         }
         return (Steerable<Vector2>) fixture.getBody().getUserData();

@@ -3,7 +3,7 @@ apply plugin: 'application'
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 mainClassName = 'me.vrekt.oasis.lwjgl3.Lwjgl3Launcher'
 eclipse.project.name = appName + '-lwjgl3'
-sourceCompatibility = 8
+sourceCompatibility = 21
 
 dependencies {
 	implementation "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"

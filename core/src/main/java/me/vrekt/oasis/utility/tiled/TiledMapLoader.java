@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 
 import java.util.function.BiConsumer;
@@ -42,7 +42,7 @@ public final class TiledMapLoader {
                 rectangle.height = rectangle.height * worldScale;
                 handler.accept(object, rectangle);
             } else {
-                Logging.warn("TiledMapLoader", "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
+                GameLogging.warn("TiledMapLoader", "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
             }
         }
 
@@ -59,10 +59,10 @@ public final class TiledMapLoader {
         loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
             if (object.getName().equalsIgnoreCase("WorldSpawn")
                     || object.getName().equalsIgnoreCase("Spawn")) {
-                Logging.info("TiledMapLoader", "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
+                GameLogging.info("TiledMapLoader", "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
                 worldSpawn.set(rectangle.x, rectangle.y);
             } else if (object.getName().equalsIgnoreCase("Exit")) {
-                Logging.info("TiledMapLoader", "Found WorldExitArea @ " + rectangle.x + ":" + rectangle.y);
+                GameLogging.info("TiledMapLoader", "Found WorldExitArea @ " + rectangle.x + ":" + rectangle.y);
                 worldExitArea.set(rectangle);
             }
         });
@@ -86,7 +86,7 @@ public final class TiledMapLoader {
             loaded++;
         }
 
-        Logging.info("TiledMapLoader", "Loaded a total of " + loaded + " collision objects.");
+        GameLogging.info("TiledMapLoader", "Loaded a total of " + loaded + " collision objects.");
     }
 
 }

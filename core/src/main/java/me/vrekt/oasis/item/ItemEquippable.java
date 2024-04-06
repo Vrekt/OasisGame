@@ -2,22 +2,24 @@ package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * Represents an item the player can equip
  */
-public abstract class ItemEquippable extends Item {
+public abstract class ItemEquippable extends AbstractItem {
 
-    public ItemEquippable(String itemName, int itemId, String description) {
-        super(itemName, itemId, description);
+    protected boolean isEquipped;
+
+    public ItemEquippable(String key, String name, String description) {
+        super(key, name, description);
     }
 
     public void calculateItemPositionAndRotation(Vector2 position, EntityRotation rotation) {
 
     }
 
-    public boolean canEquip(OasisPlayerSP player) {
+    public boolean canEquip(OasisPlayer player) {
         return player.canEquipItem();
     }
 
@@ -26,7 +28,11 @@ public abstract class ItemEquippable extends Item {
      *
      * @param player the local player
      */
-    public void equip(OasisPlayerSP player) {
+    public void equip(OasisPlayer player) {
+        isEquipped = true;
+    }
 
+    public boolean isEquipped() {
+        return isEquipped;
     }
 }

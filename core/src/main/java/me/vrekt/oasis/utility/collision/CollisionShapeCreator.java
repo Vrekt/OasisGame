@@ -7,7 +7,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Basic utility class to create collision shapes
@@ -35,7 +35,7 @@ public final class CollisionShapeCreator {
         } else if (object instanceof RectangleMapObject) {
             return createPolygonShapeInWorld((RectangleMapObject) object, scale, true, bw);
         } else {
-            Logging.warn("CollisionShapeCreator", "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
+            GameLogging.warn("CollisionShapeCreator", "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
         }
         return null;
     }

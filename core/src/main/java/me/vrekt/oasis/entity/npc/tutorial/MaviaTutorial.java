@@ -7,16 +7,15 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
-import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
-import me.vrekt.oasis.world.obj.interaction.tutorial.TutorialTreeInteraction;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 
 /**
@@ -26,7 +25,7 @@ public final class MaviaTutorial extends EntityInteractable {
 
     private boolean tutorialUnlocked, didUseFruitItem, allowedToChopTree, didChopTree;
 
-    public MaviaTutorial(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
+    public MaviaTutorial(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.MAVIA);
 
         entityDialog = MaviaTutorialDialog.create();
@@ -71,7 +70,7 @@ public final class MaviaTutorial extends EntityInteractable {
     }
 
     private void updateEndStage3() {
-        final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItemById(LucidTreeFruitItem.ID);
+        final LucidTreeFruitItem item = (LucidTreeFruitItem) player.getInventory().getItem(Items.LUCID_FRUIT_TREE_ITEM);
         if (item != null) {
             item.setAllowedToConsume(true);
         }
@@ -87,7 +86,7 @@ public final class MaviaTutorial extends EntityInteractable {
         if (house != null) {
             house.setEnterable(true);
         } else {
-            Logging.error(this, "Mavia's house not found !!");
+            GameLogging.error(this, "Mavia's house not found !!");
         }
 
         this.dialog = entityDialog.getSection("mavia_dialog_10");
@@ -118,28 +117,6 @@ public final class MaviaTutorial extends EntityInteractable {
     @Override
     public void update(float v) {
         super.update(v);
-
-        // player has collected what they needed, advance dialog stage.
-        if (tutorialUnlocked && player.getInventory().hasItem(LucidTreeHarvestingToolItem.ID)) {
-            // also reset because we don't care anymore
-            this.tutorialUnlocked = false;
-            this.dialog = entityDialog.getSection("mavia_dialog_6");
-        }
-
-        if (allowedToChopTree) {
-            player.getGameWorldIn().getByRuntimeId(TutorialTreeInteraction.RUNTIME_ID).setInteractable(true);
-            allowedToChopTree = false;
-        }
-
-        if (player.didChopTree()) {
-            player.setDidChopTree(false);
-            this.dialog = entityDialog.getSection("mavia_dialog_8");
-        }
-
-        if (!didUseFruitItem && player.didUseTutorialFruit()) {
-            didUseFruitItem = true;
-            this.dialog = entityDialog.getSection("mavia_dialog_9");
-        }
     }
 
 }

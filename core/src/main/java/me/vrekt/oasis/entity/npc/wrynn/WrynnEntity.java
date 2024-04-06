@@ -7,7 +7,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.wrynn.dialog.WrynnDialog;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -15,7 +15,7 @@ import me.vrekt.oasis.world.OasisWorld;
  */
 public final class WrynnEntity extends EntityInteractable {
 
-    public WrynnEntity(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
+    public WrynnEntity(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
 
         entityDialog = WrynnDialog.create();

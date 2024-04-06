@@ -2,7 +2,7 @@ package me.vrekt.oasis.world.interior.boss;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 
@@ -11,7 +11,7 @@ import me.vrekt.oasis.world.interior.Instance;
  */
 public final class WrynnHouseInterior extends Instance {
 
-    public WrynnHouseInterior(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+    public WrynnHouseInterior(OasisGame game, OasisPlayer player, OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(game, player, world, name, cursor, bounds);
         this.enterable = true;
     }
@@ -24,7 +24,7 @@ public final class WrynnHouseInterior extends Instance {
     @Override
     public void enter(boolean setScreen) {
         super.enter(setScreen);
-        game.getGui().getHud().showHint("Talk to Wrynn to get started with your adventure.", 10.0f);
+     //   game.getGui().getHud().showHint("Talk to Wrynn to get started with your adventure.", 10.0f);
     }
 
 

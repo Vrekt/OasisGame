@@ -10,6 +10,7 @@ public final class InventorySlot {
     // the item in this slot;
     private Item item;
     private boolean markedForDeletion;
+    private boolean isHotbarItem;
 
     public InventorySlot(Item item) {
         this.item = item;
@@ -33,6 +34,14 @@ public final class InventorySlot {
 
     public boolean isOccupied() {
         return item != null && item.getAmount() > 0;
+    }
+
+    public void setHotbarItem(boolean hotbarItem) {
+        isHotbarItem = hotbarItem;
+    }
+
+    public boolean isHotbarItem() {
+        return isHotbarItem;
     }
 
     @Override

@@ -2,16 +2,16 @@ package me.vrekt.oasis.entity.ai.utilities;
 
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * Converts a basic Vector2 into a {@link  com.badlogic.gdx.ai.utils.Location}
  */
 public final class PlayerSteeringLocation implements Location<Vector2> {
 
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
 
-    public PlayerSteeringLocation(OasisPlayerSP player) {
+    public PlayerSteeringLocation(OasisPlayer player) {
         this.player = player;
     }
 

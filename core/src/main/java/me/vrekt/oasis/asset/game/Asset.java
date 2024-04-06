@@ -18,7 +18,7 @@ public final class Asset implements Disposable {
     public static final String LAIR_OF_HOPELESS_WIDOW = "world/worlds/LairOfHopelessWidow.tmx";
     public static final String HOUSE1 = "world/interiors/House1.tmx";
     public static final String BOSS_HOUSE = "world/interiors/Office.tmx";
-    public static final String ASSETS = "Assets.atlas";
+    public static final String ASSETS = "OasisAssets.atlas";
 
     private final AssetManager assetManager = new AssetManager();
 

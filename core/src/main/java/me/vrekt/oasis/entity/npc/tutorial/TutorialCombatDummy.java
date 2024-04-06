@@ -12,7 +12,7 @@ import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -20,7 +20,7 @@ import me.vrekt.oasis.world.OasisWorld;
  */
 public final class TutorialCombatDummy extends EntityEnemy {
 
-    public TutorialCombatDummy(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game) {
+    public TutorialCombatDummy(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game) {
         super(name, position, player, worldIn, game, EntityNPCType.DUMMY);
         setAngle(1.0f);
 

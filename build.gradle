@@ -10,7 +10,6 @@ buildscript {
 	}
 	dependencies {
 
-
 		// This follows advice from https://blog.gradle.org/log4j-vulnerability
 		constraints {
 			classpath("org.apache.logging.log4j:log4j-core") {
@@ -31,7 +30,7 @@ allprojects {
 
 configure(subprojects) {
 	apply plugin: 'java-library'
-	sourceCompatibility = 8
+	sourceCompatibility = 21
 	compileJava {
 		options.incremental = true
 	}

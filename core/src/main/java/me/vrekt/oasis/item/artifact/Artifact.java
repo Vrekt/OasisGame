@@ -6,14 +6,15 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a single artifact
  */
 public abstract class Artifact implements ResourceLoader {
 
-    protected final String name, description;
+    protected final String key, name, description;
     protected Sprite sprite;
 
     protected int artifactLevel = 1;
@@ -26,7 +27,8 @@ public abstract class Artifact implements ResourceLoader {
 
     protected Sprite artifactParticle;
 
-    public Artifact(String name, String description) {
+    public Artifact(String key, String name, String description) {
+        this.key = key;
         this.name = name;
         this.description = description;
         this.effectPosition = new Vector2();
@@ -53,7 +55,7 @@ public abstract class Artifact implements ResourceLoader {
      *
      * @param player the player
      */
-    protected void createEffect(OasisPlayerSP player) {
+    protected void createEffect(OasisPlayer player) {
         effectTickActivated = GameManager.getCurrentGameWorldTick();
         effectPosition.set(player.getInterpolatedPosition());
         effectAlpha = 1.0f;
@@ -99,14 +101,14 @@ public abstract class Artifact implements ResourceLoader {
      * @param player the player
      * @param tick   the current world tick
      */
-    public abstract boolean apply(OasisPlayerSP player, float tick);
+    public abstract boolean apply(OasisPlayer player, float tick);
 
     /**
      * Expire this artifact
      *
      * @param player the player
      */
-    public abstract void expire(OasisPlayerSP player);
+    public abstract void expire(OasisPlayer player);
 
     /**
      * Update this artifact
@@ -114,7 +116,7 @@ public abstract class Artifact implements ResourceLoader {
      * @param player the player
      * @param tick   the current world tick;
      */
-    protected abstract void update(OasisPlayerSP player, float tick);
+    protected abstract void update(OasisPlayer player, float tick);
 
     /**
      * Update this artifact
@@ -122,7 +124,7 @@ public abstract class Artifact implements ResourceLoader {
      * @param player player
      * @param tick   tick
      */
-    public void updateArtifact(OasisPlayerSP player, float tick) {
+    public void updateArtifact(OasisPlayer player, float tick) {
         if (isApplied) {
             this.update(player, tick);
         }
@@ -143,4 +145,16 @@ public abstract class Artifact implements ResourceLoader {
     public Sprite getSprite() {
         return sprite;
     }
+
+    /**
+     * Check if another artifact is this one.
+     * Only comparable by name
+     *
+     * @param artifact the other artifact
+     * @return {@code true} if so
+     */
+    public boolean is(Artifact artifact) {
+        return StringUtils.equals(artifact.key, key);
+    }
+
 }

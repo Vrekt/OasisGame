@@ -6,7 +6,7 @@ public final class GlobalExceptionHandler implements Thread.UncaughtExceptionHan
 
     @Override
     public void uncaughtException(Thread thread, Throwable exception) {
-        Logging.error(thread.getName(), "Found an uncaught exception !!");
+        GameLogging.error(thread.getName(), "Found an uncaught exception !!");
         exception.printStackTrace();
 
         GameManager.getOasis().dispose();

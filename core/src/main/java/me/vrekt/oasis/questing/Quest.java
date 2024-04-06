@@ -1,7 +1,7 @@
 package me.vrekt.oasis.questing;
 
 import me.vrekt.oasis.item.utility.ItemDescriptor;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.LinkedList;
 
@@ -12,6 +12,7 @@ public abstract class Quest {
 
     // name of this quest and description
     protected final String name, description;
+    protected final QuestDifficulty difficulty;
     // quest objectives
     protected final LinkedList<QuestObjective> objectives = new LinkedList<>();
     protected final LinkedList<ItemDescriptor> itemsRequired = new LinkedList<>();
@@ -19,9 +20,10 @@ public abstract class Quest {
 
     protected int currentObjectiveStep = 0;
 
-    public Quest(String name, String description) {
+    public Quest(String name, String description, QuestDifficulty difficulty) {
         this.name = name;
         this.description = description;
+        this.difficulty = difficulty;
     }
 
     public String getName() {
@@ -37,7 +39,7 @@ public abstract class Quest {
      */
     public void updateQuestObjectiveAndUnlockNext() {
         if (currentObjectiveStep >= objectives.size()) {
-            Logging.error(this, currentObjectiveStep + " > " + objectives.size());
+            GameLogging.error(this, currentObjectiveStep + " > " + objectives.size());
         }
         objectives.get(currentObjectiveStep).setCompleted(true);
         currentObjectiveStep++;
@@ -65,4 +67,13 @@ public abstract class Quest {
     public LinkedList<QuestObjective> getObjectives() {
         return objectives;
     }
+
+    public QuestDifficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public int getCompleteness() {
+        return (int) ((currentObjectiveStep + 1) * 100.0f) / objectives.size();
+    }
+
 }

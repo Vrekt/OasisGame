@@ -6,13 +6,15 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.save.SaveGameTimes;
-import me.vrekt.oasis.save.SaveManager;
+import me.vrekt.oasis.gui.rewrite.GuiManager;
+import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.ui.FadeScreen;
+import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.HashMap;
@@ -23,20 +25,22 @@ public class GameManager {
     public static final String DIALOG_CURSOR = "ui/dialog_cursor.png";
     private static final Map<Integer, Runnable> KEY_ACTIONS = new HashMap<>();
     private static OasisGame oasis;
-    private static GameGui gui;
+    private static GuiManager guiManager;
 
     private static boolean isSaving;
-    private static SaveGameTimes saveGameTimes;
+    private static GameSaveProperties saveProperties;
 
     private static boolean hasCursorChanged;
     private static boolean isCursorActive;
+
+    private static String gameProgress = "10%";
 
     public static OasisGame getOasis() {
         return oasis;
     }
 
     public static void initialize(OasisGame game) {
-        gui = game.getGui();
+        guiManager = game.guiManager;
         registerGlobalKeyActions();
     }
 
@@ -45,7 +49,13 @@ public class GameManager {
     }
 
     private static void registerGlobalKeyAction(int key, GuiType gui) {
-        KEY_ACTIONS.put(key, () -> GameManager.gui.toggleGui(gui));
+        KEY_ACTIONS.put(key, () -> GameManager.guiManager.toggleGui(gui));
+    }
+
+    private static void registerInventoryKeyMappings() {
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> {
+            GameManager.guiManager.getHudComponent().hotbarItemSelected(1);
+        });
     }
 
     /**
@@ -55,15 +65,14 @@ public class GameManager {
         registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
         registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
         registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.DEBUG_MENU);
+        registerInventoryKeyMappings();
 
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> {
-            if (isSaving) return;
             oasis.getPlayer().getGameWorldIn().skipCurrentDialog();
         });
 
         KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> {
-            //   if (isSaving) return;
-            //    oasis.getPlayer().activateArtifact(0);
+            oasis.getPlayer().activateArtifact(0);
         });
     }
 
@@ -100,23 +109,60 @@ public class GameManager {
         return false;
     }
 
+    public static boolean handleWorldKeyPress(OasisWorld world, int keycode) {
+        if (isSaving) return false;
+
+        if (keycode == OasisKeybindings.ESCAPE) {
+            if (world.isPaused() && guiManager.isGuiVisible(GuiType.PAUSE)) {
+                guiManager.hideGui(GuiType.PAUSE);
+                world.resume();
+                return true;
+            } else if (!world.isPaused() && !guiManager.isAnyGuiVisible(GuiType.HUD)) {
+                // world is not paused, escape was pressed, and NO gui open, obviously pause
+                guiManager.showGui(GuiType.PAUSE);
+                world.pause();
+                return true;
+            }
+            // next, check escape key press for exiting GUIs and child GUIs
+            if (!guiManager.hideOrShowParentGuis()) {
+                GameLogging.warn("GameManagerKeyPress", "Unhandled escape key press, what were you doing?");
+                return true;
+            }
+        }
+
+        // handle individual key presses now
+        handleGuiKeyPress(keycode);
+        return true;
+
+        //   if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
+        //            if (gui.toggleGui(GuiType.QUEST)) return true;
+        //            if (gui.toggleGui(GuiType.INVENTORY)) return true;
+        //            if (gui.toggleGui(GuiType.CONTAINER)) return true;
+        //
+        //            if (gui.toggleGui(GuiType.SETTINGS)) {
+        //                gui.showGui(GuiType.PAUSE);
+        //                return true;
+        //            }
+        //            if (gui.toggleGui(GuiType.SAVE_GAME)) {
+        //                gui.showGui(GuiType.PAUSE);
+        //                return true;
+        //            }
+        //
+        //            // actually handle pausing/resuming the game
+        //            if (paused) {
+        //                resume();
+        //            } else {
+        //                pause();
+        //            }
+        //            return true;
+        //        }
+    }
+
     public static void resetCursor() {
         setCursorInGame("ui/cursor.png");
 
         isCursorActive = false;
         hasCursorChanged = false;
-    }
-
-    /**
-     * Save the game to a slot
-     *
-     * @param slot the slot
-     */
-    public static void saveGame(int slot) {
-        isSaving = true;
-        getPlayer().getGameWorldIn().pauseGameWhileSaving();
-        oasis.showSavingGameScreen();
-        SaveManager.save(slot);
     }
 
     /**
@@ -138,6 +184,10 @@ public class GameManager {
         GameManager.getOasis().setScreen(new FadeScreen(current, new FadeScreen(next, null, null, true), runWhenCompleted, false));
     }
 
+    public static void resumeGame() {
+        getPlayer().getGameWorldIn().resume();
+    }
+
     /**
      * Execute an action on the main game thread
      *
@@ -147,12 +197,8 @@ public class GameManager {
         oasis.executeMain(action);
     }
 
-    public static void setSaveGameTimes(SaveGameTimes saveGameTimes) {
-        GameManager.saveGameTimes = saveGameTimes;
-    }
-
-    public static SaveGameTimes getSaveGameTimes() {
-        return saveGameTimes;
+    public static String getGameProgress() {
+        return gameProgress;
     }
 
     public static boolean isSaving() {
@@ -167,6 +213,10 @@ public class GameManager {
         return oasis.getGui();
     }
 
+    public static GuiManager getGuiManager() {
+        return guiManager;
+    }
+
     public static Asset getAssets() {
         return oasis.getAsset();
     }
@@ -175,7 +225,7 @@ public class GameManager {
         return oasis.getPlayer().getGameWorldIn().getCurrentWorldTick();
     }
 
-    public static OasisPlayerSP getPlayer() {
+    public static OasisPlayer getPlayer() {
         return oasis.getPlayer();
     }
 

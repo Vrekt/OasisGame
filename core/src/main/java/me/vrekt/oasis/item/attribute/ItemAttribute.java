@@ -1,57 +1,25 @@
 package me.vrekt.oasis.item.attribute;
 
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.Item;
 
 /**
  * An item attribute that modifies the player, for example +HP modifier, etc.
  */
-public abstract class ItemAttribute {
+public interface ItemAttribute {
 
-    protected final String attributeName, description;
-    protected final int attributeId;
+    String getAttributeName();
 
-    // amount of uses allowed for this attribute
-    protected int timesUsed, uses = 1;
+    String getDescription();
 
-    public ItemAttribute(String attributeName, String description, int attributeId) {
-        this.attributeName = attributeName;
-        this.description = description;
-        this.attributeId = attributeId;
-    }
+    String getAttributeKey();
 
-    public String getAttributeName() {
-        return attributeName;
-    }
+    int getAvailableUses();
 
-    public String getDescription() {
-        return description;
-    }
+    void setAvailableUses(int availableUses);
 
-    public int getAttributeId() {
-        return attributeId;
-    }
+    void applyToPlayer(OasisPlayer player);
 
-    public int getUses() {
-        return uses;
-    }
-
-    public void setUses(int uses) {
-        this.uses = uses;
-    }
-
-    /**
-     * Apply this attribute to the player
-     */
-    public void applyToPlayer(OasisPlayerSP player) {
-
-    }
-
-    /**
-     * Apply this attribute to the item
-     */
-    public void applyToItem(Item item) {
-
-    }
+    void applyToItem(Item item);
 
 }

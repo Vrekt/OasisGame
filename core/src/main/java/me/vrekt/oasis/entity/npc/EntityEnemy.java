@@ -11,7 +11,7 @@ import me.vrekt.oasis.combat.CombatDamageAnimator;
 import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 
 public abstract class EntityEnemy extends EntityDamageable {
@@ -29,7 +29,7 @@ public abstract class EntityEnemy extends EntityDamageable {
 
     protected boolean ignoreCollision;
 
-    public EntityEnemy(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
+    public EntityEnemy(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
         this.animator = new CombatDamageAnimator();
         this.speakable = false;

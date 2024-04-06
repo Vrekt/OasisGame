@@ -1,6 +1,6 @@
 package me.vrekt.oasis.save.keys;
 
-import me.vrekt.oasis.entity.inventory.BasicInventory;
+import me.vrekt.oasis.entity.inventory.Inventory;
 
 public interface HasInventory {
 
@@ -9,6 +9,6 @@ public interface HasInventory {
      *
      * @return the inventory
      */
-    BasicInventory getInventory();
+    Inventory getInventory();
 
 }

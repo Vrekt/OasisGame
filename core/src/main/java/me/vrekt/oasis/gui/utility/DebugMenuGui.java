@@ -16,7 +16,7 @@ import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Debug menu for helping develop the game
@@ -24,7 +24,7 @@ import me.vrekt.oasis.utility.logging.Logging;
 public final class DebugMenuGui extends Gui {
 
     private final VisTable rootTable;
-    private final VisLabel memoryUsed, freeMemory;
+    private final VisLabel memoryUsed, freeMemory, tickTime;
 
     public DebugMenuGui(GameGui gui, Asset asset) {
         super(gui, asset, "debugMenu");
@@ -39,8 +39,9 @@ public final class DebugMenuGui extends Gui {
 
         memoryUsed = new VisLabel("Memory used: ", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
         freeMemory = new VisLabel("Free memory: ", new Label.LabelStyle(gui.getMedium(), Color.WHITE));
+        tickTime = new VisLabel("Server Tick: " + new Label.LabelStyle(gui.getMedium(), Color.WHITE));
 
-        final VisTextField idInputField = new VisTextField("");
+        final VisTextField keyInputField = new VisTextField("");
         final VisTextField amountField = new VisTextField("1");
         final VisTextButton spawnButton = new VisTextButton("Spawn Item");
         final VisCheckBox equipItemCheck = new VisCheckBox("Equip Item?");
@@ -49,8 +50,10 @@ public final class DebugMenuGui extends Gui {
         primary.row();
         primary.add(freeMemory);
         primary.row();
-        primary.add(new VisLabel("Spawn Item By ID: ", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
-        primary.add(idInputField);
+        primary.add(tickTime);
+        primary.row();
+        primary.add(new VisLabel("Spawn Item By Key: ", new Label.LabelStyle(gui.getMedium(), Color.WHITE)));
+        primary.add(keyInputField);
         primary.row();
         primary.add(amountField);
         primary.row();
@@ -62,7 +65,7 @@ public final class DebugMenuGui extends Gui {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 try {
-                    final int id = Integer.parseInt(idInputField.getText());
+
                     int amount;
                     if (amountField.getText().isEmpty()) {
                         amount = 1;
@@ -70,21 +73,19 @@ public final class DebugMenuGui extends Gui {
                         amount = Integer.parseInt(amountField.getText());
                     }
 
-                    if (!ItemRegistry.doesItemExist(id)) {
-                        Logging.error(this, "No ID found: " + id);
-                        return;
+                    if (ItemRegistry.doesItemExist(keyInputField.getText())) {
+                        final Item item = ItemRegistry.createItem(keyInputField.getText());
+                        item.setAmount(amount);
+                        item.load(asset);
+
+                        GameManager.getPlayer().getInventory().addItem(item);
+                        if (equipItemCheck.isChecked() && item instanceof ItemWeapon) {
+                            GameManager.getPlayer().equipItem((ItemWeapon) item);
+                        }
+                        GameLogging.info(this, "Spawned new item: " + item.getItemName());
+                    } else {
+                        GameLogging.error(this, "No item found: " + keyInputField.getText());
                     }
-
-                    final Item item = ItemRegistry.createItemFromId(id);
-                    item.setAmount(amount);
-                    item.load(asset);
-
-                    GameManager.getPlayer().getInventory().addItem(item);
-                    if (equipItemCheck.isChecked() && item instanceof ItemWeapon) {
-                        GameManager.getPlayer().equipItem(((ItemWeapon) item));
-                    }
-
-                    Logging.info(this, "Successfully spawned item: " + item.getItemName());
                 } catch (NumberFormatException exception) {
                     exception.printStackTrace();
                 }
@@ -120,6 +121,7 @@ public final class DebugMenuGui extends Gui {
     public void update() {
         memoryUsed.setText("Memory used: " + formatSize(Gdx.app.getJavaHeap()));
         freeMemory.setText("Free memory: " + formatSize(Runtime.getRuntime().freeMemory()));
+        tickTime.setText("Server Tick: " + GameManager.getOasis().getServer().getGameServer().getWorldTickTime() + "ms");
     }
 
     public static String formatSize(long v) {

@@ -33,9 +33,6 @@ public abstract class Gui extends VisWindow {
         this.skin = gui.getSkin();
     }
 
-    /**
-     * Update this GUI element
-     */
     public void update() {
 
     }
@@ -63,6 +60,10 @@ public abstract class Gui extends VisWindow {
      */
     public void hide() {
         isShowing = false;
+    }
+
+    public void hideRelatedGuis() {
+
     }
 
     /**

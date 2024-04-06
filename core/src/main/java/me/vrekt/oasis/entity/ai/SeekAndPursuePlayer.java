@@ -11,7 +11,7 @@ import me.vrekt.oasis.entity.ai.utilities.PlayerAsSteerable;
 import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * Seek the player out then pursue them
@@ -25,14 +25,14 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
             new SteeringAcceleration<>(new Vector2());
 
     private final EntityEnemy owner;
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
 
     private final SteeringBehavior<Vector2> seek;
     private final SteeringBehavior<Vector2> pursue;
 
     private float nearPlayerDistance, closeToPlayerDistance;
 
-    public SeekAndPursuePlayer(EntityEnemy owner, OasisPlayerSP player, PlayerSteeringLocation target, Vector2 position) {
+    public SeekAndPursuePlayer(EntityEnemy owner, OasisPlayer player, PlayerSteeringLocation target, Vector2 position) {
         super(position);
 
         this.player = player;

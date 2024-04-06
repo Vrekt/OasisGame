@@ -19,16 +19,9 @@ import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.dialog.DialogGui;
-import me.vrekt.oasis.gui.hints.HintGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
 import me.vrekt.oasis.gui.inventory.InventoryGui;
-import me.vrekt.oasis.gui.pause.PauseGui;
-import me.vrekt.oasis.gui.quest.QuestingGui;
-import me.vrekt.oasis.gui.save.SaveGameGui;
-import me.vrekt.oasis.gui.select.ClassSelectorGui;
-import me.vrekt.oasis.gui.settings.SettingsGui;
-import me.vrekt.oasis.gui.utility.DebugMenuGui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,17 +72,17 @@ public final class GameGui {
         this.styles = new Styles(asset);
 
         multiplexer.addProcessor(stage);
-        guis.put(GuiType.DIALOG, new DialogGui(this, asset));
-        guis.put(GuiType.CLASS, new ClassSelectorGui(this, asset));
-        guis.put(GuiType.HUD, new HudGui(this, asset));
-        guis.put(GuiType.QUEST, new QuestingGui(this, asset));
-        guis.put(GuiType.INVENTORY, new InventoryGui(this, asset));
-        guis.put(GuiType.PAUSE, new PauseGui(this, asset));
-        guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
-        guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
-        guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
-        guis.put(GuiType.DEBUG_MENU, new DebugMenuGui(this, asset));
-        guis.put(GuiType.HINT, new HintGui(this, asset));
+//guis.put(GuiType.DIALOG, new DialogGui(this, asset));
+      //  guis.put(GuiType.CLASS, new ClassSelectorGui(this, asset));
+      //  guis.put(GuiType.HUD, new HudGui(this, asset));
+     //   guis.put(GuiType.QUEST, new QuestingGui(this, asset));
+     //   guis.put(GuiType.INVENTORY, new InventoryGui(this, asset));
+     //   guis.put(GuiType.PAUSE, new PauseGui(this, asset));
+     //   guis.put(GuiType.SETTINGS, new SettingsGui(this, asset));
+     //   guis.put(GuiType.CONTAINER, new ContainerGui(this, asset));
+     //   guis.put(GuiType.SAVE_GAME, new SaveGameGui(this, asset));
+     //   guis.put(GuiType.DEBUG_MENU, new DebugMenuGui(this, asset));
+     //   guis.put(GuiType.HINT, new HintGui(this, asset));
     }
 
     public Styles getStyles() {
@@ -182,20 +175,18 @@ public final class GameGui {
         }
     }
 
+
+
     /**
-     * Toggle a gui
+     * Toggles a GUI depending on if its visible or not.
      *
-     * @param gui the gui
+     * @param gui the gui type
      */
-    public boolean toggleGui(GuiType gui) {
+    public void toggleGui(GuiType gui) {
         if (isGuiVisible(gui)) {
             hideGui(gui);
-            gui.showOtherGuis(this);
-            return true;
         } else {
             showGui(gui);
-            gui.hideOtherGuis(this);
-            return false;
         }
     }
 
@@ -206,7 +197,8 @@ public final class GameGui {
      * @return {@code true} if so
      */
     public boolean isGuiVisible(GuiType type) {
-        return guis.get(type).isGuiVisible();
+        return false;
+       // return guis.get(type).isGuiVisible();
     }
 
     /**
@@ -219,29 +211,6 @@ public final class GameGui {
         hideGui(hide);
         showGui(show);
     }
-
-   /* public void showGuiType(GuiType type, GuiType hideOther) {
-        if (isGuiVisible(type)) {
-            hideGui(type);
-        } else {
-            hideGuiType(hideOther);
-            showGui(type);
-        }
-    }
-
-    public boolean hideGuiType(GuiType type) {
-        if (isGuiVisible(type)) {
-            hideGui(type);
-            return true;
-        }
-        return false;
-    }
-
-
-
-    public void showGuiIfNotOpen(GuiType type) {
-        if (!isGuiVisible(type)) showGui(type);
-    }*/
 
     public <T extends Gui> T getGui(GuiType type) {
         return (T) guis.get(type);

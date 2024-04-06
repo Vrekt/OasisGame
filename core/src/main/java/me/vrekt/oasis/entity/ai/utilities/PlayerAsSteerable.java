@@ -3,22 +3,22 @@ package me.vrekt.oasis.entity.ai.utilities;
 import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * The local player has a steerable object.
  */
 public final class PlayerAsSteerable implements Steerable<Vector2> {
 
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
 
     private float orientation, maxSpeed;
 
     private boolean tagged;
     private float minThreshold, maxAngleSpeed = 10.0f, maxAngleAcceleration;
 
-    public PlayerAsSteerable(OasisPlayerSP player) {
+    public PlayerAsSteerable(OasisPlayer player) {
         this.player = player;
         this.minThreshold = 0.1f;
         this.maxSpeed = player.getMoveSpeed();
@@ -118,7 +118,7 @@ public final class PlayerAsSteerable implements Steerable<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        Logging.error(this, "Something wants a new PlayerAsSteerable new location.");
+        GameLogging.error(this, "Something wants a new PlayerAsSteerable new location.");
         return null;
     }
 

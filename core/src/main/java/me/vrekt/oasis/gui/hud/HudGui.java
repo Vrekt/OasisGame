@@ -16,7 +16,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.item.Item;
@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class HudGui extends Gui {
 
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
 
     // FPS, Ping, other information
     private final VisTable debugTable;
@@ -54,7 +54,7 @@ public final class HudGui extends Gui {
         super(gui, asset);
 
         this.player = gui.getGame().getPlayer();
-        this.isShowing = true;
+        this.isShowing = false;
         playerClassImage = new VisImage();
         fpsLabel = new VisLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE));
         pingLabel = new VisLabel("", new Label.LabelStyle(asset.getMedium(), Color.WHITE));
@@ -93,12 +93,7 @@ public final class HudGui extends Gui {
         }
 
         // update player artifact slots
-        for (int i = 0; i < player.getArtifacts().length; i++) {
-            final Artifact artifact = player.getArtifacts()[i];
-            if (artifact != null) {
-                slots[i].updateIfRequired(artifact);
-            }
-        }
+
 
         updateAlphaActions();
     }
@@ -123,7 +118,7 @@ public final class HudGui extends Gui {
 
     private VisTable initializeDebugTable() {
         final VisTable fpsTable = new VisTable(true);
-        fpsTable.setVisible(true);
+        fpsTable.setVisible(false);
         fpsTable.top().left();
         fpsTable.add(fpsLabel).left();
         fpsTable.row();
@@ -137,7 +132,7 @@ public final class HudGui extends Gui {
 
     private VisTable initializeClassIconTable(GameGui gui) {
         final VisTable classIconTable = new VisTable(true);
-        classIconTable.setVisible(true);
+        classIconTable.setVisible(false);
         classIconTable.left();
         classIconTable.add(playerClassImage).size(48, 48);
         gui.createContainer(classIconTable).bottom().left().pad(8);
@@ -147,7 +142,7 @@ public final class HudGui extends Gui {
     private VisTable initializePlayerHealthTable() {
 
         final VisTable health = new VisTable(true);
-        health.setVisible(true);
+        health.setVisible(false);
         health.bottom();
 
         final VisTable bk = new VisTable(true);
@@ -184,7 +179,7 @@ public final class HudGui extends Gui {
         this.hintLabel.setWrap(true);
         hintTable.add(hint);
 
-        gui.createContainer(hintTable).top().padTop(2);
+//        gui.createContainer(hintTable).top().padTop(2);
 
         return hintTable;
     }
@@ -313,7 +308,7 @@ public final class HudGui extends Gui {
         itemHintTable.getColor().a = 0;
         itemHintTable.addAction(Actions.fadeIn(1f));
 
-        hintItemImage.setDrawable(new TextureRegionDrawable(item.getTexture()));
+        hintItemImage.setDrawable(new TextureRegionDrawable(item.getSprite()));
         hintItemLabel.setText("" + item.getAmount());
         lastHintTick = now;
     }

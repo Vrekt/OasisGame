@@ -1,11 +1,10 @@
 package me.vrekt.oasis.item.weapons;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 
 public abstract class ItemWeapon extends ItemEquippable {
@@ -15,7 +14,6 @@ public abstract class ItemWeapon extends ItemEquippable {
     protected float itemRotationAngle;
     protected float swingCooldown, lastSwing, swingTime, range;
     protected boolean isSwinging, isResettingSwing;
-    protected Sprite swipe;
 
     protected Rectangle bounds;
     protected ItemWeaponAnimator animator;
@@ -23,10 +21,9 @@ public abstract class ItemWeapon extends ItemEquippable {
     protected float targetAngle;
     protected float swingTick;
 
-    public ItemWeapon(String itemName, int itemId, String description) {
-        super(itemName, itemId, description);
+    public ItemWeapon(String key, String name, String description) {
+        super(key, name, description);
         bounds = new Rectangle();
-        isStackable = false;
     }
 
     public float getKnockbackMultiplier() {
@@ -34,7 +31,7 @@ public abstract class ItemWeapon extends ItemEquippable {
     }
 
     @Override
-    public void equip(OasisPlayerSP player) {
+    public void equip(OasisPlayer player) {
         player.equipItem(this);
     }
 
@@ -72,8 +69,6 @@ public abstract class ItemWeapon extends ItemEquippable {
                 itemPositionAngle = 0.0f;
                 break;
         }
-        // //        final float rot1 = rotation == 0 ? 90.0f : 0.0f;
-
         calculateTargetAngle(rotation);
     }
 

@@ -9,7 +9,7 @@ import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialogSection;
 import me.vrekt.oasis.entity.npc.animation.EntityTextured;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public abstract class EntitySpeakable extends EntityTextured {
 
-    protected OasisPlayerSP player;
+    protected OasisPlayer player;
 
     protected InteractableEntityDialog entityDialog;
     protected InteractableEntityDialogSection dialog;
@@ -33,7 +33,7 @@ public abstract class EntitySpeakable extends EntityTextured {
 
     protected final Map<String, Runnable> dialogActions = new HashMap<>();
 
-    public EntitySpeakable(OasisPlayerSP player) {
+    public EntitySpeakable(OasisPlayer player) {
         super(true);
         this.player = player;
         entity.add(new EntityDialogComponent());
@@ -54,7 +54,7 @@ public abstract class EntitySpeakable extends EntityTextured {
         if (speakingTo) {
             // player moved, cancel
             if (player.getPosition().dst(interaction) >= 0.1f) {
-                GameManager.getGui().hideGui(GuiType.DIALOG);
+                GameManager.getGuiManager().hideGui(GuiType.DIALOG);
                 this.speakingTo = false;
             }
         }

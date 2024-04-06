@@ -1,13 +1,13 @@
 package me.vrekt.oasis;
 
-import gdx.lunar.protocol.LunarProtocol;
 import gdx.lunar.server.game.GameServer;
+import gdx.lunar.v2.GdxProtocol;
 
 /**
  * The main oasis game server
  */
 public final class CrimsonGameServer extends GameServer {
-    public CrimsonGameServer(LunarProtocol protocol) {
+    public CrimsonGameServer(GdxProtocol protocol) {
         super(protocol, "1.0");
     }
 }

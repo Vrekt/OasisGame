@@ -1,23 +1,22 @@
 package me.vrekt.oasis.item.consumables;
 
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.AbstractItem;
 
 /**
  * An item that can be consumed
  */
-public abstract class ItemConsumable extends Item {
+public abstract class ItemConsumable extends AbstractItem {
 
-    public ItemConsumable(String itemName, int itemId, String description) {
-        super(itemName, itemId, description);
-    }
-
-    // if this item is allowed to be consumed
-    // mainly for unlocking/tutorial
+    // if this item is allowed to be consumed, yet
     protected boolean allowedToConsume = true;
 
+    public ItemConsumable(String key, String name, String description) {
+        super(key, name, description);
+    }
+
     @Override
-    public void useItem(OasisPlayerSP player) {
+    public void useItem(OasisPlayer player) {
         this.consume(player);
     }
 
@@ -34,6 +33,6 @@ public abstract class ItemConsumable extends Item {
      *
      * @param player the player
      */
-    public abstract void consume(OasisPlayerSP player);
+    public abstract void consume(OasisPlayer player);
 
 }

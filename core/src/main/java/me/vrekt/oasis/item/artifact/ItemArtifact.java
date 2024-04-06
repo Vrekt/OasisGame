@@ -10,9 +10,8 @@ public abstract class ItemArtifact extends ItemEquippable {
 
     protected TextureRegion icon;
 
-    public ItemArtifact(String itemName, int itemId, String description) {
-        super(itemName, itemId, description);
-        isStackable = false;
+    public ItemArtifact(String key, String name, String description) {
+        super(key, name, description);
     }
 
     public abstract Artifact getArtifact();

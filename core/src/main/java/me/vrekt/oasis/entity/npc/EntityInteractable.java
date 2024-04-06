@@ -8,7 +8,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -19,7 +19,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
     // describes the view/renderable stuff
     protected boolean inView;
 
-    protected final OasisPlayerSP player;
+    protected final OasisPlayer player;
     protected final OasisWorld gameWorldIn;
     protected final OasisGame game;
     protected EntityNPCType type;
@@ -28,7 +28,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
 
     protected boolean isEnemy;
 
-    public EntityInteractable(String name, Vector2 position, OasisPlayerSP player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
+    public EntityInteractable(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(player);
 
         setPosition(position.x, position.y, true);

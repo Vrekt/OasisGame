@@ -2,145 +2,62 @@ package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
-import me.vrekt.oasis.item.utility.ItemDescriptor;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents an item within the game
- * Pooled to save resources when lots of items are used.
  */
-public abstract class Item implements ResourceLoader {
+public interface Item extends ResourceLoader {
 
-    public static ItemDescriptor descriptor;
+    String getKey();
 
-    // the item ID of this item
-    protected int itemId;
+    String getItemName();
 
-    protected String itemName;
-    protected String description;
-    protected Sprite sprite;
+    void setItemName(String name);
 
-    // amount of this item player has
-    protected int amount;
+    String getDescription();
 
-    protected ItemRarity rarity = ItemRarity.BASIC;
+    Sprite getSprite();
 
-    protected boolean isStackable = true;
+    ItemRarity getItemRarity();
 
-    // attributes
-    protected final Map<Integer, ItemAttribute> attributes = new HashMap<>();
+    int getAmount();
 
-    public Item() {
+    void setAmount(int amount);
 
-    }
+    void decreaseItemAmount();
 
-    public Item(String itemName, int itemId, String description) {
-        this.itemName = itemName;
-        this.description = description;
-        this.itemId = itemId;
-    }
+    boolean isStackable();
 
-    public ItemRarity getRarity() {
-        return rarity;
-    }
+    void setStackable(boolean stackable);
 
-    public boolean isStackable() {
-        return isStackable;
-    }
+    void useItem(OasisPlayer player);
 
-    public void useItem(OasisPlayerSP player) {
+    void addAttribute(ItemAttribute attribute);
 
-    }
+    void removeAttribute(String attribute);
 
-    public String getItemName() {
-        return itemName;
-    }
+    boolean hasAttribute(String attribute);
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
+    ItemAttribute getAttribute(String attribute);
 
-    public TextureRegion getTexture() {
-        return sprite;
-    }
+    void applyAttributes(OasisPlayer player);
 
-    public Sprite getSprite() {
-        return sprite;
-    }
+    void applyAttribute(String attribute, OasisPlayer player);
 
-    public int getAmount() {
-        return amount;
-    }
+    void update(float delta, EntityRotation rotation);
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
+    void draw(SpriteBatch batch);
 
-    public void decreaseItemAmount() {
-        this.amount -= 1;
-    }
+    void draw(SpriteBatch batch, float width, float height, float rotation);
 
-    public String getDescription() {
-        return description;
-    }
+    boolean is(Item other);
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    boolean is(String key);
 
-    public int getItemId() {
-        return itemId;
-    }
+    boolean isComplex(Item other);
 
-    public void addAttribute(ItemAttribute attribute) {
-        this.attributes.put(attribute.getAttributeId(), attribute);
-    }
-
-    public boolean hasAttribute(int id) {
-        return attributes.containsKey(id);
-    }
-
-    public boolean hasAttributes() {
-        return !attributes.isEmpty();
-    }
-
-    public ItemAttribute getAttribute(int id) {
-        return attributes.get(id);
-    }
-
-    public void applyAllAttributes(OasisPlayerSP player) {
-        for (ItemAttribute attribute : attributes.values()) {
-            attribute.applyToPlayer(player);
-        }
-    }
-
-    public void applyAttribute(int id, OasisPlayerSP player) {
-        attributes.get(id).applyToPlayer(player);
-    }
-
-    public Map<Integer, ItemAttribute> getAttributes() {
-        return attributes;
-    }
-
-    public void update(float delta, EntityRotation rotation) {
-
-    }
-
-    public void draw(SpriteBatch batch) {
-        if (sprite != null) {
-            this.draw(batch, sprite.getRegionWidth(), sprite.getRegionHeight(), sprite.getRotation());
-        }
-    }
-
-    protected void draw(SpriteBatch batch, float width, float height, float rotation) {
-        batch.draw(sprite, sprite.getX(), sprite.getY(), 0.0f, 0.0f,
-                width, height, 1.0f, 1.0f, rotation);
-    }
 }

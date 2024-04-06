@@ -9,7 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.util.TableUtils;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
@@ -102,7 +101,7 @@ public final class SaveGameGui extends Gui {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // Save the game to the provided slot
-                GameManager.saveGame(slot);
+                //GameManager.saveGame(slot);
                 info.setText("(Last saved: Now)");
             }
         });
@@ -113,9 +112,9 @@ public final class SaveGameGui extends Gui {
         super.show();
         rootTable.setVisible(true);
 
-        slot1Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(1) + ")");
-        slot2Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(2) + ")");
-        slot3Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(3) + ")");
+       // slot1Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(1) + ")");
+       // slot2Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(2) + ")");
+      //  slot3Info.setText("(Last saved: " + GameManager.getSaveGameTimes().getSaveTimeFor(3) + ")");
     }
 
     @Override

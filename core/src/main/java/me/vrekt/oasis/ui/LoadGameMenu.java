@@ -13,7 +13,6 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.save.SaveGameTimes;
 
 /**
  * Load a new game
@@ -48,10 +47,10 @@ public final class LoadGameMenu extends ScreenAdapter {
 
         addDefaultActions(back, () -> game.setScreen(mainMenu));
 
-        final SaveGameTimes times = GameManager.getSaveGameTimes();
-        if (times.hasSaveTime(1)) slot1.setVisible(true);
-        if (times.hasSaveTime(2)) slot2.setVisible(true);
-        if (times.hasSaveTime(3)) slot3.setVisible(true);
+        // final SaveGameTimes times = GameManager.getSaveGameTimes();
+        //  if (times.hasSaveTime(1)) slot1.setVisible(true);
+        //  if (times.hasSaveTime(2)) slot2.setVisible(true);
+        //  if (times.hasSaveTime(3)) slot3.setVisible(true);
 
         addDefaultActions(slot1, () -> game.loadSaveGame(1));
         addDefaultActions(slot2, () -> game.loadSaveGame(2));

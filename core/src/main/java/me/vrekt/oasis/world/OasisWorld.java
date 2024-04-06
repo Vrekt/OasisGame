@@ -19,9 +19,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
-import gdx.lunar.network.types.ConnectionOption;
 import gdx.lunar.network.types.PlayerConnectionHandler;
-import gdx.lunar.protocol.packet.server.SPacketCreatePlayer;
+import gdx.lunar.v2.packet.server.ServerPacketCreatePlayer;
 import gdx.lunar.world.AbstractGameWorld;
 import gdx.lunar.world.WorldConfiguration;
 import lunar.shared.entity.LunarEntity;
@@ -29,7 +28,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.OasisEntity;
 import me.vrekt.oasis.entity.npc.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
@@ -37,17 +35,18 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.rewrite.GuiManager;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.save.entity.EntitySaveState;
+import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
-import me.vrekt.oasis.save.world.WorldSaveState;
+import me.vrekt.oasis.save.world.WorldSaveProperties;
 import me.vrekt.oasis.utility.collision.BasicPlayerCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
@@ -67,10 +66,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Represents a base world within the game
  */
 public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, OasisEntity>
-        implements InputProcessor, SaveStateLoader<WorldSaveState>, Screen {
+        implements InputProcessor, SaveStateLoader<WorldSaveProperties>, Screen {
 
     protected final OasisGame game;
-    protected final OasisPlayerSP player;
+    protected final OasisPlayer player;
 
     protected TiledMap map;
     protected String mapName, worldName;
@@ -86,6 +85,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
     protected boolean paused, showPausedScreen;
 
     protected GameGui gui;
+    protected GuiManager guiManager;
 
     protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
     protected final List<ParticleEffect> effects = new ArrayList<>();
@@ -101,23 +101,25 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
     protected ShapeRenderer shapes;
     protected NinePatch gradient;
+    protected float lastWorldTickUpdate;
 
-    public OasisWorld(OasisGame game, OasisPlayerSP player, World world) {
+    public OasisWorld(OasisGame game, OasisPlayer player, World world) {
         super(player, world, new WorldConfiguration(), new PooledEngine());
         this.player = player;
         this.game = game;
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
         this.gui = game.getGui();
+        this.guiManager = game.guiManager;
 
         configuration.stepTime = 1 / 240f;
     }
 
     @Override
-    public void loadFromSave(WorldSaveState state) {
+    public void loadFromSave(WorldSaveProperties state) {
         loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
-        for (EntitySaveState entityState : state.getEntities()) {
+        for (EntitySaveProperties entityState : state.getEntities()) {
             if (entityState.getType() != null) {
                 final EntityInteractable interactable = getEntityByType(entityState.getType());
                 if (interactable != null) {
@@ -127,9 +129,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                     interactable.setHealth(entityState.getHealth());
                     interactable.setEnemy(entityState.isEnemy());
 
-                    Logging.info(this, "Found an entity from save and loaded it: " + entityState.getType());
+                    GameLogging.info(this, "Found an entity from save and loaded it: " + entityState.getType());
                 } else {
-                    Logging.warn(this, "Failed to find an entity from save by type: " + entityState.getType());
+                    GameLogging.warn(this, "Failed to find an entity from save by type: " + entityState.getType());
                 }
             }
         }
@@ -144,7 +146,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
         return worldName;
     }
 
-    public OasisPlayerSP getLocalPlayer() {
+    public OasisPlayer getLocalPlayer() {
         return player;
     }
 
@@ -162,20 +164,25 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
         return currentWorldTick;
     }
 
+    /**
+     * Handle registering custom connection options for a world
+     *
+     * @param connection the player connection
+     */
     private void handleConnectionOptions(PlayerConnectionHandler connection) {
-        connection.registerHandlerAsync(ConnectionOption.HANDLE_PLAYER_JOIN, packet -> handlePlayerJoin((SPacketCreatePlayer) packet));
+        connection.registerHandlerSync(ServerPacketCreatePlayer.PACKET_ID, packet -> handleCreatePlayerInWorld((ServerPacketCreatePlayer) packet));
     }
 
+
     /**
-     * Handle players joining to this world
-     * TODO
+     * Handle creating new players within this world
      *
-     * @param packet the packet
+     * @param packet the create layer packet
      */
-    public void handlePlayerJoin(SPacketCreatePlayer packet) {
+    public void handleCreatePlayerInWorld(ServerPacketCreatePlayer packet) {
         if (packet.getEntityId() == player.getEntityId()) return;
 
-        Logging.info(this, "Spawning new network player with ID " + packet.getEntityId() + " and username " + packet.getUsername());
+        GameLogging.info(this, "Spawning new network player with ID " + packet.getEntityId() + " and username " + packet.getUsername());
         if (player.isInWorld()) {
             final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
             player.load(game.getAsset());
@@ -185,7 +192,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
             player.spawnInWorld(this);
         } else {
-            Logging.warn(this, "Attempted to spawn player while not in world.");
+            GameLogging.warn(this, "Attempted to spawn player while not in world.");
         }
     }
 
@@ -228,7 +235,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
     }
 
     public void spawnEntityTypeAt(EntityNPCType type, Vector2 position) {
-        Logging.info(this, "Spawning a new entity: " + type);
+        GameLogging.info(this, "Spawning a new entity: " + type);
         final EntityInteractable entity = type.create(position, game, this);
         entity.load(game.getAsset());
         addInteractableEntity(entity);
@@ -296,11 +303,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
             // player was loaded from a save, reference their current position
             player.spawnInWorld(this, player.getPosition());
         }
-        player.setWorldIn(this);
+
+        player.setWorld(this);
         player.setGameWorldIn(this);
 
         handleConnectionOptions(game.getHandler());
-        this.gradient = new NinePatch(game.getAsset().get("health_gradient"), 0, 0, 0, 0);
+        // this.gradient = new NinePatch(game.getAsset().get("health_gradient"), 0, 0, 0, 0);
         this.isWorldLoaded = true;
 
         shapes = new ShapeRenderer();
@@ -325,6 +333,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                 gui.hideGui(GuiType.DIALOG);
                 return;
             }
+
             gui.updateDialogKeyPress();
             gui.showEntityDialog(player.getEntitySpeakingTo());
         }
@@ -332,7 +341,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
     @Override
     public <T extends LunarEntity> void spawnEntityInWorld(T entity, Vector2 position) {
-        if (entity instanceof OasisPlayerSP) return;
+        if (entity instanceof OasisPlayer) return;
         entity.getInterpolatedPosition().set(position.x, position.y);
         entity.getPreviousPosition().set(position.x, position.y);
         super.spawnEntityInWorld(entity, position);
@@ -352,11 +361,11 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                 entity.load(asset);
                 addInteractableEntity(entity);
             } else {
-                Logging.warn(this, "Found invalid entity: " + object);
+                GameLogging.warn(this, "Found invalid entity: " + object);
             }
         });
 
-        Logging.info(this, "Loaded " + (entities.size()) + " entities.");
+        GameLogging.info(this, "Loaded " + (entities.size()) + " entities.");
     }
 
     /**
@@ -409,7 +418,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
             effect.start();
         });
 
-        if (result) Logging.info(this, "Loaded " + (effects.size()) + " particle effects.");
+        if (result) GameLogging.info(this, "Loaded " + (effects.size()) + " particle effects.");
     }
 
     /**
@@ -465,13 +474,13 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                     this.worldObjects.add(wb);
                 }
             } catch (Exception any) {
-                Logging.error(this, "Failed to load a world object with error: \n");
+                GameLogging.error(this, "Failed to load a world object with error: \n");
                 any.printStackTrace();
             }
         });
 
-        Logging.info(this, "Loaded " + (interactableWorldObjects.size()) + " interactable objects.");
-        Logging.info(this, "Loaded " + (worldObjects.size()) + " world objects.");
+        GameLogging.info(this, "Loaded " + (interactableWorldObjects.size()) + " interactable objects.");
+        GameLogging.info(this, "Loaded " + (worldObjects.size()) + " world objects.");
     }
 
     /**
@@ -541,21 +550,25 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
             if (interiorName != null && enterable) {
                 final String instanceCursor = object.getProperties().get("cursor", String.class);
                 this.instances.put(type, type.createInstance(game, player, this, interiorName, instanceCursor, bounds));
-                Logging.info(this, "Loaded instance: " + type);
+                GameLogging.info(this, "Loaded instance: " + type);
             }
         });
 
-        if (result) Logging.info(this, "Loaded " + (instances.size()) + " instances.");
+        if (result) GameLogging.info(this, "Loaded " + (instances.size()) + " instances.");
+    }
+
+    public boolean isPaused() {
+        return paused;
     }
 
     @Override
     public void show() {
-        Logging.info(this, "Showing world.");
+        GameLogging.info(this, "Showing world.");
     }
 
     @Override
     public void hide() {
-        Logging.info(this, "Hiding world.");
+        GameLogging.info(this, "Hiding world.");
     }
 
     @Override
@@ -565,14 +578,13 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
     @Override
     public void pause() {
-        Logging.info(this, "Pausing game.");
+        GameLogging.info(this, "Pausing game.");
         paused = true;
     }
 
     @Override
     public void resume() {
-        Logging.info(this, "Resuming game.");
-        gui.hideGui(GuiType.PAUSE);
+        GameLogging.info(this, "Resuming game.");
         paused = false;
     }
 
@@ -597,10 +609,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused) {
-            if (!gui.isGuiVisible(GuiType.PAUSE) && !showPausedScreen) {
-                gui.showGui(GuiType.PAUSE);
-                showPausedScreen = true;
-            }
+
             // render, no update
             renderer.getViewport().apply();
             renderWorld(game.getBatch(), delta);
@@ -620,6 +629,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
     protected void updateAndRender(float delta) {
         delta = this.update(delta);
         this.renderWorld(game.getBatch(), delta);
+
+        if (currentWorldTick - lastWorldTickUpdate >= 6.0) {
+            lastWorldTickUpdate = currentWorldTick;
+        }
 
         currentWorldTick += delta;
     }
@@ -752,6 +765,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
             }
         }
 
+        //game.guiManager.renderExclusiveGuis(batch);
+
         batch.end();
 
         if (entityEnemy != null) {
@@ -764,7 +779,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
             shapes.end();
         }
 
-        gui.updateAndRender();
+        // gui.updateAndRender();
+        game.guiManager.updateAndDrawStage();
     }
 
     /**
@@ -856,8 +872,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
                 && !closest.isSpeakingTo()) {
             closest.setSpeakingTo(true);
 
-            gui.showEntityDialog(closest);
-            gui.hideHud();
+            guiManager.showGui(GuiType.DIALOG);
+            guiManager.getDialogComponent().showEntityDialog(closest);
             return true;
         }
         return false;
@@ -917,34 +933,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
     @Override
     public boolean keyDown(int keycode) {
-        if (!paused && GameManager.handleGuiKeyPress(keycode)) return true;
-
-        // handle returning to previous menus
-        if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
-            if (gui.toggleGui(GuiType.QUEST)) return true;
-            if (gui.toggleGui(GuiType.INVENTORY)) return true;
-            if (gui.toggleGui(GuiType.CONTAINER)) return true;
-            if (gui.toggleGui(GuiType.DEBUG_MENU)) return true;
-
-            if (gui.toggleGui(GuiType.SETTINGS)) {
-                gui.showGui(GuiType.PAUSE);
-                return true;
-            }
-            if (gui.toggleGui(GuiType.SAVE_GAME)) {
-                gui.showGui(GuiType.PAUSE);
-                return true;
-            }
-
-            // actually handle pausing/resuming the game
-            if (paused) {
-                resume();
-            } else {
-                pause();
-            }
-            return true;
-        }
-
-        return false;
+        return GameManager.handleWorldKeyPress(this, keycode);
     }
 
     @Override
@@ -981,6 +970,11 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, O
 
     @Override
     public boolean scrolled(float amountX, float amountY) {
+        return false;
+    }
+
+    @Override
+    public boolean touchCancelled(int i, int i1, int i2, int i3) {
         return false;
     }
 

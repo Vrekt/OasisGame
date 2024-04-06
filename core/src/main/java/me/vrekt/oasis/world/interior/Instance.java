@@ -8,8 +8,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
 
@@ -24,7 +24,7 @@ public class Instance extends OasisWorldInstance {
     protected float distance = 2.5f;
     protected final String cursor, instanceName;
 
-    public Instance(OasisGame game, OasisPlayerSP player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+    public Instance(OasisGame game, OasisPlayer player, OasisWorld world, String name, String cursor, Rectangle bounds) {
         super(game, player, new World(Vector2.Y, false), world, name);
         this.instanceName = name;
         this.cursor = cursor;
@@ -58,7 +58,7 @@ public class Instance extends OasisWorldInstance {
 
     @Override
     public void enter(boolean setScreen) {
-        Logging.info(this, "Entering instance: " + instanceName);
+        GameLogging.info(this, "Entering instance: " + instanceName);
         worldExitSpawn.set(player.getPosition());
         super.enter(setScreen);
     }
@@ -68,7 +68,7 @@ public class Instance extends OasisWorldInstance {
      * TODO
      */
     public void unload() {
-        Logging.info(instanceName, "Unloading instance from memory");
+        GameLogging.info(instanceName, "Unloading instance from memory");
         final Array<Body> bodies = new Array<>();
         world.getBodies(bodies);
         for (Body body : new Array.ArrayIterator<>(bodies)) {
@@ -107,7 +107,7 @@ public class Instance extends OasisWorldInstance {
                 && player.getPosition().dst(exit.x, exit.y) <= 2.5f) {
             this.exit();
 
-            Logging.info(this, "Exiting instance: " + instanceName);
+            GameLogging.info(this, "Exiting instance: " + instanceName);
 
             GameManager.transitionScreen(this, worldIn, () -> {
                 player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);

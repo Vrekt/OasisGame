@@ -11,7 +11,7 @@ public final class InteractableEntityDialogSection {
     private final String title, nextKey;
     private final boolean hasOptions;
     private final LinkedHashMap<String, String> options = new LinkedHashMap<>();
-    private final LinkedList<String> suggestions = new LinkedList<>();
+    private final LinkedList<EntityDialogBuilder.Suggestion> suggestions = new LinkedList<>();
 
     public InteractableEntityDialogSection(EntityDialogBuilder.EntityDialogBuilderSection section) {
         this.title = section.title;
@@ -22,7 +22,7 @@ public final class InteractableEntityDialogSection {
         section.options.clear();
     }
 
-    public String getTitle() {
+    public String getText() {
         return title;
     }
 
@@ -46,7 +46,7 @@ public final class InteractableEntityDialogSection {
         return !suggestions.isEmpty();
     }
 
-    public LinkedList<String> getSuggestions() {
+    public LinkedList<EntityDialogBuilder.Suggestion> getSuggestions() {
         return suggestions;
     }
 }

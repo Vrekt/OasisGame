@@ -10,12 +10,16 @@ repositories {
 }
 
 dependencies {
-    api group: 'io.netty', name: 'netty-all', version: '4.1.48.Final'
+    api group: 'io.netty', name: 'netty-all', version: '4.1.100.Final'
     api "com.badlogicgames.ashley:ashley:1.7.4"
     api "com.badlogicgames.gdx:gdx-freetype:1.11.0"
     api "com.badlogicgames.gdx-controllers:gdx-controllers-core:2.2.2"
     api "com.badlogicgames.gdx:gdx-box2d:1.11.0"
     api "com.badlogicgames.gdx:gdx:1.11.0"
+
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.77'
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.77'
+
 
     api "com.google.flogger:flogger:0.7.4"
     api "com.google.flogger:flogger-system-backend:0.7.4"

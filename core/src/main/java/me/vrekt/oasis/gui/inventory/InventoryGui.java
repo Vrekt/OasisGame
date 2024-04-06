@@ -11,7 +11,7 @@ import com.kotcrab.vis.ui.util.TableUtils;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.item.Item;
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public final class InventoryGui extends Gui {
     private final VisTable rootTable;
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
     final VisSplitPane splitPane;
 
     private final LinkedList<InventoryUiSlot> slots = new LinkedList<>();
@@ -169,8 +169,8 @@ public final class InventoryGui extends Gui {
         hideItemOptionals();
         hideWeaponStats();
 
-        itemName.setText(slotItem.item.getRarity().getColorName() + slotItem.item.getItemName());
-        itemNameTooltip.setText(slotItem.item.getRarity().getColoredRarityName());
+        itemName.setText(slotItem.item.getItemRarity().getColorName() + slotItem.item.getItemName());
+        itemNameTooltip.setText(slotItem.item.getItemRarity().getColoredRarityName());
         itemName.setVisible(true);
         itemName.restart();
 
@@ -195,7 +195,7 @@ public final class InventoryGui extends Gui {
             populateArtifactStats(((ItemArtifact) slotItem.item));
         }
 
-        final ItemRarity rarity = slotItem.item.getRarity();
+        final ItemRarity rarity = slotItem.item.getItemRarity();
         if (rarity != ItemRarity.BASIC
                 && rarityIcons.containsKey(rarity)) {
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
@@ -247,10 +247,9 @@ public final class InventoryGui extends Gui {
 
     private void populateEquipmentButtons(boolean isArtifact) {
         if (isArtifact) {
-            if (player.canEquipArtifact()) {
-                useItemButton.setVisible(true);
-                useItemButton.setText("Equip Artifact");
-            }
+            // TODO: In the future, ability to replace artifact slots
+            useItemButton.setVisible(true);
+            useItemButton.setText("Equip Artifact");
         } else {
             if (player.canEquipItem()) {
                 useItemButton.setVisible(true);
@@ -277,7 +276,7 @@ public final class InventoryGui extends Gui {
         player.getInventory().getSlots().forEach((slot, item) -> {
             final InventoryUiSlot ui = slots.get(slot);
             // only update this inventory slot IF the last item does not match the current
-            if (ui.lastItemId != item.getItem().getItemId()) {
+            if (!item.getItem().is(ui.lastItemKey)) {
                 ui.setItem(item.getItem());
             } else {
                 // update amount label otherwise
@@ -320,7 +319,7 @@ public final class InventoryGui extends Gui {
         // item description of whatever is in this slot
         private String itemDescription = StringUtils.EMPTY;
         // the last item in this slot, for comparison when updating
-        private long lastItemId = -1;
+        private String lastItemKey = null;
 
         public InventoryUiSlot(Stack stack, Image item, Tooltip.TooltipStyle style, VisLabel amountLabel) {
             super(stack, item, amountLabel, style);
@@ -350,7 +349,7 @@ public final class InventoryGui extends Gui {
         @Override
         protected void setItem(Item item) {
             super.setItem(item);
-            this.lastItemId = item.getItemId();
+            this.lastItemKey = item.getKey();
             this.itemDescription = item.getDescription();
         }
 
@@ -361,7 +360,7 @@ public final class InventoryGui extends Gui {
         protected void removeItem() {
             super.reset();
             this.itemDescription = StringUtils.EMPTY;
-            this.lastItemId = -1;
+            this.lastItemKey = null;
         }
     }
 

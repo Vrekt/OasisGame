@@ -1,6 +1,5 @@
 package me.vrekt.oasis.entity.dialog;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
@@ -82,6 +81,11 @@ public final class EntityDialogBuilder {
         this.dialog.put(section.key, new InteractableEntityDialogSection(section));
     }
 
+    public static final class Suggestion {
+        public String suggestion, keyLink;
+        public double tolerance;
+    }
+
     /**
      * Contains information about the current section being built.
      */
@@ -91,8 +95,9 @@ public final class EntityDialogBuilder {
         final boolean skip;
         // map of options by key and line
         final LinkedHashMap<String, String> options = new LinkedHashMap<>();
-        final LinkedList<String> suggestions = new LinkedList<>();
+        final LinkedList<Suggestion> suggestions = new LinkedList<>();
 
+        Suggestion lastSuggestion;
         String nextKey;
 
         public EntityDialogBuilderSection(EntityDialogBuilder instance, String key, String title, boolean skip) {
@@ -117,12 +122,17 @@ public final class EntityDialogBuilder {
             return this;
         }
 
-        public EntityDialogBuilderSection withSuggestion(String suggestion) {
-            suggestions.add(suggestion);
+        public EntityDialogBuilderSection withSuggestion(String suggestion, double tolerance) {
+            final Suggestion ss = new Suggestion();
+            ss.suggestion = suggestion;
+            ss.tolerance = tolerance;
+            this.lastSuggestion = ss;
+            suggestions.add(ss);
             return this;
         }
-        public EntityDialogBuilderSection withSuggestions(String... suggestions) {
-            this.suggestions.addAll(Arrays.asList(suggestions));
+
+        public EntityDialogBuilderSection linkSuggestion(String key) {
+            this.lastSuggestion.keyLink = key;
             return this;
         }
 

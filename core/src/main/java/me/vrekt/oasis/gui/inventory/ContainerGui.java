@@ -14,7 +14,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.inventory.container.containers.ChestInventory;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.utility.GuiUtilities;
@@ -30,7 +30,7 @@ public final class ContainerGui extends Gui {
     private final LinkedList<ContainerUiSlot> chestSlots = new LinkedList<>();
     private final LinkedList<ContainerPlayerInventoryUiSlot> inventorySlots = new LinkedList<>();
 
-    private final OasisPlayerSP player;
+    private final OasisPlayer player;
     private ContainerInventory inventory;
 
     private boolean containerContentsChanged;

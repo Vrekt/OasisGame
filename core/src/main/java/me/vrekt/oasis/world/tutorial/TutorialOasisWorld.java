@@ -6,15 +6,13 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.inventory.Inventory;
 import me.vrekt.oasis.entity.npc.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
-import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
-import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
-import me.vrekt.oasis.utility.logging.Logging;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.utility.hints.PlayerHints;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
@@ -34,7 +32,7 @@ public final class TutorialOasisWorld extends OasisWorld {
     private MaviaTutorial tutorialEntity;
     private Map<Integer, ChestInventoryInteraction> tutorialChestInteractions = new HashMap<>();
 
-    public TutorialOasisWorld(OasisGame game, OasisPlayerSP player, World world) {
+    public TutorialOasisWorld(OasisGame game, OasisPlayer player, World world) {
         super(game, player, world);
 
         getConfiguration().worldScale = OasisGameSettings.SCALE;
@@ -65,25 +63,29 @@ public final class TutorialOasisWorld extends OasisWorld {
         // populate tutorial chests, lock them as-well until a certain point in the tutorial
         tutorialChestInteractions = getByRuntimeIdsMap(TUTORIAL_CHEST_RUNTIME_ID, TUTORIAL_CHEST_RUNTIME_ID_2, TUTORIAL_CHEST_RUNTIME_ID_3);
         if (tutorialChestInteractions.isEmpty()) {
-            Logging.error(this, "Failed to find tutorial chests to populate!");
+            GameLogging.error(this, "Failed to find {isWorldLoaded} tutorial chests to populate!");
         } else {
+
             tutorialChestInteractions.values().forEach(interaction -> interaction.setInteractable(true));
 
             // TODO: Change these items later
             tutorialChestInteractions.get(TUTORIAL_CHEST_RUNTIME_ID)
                     .getInventory()
-                    .addItems(
-                            new Inventory.InventoryItemMap(EnchantedVioletItem.ID, 1),
-                            new Inventory.InventoryItemMap(QuickStepItemArtifact.ID, 1)
-                    );
+                    .addItems(Items.ENCHANTED_VIOLET_ITEM, 1)
+                    .addItems(Items.QUICKSTEP_ARTIFACT, 1);
         }
 
         // if new game, spawn with a few debug items... for now
         if (game.isNewGame()) {
-            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
-            player.getInventory().addItem(EnchantedVioletItem.ID, 1);
-            player.getInventory().addItem(QuickStepItemArtifact.ID, 1);
-            player.getInventory().addItem(LucidTreeFruitItem.ID, 1);
+            player.getInventory().addItem(Items.ENCHANTED_VIOLET_ITEM, 1);
+            player.getInventory().addItem(Items.QUICKSTEP_ARTIFACT, 1);
+            player.getInventory().addItem(Items.LUCID_FRUIT_TREE_ITEM, 1);
+            GameManager.getOasis().guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT);
+//            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
+            // TODO
+            // player.getInventory().addItem(EnchantedVioletItem.ID, 1);
+            // player.getInventory().addItem(QuickStepItemArtifact.ID, 1);
+            //  player.getInventory().addItem(LucidTreeFruitItem.ID, 1);
             game.setNewGame(false); // prevent duplication of items when coming back from instances
             // player.getConnection().send(new ClientSpawnEntity(EntityType.TUTORIAL_COMBAT_DUMMY, player.getPosition()));
         }

@@ -1,36 +1,27 @@
 package me.vrekt.oasis.item.attribute.attributes;
 
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
-import me.vrekt.oasis.item.attribute.Attributes;
-import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.attribute.AbstractItemAttribute;
 
 /**
  * Grants the player a specific amount of HP.
  */
-public final class PlayerHealingAttribute extends ItemAttribute {
+public final class PlayerHealingAttribute extends AbstractItemAttribute {
 
-    // ID
-    public static final int ID = Attributes.PLAYER_HEALING_ATTRIBUTE;
+    private final float healingAmount;
 
-    // amount to heal by.
-    private final float amount;
-
-    public PlayerHealingAttribute(float amount) {
-        super("Healing", "[/][BLACK]Applies [GREEN]+" + amount + " [BLACK]HP.", PlayerHealingAttribute.ID);
-        this.amount = amount;
-        setUses(1);
+    public PlayerHealingAttribute(float healingAmount) {
+        super("attribute:healing", "Healing", "Implement this later.");
+        this.healingAmount = healingAmount;
+        setAvailableUses(1);
     }
 
     @Override
-    public String getAttributeName() {
-        return "[BLACK][/]" + super.getAttributeName();
-    }
+    public void applyToPlayer(OasisPlayer player) {
+        if (timesUsed > getAvailableUses()) return;
 
-    @Override
-    public void applyToPlayer(OasisPlayerSP player) {
         timesUsed++;
-        if (timesUsed > getUses()) return;
-        player.modifyHealth(amount);
+        player.heal(healingAmount);
     }
 }
 

@@ -11,10 +11,12 @@ public final class OasisKeybindings {
     public static int QUEST_KEY = Input.Keys.Q;
     public static int INVENTORY_KEY = Input.Keys.I;
     public static int SKIP_DIALOG_KEY = Input.Keys.F;
-    public static int PAUSE_GAME_KEY = Input.Keys.ESCAPE;
+    public static int ESCAPE = Input.Keys.ESCAPE;
 
     public static int ARTIFACT_ONE = Input.Keys.NUM_1;
 
     public static int DEBUG_MENU_KEY = Input.Keys.F2;
+
+    public static int SLOT_1 = Input.Keys.NUM_2;
 
 }

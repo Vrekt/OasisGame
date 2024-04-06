@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayerSP;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * Handles rendering of worlds, interiors and anything else that requires TiledMaps.
@@ -25,7 +25,7 @@ public final class OasisTiledRenderer implements Disposable {
     private OrthogonalTiledMapRenderer renderer;
     private final Array<TiledMapTileLayer> layers;
 
-    private final OasisPlayerSP thePlayer;
+    private final OasisPlayer thePlayer;
     private final SpriteBatch batch;
     private final ScreenViewport viewport;
 
@@ -38,7 +38,7 @@ public final class OasisTiledRenderer implements Disposable {
      * @param batch  drawing batch
      * @param player local player
      */
-    public OasisTiledRenderer(SpriteBatch batch, OasisPlayerSP player) {
+    public OasisTiledRenderer(SpriteBatch batch, OasisPlayer player) {
         this.layers = new Array<>();
         this.thePlayer = player;
         this.batch = batch;

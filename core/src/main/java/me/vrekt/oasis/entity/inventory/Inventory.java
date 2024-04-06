@@ -2,6 +2,7 @@ package me.vrekt.oasis.entity.inventory;
 
 import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.Items;
 
 import java.util.Map;
 
@@ -12,31 +13,34 @@ public interface Inventory {
      */
     void update();
 
+
     /**
      * Add an item to this inventory
      *
-     * @param id     the item ID
+     * @param item   the item
      * @param amount the amount
-     * @return a new {@link Item}
+     * @return the new item
      */
-    Item addItem(int id, int amount);
+    Item addItem(Items item, int amount);
 
     /**
-     * Add many items to this inventory
+     * Add an item to this inventory
      *
-     * @param items the items
+     * @param item   the item
+     * @param amount the amount
+     * @return the new item
      */
-    void addItems(InventoryItemMap... items);
+    Inventory addItems(Items item, int amount);
 
     /**
      * Add an item from the save game file
      *
      * @param slot     the slot
      * @param itemName the item name
-     * @param itemId   the item ID
+     * @param itemKey  the item key
      * @param amount   the amount
      */
-    void addItemFromSave(int slot, String itemName, int itemId, int amount);
+    void addItemFromSave(int slot, String itemName, String itemKey, int amount);
 
     /**
      * Add an item
@@ -45,13 +49,22 @@ public interface Inventory {
      */
     void addItem(Item item);
 
+
     /**
-     * Get an item by ID
+     * Get an item by key name
      *
-     * @param id the id
-     * @return the item or {@code null}
+     * @param key the key
+     * @return the item, or {@code null} if not found.
      */
-    Item getItemById(int id);
+    Item getItemByKey(String key);
+
+    /**
+     * Get an item by items type
+     *
+     * @param item the type
+     * @return the item or {@code null} if not found.
+     */
+    Item getItem(Items item);
 
     /**
      * Get the slot an item is in
@@ -77,10 +90,23 @@ public interface Inventory {
     void removeItem(int slot);
 
     /**
-     * @param id the item ID
-     * @return {@code  true} if the item is present in this inventory
+     * Remove an item
+     *
+     * @param item the item
      */
-    boolean hasItem(int id);
+    void removeItem(Item item);
+
+    /**
+     * @param key the item key
+     * @return if this inventory has the item
+     */
+    boolean hasItem(String key);
+
+    /**
+     * @param item the items type
+     * @return if this inventory has the item
+     */
+    boolean hasItem(Items item);
 
     /**
      * @return {@code  true} if this inventory is full
@@ -96,6 +122,12 @@ public interface Inventory {
      * @return slot data
      */
     Map<Integer, InventorySlot> getSlots();
+
+    /**
+     * @param slot the slot number
+     * @return the data for the provided slot number
+     */
+    InventorySlot getSlot(int slot);
 
     /**
      * @return the inventory size
@@ -127,18 +159,16 @@ public interface Inventory {
     void transferItemsFrom(Inventory other);
 
     /**
+     * Swap a slot
+     *
+     * @param from before
+     * @param to   after
+     */
+    void swapSlot(int from, int to);
+
+    /**
      * Clear this inventory
      */
     void clear();
-
-    final class InventoryItemMap {
-
-        public int id, amount;
-
-        public InventoryItemMap(int id, int amount) {
-            this.id = id;
-            this.amount = amount;
-        }
-    }
 
 }
