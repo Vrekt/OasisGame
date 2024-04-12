@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.lunar.v2.packet.client.ClientPacketPing;
-import gdx.lunar.v2.packet.server.ServerPacketJoinWorld;
-import gdx.lunar.v2.packet.server.ServerPacketPing;
+import gdx.lunar.protocol.packet.client.C2SPacketPing;
+import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
+import gdx.lunar.protocol.packet.server.S2CPacketPing;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.impl.Player;
+import lunar.shared.entity.player.impl.LunarPlayer;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -19,9 +19,9 @@ import me.vrekt.oasis.classes.ClassType;
 import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
+import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.Inventory;
-import me.vrekt.oasis.entity.npc.EntityEnemy;
-import me.vrekt.oasis.entity.npc.EntitySpeakable;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
@@ -45,7 +45,7 @@ import java.util.LinkedList;
 /**
  * Represents the local player SP
  */
-public final class OasisPlayer extends Player implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveProperties> {
+public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveProperties> {
 
     private final OasisGame game;
 
@@ -61,9 +61,6 @@ public final class OasisPlayer extends Player implements ResourceLoader, Drawabl
     private boolean isInInstance, isInTutorialWorld = true;
     private OasisWorldInstance instanceIn;
     private final PlayerQuestManager questManager;
-
-    private float health = 100.0f;
-    private boolean didUseTutorialFruit, didChopTree;
 
     private EntitySpeakable entitySpeakingTo;
     private boolean isSpeakingToEntity;
@@ -125,38 +122,6 @@ public final class OasisPlayer extends Player implements ResourceLoader, Drawabl
 
     public long getServerPingTime() {
         return serverPingTime;
-    }
-
-    public float getHealth() {
-        return health;
-    }
-
-    public void setHealth(float health) {
-        this.health = health;
-    }
-
-    public void heal(float amount) {
-        this.health += health;
-    }
-
-    public void damage(float amount) {
-        this.health -= health;
-    }
-
-    public void setDidUseTutorialFruit(boolean didUseTutorialFruit) {
-        this.didUseTutorialFruit = didUseTutorialFruit;
-    }
-
-    public boolean didUseTutorialFruit() {
-        return didUseTutorialFruit;
-    }
-
-    public void setDidChopTree(boolean didChopTree) {
-        this.didChopTree = didChopTree;
-    }
-
-    public boolean didChopTree() {
-        return didChopTree;
     }
 
     public boolean isInInstance() {
@@ -259,21 +224,29 @@ public final class OasisPlayer extends Player implements ResourceLoader, Drawabl
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
 
-        connectionHandler.registerHandlerSync(ServerPacketJoinWorld.PACKET_ID, packet -> handleWorldJoin(((ServerPacketJoinWorld) packet)));
-        connectionHandler.registerHandlerSync(ServerPacketPing.PACKET_ID, packet -> updatePingTime((ServerPacketPing) packet));
+        connectionHandler.registerHandlerSync(S2CPacketJoinWorld.PACKET_ID, packet -> handleWorldJoin(((S2CPacketJoinWorld) packet)));
+        connectionHandler.registerHandlerSync(S2CPacketPing.PACKET_ID, packet -> updatePingTime((S2CPacketPing) packet));
     }
 
-    private void updatePingTime(ServerPacketPing packet) {
+    /**
+     * Update ping time from the server
+     *
+     * @param packet the packet
+     */
+    private void updatePingTime(S2CPacketPing packet) {
         final long now = System.currentTimeMillis();
         serverPingTime = now - packet.getClientTime();
     }
 
-    public void handleWorldJoin(ServerPacketJoinWorld world) {
-        GameLogging.info(this, "Attempting to join world: " + world.getWorldName() + ", entity ID is " + world.getEntityId());
-        game.executeMain(() -> {
-            setEntityId(world.getEntityId());
-            game.loadIntoWorld(game.getWorldManager().getWorld(world.getWorldName()));
-        });
+    /**
+     * Handle world joining request response from the server
+     *
+     * @param world the world
+     */
+    public void handleWorldJoin(S2CPacketJoinWorld world) {
+        GameLogging.info(this, "Attempting to join world %s, our entity ID is %d", world.getWorldName(), world.getEntityId());
+        setEntityId(world.getEntityId());
+        game.loadIntoWorld(game.getWorldManager().getWorld(world.getWorldName()));
     }
 
     public void setIdleRegionState() {
@@ -356,7 +329,7 @@ public final class OasisPlayer extends Player implements ResourceLoader, Drawabl
 
         if (System.currentTimeMillis() - lastPingSent >= 2000) {
             lastPingSent = System.currentTimeMillis();
-            connection.sendImmediately(new ClientPacketPing(System.currentTimeMillis()));
+            connection.sendImmediately(new C2SPacketPing(System.currentTimeMillis()));
         }
 
         artifactInventory.forEach(artifact -> artifact.updateArtifact(this, gameWorldIn.getCurrentWorldTick()));

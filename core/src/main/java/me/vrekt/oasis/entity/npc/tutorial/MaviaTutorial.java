@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;

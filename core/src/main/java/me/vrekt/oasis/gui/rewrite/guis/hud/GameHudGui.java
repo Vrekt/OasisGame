@@ -53,6 +53,8 @@ public final class GameHudGui extends Gui {
     private final List<VisTable> components = new ArrayList<>();
     private final LinkedList<HotbarComponentSlot> hotbarIconComponents = new LinkedList<>();
 
+    private boolean hintVisiblityOverridden;
+
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
 
@@ -87,8 +89,8 @@ public final class GameHudGui extends Gui {
 
         player.getInventory().getSlots().forEach((slot, item) -> {
 //            if (item.isHotbarItem() && !hotbarIconComponents.get(slot).isUpdated()) {
-          //      hotbarIconComponents.get(slot).setItemInSlot(new TextureRegionDrawable(item.getItem().getSprite()));
-          //  }
+            //      hotbarIconComponents.get(slot).setItemInSlot(new TextureRegionDrawable(item.getItem().getSprite()));
+            //  }
         });
 
         updatePlayerHintComponent(now);
@@ -102,7 +104,8 @@ public final class GameHudGui extends Gui {
         // ensure hint component is visible, not indefinite (0) and hint has expired.
         if (hintComponent.getColor().a == 1.0f
                 && (currentHintDuration != 0.0f
-                && now - lastHintTime >= currentHintDuration)) {
+                && now - lastHintTime >= currentHintDuration)
+                && hintComponentText.hasEnded()) {
             hintComponent.addAction(Actions.sequence(Actions.fadeOut(1.0f), Actions.visible(false)));
         }
     }
@@ -112,6 +115,12 @@ public final class GameHudGui extends Gui {
     }
 
     public void showPlayerHint(String text, float duration) {
+        if (!hintComponent.isVisible()) {
+            hintComponent.getColor().a = 0.0f;
+            hintComponent.setVisible(true);
+            hintVisiblityOverridden = true;
+        }
+
         final float now = GameManager.getCurrentGameWorldTick();
         // don't show the hint if one is already active
         // TODO: Maybe in the future some method to check if any hints, if so expire?
@@ -136,7 +145,7 @@ public final class GameHudGui extends Gui {
      */
     private void initializeDebugComponent() {
         final VisTable debugTable = new VisTable();
-        debugTable.setVisible(false);
+        debugTable.setVisible(true);
         debugTable.top().left();
         debugTable.add(debugComponentText).top().left();
         guiManager.addGui(debugTable);
@@ -194,6 +203,7 @@ public final class GameHudGui extends Gui {
 
         final VisTable hint = new VisTable();
         hint.setBackground(guiManager.getStyle().getTheme());
+        hint.add(new VisImage(guiManager.getAsset().get("hint_icon"))).padLeft(4f).padRight(4f).padBottom(1f);
         hint.add(hintComponentText)
                 .width(448)
                 .padBottom(16)
@@ -245,10 +255,13 @@ public final class GameHudGui extends Gui {
                 .append(StringUtils.SPACE)
                 .append(PING)
                 .append(guiManager.getGame().getPlayer().getServerPingTime())
-                .append(StringUtils.SPACE)
-                .append(MSPT)
-                .append(guiManager.getGame().getServer().getGameServer().getWorldTickTime())
-                .append(MS);
+                .append(StringUtils.SPACE);
+
+        if (guiManager.getGame().isIntegratedGame()) {
+            builder.append(MSPT)
+                    .append(guiManager.getGame().getServer().getGameServer().getWorldTickTime())
+                    .append(MS);
+        }
         debugComponentText.setText(builder.toString());
     }
 
@@ -263,7 +276,16 @@ public final class GameHudGui extends Gui {
     public void hide() {
         super.hide();
         rootTable.setVisible(false);
-        components.forEach(table -> table.setVisible(false));
+        components.forEach(table -> {
+            if (table == hintComponent) {
+                // override hint visibility if this GUI
+                // was hidden for whatever reason
+                // but hint still needs to be shown.
+                if (!hintVisiblityOverridden) table.setVisible(false);
+            } else {
+                table.setVisible(false);
+            }
+        });
     }
 
     private static final class HotbarComponentSlot {

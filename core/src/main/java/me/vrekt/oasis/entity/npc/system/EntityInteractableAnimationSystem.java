@@ -33,7 +33,6 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
     @Override
     protected void updateInterval() {
         for (Entity entity : engine.getEntitiesFor(family)) {
-            // re-calculate distance to player, ONLY if they are in view
             final EntityDialogComponent component = dialogMapper.get(entity);
             if (component.isInView && component.drawDialogAnimationTile) {
                 // TODO: This is going to be changing

@@ -33,8 +33,6 @@ public final class InventorySlotSource extends DragAndDrop.Source {
         // disable slot icon for now while we manually draw the icon
         slot.getSlotIcon().setVisible(false);
 
-        GameLogging.info(this, "Start drag");
-
         // project coordinates so we can draw at the correct location
         projection.set(x, y);
         projection.set(slot.getSlotIcon().localToStageCoordinates(projection));

@@ -32,6 +32,7 @@ public class OasisMainMenu extends ScreenAdapter {
 
         final VisLabel newGame = new VisLabel("New Game", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE));
         final VisLabel loadGame = new VisLabel("Load Game", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE));
+        final VisLabel connect = new VisLabel("Connect To Localhost", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE));
         final VisLabel quit = new VisLabel("Quit", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE));
 
         rootTable.add(new VisLabel("Oasis", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE)));
@@ -40,6 +41,8 @@ public class OasisMainMenu extends ScreenAdapter {
         rootTable.row().padTop(8);
         rootTable.add(loadGame);
         rootTable.row().padTop(8);
+        rootTable.add(connect);
+        rootTable.row().padTop(8);
         rootTable.add(quit);
 
         addDefaultActions(newGame, game::loadNewGame);
@@ -47,6 +50,7 @@ public class OasisMainMenu extends ScreenAdapter {
         menu = new LoadGameMenu(game, this);
         addDefaultActions(loadGame, () -> game.setScreen(menu));
         addDefaultActions(quit, () -> Gdx.app.exit());
+        addDefaultActions(connect, game::joinRemoteServer);
     }
 
     private void addDefaultActions(Label label, Runnable action) {

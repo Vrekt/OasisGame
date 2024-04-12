@@ -1,9 +1,9 @@
 package me.vrekt.oasis;
 
 import com.google.common.flogger.FluentLogger;
+import gdx.lunar.protocol.GdxProtocol;
 import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
-import gdx.lunar.v2.GdxProtocol;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;
 import me.vrekt.oasis.world.CrimsonWorldManager;
@@ -47,12 +47,7 @@ public final class Crimson {
             }
         }
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                e.printStackTrace();
-            }
-        });
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
 
         protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
         gameServer = new CrimsonGameServer(protocol);

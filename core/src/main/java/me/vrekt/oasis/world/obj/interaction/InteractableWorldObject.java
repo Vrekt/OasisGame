@@ -83,11 +83,6 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
     }
 
     @Override
-    public void setSize(float width, float height) {
-        size.set(width, height);
-    }
-
-    @Override
     public boolean hasRequiredItem() {
         return true;
     }

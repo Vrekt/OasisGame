@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.npc;
+package me.vrekt.oasis.entity.enemy;
 
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,6 +11,8 @@ import me.vrekt.oasis.combat.CombatDamageAnimator;
 import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.EntityDamageable;
+import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 

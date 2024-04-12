@@ -59,10 +59,10 @@ public final class TiledMapLoader {
         loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
             if (object.getName().equalsIgnoreCase("WorldSpawn")
                     || object.getName().equalsIgnoreCase("Spawn")) {
-                GameLogging.info("TiledMapLoader", "Found WorldSpawn @ " + rectangle.x + ":" + rectangle.y);
+                GameLogging.info("TiledMapLoader", "Found WorldSpawn %s", rectangle);
                 worldSpawn.set(rectangle.x, rectangle.y);
             } else if (object.getName().equalsIgnoreCase("Exit")) {
-                GameLogging.info("TiledMapLoader", "Found WorldExitArea @ " + rectangle.x + ":" + rectangle.y);
+                GameLogging.info("TiledMapLoader", "Found WorldExitArea %s ",rectangle);
                 worldExitArea.set(rectangle);
             }
         });
@@ -86,7 +86,7 @@ public final class TiledMapLoader {
             loaded++;
         }
 
-        GameLogging.info("TiledMapLoader", "Loaded a total of " + loaded + " collision objects.");
+        GameLogging.info("TiledMapLoader", "Loaded a total of %d collision objects.", loaded);
     }
 
 }

@@ -7,19 +7,19 @@ import com.badlogic.gdx.math.Vector3;
 import lunar.shared.entity.AbstractLunarEntity;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 
 /**
  * Represents a basic entity within Oasis
  */
-public abstract class OasisEntity extends AbstractLunarEntity implements Viewable, Drawable {
+public abstract class Entity extends AbstractLunarEntity implements Viewable, Drawable {
 
-    protected boolean isNearby;
+    protected boolean isNearby, inView;
     protected NinePatch gradient;
 
-    public OasisEntity(boolean initializeComponents) {
+    public Entity(boolean initializeComponents) {
         super(initializeComponents);
 
         setHealth(100.0f);
@@ -48,14 +48,23 @@ public abstract class OasisEntity extends AbstractLunarEntity implements Viewabl
         return clicked.x > getX() && clicked.x < (getX() + getScaledWidth()) && clicked.y > getY() && clicked.y < (getY() + getScaledHeight());
     }
 
+    /**
+     * @return {@code true} if this entity is interactable
+     */
     public boolean isInteractable() {
         return false;
     }
 
+    /**
+     * @return the interactable entity
+     */
     public EntityInteractable asInteractable() {
         return null;
     }
 
+    /**
+     * @return {@code true} if this entity is nearby
+     */
     public boolean isNearby() {
         return isNearby;
     }
@@ -74,6 +83,6 @@ public abstract class OasisEntity extends AbstractLunarEntity implements Viewabl
 
     @Override
     public boolean isInView(Camera camera) {
-        return camera.frustum.pointInFrustum(getX(), getY(), 0.0f);
+        return inView = camera.frustum.pointInFrustum(getX(), getY(), 0.0f);
     }
 }

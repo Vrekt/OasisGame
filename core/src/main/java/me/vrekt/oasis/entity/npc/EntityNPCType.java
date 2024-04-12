@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.npc;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.npc.tutorial.TutorialCombatDummy;

@@ -80,7 +80,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
 
         if (player.isInWorld()) {
             GameLogging.info(this, "Removing local player from parent world.");
-            player.removeFromWorld(player.getGameWorldIn());
+            player.removeFromWorld();
         }
 
         spawnPlayerInInstance();

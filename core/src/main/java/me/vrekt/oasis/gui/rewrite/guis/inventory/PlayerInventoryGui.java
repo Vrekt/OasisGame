@@ -324,8 +324,8 @@ public final class PlayerInventoryGui extends InventoryGui {
         if (item instanceof ItemConsumable) {
             itemActionButton.setVisible(true);
             itemActionButton.setText("Eat");
-        } else if (item instanceof ItemWeapon) {
-            populateItemStats((ItemWeapon) item);
+        } else if (item instanceof ItemWeapon weapon) {
+            populateItemStats(weapon);
             itemActionButton.setVisible(true);
             itemActionButton.setText("Equip");
         } else if (item instanceof ItemArtifact) {
@@ -340,10 +340,10 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the item
      */
     private void populateWeaponOrArtifactStats(Item item) {
-        if (item instanceof ItemWeapon) {
-            populateItemStats((ItemWeapon) item);
-        } else if (item instanceof ItemArtifact) {
-            populateArtifactStats((ItemArtifact) item);
+        if (item instanceof ItemWeapon weapon) {
+            populateItemStats(weapon);
+        } else if (item instanceof ItemArtifact artifact) {
+            populateArtifactStats(artifact);
         }
     }
 

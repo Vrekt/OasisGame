@@ -12,17 +12,12 @@ public enum EntityRotation {
     }
 
     public static EntityRotation of(float angle) {
-        switch ((int) angle) {
-            case 1:
-                return UP;
-            case 2:
-                return DOWN;
-            case 3:
-                return LEFT;
-            case 4:
-                return RIGHT;
-        }
-        return UP;
+        return switch ((int) angle) {
+            case 2 -> DOWN;
+            case 3 -> LEFT;
+            case 4 -> RIGHT;
+            default -> UP;
+        };
     }
 
 }

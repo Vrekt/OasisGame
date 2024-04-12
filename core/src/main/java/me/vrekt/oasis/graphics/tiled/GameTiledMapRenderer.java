@@ -18,7 +18,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 /**
  * Handles rendering of worlds, interiors and anything else that requires TiledMaps.
  */
-public final class OasisTiledRenderer implements Disposable {
+public final class GameTiledMapRenderer implements Disposable {
 
     private final OrthographicCamera camera;
 
@@ -38,7 +38,7 @@ public final class OasisTiledRenderer implements Disposable {
      * @param batch  drawing batch
      * @param player local player
      */
-    public OasisTiledRenderer(SpriteBatch batch, OasisPlayer player) {
+    public GameTiledMapRenderer(SpriteBatch batch, OasisPlayer player) {
         this.layers = new Array<>();
         this.thePlayer = player;
         this.batch = batch;

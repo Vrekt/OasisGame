@@ -4,10 +4,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import lunar.shared.components.drawing.EntityTextureComponent;
 import lunar.shared.mapping.GlobalEntityMapper;
-import me.vrekt.oasis.entity.OasisEntity;
-import me.vrekt.oasis.graphics.Drawable;
+import me.vrekt.oasis.entity.Entity;
 
-public abstract class EntityTextured extends OasisEntity implements Drawable {
+public abstract class EntityTextured extends Entity {
 
     public EntityTextured(boolean initializeComponents) {
         super(initializeComponents);

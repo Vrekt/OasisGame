@@ -1,6 +1,6 @@
 package me.vrekt.shared.network;
 
-import gdx.lunar.v2.packet.GamePacket;
+import gdx.lunar.protocol.packet.GamePacket;
 import io.netty.buffer.ByteBuf;
 
 public final class ClientPacketSwingItem extends GamePacket {

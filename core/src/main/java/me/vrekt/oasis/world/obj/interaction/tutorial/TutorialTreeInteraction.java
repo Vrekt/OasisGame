@@ -32,7 +32,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
 
     @Override
     public void interact() {
-        world.getLocalPlayer().setDidChopTree(true);
+
         world.getLocalPlayer().getInventory().addItem(Items.LUCID_FRUIT_TREE_ITEM, 1);
 
         this.interactable = false;

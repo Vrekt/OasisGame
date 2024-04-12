@@ -1,7 +1,7 @@
 package me.vrekt.shared.network;
 
 import com.badlogic.gdx.math.Vector2;
-import gdx.lunar.v2.packet.GamePacket;
+import gdx.lunar.protocol.packet.GamePacket;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.entities.EntityType;
 

@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;
-import me.vrekt.oasis.entity.OasisEntity;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 
 import java.lang.reflect.Type;
@@ -35,7 +35,7 @@ public class EntitySaveProperties {
     @Expose
     private boolean isEnemy;
 
-    private void createState(OasisEntity entity) {
+    private void createState(Entity entity) {
         this.position = entity.getPosition();
         this.size = new Vector3(entity.getWidth(), entity.getHealth(), entity.getWorldScale());
         this.name = entity.getName();
@@ -100,7 +100,7 @@ public class EntitySaveProperties {
         return isEnemy;
     }
 
-    public void reset(OasisEntity entity) {
+    public void reset(Entity entity) {
         position = null;
         size = null;
         name = null;

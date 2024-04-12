@@ -7,6 +7,8 @@ import com.badlogic.gdx.Gdx;
  */
 public interface GameLogging {
 
+    final StringBuilder loggingBuilder = new StringBuilder();
+
     /**
      * Info
      */
@@ -28,12 +30,11 @@ public interface GameLogging {
      * @param tag  the tag
      * @param info the info
      */
-    static void info(Object tag, String info) {
-        if (tag instanceof String) {
-            Gdx.app.log(tag.toString(), INFO + info);
-        } else {
-            Gdx.app.log(tag.getClass().getSimpleName(), INFO + info);
-        }
+    static void info(Object tag, String info, Object... information) {
+        loggingBuilder.append(INFO);
+        loggingBuilder.append(information.length > 0 ? info.formatted(information) : info);
+        Gdx.app.log(tag instanceof String ? tag.toString() : tag.getClass().getSimpleName(), loggingBuilder.toString());
+        loggingBuilder.setLength(0);
     }
 
     static void d(String info) {

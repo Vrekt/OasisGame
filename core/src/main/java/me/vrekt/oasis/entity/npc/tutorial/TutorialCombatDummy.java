@@ -10,7 +10,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.ai.SeekAndPursuePlayer;
 import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.npc.EntityEnemy;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;

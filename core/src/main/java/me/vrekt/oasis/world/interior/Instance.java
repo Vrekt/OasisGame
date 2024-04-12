@@ -58,7 +58,7 @@ public class Instance extends OasisWorldInstance {
 
     @Override
     public void enter(boolean setScreen) {
-        GameLogging.info(this, "Entering instance: " + instanceName);
+        GameLogging.info(this, "Entering instance: %s", instanceName);
         worldExitSpawn.set(player.getPosition());
         super.enter(setScreen);
     }
@@ -82,7 +82,7 @@ public class Instance extends OasisWorldInstance {
     public float update(float delta) {
         // check if mouse is over exit
 
-        if (!gui.isAnyInterfaceOpen()
+        if (!guiManager.isAnyGuiVisible()
                 && exit.contains(cursorInWorld.x, cursorInWorld.y)
                 && !GameManager.hasCursorChanged()) {
             GameManager.setCursorInGame(getCursor());
@@ -107,7 +107,7 @@ public class Instance extends OasisWorldInstance {
                 && player.getPosition().dst(exit.x, exit.y) <= 2.5f) {
             this.exit();
 
-            GameLogging.info(this, "Exiting instance: " + instanceName);
+            GameLogging.info(this, "Exiting instance: %s", instanceName);
 
             GameManager.transitionScreen(this, worldIn, () -> {
                 player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);

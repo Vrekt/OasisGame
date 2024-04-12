@@ -2,6 +2,8 @@ package me.vrekt.oasis.gui.rewrite;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -10,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.gui.rewrite.guis.dialog.EntityDialogGui;
@@ -142,6 +145,17 @@ public class GuiManager {
     }
 
     /**
+     * Render a players nametag
+     *
+     * @param player the player
+     * @param camera the game camera
+     * @param batch  batch to draw with
+     */
+    public void renderPlayerNametag(OasisNetworkPlayer player, Camera camera, Batch batch) {
+        player.renderNametag(asset.getSmall(), batch, camera, stage.getCamera());
+    }
+
+    /**
      * Show a gui
      *
      * @param type the type
@@ -170,9 +184,16 @@ public class GuiManager {
         return guis.get(type).isGuiVisible();
     }
 
-    public boolean isAnyGuiVisible(GuiType exclusions) {
+    public boolean isAnyGuiVisible(GuiType exclusion) {
         for (Gui gui : guis.values()) {
-            if (gui.isGuiVisible() && gui.type != exclusions) return true;
+            if (gui.isGuiVisible() && gui.type != exclusion) return true;
+        }
+        return false;
+    }
+
+    public boolean isAnyGuiVisible() {
+        for (Gui gui : guis.values()) {
+            if (gui.isGuiVisible()) return true;
         }
         return false;
     }

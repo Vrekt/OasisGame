@@ -1,12 +1,12 @@
-package me.vrekt.oasis.entity.npc;
+package me.vrekt.oasis.entity.interactable;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
@@ -15,9 +15,6 @@ import me.vrekt.oasis.world.OasisWorld;
  * Represents an NPC within the game
  */
 public abstract class EntityInteractable extends EntitySpeakable implements ResourceLoader {
-
-    // describes the view/renderable stuff
-    protected boolean inView;
 
     protected final OasisPlayer player;
     protected final OasisWorld gameWorldIn;
@@ -83,23 +80,18 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
     @Override
     public void update(float v) {
         super.update(v);
-        this.speakable = getDistanceFromPlayer() <= speakableDistance;
-        setInView(this.inView);
+        speakable = getDistanceFromPlayer() <= speakableDistance;
+        entity.getComponent(EntityDialogComponent.class).isInView = inView;
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        // draw generic texture
         if (currentRegionState != null) {
             batch.draw(currentRegionState, getX(), getY(), getWidth() * getWorldScale(), getHeight() * getWorldScale());
         } else if (currentTextureState != null) {
             batch.draw(currentTextureState, getX(), getY(), getWidth() * getWorldScale(), getHeight() * getWorldScale());
         }
         super.render(batch, delta);
-    }
-
-    public void setInView(boolean inView) {
-        entity.getComponent(EntityDialogComponent.class).isInView = inView;
     }
 
     @Override
@@ -110,11 +102,6 @@ public abstract class EntityInteractable extends EntitySpeakable implements Reso
     @Override
     public EntityInteractable asInteractable() {
         return this;
-    }
-
-    @Override
-    public boolean isInView(Camera camera) {
-        return inView = super.isInView(camera);
     }
 
     @Override

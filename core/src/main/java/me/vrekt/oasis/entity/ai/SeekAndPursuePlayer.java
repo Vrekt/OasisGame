@@ -10,7 +10,7 @@ import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
 import me.vrekt.oasis.entity.ai.utilities.PlayerAsSteerable;
 import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.npc.EntityEnemy;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**

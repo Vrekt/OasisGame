@@ -1,7 +1,9 @@
-package me.vrekt.oasis.entity.npc;
+package me.vrekt.oasis.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.world.OasisWorld;
 

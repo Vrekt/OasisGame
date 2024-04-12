@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.npc;
+package me.vrekt.oasis.entity.interactable;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

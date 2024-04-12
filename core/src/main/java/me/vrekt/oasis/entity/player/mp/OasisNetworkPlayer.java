@@ -125,7 +125,6 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     public void render(SpriteBatch batch, float delta) {
         drawEquippedItem(batch);
 
-
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
         } else {

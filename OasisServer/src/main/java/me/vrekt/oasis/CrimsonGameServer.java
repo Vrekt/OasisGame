@@ -1,7 +1,7 @@
 package me.vrekt.oasis;
 
+import gdx.lunar.protocol.GdxProtocol;
 import gdx.lunar.server.game.GameServer;
-import gdx.lunar.v2.GdxProtocol;
 
 /**
  * The main oasis game server

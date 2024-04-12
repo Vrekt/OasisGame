@@ -12,7 +12,7 @@ import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.npc.EntitySpeakable;
+import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiType;

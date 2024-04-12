@@ -3,7 +3,6 @@ package me.vrekt.oasis.gui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,8 +15,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
-import me.vrekt.oasis.entity.npc.EntitySpeakable;
-import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.dialog.DialogGui;
 import me.vrekt.oasis.gui.hud.HudGui;
 import me.vrekt.oasis.gui.inventory.ContainerGui;
@@ -238,17 +236,6 @@ public final class GameGui {
 
     public ContainerGui getContainerGui() {
         return (ContainerGui) guis.get(GuiType.CONTAINER);
-    }
-
-    /**
-     * Render a players nametag
-     *
-     * @param player the player
-     * @param camera the game camera
-     * @param batch  batch to draw with
-     */
-    public void renderPlayerNametag(OasisNetworkPlayer player, Camera camera, Batch batch) {
-        player.renderNametag(small, batch, camera, getCamera());
     }
 
     /**

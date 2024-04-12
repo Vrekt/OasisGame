@@ -1,11 +1,11 @@
 package me.vrekt.oasis.network.server;
 
 import com.badlogic.gdx.utils.Disposable;
+import gdx.lunar.protocol.GdxProtocol;
 import gdx.lunar.server.game.GameServer;
 import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
 import gdx.lunar.server.world.impl.WorldAdapter;
-import gdx.lunar.v2.GdxProtocol;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
@@ -40,6 +40,10 @@ public final class IntegratedServer implements Disposable {
 
     public GameServer getGameServer() {
         return gameServer;
+    }
+
+    public NettyServer getNettyServer() {
+        return server;
     }
 
     @Override

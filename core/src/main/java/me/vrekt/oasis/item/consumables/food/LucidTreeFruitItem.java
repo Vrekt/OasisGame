@@ -37,6 +37,5 @@ public final class LucidTreeFruitItem extends ItemConsumable {
         if (!allowedToConsume) return;
         decreaseItemAmount();
         applyAttributes(player);
-        player.setDidUseTutorialFruit(true);
     }
 }

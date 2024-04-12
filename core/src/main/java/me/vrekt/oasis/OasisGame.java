@@ -4,15 +4,13 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 import com.kotcrab.vis.ui.VisUI;
 import gdx.lunar.LunarClientServer;
 import gdx.lunar.network.types.PlayerConnectionHandler;
-import gdx.lunar.v2.GdxProtocol;
+import gdx.lunar.protocol.GdxProtocol;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
+import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.rewrite.GuiManager;
 import me.vrekt.oasis.item.ItemRegistry;
@@ -20,7 +18,6 @@ import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.Save;
 import me.vrekt.oasis.save.SaveManager;
-import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisMainMenu;
 import me.vrekt.oasis.ui.OasisSaveScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -29,7 +26,6 @@ import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 import me.vrekt.shared.network.ProtocolDefaults;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,14 +34,13 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20230915-1117-1403";
+    public static final String GAME_VERSION = "20240412-0655-1423";
 
     private Asset asset;
 
     private OasisMainMenu menu;
-    private OasisLoadingScreen loadingScreen;
 
-    private OasisTiledRenderer renderer;
+    private GameTiledMapRenderer renderer;
     private OasisPlayer player;
     private SpriteBatch batch;
 
@@ -61,72 +56,56 @@ public final class OasisGame extends Game {
     private PlayerConnection handler;
     private OasisSaveScreen saveScreen;
 
-    private ExecutorService service;
+    private ExecutorService asyncLoadingService;
     private boolean isNewGame;
 
     private IntegratedServer server;
+    private boolean isIntegratedGame;
 
     @Override
     public void create() {
-        GameLogging.info(this, "Starting game, version: " + GAME_VERSION);
-        initializeTheBasics();
+        GameLogging.info(this, "Starting game, version: %s", GAME_VERSION);
+        initialize();
     }
 
     /**
-     * Initialize bare-bones so we can go ahead and show the main menu
+     * Initialize everything needed just for basic menus at this point
      */
-    private void initializeTheBasics() {
+    private void initialize() {
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
-
-        this.service = Executors.newFixedThreadPool(1);
-
-        VisUI.load();
-        SaveManager.readSaveGameProperties();
+        this.asyncLoadingService = Executors.newVirtualThreadPerTaskExecutor();
 
         asset = new Asset();
         asset.load();
-
+        VisUI.load();
+        // read game properties for loading a game
+        SaveManager.readSaveGameProperties();
         GameManager.setOasis(this);
 
-        // ideally, not here but there's not many items in the game
         ItemRegistry.registerItems();
-
         multiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(multiplexer);
-
-        loadingScreen = new OasisLoadingScreen();
-
-        // load base assets
-        player = new OasisPlayer(this, "Player" + RandomUtils.nextInt(0, 999));
-        player.load(asset);
 
         menu = new OasisMainMenu(this);
         setScreen(menu);
     }
 
     /**
-     * Load other requirements for getting into the game
+     * Load main game structure
      */
-    public void loadGameRequirements(boolean joinWorld) {
+    public void loadGameStructure() {
+        player = new OasisPlayer(this, "Player" + (System.currentTimeMillis() / 1000));
+        player.load(asset);
+
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
-        loadingScreen.stepProgress();
-
-        loadingScreen.stepProgress();
-
-        renderer = new OasisTiledRenderer(batch, player);
-        gui = new GameGui(this, asset, multiplexer);
+        renderer = new GameTiledMapRenderer(batch, player);
         guiManager = new GuiManager(this, asset, multiplexer);
-        loadingScreen.stepProgress();
-
         GameManager.initialize(this);
 
-        final TutorialOasisWorld world = new TutorialOasisWorld(this, player, new World(Vector2.Zero, true));
+        final TutorialOasisWorld world = new TutorialOasisWorld(this, player);
         worldManager.addWorld("TutorialWorld", world);
-
-        // TODO: When multiplayer is back up: joinRemoteServer(joinWorld);
-        startIntegratedServer();
     }
 
     /**
@@ -135,14 +114,14 @@ public final class OasisGame extends Game {
      * @param state the state
      */
     public void loadGameFromSave(Save state) {
-        loadGameRequirements(false);
+        loadGameStructure();
 
         player.loadFromSave(state.getPlayerProperties());
         final String worldName = state.getWorldProperties().getWorldName();
         worldManager.getWorld(worldName).loadFromSave(state.getWorldProperties());
 
         // TODO: Depending on how things go, probably just use CompleteableFuture instead
-        service.shutdown();
+        asyncLoadingService.shutdown();
         handler.joinWorld(worldName, player.getName());
     }
 
@@ -151,8 +130,8 @@ public final class OasisGame extends Game {
      */
     public void loadNewGame() {
         isNewGame = true;
-        setScreen(loadingScreen);
-        loadGameRequirements(true);
+        loadGameStructure();
+        startIntegratedServer();
     }
 
     /**
@@ -161,7 +140,6 @@ public final class OasisGame extends Game {
      * @param slot the slot
      */
     public void loadSaveGame(int slot) {
-        setScreen(loadingScreen);
         updateLoadingProgress();
         loadGameSaveAsync(slot);
     }
@@ -172,7 +150,7 @@ public final class OasisGame extends Game {
      * @param slot the slot
      */
     private void loadGameSaveAsync(int slot) {
-        service.execute(() -> {
+        asyncLoadingService.execute(() -> {
             final Save state = SaveManager.load(slot);
             if (state == null) {
                 executeMain(() -> setScreen(menu));
@@ -193,14 +171,18 @@ public final class OasisGame extends Game {
         // For now, no loading bar :(
     }
 
+    /**
+     * Start integrated server
+     */
     private void startIntegratedServer() {
+        isIntegratedGame = true;
+
         this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
         server = new IntegratedServer(this, protocol);
         server.start();
 
         clientServer = new LunarClientServer(protocol, "localhost", 6969);
         clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, player));
-        loadingScreen.stepProgress();
 
         try {
             clientServer.connect();
@@ -208,8 +190,6 @@ public final class OasisGame extends Game {
             GameLogging.exceptionThrown(GAME_VERSION, "Exception thrown during connection stage", exception);
             Gdx.app.exit();
         }
-
-        loadingScreen.stepProgress();
 
         if (clientServer.getConnection() == null) {
             throw new UnsupportedOperationException("An error occurred with the remote server.");
@@ -224,7 +204,10 @@ public final class OasisGame extends Game {
     /**
      * Join the remote server (if any)
      */
-    private void joinRemoteServer(boolean joinWorld) {
+    public void joinRemoteServer() {
+        loadGameStructure();
+        isIntegratedGame = false;
+
         this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
 
         String ip = System.getProperty("ip");
@@ -241,10 +224,9 @@ public final class OasisGame extends Game {
             }
         }
 
-        GameLogging.info(this, "Connecting to remote server {ip=" + ip + "} port={" + port + "}");
+        GameLogging.info(this, "Connecting to remote server ip=%s port=%d", ip, port);
         clientServer = new LunarClientServer(protocol, ip, port);
         clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, player));
-        loadingScreen.stepProgress();
 
         try {
             clientServer.connect();
@@ -253,8 +235,6 @@ public final class OasisGame extends Game {
             Gdx.app.exit();
         }
 
-        loadingScreen.stepProgress();
-
         if (clientServer.getConnection() == null) {
             throw new UnsupportedOperationException("An error occurred with the remote server.");
         }
@@ -262,9 +242,7 @@ public final class OasisGame extends Game {
         handler = (PlayerConnection) clientServer.getConnection();
         player.setConnectionHandler(handler);
 
-        if (joinWorld) {
-            handler.joinWorld("TutorialWorld", player.getName());
-        }
+        handler.joinWorld("TutorialWorld", player.getName());
     }
 
     /**
@@ -280,15 +258,15 @@ public final class OasisGame extends Game {
 
     @Override
     public void resize(int width, int height) {
-        super.resize(width, height);
-        if (gui != null) {
-            System.err.println("yes");
-            guiManager.resize(width, height);
-        }
+        if (guiManager != null) guiManager.resize(width, height);
     }
 
     public IntegratedServer getServer() {
         return server;
+    }
+
+    public boolean isIntegratedGame() {
+        return isIntegratedGame;
     }
 
     @Override
@@ -297,7 +275,7 @@ public final class OasisGame extends Game {
             if (screen != null) screen.hide();
             player.getConnection().dispose();
             clientServer.dispose();
-            server.dispose();
+            if (isIntegratedGame) server.dispose();
             player.dispose();
             worldManager.dispose();
             batch.dispose();
@@ -328,7 +306,7 @@ public final class OasisGame extends Game {
         return batch;
     }
 
-    public OasisTiledRenderer getRenderer() {
+    public GameTiledMapRenderer getRenderer() {
         return renderer;
     }
 
@@ -356,7 +334,7 @@ public final class OasisGame extends Game {
         return asset;
     }
 
-    public PlayerConnectionHandler getHandler() {
+    public PlayerConnectionHandler getConnectionHandler() {
         return handler;
     }
 

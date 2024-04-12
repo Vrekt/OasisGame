@@ -13,7 +13,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.dialog.EntityDialogBuilder;
-import me.vrekt.oasis.entity.npc.EntitySpeakable;
+import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.rewrite.Gui;
 import me.vrekt.oasis.gui.rewrite.GuiManager;
@@ -183,7 +183,6 @@ public final class EntityDialogGui extends Gui {
      * @param suggestion the suggestion string
      */
     private void addSuggestion(int index, String suggestion, String key) {
-        GameLogging.info(this, "Suggestion: " + suggestion + " is linked to " + key);
         final DialogOptionContainer container = dialogOptionContainers.get(index);
         container.label.setText(suggestion);
         container.listener.setKeyAndEntity(key, entity);
@@ -274,7 +273,6 @@ public final class EntityDialogGui extends Gui {
         field.addListener(new FocusListener() {
             @Override
             public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
-                GameLogging.info(this, "Focus: " + focused);
                 if (focused) {
                     hasAnyFocus = true;
                     GameManager.getPlayer().setDisableMovement(true);
@@ -315,13 +313,11 @@ public final class EntityDialogGui extends Gui {
                 final double tolerance = entry.tolerance;
                 final double sim = similarity.apply(text, suggestion);
                 if (sim >= tolerance && !suggestionsShowing.contains(suggestion)) {
-                    GameLogging.info(this, "Suggestion: " + suggestion + " is being shown with a tolerance of " + tolerance + ", sim:" + sim);
                     // string is similar show it as a suggestion.
                     suggestionsShowing.add(suggestion);
                     addSuggestion(suggestionsBeingShown, suggestion, entry.keyLink);
                     suggestionsBeingShown++;
                 } else if (sim <= tolerance && suggestionsShowing.contains(suggestion)) {
-                    GameLogging.info(this, "Removed suggestion: " + suggestion);
                     clearTextContainerSuggestion(suggestion);
                     suggestionsShowing.remove(suggestion);
                     suggestionsBeingShown--;

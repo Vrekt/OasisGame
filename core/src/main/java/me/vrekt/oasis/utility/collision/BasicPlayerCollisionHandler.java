@@ -1,7 +1,7 @@
 package me.vrekt.oasis.utility.collision;
 
 import com.badlogic.gdx.physics.box2d.*;
-import me.vrekt.oasis.entity.npc.EntityEnemy;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 

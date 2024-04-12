@@ -2,7 +2,7 @@ package me.vrekt.oasis.save.world;
 
 import com.google.gson.*;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.OasisEntity;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.world.OasisWorld;
 
@@ -53,7 +53,7 @@ public class WorldSaveProperties {
             final EntitySaveProperties save = new EntitySaveProperties();
 
             // iterate through all entities in the world and save their states
-            for (OasisEntity entity : world.getEntities().values()) {
+            for (Entity entity : world.getEntities().values()) {
                 save.reset(entity);
                 entities.add(context.serialize(save));
             }

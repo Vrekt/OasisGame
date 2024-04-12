@@ -1,7 +1,7 @@
 package me.vrekt.oasis.network.player;
 
 import gdx.lunar.network.types.PlayerConnectionHandler;
-import gdx.lunar.v2.GdxProtocol;
+import gdx.lunar.protocol.GdxProtocol;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
@@ -18,9 +18,7 @@ public class PlayerConnection extends PlayerConnectionHandler {
         super(channel, protocol);
         this.player = player;
 
-        registerPacket(ServerPacketSpawnEntity.ID, ServerPacketSpawnEntity::new, this::handleSpawnEntity);
-        registerPacket(ServerPacketPlayerEquippedItem.ID, ServerPacketPlayerEquippedItem::new, this::handlePlayerEquippedItem);
-        registerPacket(ServerPacketPlayerSwingItem.ID, ServerPacketPlayerSwingItem::new, this::handleSwingItem);
+      //  registerPacket(ServerPacketSpawnEntity.ID, ServerPacketSpawnEntity::new, this::handleSpawnEntity);
     }
 
     private void handleSpawnEntity(ServerPacketSpawnEntity packet) {

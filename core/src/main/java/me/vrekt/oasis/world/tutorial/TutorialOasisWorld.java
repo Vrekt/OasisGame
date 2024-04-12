@@ -1,12 +1,13 @@
 package me.vrekt.oasis.world.tutorial;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.npc.EntityInteractable;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
@@ -32,8 +33,8 @@ public final class TutorialOasisWorld extends OasisWorld {
     private MaviaTutorial tutorialEntity;
     private Map<Integer, ChestInventoryInteraction> tutorialChestInteractions = new HashMap<>();
 
-    public TutorialOasisWorld(OasisGame game, OasisPlayer player, World world) {
-        super(game, player, world);
+    public TutorialOasisWorld(OasisGame game, OasisPlayer player) {
+        super(game, player, new World(Vector2.Zero, true));
 
         getConfiguration().worldScale = OasisGameSettings.SCALE;
         getConfiguration().handlePhysics = true;
@@ -80,7 +81,7 @@ public final class TutorialOasisWorld extends OasisWorld {
             player.getInventory().addItem(Items.ENCHANTED_VIOLET_ITEM, 1);
             player.getInventory().addItem(Items.QUICKSTEP_ARTIFACT, 1);
             player.getInventory().addItem(Items.LUCID_FRUIT_TREE_ITEM, 1);
-            GameManager.getOasis().guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT);
+            guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, 10.0f);
 //            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
             // TODO
             // player.getInventory().addItem(EnchantedVioletItem.ID, 1);

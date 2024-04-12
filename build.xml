@@ -18,6 +18,5 @@
                        replace="public static final String GAME_VERSION = &quot;${TODAY_MY}-${build.number}&quot;;"
                        byline="true"
         />
-
     </target>
 </project>

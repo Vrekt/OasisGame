@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.graphics.tiled.OasisTiledRenderer;
+import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
 import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.rewrite.GuiManager;
@@ -133,29 +133,6 @@ public class GameManager {
         // handle individual key presses now
         handleGuiKeyPress(keycode);
         return true;
-
-        //   if (keycode == OasisKeybindings.PAUSE_GAME_KEY) {
-        //            if (gui.toggleGui(GuiType.QUEST)) return true;
-        //            if (gui.toggleGui(GuiType.INVENTORY)) return true;
-        //            if (gui.toggleGui(GuiType.CONTAINER)) return true;
-        //
-        //            if (gui.toggleGui(GuiType.SETTINGS)) {
-        //                gui.showGui(GuiType.PAUSE);
-        //                return true;
-        //            }
-        //            if (gui.toggleGui(GuiType.SAVE_GAME)) {
-        //                gui.showGui(GuiType.PAUSE);
-        //                return true;
-        //            }
-        //
-        //            // actually handle pausing/resuming the game
-        //            if (paused) {
-        //                resume();
-        //            } else {
-        //                pause();
-        //            }
-        //            return true;
-        //        }
     }
 
     public static void resetCursor() {
@@ -171,6 +148,7 @@ public class GameManager {
     public static void saveGameFinished() {
         isSaving = false;
         oasis.saveGameFinished();
+
         getPlayer().getGameWorldIn().saveGameFinished();
     }
 
@@ -186,6 +164,20 @@ public class GameManager {
 
     public static void resumeGame() {
         getPlayer().getGameWorldIn().resume();
+    }
+
+    /**
+     * Enable multiplayer lan functionality
+     */
+    public static void enableMultiplayerLan() {
+        oasis.getServer().getNettyServer().enableIncomingConnections();
+    }
+
+    /**
+     * Disable multiplayer lan functionality
+     */
+    public static void disableMultiplayerLan() {
+        oasis.getServer().getNettyServer().disableIncomingConnections();
     }
 
     /**
@@ -205,7 +197,7 @@ public class GameManager {
         return isSaving;
     }
 
-    public static OasisTiledRenderer getRenderer() {
+    public static GameTiledMapRenderer getRenderer() {
         return oasis.getRenderer();
     }
 

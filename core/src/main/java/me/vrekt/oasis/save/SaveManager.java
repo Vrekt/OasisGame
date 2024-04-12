@@ -7,10 +7,12 @@ import me.vrekt.oasis.save.inventory.InventorySaveProperties;
 import me.vrekt.oasis.save.world.WorldSaveProperties;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class SaveManager {
 
@@ -36,10 +38,10 @@ public class SaveManager {
     public static void save(int slot, String name) {
         final long now = System.currentTimeMillis();
         try {
-            File newFile = new File(name + ".json");
-            createFile(newFile, "Successfully created a new save file since one did not exist", "Overwriting existing save file.");
+            Path path = Paths.get(name + ".json");
+            if (!Files.exists(path)) Files.createFile(path);
 
-            try (FileWriter writer = new FileWriter(newFile, false)) {
+            try (FileWriter writer = new FileWriter(path.toFile(), false)) {
                 final Save save = new Save(name, GameManager.getGameProgress(), slot);
 
                 writeGameSaveProperties(slot, save);
@@ -49,17 +51,17 @@ public class SaveManager {
         } catch (IOException exception) {
             GameLogging.exceptionThrown("SaveManager", "GameSaving", exception);
         }
-        GameLogging.info("SaveManager", "Game saving complete! Took: " + (System.currentTimeMillis() - now) + " ms.");
+        GameLogging.info("SaveManager", "Game saving complete in %d ms", (System.currentTimeMillis() - now));
     }
 
     /**
      * Read save game properties
      */
     public static void readSaveGameProperties() {
-        File file = new File("save_properties.json");
-        if (file.exists()) {
+        Path path = Paths.get("save_properties.json");
+        if (Files.exists(path)) {
             try {
-                try (FileReader reader = new FileReader(file)) {
+                try (FileReader reader = new FileReader(path.toFile())) {
                     properties = LOAD_GAME_GSON.fromJson(reader, GameSaveProperties.class);
                 }
             } catch (IOException exception) {
@@ -81,12 +83,12 @@ public class SaveManager {
      * @param save the save
      */
     private static void writeGameSaveProperties(int slot, GameSave save) {
-        File saveTimeFile = new File("save_properties.json");
         try {
-            createFile(saveTimeFile, "Successfully created game save properties file", "Overwriting game save properties file.");
+            Path path = Paths.get("save_properties.json");
+            if (!Files.exists(path)) Files.createFile(path);
             if (properties == null) properties = new GameSaveProperties();
 
-            try (FileWriter writer = new FileWriter(saveTimeFile, false)) {
+            try (FileWriter writer = new FileWriter(path.toFile(), false)) {
                 properties.setSlotProperty(slot, save);
                 SAVE_GAME_GSON.toJson(properties, writer);
             }
@@ -104,33 +106,21 @@ public class SaveManager {
      */
     public static Save load(int slot) {
         readSaveGameProperties();
-        final File file = new File(properties.getSlotName(slot) + ".json");
-
-        if (file.exists()) {
+        Path path = Paths.get(properties.getSlotName(slot) + ".json");
+        if (Files.exists(path)) {
             final long now = System.currentTimeMillis();
             try {
-                try (FileReader reader = new FileReader(file)) {
+                try (FileReader reader = new FileReader(path.toFile())) {
                     Save save = LOAD_GAME_GSON.fromJson(reader, Save.class);
-                    GameLogging.info("SaveManager", "Finished loading game save... took: " + (System.currentTimeMillis() - now) + " ms.");
+                    GameLogging.info("SaveManager", "Finished loading game save took: %d ms", (System.currentTimeMillis() - now));
                     return save;
                 }
             } catch (Exception any) {
                 GameLogging.exceptionThrown("SaveManager", "LoadSave", any);
                 return null;
             }
-        } else {
-            GameLogging.info("SaveManager", "No save game found, assume default state.");
-            return null;
         }
-    }
-
-    private static void createFile(File file, String successMsg, String overwriteMsg) throws IOException {
-        boolean success = file.createNewFile();
-        if (success) {
-            GameLogging.info("SaveManager", successMsg);
-        } else {
-            GameLogging.info("SaveManager", overwriteMsg);
-        }
+        return null;
     }
 
 }
