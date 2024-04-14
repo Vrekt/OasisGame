@@ -2,13 +2,10 @@ package me.vrekt.oasis.save.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-
-import java.lang.reflect.Type;
 
 /**
  * Represents an entities state
@@ -43,29 +40,11 @@ public class EntitySaveProperties {
         this.health = entity.getHealth();
         this.interactable = entity.isInteractable();
 
-        if (entity instanceof EntityInteractable) {
-            final EntityInteractable entityInteractable = (EntityInteractable) entity;
+        if (entity instanceof EntityInteractable entityInteractable) {
             this.type = entityInteractable.getType();
             this.isEnemy = entityInteractable.isEnemy();
         }
 
-    }
-
-    /**
-     * TODO?
-     */
-    public static final class EntitySaver implements JsonSerializer<EntitySaveProperties> {
-        @Override
-        public JsonElement serialize(EntitySaveProperties src, Type typeOfSrc, JsonSerializationContext context) {
-            return null;
-        }
-    }
-
-    public static final class EntityLoader implements JsonDeserializer<EntitySaveProperties> {
-        @Override
-        public EntitySaveProperties deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            return null;
-        }
     }
 
     public String getName() {

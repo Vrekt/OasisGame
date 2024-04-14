@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisTextField;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 
 public class Styles {
@@ -19,11 +18,11 @@ public class Styles {
     private final Label.LabelStyle smallWhite, mediumWhite, largeWhite,
             smallBlack, mediumBlack, largeBlack, smallerWhite;
 
-    public Styles(Asset asset) {
+    public Styles(GuiManager manager, Asset asset) {
         final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
         theme = new NinePatchDrawable(themePatch);
         tooltipStyle = new Tooltip.TooltipStyle(theme);
-        fieldStyle = new VisTextField.VisTextFieldStyle(asset.getMedium(), Color.WHITE, new TextureRegionDrawable(GameManager.getCursor()), theme, theme);
+        fieldStyle = new VisTextField.VisTextFieldStyle(asset.getMedium(), Color.WHITE, new TextureRegionDrawable(manager.getDefaultCursorTexture()), theme, theme);
 
         smallWhite = new Label.LabelStyle(asset.getSmall(), Color.WHITE);
         mediumWhite = new Label.LabelStyle(asset.getMedium(), Color.WHITE);

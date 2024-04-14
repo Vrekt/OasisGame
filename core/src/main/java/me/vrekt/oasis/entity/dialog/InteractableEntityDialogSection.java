@@ -30,7 +30,10 @@ public final class InteractableEntityDialogSection {
         return nextKey;
     }
 
-    public boolean hasOptions() {
+    /**
+     * @return {@code true} if this dialog stage needs a user input before continuing.
+     */
+    public boolean needsUserInput() {
         return hasOptions;
     }
 

@@ -1,9 +1,8 @@
 package me.vrekt.oasis.world.obj.interaction.chest;
 
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.container.containers.ChestInventory;
-import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
@@ -39,7 +38,7 @@ public final class ChestInventoryInteraction extends InteractableWorldObject {
     public void update() {
         // hide the GUI if the player moves too far
         if (isShowing && world.getLocalPlayer().getPosition().dst2(interactionLocation) >= 0.05f) {
-            GameManager.getGui().hideGui(GuiType.CONTAINER);
+           // GameManager.getGui().hideGui(GuiType.CONTAINER);
             isShowing = false;
             this.interactedWith = false;
         }
@@ -49,16 +48,16 @@ public final class ChestInventoryInteraction extends InteractableWorldObject {
     public void interact() {
         this.interactedWith = true;
         if (!isShowing) {
-            GameManager.getGui().populateContainerGui(inventory);
-            GameManager.resetCursor();
-            GameManager.getGui().showGui(GuiType.CONTAINER);
+           // GameManager.getGui().populateContainerGui(inventory);
+           // TODO GameManager.resetCursor();
+          //  GameManager.getGui().showGui(GuiType.CONTAINER);
             interactionLocation.set(world.getLocalPlayer().getPosition());
             isShowing = true;
         }
     }
 
     @Override
-    public String getCursor() {
-        return "ui/chest_cursor.png";
+    public Cursor getCursor() {
+        return Cursor.DEFAULT;
     }
 }

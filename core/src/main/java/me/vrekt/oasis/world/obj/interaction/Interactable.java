@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.obj.interaction;
 
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 
 /**
@@ -78,6 +79,6 @@ public interface Interactable {
      */
     void update();
 
-    String getCursor();
+    Cursor getCursor();
 
 }

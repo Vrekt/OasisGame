@@ -8,7 +8,6 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.tutorial.dialog.MaviaTutorialDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
@@ -40,7 +39,7 @@ public final class MaviaTutorial extends EntityInteractable {
         addDialogAction("mavia_dialog_end_3", this::updateEndStage3);
         addDialogAction("mavia_dialog_end_4", this::updateEndStage4);
         // player should select their class
-        addDialogAction("mavia_dialog_select_class", () -> game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS));
+      //  addDialogAction("mavia_dialog_select_class", () -> game.getGui().hideThenShowGui(GuiType.DIALOG, GuiType.CLASS));
     }
 
     @Override
@@ -59,8 +58,8 @@ public final class MaviaTutorial extends EntityInteractable {
             this.tutorialUnlocked = true;
             // unlock the next 2 objectives
             player.getQuestManager().updateQuestObjectiveAndUnlockNext(TutorialIslandQuest.class, 2);
-            game.getGui().hideGui(GuiType.DIALOG);
-            game.getGui().showHud();
+        //    game.getGui().hideGui(GuiType.DIALOG);
+        //    game.getGui().showHud();
 
             // unlock tutorial chests within the tutorial world.
             if (player.isInTutorialWorld()) {

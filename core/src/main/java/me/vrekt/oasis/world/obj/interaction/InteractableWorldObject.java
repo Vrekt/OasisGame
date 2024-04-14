@@ -3,6 +3,7 @@ package me.vrekt.oasis.world.obj.interaction;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.entity.parts.ResourceLoader;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.obj.WorldObject;
 
@@ -104,8 +105,8 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
     }
 
     @Override
-    public String getCursor() {
-        return null;
+    public Cursor getCursor() {
+        return Cursor.DEFAULT;
     }
 
     @Override

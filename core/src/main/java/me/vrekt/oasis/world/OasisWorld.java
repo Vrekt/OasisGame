@@ -32,15 +32,16 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
-import me.vrekt.oasis.gui.GameGui;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.rewrite.GuiManager;
+import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
@@ -85,7 +86,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     // pause state
     protected boolean paused, showPausedScreen;
 
-    protected GameGui gui;
     protected GuiManager guiManager;
 
     protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
@@ -110,7 +110,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         this.game = game;
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
-        this.gui = game.getGui();
         this.guiManager = game.guiManager;
 
         configuration.stepTime = 1 / 240f;
@@ -186,6 +185,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         player.setSize(15, 25, OasisGameSettings.SCALE);
 
         player.spawnInWorld(this);
+        player.setGameWorldIn(this);
         player.setPosition(position, true);
     }
 
@@ -240,14 +240,14 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             // game.setScreen(this);
         }
 
-        GameManager.resetCursor();
+        guiManager.resetCursor();
     }
 
     /**
      * Fade in when entering an instance
      */
     public void enterInstanceAndFadeIn(Instance entering) {
-        GameManager.resetCursor();
+        guiManager.resetCursor();
         GameManager.transitionScreen(this, entering, () -> entering.enter(false));
     }
 
@@ -339,21 +339,23 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     public void skipCurrentDialog() {
         if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
-            // advance current dialog stage
-            if (player.getEntitySpeakingTo().getDialog().hasOptions()) {
+            final EntitySpeakable speakable = player.getEntitySpeakingTo();
+
+            if (speakable.getDialog().needsUserInput()) {
                 // return since we can't skip without selecting an option
                 return;
             }
 
+            // check if the dialog is finished for this entity
+            // if so then close it.
             final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
             if (!result) {
-                // hide
-                gui.hideGui(GuiType.DIALOG);
+                guiManager.hideGui(GuiType.DIALOG);
                 return;
             }
 
-            gui.updateDialogKeyPress();
-            gui.showEntityDialog(player.getEntitySpeakingTo());
+            // TODO: GUI update 'F' key press
+            guiManager.getDialogComponent().showEntityDialog(player.getEntitySpeakingTo());
         }
     }
 
@@ -566,7 +568,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             final String interiorType = object.getProperties().get("instance_type", null, String.class);
             final InstanceType type = interiorType == null ? InstanceType.DEFAULT : InstanceType.valueOf(interiorType.toUpperCase());
             if (interiorName != null && enterable) {
-                final String instanceCursor = object.getProperties().get("cursor", String.class);
+                final Cursor instanceCursor = Cursor.valueOf(object.getProperties().get("cursor", "default", String.class).toUpperCase());
                 this.instances.put(type, type.createInstance(game, player, this, interiorName, instanceCursor, bounds));
                 GameLogging.info(this, "Loaded interior: %s", type);
             }
@@ -590,7 +592,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(int width, int height) {;
         renderer.resize(width, height);
     }
 
@@ -627,13 +629,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused) {
-
             // render, no update
-            renderer.getViewport().apply();
             renderWorld(game.getBatch(), delta);
         } else {
             if (showPausedScreen) showPausedScreen = false;
-            renderer.getViewport().apply();
             // no pause state, render+update normally
             updateAndRender(delta);
         }
@@ -668,7 +667,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
             if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
-                if (!GameManager.hasCursorChanged()) GameManager.setCursorInGame(GameManager.DIALOG_CURSOR);
+                if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(Cursor.DIALOG);
                 hasEntity = true;
                 break;
             }
@@ -677,7 +676,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         boolean hasInterior = false;
         for (Instance interior : instances.values()) {
             if (interior.isMouseWithinBounds(cursorInWorld)) {
-                if (!GameManager.hasCursorChanged()) GameManager.setCursorInGame(interior.getCursor());
+                if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(interior.getCursor());
                 hasInterior = true;
                 break;
             }
@@ -690,7 +689,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 if (worldObject.clickedOn(cursorInWorld)
                         && worldObject.getCursor() != null
                         && worldObject.isInteractable()) {
-                    GameManager.setCursorInGame(worldObject.getCursor());
+                    guiManager.setCursorInGame(worldObject.getCursor());
                     hasObj = true;
                     break;
                 }
@@ -699,10 +698,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         // only reset cursor to default state if not currently active
         // and no interactions are being made
-        if (!GameManager.isCursorActive()
+        if (!guiManager.isDefaultCursorState()
                 && !(hasEntity || hasObj || hasInterior)
-                && GameManager.hasCursorChanged()) {
-            GameManager.resetCursor();
+                && guiManager.wasCursorChanged()) {
+            guiManager.resetCursor();
         }
 
     }
@@ -920,7 +919,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             if (worldObject.hasRequiredItem()) {
                 worldObject.interact();
             } else {
-                gui.getHud().showMissingItemWarning(worldObject.getRequiredItemTexture());
+                // TODO: Maybe in the future show missing item?
             }
             return true;
         }

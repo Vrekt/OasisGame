@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
@@ -22,16 +23,17 @@ public class Instance extends OasisWorldInstance {
     protected final Rectangle bounds;
     protected boolean enterable = true;
     protected float distance = 2.5f;
-    protected final String cursor, instanceName;
+    protected final Cursor cursor;
+    protected final String instanceName;
 
-    public Instance(OasisGame game, OasisPlayer player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+    public Instance(OasisGame game, OasisPlayer player, OasisWorld world, String name, Cursor cursor, Rectangle bounds) {
         super(game, player, new World(Vector2.Y, false), world, name);
         this.instanceName = name;
         this.cursor = cursor;
         this.bounds = bounds;
     }
 
-    public String getCursor() {
+    public Cursor getCursor() {
         return cursor;
     }
 
@@ -84,12 +86,11 @@ public class Instance extends OasisWorldInstance {
 
         if (!guiManager.isAnyGuiVisible()
                 && exit.contains(cursorInWorld.x, cursorInWorld.y)
-                && !GameManager.hasCursorChanged()) {
-            GameManager.setCursorInGame(getCursor());
-            GameManager.setIsCursorActive(true);
+                && !guiManager.wasCursorChanged()) {
+            guiManager.setCursorInGame(getCursor());
         } else if (!exit.contains(cursorInWorld.x, cursorInWorld.y)
-                && GameManager.hasCursorChanged()) {
-            GameManager.resetCursor();
+                && guiManager.wasCursorChanged()) {
+            guiManager.resetCursor();
         }
 
         // update tick here to avoid UI problems
@@ -103,7 +104,7 @@ public class Instance extends OasisWorldInstance {
      */
     protected void handleExitIfClicked() {
         // check if player is close enough to exit
-        if (GameManager.isCursorActive() // indicates mouse is over exit
+        if (!guiManager.isDefaultCursorState() // indicates mouse is over exit
                 && player.getPosition().dst(exit.x, exit.y) <= 2.5f) {
             this.exit();
 

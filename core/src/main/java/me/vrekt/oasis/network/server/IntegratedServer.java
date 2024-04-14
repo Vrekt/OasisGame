@@ -10,7 +10,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
- * Integrated single player server
+ * Integrated single player server (that can be multiplayer enabled)
  */
 public final class IntegratedServer implements Disposable {
 

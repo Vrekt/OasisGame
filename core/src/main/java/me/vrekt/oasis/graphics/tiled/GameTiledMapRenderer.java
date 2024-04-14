@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Handles rendering of worlds, interiors and anything else that requires TiledMaps.
@@ -46,7 +47,8 @@ public final class GameTiledMapRenderer implements Disposable {
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
 
-        viewport = new ScreenViewport();
+        viewport = new ScreenViewport(camera);
+        viewport.setUnitsPerPixel(1 / 32f);
     }
 
     public Array<TiledMapTileLayer> getLayers() {
@@ -131,20 +133,16 @@ public final class GameTiledMapRenderer implements Disposable {
         return camera;
     }
 
-    public ScreenViewport getViewport() {
-        return viewport;
-    }
-
     /**
      * Clamps camera position so it doesn't scroll out of bounds
      */
     private void update() {
+        viewport.apply();
+
         final float x = Interpolation.smooth.apply(camera.position.x, thePlayer.getInterpolatedPosition().x, 1f);
         final float y = Interpolation.smooth.apply(camera.position.y, thePlayer.getInterpolatedPosition().y, 1f);
-
         camera.position.x = MathUtils.clamp(x, camera.viewportWidth / 2f, width - (camera.viewportWidth / 2f));
         camera.position.y = MathUtils.clamp(y, camera.viewportHeight / 2f, height - (camera.viewportHeight / 2f));
-
         camera.update();
     }
 
@@ -194,8 +192,10 @@ public final class GameTiledMapRenderer implements Disposable {
      * @param height the height
      */
     public void resize(int width, int height) {
+        GameLogging.info("Renderer", "Resized %d %d", width, height);
         viewport.update(width, height, false);
-        camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
+        // TODO: May be required in the future
+        // camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
     }
 
     @Override

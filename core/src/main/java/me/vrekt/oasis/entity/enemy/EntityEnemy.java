@@ -131,7 +131,7 @@ public abstract class EntityEnemy extends EntityDamageable {
     public void drawDamageIndicator(SpriteBatch batch) {
         if (animator.hasDamage()) {
             worldPosition.set(game.getRenderer().getCamera().project(worldPosition.set(getPosition().x + 1.0f, getPosition().y + 2.5f, 0.0f)));
-            screenPosition.set(game.getGui().getCamera().project(worldPosition));
+            screenPosition.set(game.getGuiManager().getStage().getCamera().project(worldPosition));
             animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
         }
     }

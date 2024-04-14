@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.tutorial;
 
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -42,7 +43,7 @@ public final class TutorialTreeInteraction extends InteractableWorldObject {
     }
 
     @Override
-    public String getCursor() {
-        return "ui/tree_cursor2.png";
+    public Cursor getCursor() {
+        return Cursor.DEFAULT;
     }
 }

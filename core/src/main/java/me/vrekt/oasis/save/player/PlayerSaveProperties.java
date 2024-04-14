@@ -20,7 +20,7 @@ public class PlayerSaveProperties implements HasPosition {
 
     public PlayerSaveProperties(OasisPlayer player) {
         position = player.getPosition();
-        inventory = new InventorySaveProperties((AbstractInventory) player.getInventory());
+        inventory = new InventorySaveProperties(player.getInventory());
     }
 
     @Override

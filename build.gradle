@@ -2,30 +2,29 @@ buildscript {
 	repositories {
 		mavenCentral()
 		maven { url 'https://s01.oss.sonatype.org' }
+		gradlePluginPortal()
 		mavenLocal()
 		google()
-		gradlePluginPortal()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
 	}
 	dependencies {
 
-		// This follows advice from https://blog.gradle.org/log4j-vulnerability
-		constraints {
-			classpath("org.apache.logging.log4j:log4j-core") {
-				version {
-					strictly("[2.17, 3[")
-					prefer("2.17.0")
-				}
-				because("CVE-2021-44228, CVE-2021-45046, CVE-2021-45105: Log4j vulnerable to remote code execution and other critical security vulnerabilities")
-			}
-		}
+
 	}
 }
 
 allprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
+
+	// This allows you to "Build and run using IntelliJ IDEA", an option in IDEA's Settings.
+	idea {
+		module {
+			outputDir file('build/classes/java/main')
+			testOutputDir file('build/classes/java/test')
+		}
+	}
 }
 
 configure(subprojects) {
@@ -34,29 +33,33 @@ configure(subprojects) {
 	compileJava {
 		options.incremental = true
 	}
-	dependencies {
-		// This follows advice from https://blog.gradle.org/log4j-vulnerability
-		constraints {
-			implementation("org.apache.logging.log4j:log4j-core") {
-				version {
-					strictly("[2.17, 3[")
-					prefer("2.17.0")
-				}
-				because("CVE-2021-44228, CVE-2021-45046, CVE-2021-45105: Log4j vulnerable to remote code execution and other critical security vulnerabilities")
-			}
+	// From https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
+	// The article can be helpful when using assets.txt in your project.
+	compileJava.doLast {
+		// projectFolder/assets
+		def assetsFolder = new File("${project.rootDir}/assets/")
+		// projectFolder/assets/assets.txt
+		def assetsFile = new File(assetsFolder, "assets.txt")
+		// delete that file in case we've already created it
+		assetsFile.delete()
+
+		// iterate through all files inside that folder
+		// convert it to a relative path
+		// and append it to the file assets.txt
+		fileTree(assetsFolder).collect { assetsFolder.relativePath(it) }.each {
+			assetsFile.append(it + "\n")
 		}
 	}
-
 }
 
 subprojects {
-	version = '0.0.1'
+	version = '1.0.0'
 	ext.appName = 'OasisNew'
 	repositories {
 		mavenCentral()
 		maven { url 'https://s01.oss.sonatype.org' }
+		// You may want to remove the following line if you have errors downloading dependencies.
 		mavenLocal()
-		gradlePluginPortal()
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://jitpack.io' }

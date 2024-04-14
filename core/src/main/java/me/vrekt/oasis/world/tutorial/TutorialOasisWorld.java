@@ -120,7 +120,7 @@ public final class TutorialOasisWorld extends OasisWorld {
                 instance.addInteractableEntity(tutorialEntity);
             }
 
-            GameManager.resetCursor();
+            guiManager.resetCursor();
             return true;
         }
 

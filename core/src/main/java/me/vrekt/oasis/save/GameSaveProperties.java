@@ -39,27 +39,21 @@ public class GameSaveProperties {
     }
 
     public String getSlotName(int slot) {
-        switch (slot) {
-            case 1:
-                return slot1.getName();
-            case 2:
-                return slot2.getName();
-            case 3:
-                return slot3.getName();
-        }
-        return StringUtils.EMPTY;
+        return switch (slot) {
+            case 1 -> slot1.getName();
+            case 2 -> slot2.getName();
+            case 3 -> slot3.getName();
+            default -> StringUtils.EMPTY;
+        };
     }
 
     public GameSaveSlotProperty getSaveSlotProperty(int slot) {
-        switch (slot) {
-            case 1:
-                return slot1;
-            case 2:
-                return slot2;
-            case 3:
-                return slot3;
-        }
-        return null;
+        return switch (slot) {
+            case 1 -> slot1;
+            case 2 -> slot2;
+            case 3 -> slot3;
+            default -> null;
+        };
     }
 
 }

@@ -10,8 +10,6 @@
     </tstamp>
 
     <target name="init">
-        <echo file="build.out.txt">Automatic build increment ${src} ${line.separator}</echo>
-
         <buildnumber/>
         <replaceregexp file="${src}/main/java/me/vrekt/oasis/OasisGame.java"
                        match="public\s+static\s+final\s+String\s+GAME_VERSION\s+=\s+&quot;.*&quot;;"

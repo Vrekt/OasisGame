@@ -11,8 +11,7 @@ import gdx.lunar.protocol.GdxProtocol;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
-import me.vrekt.oasis.gui.GameGui;
-import me.vrekt.oasis.gui.rewrite.GuiManager;
+import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
@@ -34,7 +33,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240412-0655-1423";
+    public static final String GAME_VERSION = "20240414-0332-1482";
 
     private Asset asset;
 
@@ -47,7 +46,6 @@ public final class OasisGame extends Game {
     private WorldManager worldManager;
 
     private InputMultiplexer multiplexer;
-    private GameGui gui;
     public GuiManager guiManager;
 
     private GdxProtocol protocol;
@@ -74,6 +72,7 @@ public final class OasisGame extends Game {
     private void initialize() {
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
         this.asyncLoadingService = Executors.newVirtualThreadPerTaskExecutor();
+
 
         asset = new Asset();
         asset.load();
@@ -258,7 +257,13 @@ public final class OasisGame extends Game {
 
     @Override
     public void resize(int width, int height) {
-        if (guiManager != null) guiManager.resize(width, height);
+        if (guiManager != null) {
+            guiManager.resize(width, height);
+        }
+        // TODO: Fix this shit
+        if(player != null && player.getGameWorldIn() != null) {
+            player.getGameWorldIn().resize(width, height);
+        }
     }
 
     public IntegratedServer getServer() {
@@ -316,10 +321,6 @@ public final class OasisGame extends Game {
 
     public WorldManager getWorldManager() {
         return worldManager;
-    }
-
-    public GameGui getGui() {
-        return gui;
     }
 
     public GuiManager getGuiManager() {

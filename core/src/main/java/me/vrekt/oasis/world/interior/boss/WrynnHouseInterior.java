@@ -3,6 +3,7 @@ package me.vrekt.oasis.world.interior.boss;
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 
@@ -11,7 +12,7 @@ import me.vrekt.oasis.world.interior.Instance;
  */
 public final class WrynnHouseInterior extends Instance {
 
-    public WrynnHouseInterior(OasisGame game, OasisPlayer player, OasisWorld world, String name, String cursor, Rectangle bounds) {
+    public WrynnHouseInterior(OasisGame game, OasisPlayer player, OasisWorld world, String name, Cursor cursor, Rectangle bounds) {
         super(game, player, world, name, cursor, bounds);
         this.enterable = true;
     }

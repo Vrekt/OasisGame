@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.mp.AbstractLunarEntityNetworkPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
@@ -43,4 +44,8 @@ public abstract class OasisNetworkEntityPlayer extends AbstractLunarEntityNetwor
         batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
     }
 
+    @Override
+    public void spawnInWorld(LunarWorld world, Vector2 position) {
+        super.spawnInWorld(world, position);
+    }
 }

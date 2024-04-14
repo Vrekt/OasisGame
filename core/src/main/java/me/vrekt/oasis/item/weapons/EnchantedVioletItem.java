@@ -38,7 +38,7 @@ public final class EnchantedVioletItem extends ItemWeapon {
         //this.swipe = new Sprite(asset.get("swipetest", 2));
 
         this.swingEffect = new ParticleEffect();
-        this.swingEffect.load(Gdx.files.internal("world/asset/swordparticle"), asset.getAtlasAssets());
+        this.swingEffect.load(Gdx.files.internal("world/asset/particles/swordparticle"), asset.getAtlasAssets());
         this.swingEffect.start();
 
         this.bounds = new Rectangle();

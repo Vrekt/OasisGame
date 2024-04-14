@@ -17,6 +17,7 @@ import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.world.OasisWorld;
 
 /**
  * Represents any player over the network
@@ -35,6 +36,8 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
 
     private EntityRotation lastRotation = EntityRotation.UP;
     private EntityRotation entityRotation = EntityRotation.UP;
+
+    private OasisWorld gameWorldIn;
 
     public OasisNetworkPlayer(boolean initializeComponents) {
         super(initializeComponents);
@@ -71,11 +74,15 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         // ((ItemWeapon) equippedItem).swingItem();
     }
 
+    public void setGameWorldIn(OasisWorld gameWorldIn) {
+        this.gameWorldIn = gameWorldIn;
+    }
+
     @Override
     public void setName(String name) {
         super.setName(name);
 
-        final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGui().getSmall(), getName());
+        final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGuiManager().getSmallFont(), getName());
         this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
         fontLayout.reset();
     }

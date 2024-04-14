@@ -1,16 +1,12 @@
 package me.vrekt.oasis;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
-import me.vrekt.oasis.gui.GameGui;
+import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.rewrite.GuiManager;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -76,31 +72,6 @@ public class GameManager {
         });
     }
 
-    public static boolean isCursorActive() {
-        return isCursorActive;
-    }
-
-    public static boolean hasCursorChanged() {
-        return hasCursorChanged;
-    }
-
-    public static void setIsCursorActive(boolean isCursorActive) {
-        GameManager.isCursorActive = isCursorActive;
-    }
-
-    public static void setCursorInGame(String cursorInWorld) {
-        Pixmap pm = new Pixmap(Gdx.files.internal(cursorInWorld));
-
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
-        pm.dispose();
-
-        hasCursorChanged = true;
-    }
-
-    public static Texture getCursor() {
-        return new Texture(new Pixmap(Gdx.files.internal("ui/cursor.png")));
-    }
-
     public static boolean handleGuiKeyPress(int key) {
         if (KEY_ACTIONS.containsKey(key)) {
             KEY_ACTIONS.get(key).run();
@@ -133,13 +104,6 @@ public class GameManager {
         // handle individual key presses now
         handleGuiKeyPress(keycode);
         return true;
-    }
-
-    public static void resetCursor() {
-        setCursorInGame("ui/cursor.png");
-
-        isCursorActive = false;
-        hasCursorChanged = false;
     }
 
     /**
@@ -199,10 +163,6 @@ public class GameManager {
 
     public static GameTiledMapRenderer getRenderer() {
         return oasis.getRenderer();
-    }
-
-    public static GameGui getGui() {
-        return oasis.getGui();
     }
 
     public static GuiManager getGuiManager() {
