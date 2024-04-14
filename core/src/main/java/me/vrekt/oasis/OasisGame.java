@@ -33,7 +33,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240414-0332-1482";
+    public static final String GAME_VERSION = "20240414-0349-1485";
 
     private Asset asset;
 
@@ -78,6 +78,7 @@ public final class OasisGame extends Game {
         asset.load();
         VisUI.load();
         // read game properties for loading a game
+        SaveManager.init();
         SaveManager.readSaveGameProperties();
         GameManager.setOasis(this);
 
@@ -261,7 +262,7 @@ public final class OasisGame extends Game {
             guiManager.resize(width, height);
         }
         // TODO: Fix this shit
-        if(player != null && player.getGameWorldIn() != null) {
+        if (player != null && player.getGameWorldIn() != null) {
             player.getGameWorldIn().resize(width, height);
         }
     }

@@ -29,6 +29,14 @@ public class SaveManager {
 
     private static GameSaveProperties properties;
 
+    public static void init() {
+        try {
+            Files.createDirectories(Paths.get("saves"));
+        } catch (IOException exception) {
+            GameLogging.info("SaveManager", "Failed to create new directory for saves", exception);
+        }
+    }
+
     /**
      * Save the game
      *
@@ -38,7 +46,7 @@ public class SaveManager {
     public static void save(int slot, String name) {
         final long now = System.currentTimeMillis();
         try {
-            Path path = Paths.get(name + ".json");
+            Path path = Paths.get("saves/" + name + ".json");
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
@@ -58,7 +66,7 @@ public class SaveManager {
      * Read save game properties
      */
     public static void readSaveGameProperties() {
-        Path path = Paths.get("save_properties.json");
+        Path path = Paths.get("saves/save_properties.json");
         if (Files.exists(path)) {
             try {
                 try (FileReader reader = new FileReader(path.toFile())) {
@@ -70,6 +78,7 @@ public class SaveManager {
         } else {
             properties = new GameSaveProperties();
         }
+
     }
 
     public static GameSaveProperties getProperties() {
@@ -84,7 +93,7 @@ public class SaveManager {
      */
     private static void writeGameSaveProperties(int slot, GameSave save) {
         try {
-            Path path = Paths.get("save_properties.json");
+            Path path = Paths.get("saves/save_properties.json");
             if (!Files.exists(path)) Files.createFile(path);
             if (properties == null) properties = new GameSaveProperties();
 
@@ -106,7 +115,7 @@ public class SaveManager {
      */
     public static Save load(int slot) {
         readSaveGameProperties();
-        Path path = Paths.get(properties.getSlotName(slot) + ".json");
+        Path path = Paths.get("/saves/" + properties.getSlotName(slot) + ".json");
         if (Files.exists(path)) {
             final long now = System.currentTimeMillis();
             try {

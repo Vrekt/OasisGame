@@ -62,7 +62,7 @@ public abstract class InventoryGui extends Gui {
             // create a separate container for the item image... so it doesn't get stretched.
             final Stack overlay = new Stack(slot, itemTable);
             // hotbar components
-            if (i <= 6) {
+            if (i < 6) {
                 final VisTable slotNumber = new VisTable(true);
                 final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i), style);
                 slotNumber.top().left();
