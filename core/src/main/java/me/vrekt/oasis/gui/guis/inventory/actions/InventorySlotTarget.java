@@ -11,19 +11,20 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
     private final PlayerInventoryGui gui;
     private final InventoryGuiSlot slot;
     private final Inventory inventory;
-    private final DragAndDrop action;
     private final Vector2 projection = new Vector2();
 
-    public InventorySlotTarget(PlayerInventoryGui gui, InventoryGuiSlot slot, Inventory inventory, DragAndDrop action) {
+    public InventorySlotTarget(PlayerInventoryGui gui, InventoryGuiSlot slot, Inventory inventory) {
         super(slot.getSlotIcon());
+
         this.gui = gui;
         this.slot = slot;
         this.inventory = inventory;
-        this.action = action;
     }
 
     @Override
     public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        if (payload == null) return false;
+
         projection.set(x, y);
         projection.set(slot.getSlotIcon().localToStageCoordinates(projection));
         gui.updateDragPosition(projection.x, projection.y);
@@ -32,6 +33,8 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
 
     @Override
     public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+        if (payload == null) return;
+
         final InventoryGuiSlot slotDragging = (InventoryGuiSlot) payload.getObject();
         // set slot actor into new position
         gui.setStoppedDragging();

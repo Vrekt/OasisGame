@@ -7,38 +7,27 @@ import com.badlogic.gdx.Gdx;
  */
 public interface GameLogging {
 
-    final StringBuilder loggingBuilder = new StringBuilder();
+    StringBuilder STRING_BUILDER = new StringBuilder();
 
-    /**
-     * Info
-     */
     String INFO = "INFO: ";
-
-    /**
-     * Warning
-     */
     String WARN = "WARN: ";
-
-    /**
-     * Error
-     */
     String ERROR = "ERROR: ";
 
     /**
      * Log info
      *
-     * @param tag  the tag
-     * @param info the info
+     * @param tag     the tag
+     * @param message the info
      */
-    static void info(Object tag, String info, Object... information) {
-        loggingBuilder.append(INFO);
-        loggingBuilder.append(information.length > 0 ? info.formatted(information) : info);
-        Gdx.app.log(tag instanceof String ? tag.toString() : tag.getClass().getSimpleName(), loggingBuilder.toString());
-        loggingBuilder.setLength(0);
+    static void info(Object tag, String message, Object... information) {
+        append(INFO, tag, message, information);
     }
 
-    static void d(String info) {
-        Gdx.app.log("DEBUG", INFO + info);
+    static void append(String prefix, Object tag, String message, Object... information) {
+        STRING_BUILDER.append(prefix);
+        STRING_BUILDER.append(information.length > 0 ? message.formatted(information) : message);
+        Gdx.app.log(tag instanceof String ? tag.toString() : tag.getClass().getSimpleName(), STRING_BUILDER.toString());
+        STRING_BUILDER.setLength(0);
     }
 
     /**
@@ -47,19 +36,15 @@ public interface GameLogging {
      * @param tag  the tag
      * @param warn the warning
      */
-    static void warn(Object tag, String warn) {
-        if (tag instanceof String) {
-            Gdx.app.log(tag.toString(), WARN + warn);
-        } else {
-            Gdx.app.log(tag.getClass().getSimpleName(), WARN + warn);
-        }
+    static void warn(Object tag, String warn, Object... information) {
+        append(WARN, tag, warn, information);
     }
 
-    static void exceptionThrown(Object tag, String stage, Exception exception) {
+    static void exceptionThrown(Object tag, String stage, Throwable exception, Object... information) {
         if (tag instanceof String) {
-            Gdx.app.log(tag.toString(), stage, exception);
+            Gdx.app.log(tag.toString(), stage.formatted(information), exception);
         } else {
-            Gdx.app.log(tag.getClass().getSimpleName(), stage, exception);
+            Gdx.app.log(tag.getClass().getSimpleName(), stage.formatted(information), exception);
         }
     }
 
@@ -69,8 +54,8 @@ public interface GameLogging {
      * @param tag   the tag
      * @param error the error
      */
-    static void error(Object tag, String error) {
-        Gdx.app.log(tag.getClass().getSimpleName(), ERROR + error);
+    static void error(Object tag, String error, Object... information) {
+        append(ERROR, tag, error, information);
     }
 
 

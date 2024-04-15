@@ -78,12 +78,14 @@ public final class QuestGui extends Gui {
     public void show() {
         super.show();
         rootTable.setVisible(true);
+        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().pauseCurrentHint();
     }
 
     @Override
     public void hide() {
         super.hide();
         rootTable.setVisible(false);
+        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().resumeCurrentHint();
     }
 
     @Override

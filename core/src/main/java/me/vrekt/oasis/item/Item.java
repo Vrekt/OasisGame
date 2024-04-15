@@ -54,6 +54,8 @@ public interface Item extends ResourceLoader {
 
     void draw(SpriteBatch batch, float width, float height, float rotation);
 
+    float getScaleSize();
+
     boolean is(Item other);
 
     boolean is(String key);

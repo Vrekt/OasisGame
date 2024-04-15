@@ -33,7 +33,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240414-0349-1485";
+    public static final String GAME_VERSION = "20240414-2306-1539";
 
     private Asset asset;
 
@@ -97,11 +97,12 @@ public final class OasisGame extends Game {
         player = new OasisPlayer(this, "Player" + (System.currentTimeMillis() / 1000));
         player.load(asset);
 
+        guiManager = new GuiManager(this, asset, multiplexer);
+
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
         renderer = new GameTiledMapRenderer(batch, player);
-        guiManager = new GuiManager(this, asset, multiplexer);
         GameManager.initialize(this);
 
         final TutorialOasisWorld world = new TutorialOasisWorld(this, player);

@@ -12,6 +12,7 @@ import java.util.Map;
 
 public abstract class AbstractItem implements Item {
 
+
     protected String key, name, description;
     protected Sprite sprite;
     protected ItemRarity rarity;
@@ -20,6 +21,7 @@ public abstract class AbstractItem implements Item {
 
     // map of all attributes on this item
     protected Map<String, ItemAttribute> attributes = new HashMap<>();
+    protected float scaleSize = 1.0f;
 
     public AbstractItem(String key, String name, String description) {
         this.key = key;
@@ -135,6 +137,11 @@ public abstract class AbstractItem implements Item {
     public void draw(SpriteBatch batch, float width, float height, float rotation) {
         batch.draw(sprite, sprite.getX(), sprite.getY(), 0.0f, 0.0f,
                 width, height, 1.0f, 1.0f, rotation);
+    }
+
+    @Override
+    public float getScaleSize() {
+        return scaleSize;
     }
 
     @Override

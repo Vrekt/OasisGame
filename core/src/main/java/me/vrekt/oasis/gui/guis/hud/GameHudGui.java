@@ -15,9 +15,10 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,7 +42,7 @@ public final class GameHudGui extends Gui {
     private final OasisPlayer player;
 
     // store artifact components
-    private final ArtifactComponentSlot[] artifactSlots;
+    private final LinkedList<ArtifactComponentSlot> artifactComponentSlots = new LinkedList<>();
 
     private final VisLabel debugComponentText;
     private final TypingLabel hintComponentText;
@@ -53,7 +54,8 @@ public final class GameHudGui extends Gui {
     private final List<VisTable> components = new ArrayList<>();
     private final LinkedList<HotbarComponentSlot> hotbarIconComponents = new LinkedList<>();
 
-    private boolean hintVisiblityOverridden;
+    private boolean hintVisibilityOverridden, hintPaused;
+    private HotbarComponentSlot selectedSlot;
 
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
@@ -67,8 +69,6 @@ public final class GameHudGui extends Gui {
 
         rootTable.setVisible(true);
         rootTable.setFillParent(true);
-
-        artifactSlots = new ArtifactComponentSlot[3];
 
         initializeDebugComponent();
         initializeArtifactComponent();
@@ -84,29 +84,64 @@ public final class GameHudGui extends Gui {
         final float now = GameManager.getCurrentGameWorldTick();
         for (int i = 0; i < player.getArtifacts().size(); i++) {
             final Artifact artifact = player.getArtifacts().get(i);
-            if (artifact != null) artifactSlots[i].update(artifact);
+            if (artifact != null) artifactComponentSlots.get(i).update(artifact);
         }
 
         player.getInventory().getSlots().forEach((slot, item) -> {
-//            if (item.isHotbarItem() && !hotbarIconComponents.get(slot).isUpdated()) {
-            //      hotbarIconComponents.get(slot).setItemInSlot(new TextureRegionDrawable(item.getItem().getSprite()));
-            //  }
+            // only update if hotbar itemIcon and the slot has not been set with a drawable yet.
+            if (item.isHotbarItem()
+                    && hotbarIconComponents.get(slot).replaceItem(item.getItem())) {
+                // TODO: Double get
+                hotbarIconComponents.get(slot).setItemInSlot(item.getItem());
+            }
         });
 
         updatePlayerHintComponent(now);
     }
 
+    /**
+     * Set a hotbar slot was selected
+     *
+     * @param slot the slot
+     */
     public void hotbarItemSelected(int slot) {
-        hotbarIconComponents.get(0).setSelected();
+        // reset current slot only if we have one and its active
+        if (selectedSlot != null && hotbarIconComponents.indexOf(selectedSlot) != slot) selectedSlot.reset();
+        // update selected slot
+        selectedSlot = hotbarIconComponents.get(slot);
+        selectedSlot.setSelected();
     }
 
+    /**
+     * Remove an item from the hotbar slot
+     * TODO: Maybe in the future just detect this with update
+     * TODO: but, since its removed physically from the list it won't be iterated next update to be detected.
+     *
+     * @param slot the slot
+     */
+    public void hotbarItemRemoved(int slot) {
+        hotbarIconComponents.get(slot).removeItemFromSlot();
+    }
+
+    /**
+     * Update the hint alpha actions
+     *
+     * @param now current tick
+     */
     private void updatePlayerHintComponent(float now) {
-        // ensure hint component is visible, not indefinite (0) and hint has expired.
-        if (hintComponent.getColor().a == 1.0f
-                && (currentHintDuration != 0.0f
-                && now - lastHintTime >= currentHintDuration)
-                && hintComponentText.hasEnded()) {
-            hintComponent.addAction(Actions.sequence(Actions.fadeOut(1.0f), Actions.visible(false)));
+        if (hintPaused) {
+            // reset hint time since its being paused
+            // we don't want it to instantly expire
+            // when the hint is resumed
+            lastHintTime = now;
+        } else {
+            // ensure hint component is visible, not indefinite (0) and hint has expired.
+            if (hintComponent.getColor().a == 1.0f
+                    && currentHintDuration != 0.0f
+                    && now - lastHintTime >= currentHintDuration
+                    && hintComponentText.hasEnded()) {
+                hintComponent.addAction(Actions.sequence(Actions.fadeOut(1.0f), Actions.visible(false)));
+            }
         }
     }
 
@@ -114,11 +149,18 @@ public final class GameHudGui extends Gui {
         showPlayerHint(text, 0.0f);
     }
 
+    /**
+     * Show a player hint
+     *
+     * @param text     the text hint
+     * @param duration the duration in ticks
+     */
     public void showPlayerHint(String text, float duration) {
         if (!hintComponent.isVisible()) {
             hintComponent.getColor().a = 0.0f;
             hintComponent.setVisible(true);
-            hintVisiblityOverridden = true;
+            hintVisibilityOverridden = true;
+            hintPaused = false;
         }
 
         final float now = GameManager.getCurrentGameWorldTick();
@@ -136,8 +178,37 @@ public final class GameHudGui extends Gui {
         lastHintTime = now;
     }
 
+    /**
+     * @return {@code true} if a hint is currently being shown
+     */
+    public boolean isHintActive() {
+        return hintComponent.isVisible() && hintComponent.getColor().a > 0.0f;
+    }
+
+    /**
+     * Pauses the current hint and hides the element.
+     */
+    public void pauseCurrentHint() {
+        hintComponent.setVisible(false);
+        hintPaused = true;
+    }
+
+    /**
+     * Resumes the current hint and shows the element
+     */
+    public void resumeCurrentHint() {
+        hintComponent.setVisible(true);
+        hintPaused = false;
+    }
+
+    /**
+     * Show the artifact apply effect
+     *
+     * @param slot     the slot
+     * @param cooldown the cooldown
+     */
     public void showArtifactAbilityUsed(int slot, float cooldown) {
-        artifactSlots[slot].activate(cooldown);
+        artifactComponentSlots.get(slot).activate(cooldown);
     }
 
     /**
@@ -188,7 +259,7 @@ public final class GameHudGui extends Gui {
         parent.add(stack).size(48, 48);
         parent.row().padTop(4);
 
-        artifactSlots[index] = slot;
+        artifactComponentSlots.add(index, slot);
     }
 
     /**
@@ -232,6 +303,7 @@ public final class GameHudGui extends Gui {
 
             final VisImage slot = new VisImage(guiManager.getStyle().getTheme());
             final VisImage item = new VisImage();
+
             hotbarIconComponents.add(new HotbarComponentSlot(slot, item));
 
             slot.setColor(Color.WHITE);
@@ -281,7 +353,7 @@ public final class GameHudGui extends Gui {
                 // override hint visibility if this GUI
                 // was hidden for whatever reason
                 // but hint still needs to be shown.
-                if (!hintVisiblityOverridden) table.setVisible(false);
+                if (!hintVisibilityOverridden) table.setVisible(false);
             } else {
                 table.setVisible(false);
             }
@@ -289,15 +361,22 @@ public final class GameHudGui extends Gui {
     }
 
     private static final class HotbarComponentSlot {
-        private final VisImage slot, item;
 
-        public HotbarComponentSlot(VisImage slot, VisImage item) {
+        private final VisImage slot, itemIcon;
+        private Item item;
+
+        HotbarComponentSlot(VisImage slot, VisImage itemIcon) {
             this.slot = slot;
-            this.item = item;
+            this.itemIcon = itemIcon;
         }
 
-        public boolean isUpdated() {
-            return item.getDrawable() != null;
+        /**
+         * @param other comparing
+         * @return {@code true} if the incoming item should replace what's in this slot
+         */
+        public boolean replaceItem(Item other) {
+            if (this.item == null) return true;
+            return !this.item.is(other);
         }
 
         public void setSelected() {
@@ -308,12 +387,16 @@ public final class GameHudGui extends Gui {
             slot.setColor(Color.WHITE);
         }
 
-        public void setItemInSlot(TextureRegionDrawable texture) {
-            item.setDrawable(texture);
+        public void setItemInSlot(Item item) {
+            itemIcon.setDrawable(new TextureRegionDrawable(item.getSprite()));
+            // TODO: Incorrect scaling, items too big
+            itemIcon.setScale(1.0f, 1.0f);
+            this.item = item;
         }
 
         public void removeItemFromSlot() {
-            item.setDrawable((Drawable) null);
+            itemIcon.setDrawable((Drawable) null);
+            this.item = null;
         }
     }
 
@@ -334,7 +417,7 @@ public final class GameHudGui extends Gui {
         }
 
         /**
-         * Update this component
+         * Update this component only if changed or new
          *
          * @param artifact the current artifact iterating
          */
@@ -346,6 +429,11 @@ public final class GameHudGui extends Gui {
             }
         }
 
+        /**
+         * Activate the hud effect for this slot
+         *
+         * @param cooldown cooldown until active again
+         */
         void activate(float cooldown) {
             artifactImageComponent.getColor().a = 0.0f;
             artifactImageComponent.addAction(Actions.fadeIn(cooldown));

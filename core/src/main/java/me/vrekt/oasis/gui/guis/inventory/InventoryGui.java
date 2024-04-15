@@ -49,7 +49,7 @@ public abstract class InventoryGui extends Gui {
 
             // just holds our item image container
             final VisTable itemTable = new VisTable(false);
-            itemTable.add(item);
+            itemTable.add(item).size(32, 32);
 
             final VisTable itemAmount = new VisTable(true);
             final VisLabel amountLabel = new VisLabel(StringUtils.EMPTY, style);
@@ -64,7 +64,8 @@ public abstract class InventoryGui extends Gui {
             // hotbar components
             if (i < 6) {
                 final VisTable slotNumber = new VisTable(true);
-                final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i), style);
+                // i + 1 to represents slots 1-6 instead of 0-5
+                final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i + 1), style);
                 slotNumber.top().left();
                 slotNumber.add(slotNumberLabel).top().left().padLeft(2);
                 overlay.add(slotNumber);
@@ -76,11 +77,23 @@ public abstract class InventoryGui extends Gui {
         }
     }
 
+    @Override
+    public void show() {
+        super.show();
+        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().pauseCurrentHint();
+    }
+
+    @Override
+    public void hide() {
+        super.hide();
+        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().resumeCurrentHint();
+    }
+
     /**
-         * Represents the data within a slot... within an inventory ui
-         */
-        public record InventoryUiComponent(Stack overlay, VisImage item, Tooltip.TooltipStyle style, VisLabel amountLabel,
-                                           int index) {
+     * Represents the data within a slot... within an inventory ui
+     */
+    public record InventoryUiComponent(Stack overlay, VisImage item, Tooltip.TooltipStyle style, VisLabel amountLabel,
+                                       int index) {
     }
 
 }

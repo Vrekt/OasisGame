@@ -49,9 +49,12 @@ public class GameManager {
     }
 
     private static void registerInventoryKeyMappings() {
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> {
-            GameManager.guiManager.getHudComponent().hotbarItemSelected(1);
-        });
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> guiManager.getHudComponent().hotbarItemSelected(0));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_2, () -> guiManager.getHudComponent().hotbarItemSelected(1));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_3, () -> guiManager.getHudComponent().hotbarItemSelected(2));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
     }
 
     /**

@@ -53,6 +53,10 @@ public class InventoryGuiSlot {
         return isHotbarSlot;
     }
 
+    public boolean isEmpty() {
+        return this.item == null;
+    }
+
     public Stack getParent() {
         return parent;
     }
@@ -83,7 +87,7 @@ public class InventoryGuiSlot {
         this.lastItemKey = item.getKey();
 
         slotIcon.setDrawable(new TextureRegionDrawable(item.getSprite()));
-        slotIcon.setScale(item.getSprite().getScaleX(), item.getSprite().getScaleY());
+        slotIcon.setScale(item.getScaleSize());
 
         if (item.isStackable()) {
             amountText.setVisible(true);

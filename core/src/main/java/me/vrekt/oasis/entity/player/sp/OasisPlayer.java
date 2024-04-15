@@ -105,9 +105,14 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     }
 
     public void activateArtifact(int slotNumber) {
+        if (artifactInventory.isEmpty()) {
+            GameLogging.warn(this, "Attempted to activate artifact with none in inventory %d", slotNumber);
+            return;
+        }
+
         final Artifact artifact = artifactInventory.get(slotNumber);
         if (artifact == null) {
-            GameLogging.error(this, "Found no artifact within slot " + slotNumber);
+            GameLogging.error(this, "Found no artifact within slot %d", slotNumber);
             return;
         }
 

@@ -22,6 +22,8 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     public LucidTreeFruitItem() {
         super(KEY, NAME, DESCRIPTION);
         addAttribute(new PlayerHealingAttribute(20.0f));
+
+        this.scaleSize = 1f;
         this.allowedToConsume = false;
         this.rarity = ItemRarity.BASIC;
         this.isStackable = true;

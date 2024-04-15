@@ -28,7 +28,6 @@ public abstract class Gui {
     // if this gui should also for example, hide the same GUIs
     protected boolean inheritParentBehaviour;
     protected GuiType parent;
-    protected boolean hasCustomRender;
 
     protected List<GuiType> hideWhenVisible = new ArrayList<>();
 

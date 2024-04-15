@@ -200,7 +200,17 @@ public abstract class AbstractInventory implements Inventory {
         final InventorySlot fromSlot = slots.get(from);
         final InventorySlot toSlot = slots.get(to);
         slots.put(to, fromSlot);
-        slots.put(from, toSlot);
+
+        if (toSlot == null) {
+            // indicates dragging into an empty slot
+            final InventorySlot newSlot = new InventorySlot(fromSlot.getItem());
+            newSlot.setHotbarItem(to < 6);
+            slots.put(to, newSlot);
+
+            removeItem(from);
+        } else {
+            slots.put(from, toSlot);
+        }
     }
 
     @Override

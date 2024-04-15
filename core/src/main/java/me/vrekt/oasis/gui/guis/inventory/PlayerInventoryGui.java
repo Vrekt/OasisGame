@@ -163,7 +163,7 @@ public final class PlayerInventoryGui extends InventoryGui {
                     component.overlay(),
                     component.item(),
                     component.amountLabel(),
-                    component.index() <= 6,
+                    component.index() < 6,
                     component.index()));
             final int progress = slotTracker.incrementAndGet();
             // add to left primary table with correct sizes
@@ -213,8 +213,8 @@ public final class PlayerInventoryGui extends InventoryGui {
         final DragAndDrop action = new DragAndDrop();
 
         for (InventoryGuiSlot guiSlot : guiSlots) {
-            action.addSource(new InventorySlotSource(this, guiSlot, action));
-            action.addTarget(new InventorySlotTarget(this, guiSlot, player.getInventory(), action));
+            action.addSource(new InventorySlotSource(this, guiSlot));
+            action.addTarget(new InventorySlotTarget(this, guiSlot, player.getInventory()));
         }
     }
 

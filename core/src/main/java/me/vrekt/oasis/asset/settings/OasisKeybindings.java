@@ -13,10 +13,16 @@ public final class OasisKeybindings {
     public static int SKIP_DIALOG_KEY = Input.Keys.F;
     public static int ESCAPE = Input.Keys.ESCAPE;
 
-    public static int ARTIFACT_ONE = Input.Keys.NUM_1;
+    public static int ARTIFACT_ONE = Input.Keys.NUM_9;
 
     public static int DEBUG_MENU_KEY = Input.Keys.F2;
 
-    public static int SLOT_1 = Input.Keys.NUM_2;
+    public static int SLOT_1 = Input.Keys.NUM_1;
+    public static int SLOT_2 = Input.Keys.NUM_2;
+    public static int SLOT_3 = Input.Keys.NUM_3;
+    public static int SLOT_4 = Input.Keys.NUM_4;
+    public static int SLOT_5 = Input.Keys.NUM_5;
+    public static int SLOT_6 = Input.Keys.NUM_6;
+
 
 }

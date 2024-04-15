@@ -11,24 +11,21 @@ public final class InventorySlotSource extends DragAndDrop.Source {
     private final PlayerInventoryGui gui;
     private final InventoryGuiSlot slot;
     private final DragAndDrop.Payload payload;
-    private final DragAndDrop action;
-    private final float originX, originY;
     private final Vector2 projection = new Vector2();
 
-    public InventorySlotSource(PlayerInventoryGui gui, InventoryGuiSlot slot, DragAndDrop action) {
+    public InventorySlotSource(PlayerInventoryGui gui, InventoryGuiSlot slot) {
         super(slot.getSlotIcon());
         this.gui = gui;
         this.slot = slot;
-        this.action = action;
 
         this.payload = new DragAndDrop.Payload();
         this.payload.setObject(slot);
-        this.originX = slot.getSlotIcon().getOriginX();
-        this.originY = slot.getSlotIcon().getOriginY();
     }
 
     @Override
     public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+        if (slot.isEmpty()) return null;
+
         // disable slot icon for now while we manually draw the icon
         slot.getSlotIcon().setVisible(false);
 
@@ -41,6 +38,8 @@ public final class InventorySlotSource extends DragAndDrop.Source {
 
     @Override
     public void dragStop(InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
+        if (slot.isEmpty()) return;
+
         if (target == null) {
             gui.setStoppedDragging();
             slot.getSlotIcon().setVisible(true);
