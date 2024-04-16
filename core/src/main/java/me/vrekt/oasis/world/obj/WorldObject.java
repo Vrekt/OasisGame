@@ -10,40 +10,26 @@ import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Represents an object within the world that may have special properties.
- */
-public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable {
 
-    // the type of this object
-    protected WorldObjectType type;
+/**
+ * A object within the world that is added at runtime
+ */
+public class WorldObject implements TiledWorldObject, Pool.Poolable {
 
     // possible particle effects this object has
     protected List<ParticleEffect> effects;
     protected boolean playEffects = true;
-    protected int runtimeId = -1;
 
     // texture and location
     protected TextureRegion texture;
     protected final Vector2 location = new Vector2();
     protected final Vector2 size = new Vector2();
     protected Body body;
-
-    @Override
-    public WorldObjectType getType() {
-        return type;
-    }
-
-    @Override
-    public void setType(WorldObjectType type) {
-        this.type = type;
-    }
 
     @Override
     public void render(SpriteBatch batch) {
@@ -70,13 +56,23 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
     }
 
     @Override
-    public void setLocation(float x, float y) {
+    public void setPosition(float x, float y) {
         location.set(x, y);
+    }
+
+    @Override
+    public Vector2 getPosition() {
+        return location;
     }
 
     @Override
     public void setSize(float x, float y) {
         size.set(x, y);
+    }
+
+    @Override
+    public Vector2 getSize() {
+        return size;
     }
 
     @Override
@@ -110,23 +106,8 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
     }
 
     @Override
-    public void setRuntimeId(int runtimeId) {
-        this.runtimeId = runtimeId;
-    }
-
-    @Override
-    public int getRuntimeId() {
-        return runtimeId;
-    }
-
-    @Override
     public void load(Asset asset) {
         effects = new ArrayList<>();
-    }
-
-    @Override
-    public void destroy() {
-        this.dispose();
     }
 
     @Override
@@ -145,5 +126,8 @@ public class WorldObject implements IWorldObject, ResourceLoader, Pool.Poolable 
         }
         effects = null;
         playEffects = true;
+
+        location.set(0, 0);
+        size.set(0, 0);
     }
 }

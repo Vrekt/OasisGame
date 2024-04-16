@@ -21,6 +21,7 @@ import me.vrekt.oasis.gui.guis.hud.GameHudGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
+import me.vrekt.oasis.gui.guis.sign.ReadableSignGui;
 import me.vrekt.oasis.gui.windows.PauseWindowGui;
 import me.vrekt.oasis.gui.windows.SaveGameWindowGui;
 import me.vrekt.oasis.gui.windows.SettingsWindowGui;
@@ -46,6 +47,7 @@ public class GuiManager {
     private final GameHudGui hudGui;
     private final PlayerInventoryGui inventoryGui;
     private final EntityDialogGui dialogGui;
+    private final ReadableSignGui signGui;
 
     private final Texture defaultCursorTexture;
     private Cursor cursorState;
@@ -73,6 +75,7 @@ public class GuiManager {
         guis.put(GuiType.QUEST, new QuestGui(this));
         guis.put(GuiType.QUEST_ENTRY, new QuestEntryGui(this));
         guis.put(GuiType.DIALOG, dialogGui = new EntityDialogGui(this));
+        guis.put(GuiType.SIGN, signGui = new ReadableSignGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -119,6 +122,10 @@ public class GuiManager {
 
     public EntityDialogGui getDialogComponent() {
         return dialogGui;
+    }
+
+    public ReadableSignGui getSignComponent() {
+        return signGui;
     }
 
     public Texture getDefaultCursorTexture() {

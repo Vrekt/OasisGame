@@ -13,6 +13,7 @@ public enum GuiType {
     CONTAINER,
     SAVE_GAME,
     DEBUG_MENU,
-    HINT;
+    HINT,
+    SIGN;
 
 }

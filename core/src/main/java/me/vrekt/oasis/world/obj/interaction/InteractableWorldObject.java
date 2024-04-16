@@ -20,18 +20,27 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
     protected final Vector2 interaction = new Vector2();
 
     // config
-    protected boolean interactable, interactedWith, requiresUpdating = true;
+    protected boolean interactable = true, interactedWith, requiresUpdating = false;
     protected float updateDistance, interactionDistance;
     protected boolean withinUpdateDistance;
 
     public InteractableWorldObject() {
     }
 
+    /**
+     * Hide this interaction if needed.
+     */
+    protected void hideInteraction() {
+
+    }
+
     public OasisWorld getWorld() {
         return world;
     }
 
-    public abstract String getRequiredItemTexture();
+    public String getRequiredItemTexture() {
+        return null;
+    }
 
     @Override
     public WorldInteractionType getInteractionType() {
@@ -69,6 +78,11 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
     }
 
     @Override
+    public void setInteractionDistance(float interactionDistance) {
+        this.interactionDistance = interactionDistance;
+    }
+
+    @Override
     public boolean isInteractedWith() {
         return interactedWith;
     }
@@ -98,9 +112,10 @@ public abstract class InteractableWorldObject extends WorldObject implements Int
     @Override
     public void update() {
         // cancel current interaction if player moved.
-        if (interaction.dst2(world.getLocalPlayer().getPosition()) >= 0.1f) {
+        if (interaction.dst2(world.getLocalPlayer().getPosition()) >= 0.25f) {
             this.interactable = true;
             this.interactedWith = false;
+            hideInteraction();
         }
     }
 

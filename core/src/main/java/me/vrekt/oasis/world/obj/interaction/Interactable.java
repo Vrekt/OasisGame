@@ -37,6 +37,13 @@ public interface Interactable {
     boolean isWithinInteractionDistance(Vector2 other);
 
     /**
+     * Set the interaction distance for this interaction
+     *
+     * @param distance the distance
+     */
+    void setInteractionDistance(float distance);
+
+    /**
      * @return {@code  true} if interacted with already
      */
     boolean isInteractedWith();
@@ -79,6 +86,9 @@ public interface Interactable {
      */
     void update();
 
+    /**
+     * @return the cursor this interaction should use when the mouse is over it
+     */
     Cursor getCursor();
 
 }

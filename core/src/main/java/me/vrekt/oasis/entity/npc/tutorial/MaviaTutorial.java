@@ -15,7 +15,6 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
-import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 
 /**
  * Represents a tutorial/debug NPC.1
@@ -63,7 +62,7 @@ public final class MaviaTutorial extends EntityInteractable {
 
             // unlock tutorial chests within the tutorial world.
             if (player.isInTutorialWorld()) {
-                ((TutorialOasisWorld) player.getGameWorldIn()).unlockTutorialChests();
+
             }
         }
     }

@@ -6,7 +6,6 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
-import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
 
 /**
  * Mavia's tutorial house on Tutorial Island
@@ -29,7 +28,7 @@ public final class MaviaHouseInterior extends Instance {
         // prevent duplicating of items when entering/exiting
         if (!chestPopulated) {
             // populate tutorial chests
-            final ChestInventoryInteraction interaction = (ChestInventoryInteraction) getByRuntimeId(TUTORIAL_CHEST_RUNTIME_ID);
+
             // TODO interaction.getInventory().addItem(EnchantedVioletItem.ID, 1);
             chestPopulated = true;
         }

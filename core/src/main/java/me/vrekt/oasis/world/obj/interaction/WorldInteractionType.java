@@ -1,24 +1,53 @@
 package me.vrekt.oasis.world.obj.interaction;
 
-import me.vrekt.oasis.world.obj.interaction.chest.ChestInventoryInteraction;
-import me.vrekt.oasis.world.obj.interaction.tutorial.TutorialTreeInteraction;
-
+/**
+ * A registry of all interactions within the game
+ */
 public enum WorldInteractionType {
 
-    LUCID_FRUIT_TREE_TUTORIAL(TutorialTreeInteraction.class), CHEST(ChestInventoryInteraction.class);
+    READABLE_SIGN("readable_sign");
 
-    private final Class<? extends InteractableWorldObject> classType;
+    private final String type;
+    // specifies this interaction has other interactions within
+    private final Class<? extends InteractableWorldObject> poolingClass;
 
-    public static Class<? extends InteractableWorldObject> getInteractionFromName(String name) {
-        return valueOf(name.toUpperCase()).classType;
+    WorldInteractionType(String type) {
+        this.type = type;
+        this.poolingClass = null;
     }
 
-    WorldInteractionType(Class<? extends InteractableWorldObject> classType) {
-        this.classType = classType;
+    WorldInteractionType(Class<? extends InteractableWorldObject> poolingClass) {
+        this.type = null;
+        this.poolingClass = poolingClass;
     }
 
-    public Class<? extends InteractableWorldObject> getClassType() {
-        return classType;
+    public String getType() {
+        return type;
+    }
+
+    public Class<? extends InteractableWorldObject> getPoolingClass() {
+        return poolingClass;
+    }
+
+    /**
+     * Assign a type based on this interaction type
+     *
+     * @param key     the key or {@code null} if none
+     * @param manager the interaction manager
+     * @return the type
+     */
+    public InteractableWorldObject assignType(String key, InteractionManager manager) {
+        if (key != null) {
+            // this interaction has child interactions
+            return manager.getChildInteraction(this, key);
+        } else {
+            // this interaction is a generic pooled one
+            return manager.getPooled(this);
+        }
+    }
+
+    public static WorldInteractionType getType(String type) {
+        return valueOf(type.toUpperCase());
     }
 
 }

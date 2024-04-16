@@ -39,8 +39,8 @@ import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
@@ -54,8 +54,8 @@ import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,6 +97,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
+    // TODO: Maybe global? Or just per world.
+    protected final InteractionManager interactionManager;
     // the current tick of this world.
     protected float currentWorldTick;
 
@@ -111,6 +113,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         this.renderer = game.getRenderer();
         this.batch = game.getBatch();
         this.guiManager = game.guiManager;
+        this.interactionManager = new InteractionManager();
 
         configuration.stepTime = 1 / 240f;
     }
@@ -272,13 +275,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
-     * Pause this world while we are saving the game
-     */
-    public void pauseGameWhileSaving() {
-        this.pause();
-    }
-
-    /**
      * Saving game is finished.
      */
     public void saveGameFinished() {
@@ -295,6 +291,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      */
     public void loadWorld(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
+
+        preLoad();
 
         TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world, this);
@@ -326,6 +324,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         player.setInWorld(true);
         player.setGameWorldIn(this);
 
+        // load implementation
+        this.load();
+
         registerWorldRelatedNetworkOptions(game.getConnectionHandler());
         this.isWorldLoaded = true;
 
@@ -336,6 +337,14 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         engine.addSystem(new EntityInteractableAnimationSystem(engine));
         engine.addSystem(new EntityUpdateSystem(game, this));
     }
+
+    /**
+     * Invoked before world is loaded
+     * Useful for registering things that are already defined or known
+     */
+    protected abstract void preLoad();
+
+    protected abstract void load();
 
     public void skipCurrentDialog() {
         if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
@@ -450,52 +459,56 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected void loadWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "WorldObjects", (object, rectangle) -> {
             try {
-                // assign n find texture
-                final boolean hasTexture = object.getProperties().get("hasTexture", false, Boolean.class);
-                final TextureRegion texture = hasTexture ? asset.get(object.getProperties().get("texture", String.class)) : null;
-                final boolean interactable = object.getProperties().get("interactable", Boolean.class);
-                final boolean hasCollision = object.getProperties().get("hasCollision", false, Boolean.class);
-                final int runtimeId = object.getProperties().get("runtimeId", -1, Integer.class);
+                final boolean hasCollision = TiledMapLoader.ofBoolean(object, "hasCollision");
+                final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
+                final float distance = TiledMapLoader.ofFloat(object, "interaction_distance");
+                final String key = TiledMapLoader.ofString(object, "key");
+                final String type = TiledMapLoader.ofString(object, "interaction_type");
 
                 if (interactable) {
-                    final InteractableWorldObject worldObject = Pools.obtain(WorldInteractionType.getInteractionFromName(object.getProperties().get("interaction_type", String.class)));
+                    // find interaction and create world object either from key or type
+                    final WorldInteractionType interactionType = WorldInteractionType.getType(type);
+                    InteractableWorldObject worldObject = interactionType.assignType(key, interactionManager);
+
                     worldObject.load(asset);
-                    if (hasTexture) {
-                        worldObject.initialize(this,
-                                rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
-                                rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
-                                texture.getRegionWidth() * OasisGameSettings.SCALE,
-                                texture.getRegionHeight() * OasisGameSettings.SCALE);
-                        worldObject.setTexture(texture);
-                    } else {
-                        worldObject.initialize(this, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-                    }
+                    worldObject.initialize(this, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                    worldObject.setInteractionDistance(distance);
 
-                    loadWorldObjectEffects(worldObject, object, rectangle);
-                    if (hasCollision && hasTexture) {
-                        loadWorldObjectBody(worldObject, rectangle, texture);
-                    } else if (!hasTexture) {
-                        loadWorldObjectBody(worldObject, rectangle);
-                    }
-                    worldObject.setRuntimeId(runtimeId);
-                    this.interactableWorldObjects.add(worldObject);
+                    loadWorldObjectParticles(worldObject, object, asset);
+
+                    // load collision for this object
+                    if (hasCollision) loadWorldObjectBody(worldObject, rectangle);
+                    interactableWorldObjects.add(worldObject);
                 } else {
-                    final WorldObject wb = Pools.obtain(WorldObject.class);
-                    wb.load(asset);
-                    // TODO: init WorldObjectType
+                    // load base object
+                    final WorldObject worldObject = Pools.obtain(WorldObject.class);
+                    worldObject.load(asset);
 
-                    loadWorldObjectEffects(wb, object, rectangle);
-                    if (hasTexture) {
-                        loadWorldObjectBody(wb, rectangle, texture);
-                    } else {
-                        loadWorldObjectBody(wb, rectangle);
+                    // find texture of this object
+                    // TODO: Objects should always have a texture or else that is pointless (maybe)
+                    final String sprite = TiledMapLoader.ofString(object, "sprite");
+                    TextureRegion texture = sprite == null ? null : asset.get(sprite);
+
+                    // define collision body with or without texture
+                    // also define size
+                    if (hasCollision && texture != null) {
+                        loadWorldObjectBodyWithTexture(worldObject, rectangle, texture);
+                        worldObject.setSize(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
+                    } else if (hasCollision) {
+                        loadWorldObjectBody(worldObject, rectangle);
+                        worldObject.setSize(rectangle.width, rectangle.height);
                     }
-                    wb.setRuntimeId(runtimeId);
-                    this.worldObjects.add(wb);
+
+                    // set texture and position
+                    worldObject.setTexture(texture);
+                    worldObject.setPosition(rectangle.x - rectangle.width, rectangle.y - rectangle.height);
+
+                    loadWorldObjectParticles(worldObject, object, asset);
+                    worldObjects.add(worldObject);
                 }
+
             } catch (Exception any) {
-                GameLogging.error(this, "Failed to load a world object with error: \n");
-                any.printStackTrace();
+                GameLogging.exceptionThrown(this, "Failed to load a world object", any);
             }
         });
 
@@ -506,24 +519,21 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     /**
      * Load particle effects for a world object, interactable or not.
      *
-     * @param wb        wb
-     * @param object    obj
-     * @param rectangle rect
+     * @param wb     wb
+     * @param object obj
+     * @param asset  assets
      */
-    private void loadWorldObjectEffects(WorldObject wb, MapObject object, Rectangle rectangle) {
-        // load each particle within properties
-        object.getProperties().getKeys().forEachRemaining(key -> {
-            // find a particle + int identifier
-            if (key.contains("particle")) {
-                final ParticleEffect effect = new ParticleEffect();
-                effect.load(Gdx.files.internal("world/asset/" + object.getProperties().get(key, String.class)), game.getAsset().getAtlasAssets());
-                effect.setPosition(rectangle.x, rectangle.y + object.getProperties().get("offset" + (StringUtils.getDigits(key)), 0.0f, float.class));
-                effect.start();
+    private void loadWorldObjectParticles(WorldObject wb, MapObject object, Asset asset) {
+        final String particleKey = TiledMapLoader.ofString(object, "particle");
+        if (particleKey == null) return; // this object has no particles
 
-                // add this new effect to environ object
-                wb.getEffects().add(effect);
-            }
-        });
+        final float xOffset = TiledMapLoader.ofFloat(object, "x_offset");
+        final float yOffset = TiledMapLoader.ofFloat(object, "y_offset");
+
+        final ParticleEffect effect = new ParticleEffect();
+        effect.load(Gdx.files.internal(particleKey), asset.getAtlasAssets());
+        effect.setPosition(wb.getPosition().x + (wb.getSize().x / 2f) + xOffset, wb.getPosition().y + (wb.getSize().y / 2f) + yOffset);
+        wb.getEffects().add(effect);
     }
 
     private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle) {
@@ -540,7 +550,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         wb.setCollisionBody(body);
     }
 
-    private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
+    private void loadWorldObjectBodyWithTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
         // create collision body, offset position to fit within bounds.
         final Body body = CollisionShapeCreator.createPolygonShapeInWorld(
                 rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
@@ -592,7 +602,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     @Override
-    public void resize(int width, int height) {;
+    public void resize(int width, int height) {
+        ;
         renderer.resize(width, height);
     }
 
@@ -741,10 +752,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         // interactions
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            if (worldObject.isWithinUpdateDistance(player.getPosition())
-                    && worldObject.isInteractedWith()) {
-                worldObject.update();
-            }
+            // TODO: Requires updating? + just interaction update
+            if (worldObject.isInteractedWith()) worldObject.update();
 
             worldObject.render(batch);
             if (worldObject.playEffects()) worldObject.renderEffects(batch, delta);
@@ -820,8 +829,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     public EntityEnemy hasHitEntity(ItemWeapon item) {
         for (Entity value : entities.values()) {
-            if (value instanceof EntityEnemy) {
-                final EntityEnemy interactable = (EntityEnemy) value;
+            if (value instanceof EntityEnemy interactable) {
                 if (interactable.isFacingEntity(player.getAngle())
                         && interactable.getBounds().overlaps(item.getBounds())) {
                     return interactable;
@@ -834,41 +842,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     @SuppressWarnings("unchecked")
     public <T extends Instance> T getInstance(InstanceType type) {
         return (T) instances.get(type);
-    }
-
-    /**
-     * Get a world object by its runtimeId
-     * TODO: Randomly generate runtime IDs so objects with no ID get picked instead
-     *
-     * @param id the ID
-     * @return the object if any or {@code null}
-     */
-    public InteractableWorldObject getByRuntimeId(int id) {
-        for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            if (worldObject.getRuntimeId() == id) {
-                return worldObject;
-            }
-        }
-        return null;
-    }
-
-    public <T extends InteractableWorldObject> List<T> getByRuntimeIds(int... id) {
-        final List<T> objects = new ArrayList<>();
-
-        for (int i : id) {
-            final T t = (T) getByRuntimeId(i);
-            if (t != null) objects.add(t);
-        }
-        return objects;
-    }
-
-    public <T extends InteractableWorldObject> Map<Integer, T> getByRuntimeIdsMap(int... id) {
-        final Map<Integer, T> map = new HashMap<>();
-        for (int i : id) {
-            final T t = (T) getByRuntimeId(i);
-            if (t != null) map.put(i, t);
-        }
-        return map;
     }
 
     /**
@@ -904,7 +877,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      * Interact with the environment
      */
     protected boolean interactWithObject() {
-        // only check objects that are within our update distance
         final InteractableWorldObject worldObject = interactableWorldObjects
                 .stream()
                 .filter(wb -> wb.isWithinInteractionDistance(player.getPosition()))

@@ -3,20 +3,18 @@ package me.vrekt.oasis.world.obj;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.utils.Disposable;
+import gdx.lunar.server.game.utilities.Disposable;
+import me.vrekt.oasis.entity.parts.ResourceLoader;
 
 import java.util.Collection;
 
 /**
- * A world object
+ * A world object created in the Tiled map
  */
-public interface IWorldObject extends Disposable {
-
-    WorldObjectType getType();
-
-    void setType(WorldObjectType type);
+public interface TiledWorldObject extends Disposable, ResourceLoader {
 
     /**
      * Render
@@ -39,7 +37,12 @@ public interface IWorldObject extends Disposable {
      * @param x x
      * @param y y
      */
-    void setLocation(float x, float y);
+    void setPosition(float x, float y);
+
+    /**
+     * @return position of this object
+     */
+    Vector2 getPosition();
 
     /**
      * Set size
@@ -48,6 +51,11 @@ public interface IWorldObject extends Disposable {
      * @param y y
      */
     void setSize(float x, float y);
+
+    /**
+     * @return size of this object
+     */
+    Vector2 getSize();
 
     /**
      * Texture
@@ -100,20 +108,5 @@ public interface IWorldObject extends Disposable {
      * @param vector3 proj
      */
     boolean clickedOn(Vector3 vector3);
-
-    /**
-     * @param runtimeId runtimeId
-     */
-    void setRuntimeId(int runtimeId);
-
-    /**
-     * @return runtimeId
-     */
-    int getRuntimeId();
-
-    /**
-     * Destroy this object
-     */
-    void destroy();
 
 }

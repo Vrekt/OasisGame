@@ -62,7 +62,7 @@ public final class TiledMapLoader {
                 GameLogging.info("TiledMapLoader", "Found WorldSpawn %s", rectangle);
                 worldSpawn.set(rectangle.x, rectangle.y);
             } else if (object.getName().equalsIgnoreCase("Exit")) {
-                GameLogging.info("TiledMapLoader", "Found WorldExitArea %s ",rectangle);
+                GameLogging.info("TiledMapLoader", "Found WorldExitArea %s ", rectangle);
                 worldExitArea.set(rectangle);
             }
         });
@@ -87,6 +87,18 @@ public final class TiledMapLoader {
         }
 
         GameLogging.info("TiledMapLoader", "Loaded a total of %d collision objects.", loaded);
+    }
+
+    public static boolean ofBoolean(MapObject object, String key) {
+        return object.getProperties().get(key, false, Boolean.class);
+    }
+
+    public static String ofString(MapObject object, String key) {
+        return object.getProperties().get(key, null, String.class);
+    }
+
+    public static float ofFloat(MapObject object, String key) {
+        return object.getProperties().get(key, 1.0f, Float.class);
     }
 
 }

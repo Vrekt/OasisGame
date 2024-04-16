@@ -18,16 +18,12 @@ import java.util.Map;
 
 public class GameManager {
 
-    public static final String DIALOG_CURSOR = "ui/dialog_cursor.png";
     private static final Map<Integer, Runnable> KEY_ACTIONS = new HashMap<>();
     private static OasisGame oasis;
     private static GuiManager guiManager;
 
     private static boolean isSaving;
     private static GameSaveProperties saveProperties;
-
-    private static boolean hasCursorChanged;
-    private static boolean isCursorActive;
 
     private static String gameProgress = "10%";
 

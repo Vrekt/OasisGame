@@ -65,6 +65,11 @@ public class Instance extends OasisWorldInstance {
         super.enter(setScreen);
     }
 
+    @Override
+    protected void preLoad() {
+
+    }
+
     /**
      * Unload
      * TODO
@@ -78,6 +83,11 @@ public class Instance extends OasisWorldInstance {
         }
         this.dispose();
         isWorldLoaded = false;
+    }
+
+    @Override
+    protected void load() {
+
     }
 
     @Override
