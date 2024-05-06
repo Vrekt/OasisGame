@@ -21,6 +21,11 @@ public interface GameSave {
     String getDate();
 
     /**
+     * @return if this save is multiplayer enabled
+     */
+    boolean isMultiplayer();
+
+    /**
      * @return the slot of this save
      */
     int getSlot();

@@ -11,6 +11,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 public final class Asset implements Disposable {
 
@@ -27,6 +28,7 @@ public final class Asset implements Disposable {
     private TextureAtlas atlasAssets;
 
     public void load() {
+        final long now = System.currentTimeMillis();
         loadSkins();
 
         final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
@@ -42,6 +44,8 @@ public final class Asset implements Disposable {
 
         assetManager.finishLoading();
         this.atlasAssets = assetManager.get(ASSETS);
+        final long time = System.currentTimeMillis() - now;
+        GameLogging.info("AssetManager", "Finished loading assets in %sms", time);
     }
 
     /**

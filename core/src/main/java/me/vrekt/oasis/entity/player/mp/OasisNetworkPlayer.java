@@ -130,13 +130,13 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        drawEquippedItem(batch);
+        // drawEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta));
+            draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta), getScaledWidth(), getScaledHeight());
         } else {
             if (currentRegion != null) {
-                draw(batch, currentRegion);
+                draw(batch, currentRegion, getScaledWidth(), getScaledHeight());
             }
         }
     }

@@ -1,6 +1,5 @@
 package me.vrekt.oasis.world.instance;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
@@ -31,8 +30,8 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
     }
 
     @Override
-    public void renderWorld(SpriteBatch batch, float delta) {
-        super.renderWorld(batch, delta);
+    public void renderWorld(float delta) {
+        super.renderWorld(delta);
         endRender();
     }
 
@@ -74,6 +73,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
         loadWorldObjects(map, game.getAsset(), worldScale);
         loadInteractableEntities(game, game.getAsset(), map, worldScale);
+        loadEntityPaths(map, worldScale);
 
         renderer.setTiledMap(map, spawn.x, spawn.y);
         game.getMultiplexer().addProcessor(this);

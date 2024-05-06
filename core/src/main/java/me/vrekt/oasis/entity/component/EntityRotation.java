@@ -7,8 +7,13 @@ public enum EntityRotation {
 
     UP, DOWN, LEFT, RIGHT;
 
-    public static boolean isVertical(EntityRotation rotation) {
-        return rotation == UP || rotation == DOWN;
+    public static EntityRotation fromDirection(Direction direction) {
+        return switch (direction) {
+            case S, SE, SW -> DOWN;
+            case E -> RIGHT;
+            case W -> LEFT;
+            default -> UP;
+        };
     }
 
     public static EntityRotation of(float angle) {

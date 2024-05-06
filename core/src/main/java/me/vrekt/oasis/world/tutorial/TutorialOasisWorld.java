@@ -1,6 +1,5 @@
 package me.vrekt.oasis.world.tutorial;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
@@ -83,8 +82,8 @@ public final class TutorialOasisWorld extends OasisWorld {
     }
 
     @Override
-    public void renderWorld(SpriteBatch batch, float delta) {
-        super.renderWorld(batch, delta);
+    public void renderWorld(float delta) {
+        super.renderWorld(delta);
         endRender();
     }
 

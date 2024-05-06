@@ -50,7 +50,7 @@ public class SaveManager {
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
-                final Save save = new Save(name, GameManager.getGameProgress(), slot);
+                final Save save = new Save(name, GameManager.getGameProgress(), GameManager.getOasis().isLocalMultiplayer(), slot);
 
                 writeGameSaveProperties(slot, save);
                 SAVE_GAME_GSON.toJson(save, writer);
@@ -66,6 +66,8 @@ public class SaveManager {
      * Read save game properties
      */
     public static void readSaveGameProperties() {
+        if (properties != null) return;
+
         Path path = Paths.get("saves/save_properties.json");
         if (Files.exists(path)) {
             try {
@@ -115,7 +117,7 @@ public class SaveManager {
      */
     public static Save load(int slot) {
         readSaveGameProperties();
-        Path path = Paths.get("/saves/" + properties.getSlotName(slot) + ".json");
+        Path path = Paths.get("saves/" + properties.getSlotName(slot) + ".json");
         if (Files.exists(path)) {
             final long now = System.currentTimeMillis();
             try {

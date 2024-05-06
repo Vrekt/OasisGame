@@ -6,6 +6,17 @@ TBA
 
 # Art
 
+# Parallax main menu background
+```
+Relevance: Main menu background
+Source: https://opengameart.org/content/rocky-desert-landscape-layered-looping
+License: CC0
+Author Emcee Flesher
+
+Copyright/Attribution Notice: 
+Original by Quantiset (CC0): https://opengameart.org/content/mars-background-pixel-art
+```
+
 # Overworld Tileset
 ```
 Relevance: Main tutorial world, OasisTutorialWorld.tmx

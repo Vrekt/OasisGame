@@ -3,22 +3,24 @@ package me.vrekt.oasis;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kotcrab.vis.ui.VisUI;
 import gdx.lunar.LunarClientServer;
-import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.GdxProtocol;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.Save;
 import me.vrekt.oasis.save.SaveManager;
-import me.vrekt.oasis.ui.OasisMainMenu;
+import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisSaveScreen;
+import me.vrekt.oasis.ui.OasisSplashScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.OasisWorld;
@@ -33,11 +35,9 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240416-1102-1616";
+    public static final String GAME_VERSION = "20240506-0255-2087";
 
     private Asset asset;
-
-    private OasisMainMenu menu;
 
     private GameTiledMapRenderer renderer;
     private OasisPlayer player;
@@ -58,11 +58,19 @@ public final class OasisGame extends Game {
     private boolean isNewGame;
 
     private IntegratedServer server;
-    private boolean isIntegratedGame;
+    // local multiplayer = we are the host
+    // isMultiplayer = joined a multiplayer game
+    private boolean isLocalMultiplayer, isMultiplayer;
+
+    private Styles style;
+    private Texture logoTexture;
 
     @Override
     public void create() {
         GameLogging.info(this, "Starting game, version: %s", GAME_VERSION);
+        this.logoTexture = new Texture(Gdx.files.internal("ui/em_logo2.png"));
+
+        setScreen(new OasisSplashScreen(this));
         initialize();
     }
 
@@ -73,10 +81,11 @@ public final class OasisGame extends Game {
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
         this.asyncLoadingService = Executors.newVirtualThreadPerTaskExecutor();
 
-
         asset = new Asset();
         asset.load();
         VisUI.load();
+        style = new Styles(asset);
+
         // read game properties for loading a game
         SaveManager.init();
         SaveManager.readSaveGameProperties();
@@ -85,9 +94,6 @@ public final class OasisGame extends Game {
         ItemRegistry.registerItems();
         multiplexer = new InputMultiplexer();
         Gdx.input.setInputProcessor(multiplexer);
-
-        menu = new OasisMainMenu(this);
-        setScreen(menu);
     }
 
     /**
@@ -115,15 +121,24 @@ public final class OasisGame extends Game {
      * @param state the state
      */
     public void loadGameFromSave(Save state) {
+        final OasisLoadingScreen loadingScreen = new OasisLoadingScreen(this, asset, true);
+        setScreen(loadingScreen);
         loadGameStructure();
+
+        // start integrated server if this save has multiplayer enabled
+        if (state.isMultiplayer()) {
+            isLocalMultiplayer = true;
+            startIntegratedServer();
+        }
 
         player.loadFromSave(state.getPlayerProperties());
         final String worldName = state.getWorldProperties().getWorldName();
-        worldManager.getWorld(worldName).loadFromSave(state.getWorldProperties());
+        final OasisWorld world = worldManager.getWorld(worldName);
+        loadingScreen.setWorldLoadingIn(world);
+        world.loadFromSave(state.getWorldProperties());
 
         // TODO: Depending on how things go, probably just use CompleteableFuture instead
         asyncLoadingService.shutdown();
-        handler.joinWorld(worldName, player.getName());
     }
 
     /**
@@ -132,7 +147,7 @@ public final class OasisGame extends Game {
     public void loadNewGame() {
         isNewGame = true;
         loadGameStructure();
-        startIntegratedServer();
+        loadIntoWorldLocal(worldManager.getWorld("TutorialWorld"));
     }
 
     /**
@@ -154,7 +169,7 @@ public final class OasisGame extends Game {
         asyncLoadingService.execute(() -> {
             final Save state = SaveManager.load(slot);
             if (state == null) {
-                executeMain(() -> setScreen(menu));
+                throw new IllegalArgumentException("Slot " + slot + " does not exist.");
             } else {
                 executeMain(() -> loadGameFromSave(state));
             }
@@ -176,14 +191,14 @@ public final class OasisGame extends Game {
      * Start integrated server
      */
     private void startIntegratedServer() {
-        isIntegratedGame = true;
+        if (server != null && server.isStarted()) return;
 
         this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
         server = new IntegratedServer(this, protocol);
         server.start();
 
         clientServer = new LunarClientServer(protocol, "localhost", 6969);
-        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, player));
+        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, this, player));
 
         try {
             clientServer.connect();
@@ -199,7 +214,17 @@ public final class OasisGame extends Game {
         handler = (PlayerConnection) clientServer.getConnection();
         player.setConnectionHandler(handler);
 
-        handler.joinWorld("TutorialWorld", player.getName());
+        isLocalMultiplayer = true;
+    }
+
+    private void resumeIntegratedServer() {
+        GameLogging.info(this, "Integrated server resumed.");
+        server.resume();
+    }
+
+    private void stopIntegratedServer() {
+        GameLogging.info(this, "Integrated server suspended.");
+        server.suspend();
     }
 
     /**
@@ -207,7 +232,9 @@ public final class OasisGame extends Game {
      */
     public void joinRemoteServer() {
         loadGameStructure();
-        isIntegratedGame = false;
+
+        isLocalMultiplayer = false;
+        isMultiplayer = true;
 
         this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
 
@@ -227,7 +254,7 @@ public final class OasisGame extends Game {
 
         GameLogging.info(this, "Connecting to remote server ip=%s port=%d", ip, port);
         clientServer = new LunarClientServer(protocol, ip, port);
-        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, player));
+        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, this, player));
 
         try {
             clientServer.connect();
@@ -247,14 +274,48 @@ public final class OasisGame extends Game {
     }
 
     /**
-     * Load into a new world
+     * Load into a local world
      *
      * @param world the world
      */
-    public void loadIntoWorld(OasisWorld world) {
+    public void loadIntoWorldLocal(OasisWorld world) {
         world.enterWorld(false);
         setScreen(world);
-        player.getConnection().updateWorldHasLoaded();
+    }
+
+    /**
+     * Load into a remote network world
+     *
+     * @param worldName the world
+     */
+    public void loadIntoNetworkWorld(String worldName) {
+        if (!worldManager.doesWorldExist(worldName)) {
+            GameLogging.info(this, "Bad information from the server! World %s does not exist!", worldName);
+            return;
+        }
+
+        Gdx.app.postRunnable(() -> {
+            loadIntoWorldLocal(worldManager.getWorld(worldName));
+            player.getConnection().updateWorldHasLoaded();
+        });
+    }
+
+    public void enableLocalMultiplayer() {
+        if (!isLocalMultiplayer) {
+            if (server != null && server.isStarted()) {
+                resumeIntegratedServer();
+                isLocalMultiplayer = true;
+            } else {
+                asyncLoadingService.execute(this::startIntegratedServer);
+            }
+        }
+    }
+
+    public void disableLocalMultiplayer() {
+        if (isLocalMultiplayer) {
+            isLocalMultiplayer = false;
+            stopIntegratedServer();
+        }
     }
 
     @Override
@@ -272,23 +333,43 @@ public final class OasisGame extends Game {
         return server;
     }
 
-    public boolean isIntegratedGame() {
-        return isIntegratedGame;
+    /**
+     * @return {@code true} if this game is a local multiplayer game being hosted
+     */
+    public boolean isLocalMultiplayer() {
+        return isLocalMultiplayer;
+    }
+
+    /**
+     * @return {@code true} if this game is a multiplayer game with a remote server
+     */
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
+    public Styles getStyle() {
+        return style;
+    }
+
+    public Texture getLogoTexture() {
+        return logoTexture;
     }
 
     @Override
     public void dispose() {
         try {
             if (screen != null) screen.hide();
+            logoTexture.dispose();
             player.getConnection().dispose();
             clientServer.dispose();
-            if (isIntegratedGame) server.dispose();
+            if (isLocalMultiplayer) server.dispose();
+            asyncLoadingService.shutdownNow();
             player.dispose();
             worldManager.dispose();
             batch.dispose();
             asset.dispose();
         } catch (Exception exception) {
-            GameLogging.exceptionThrown(GAME_VERSION, "Failed to exit properly", exception);
+            GameLogging.exceptionThrown(this, "Failed to exit properly", exception);
         }
     }
 
@@ -337,7 +418,7 @@ public final class OasisGame extends Game {
         return asset;
     }
 
-    public PlayerConnectionHandler getConnectionHandler() {
+    public PlayerConnection getConnectionHandler() {
         return handler;
     }
 

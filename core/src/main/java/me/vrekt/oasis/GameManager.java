@@ -1,6 +1,7 @@
 package me.vrekt.oasis;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
@@ -9,6 +10,7 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.ui.FadeScreen;
+import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.management.WorldManager;
@@ -23,9 +25,12 @@ public class GameManager {
     private static GuiManager guiManager;
 
     private static boolean isSaving;
+    private static boolean isMultiplayerGame;
     private static GameSaveProperties saveProperties;
 
-    private static String gameProgress = "10%";
+    private static String gameProgress = "10% complete";
+    // keep track of the current loading screen
+    private static OasisLoadingScreen currentLoadingScreen;
 
     public static OasisGame getOasis() {
         return oasis;
@@ -130,26 +135,27 @@ public class GameManager {
     }
 
     /**
-     * Enable multiplayer lan functionality
-     */
-    public static void enableMultiplayerLan() {
-        oasis.getServer().getNettyServer().enableIncomingConnections();
-    }
-
-    /**
-     * Disable multiplayer lan functionality
-     */
-    public static void disableMultiplayerLan() {
-        oasis.getServer().getNettyServer().disableIncomingConnections();
-    }
-
-    /**
      * Execute an action on the main game thread
      *
      * @param action the action
      */
     public static void executeOnMainThread(Runnable action) {
         oasis.executeMain(action);
+    }
+
+    /**
+     * Execute a task later
+     *
+     * @param action the action
+     * @param delay  the delay
+     */
+    public static void executeTaskLater(Runnable action, long delay) {
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                action.run();
+            }
+        }, delay);
     }
 
     public static String getGameProgress() {

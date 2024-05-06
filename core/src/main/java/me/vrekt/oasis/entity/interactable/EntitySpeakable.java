@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
+import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialogSection;
 import me.vrekt.oasis.entity.npc.animation.EntityTextured;
@@ -30,6 +31,8 @@ public abstract class EntitySpeakable extends EntityTextured {
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
     protected float speakableDistance = 6f, dialogAnimationRange = 50f;
     protected final Vector2 interaction = new Vector2();
+    protected EntityRotation rotation;
+    protected EntityRotation lastRotation;
 
     protected final Map<String, Runnable> dialogActions = new HashMap<>();
 
@@ -37,6 +40,10 @@ public abstract class EntitySpeakable extends EntityTextured {
         super(true);
         this.player = player;
         entity.add(new EntityDialogComponent());
+    }
+
+    public EntityRotation getRotation() {
+        return rotation;
     }
 
     @Override

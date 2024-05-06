@@ -2,21 +2,23 @@ package me.vrekt.oasis.gui.windows;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
 
 public final class SettingsWindowGui extends Gui {
 
-    private final VisTable primary;
-    private final VisCheckBox lanGameCheck;
+    private final VisLabel entityUpdateDistancePercentage;
+    private long lastMultiplayerChecked = System.currentTimeMillis();
 
     public SettingsWindowGui(GuiManager guiManager) {
         super(GuiType.SETTINGS, guiManager);
@@ -29,45 +31,64 @@ public final class SettingsWindowGui extends Gui {
         rootTable.setVisible(false);
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("pause")));
 
-        primary = new VisTable();
+        final VisTable primary = new VisTable();
+        final VisTable headerTable = new VisTable();
+        headerTable.add(new VisLabel("Game Settings", guiManager.getStyle().getLargeWhite())).fillX();
 
-        final VisLabel gameHeader = new VisLabel("Game Settings", guiManager.getStyle().getLargeWhite());
-        final VisLabel graphicsHeader = new VisLabel("Graphics Settings", guiManager.getStyle().getLargeWhite());
+        final VisTable gameSettingsTable = new VisTable();
+        final VisTable multiplayerGameContainer = new VisTable();
+        multiplayerGameContainer.left();
+        final VisTable vsyncContainer = new VisTable();
+        vsyncContainer.left();
+        final VisTable entityUpdateDistanceContainer = new VisTable();
 
-        final VisCheckBox.VisCheckBoxStyle style = VisUI.getSkin().get(VisCheckBox.VisCheckBoxStyle.class);
-        style.font = guiManager.getAsset().getMedium();
-        style.fontColor = Color.WHITE;
+        multiplayerGameContainer.setBackground(guiManager.getStyle().getTheme());
+        vsyncContainer.setBackground(guiManager.getStyle().getTheme());
+        entityUpdateDistanceContainer.setBackground(guiManager.getStyle().getTheme());
 
-        lanGameCheck = new VisCheckBox("Enable Multiplayer LAN", style);
-        lanGameCheck.setChecked(OasisGameSettings.ENABLE_MP_LAN);
+        final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", guiManager.getStyle().getCheckBoxStyle());
+        multiplayerGameCheck.setChecked(guiManager.getGame().isLocalMultiplayer());
+        multiplayerGameContainer.add(multiplayerGameCheck).left();
 
-        final VisLabel backLabel = new VisLabel("<- Back", guiManager.getStyle().getMediumWhite());
-        final VisLabel entityUpdateDistanceLabel = new VisLabel("Entity Distance", guiManager.getStyle().getMediumWhite());
-        final VisLabel entityUpdateDistanceValue = new VisLabel(" (" + OasisGameSettings.ENTITY_UPDATE_DISTANCE + "%)", guiManager.getStyle().getSmallWhite());
-        final VisSlider entityUpdateDistanceSlider = handleSliderComponent(entityUpdateDistanceValue);
-
-        new Tooltip.Builder("How far away entities will update from the player")
-                .target(entityUpdateDistanceLabel)
-                .style(guiManager.getStyle().getTooltipStyle())
-                .build();
-
-        primary.add(gameHeader).row();
-        primary.add(entityUpdateDistanceLabel);
-        primary.add(entityUpdateDistanceValue);
-        primary.add(entityUpdateDistanceSlider).padLeft(8);
-
-
-        final VisCheckBox vsyncCheck = new VisCheckBox("VSync", style);
+        final VisCheckBox vsyncCheck = new VisCheckBox("Enable VSync", guiManager.getStyle().getCheckBoxStyle());
         vsyncCheck.setChecked(OasisGameSettings.V_SYNC);
-        handleCheckBoxComponents(vsyncCheck, lanGameCheck);
-        addHoverComponents(backLabel, Color.LIGHT_GRAY, Color.WHITE, () -> guiManager.showParentGui(this));
+        vsyncContainer.add(vsyncCheck).left();
 
+        // handle checking and changing options with the checkboxes
+        handleCheckBoxComponents(vsyncCheck, multiplayerGameCheck);
+
+        final NinePatch patch = new NinePatch(guiManager.getAsset().get("slider_knob"), 1, 1, 1, 1);
+        final NinePatchDrawable drawable = new NinePatchDrawable(patch);
+
+        // TODO: A little ugly but acceptable.
+        final VisLabel entityUpdateDistanceLabel = new VisLabel("Entity Update Distance", guiManager.getStyle().getMediumWhite());
+        final Slider.SliderStyle sliderStyle = new Slider.SliderStyle(VisUI.getSkin().get("default-horizontal", Slider.SliderStyle.class));
+        sliderStyle.background = guiManager.getStyle().getThemePadded();
+        sliderStyle.knob = new TextureRegionDrawable(guiManager.getAsset().get("slider_knob"));
+        sliderStyle.knobBefore = drawable;
+
+        final VisSlider entityUpdateDistanceSlider = new VisSlider(10.0f, 200.0f, 5.0f, false, sliderStyle);
+        entityUpdateDistanceSlider.setValue(OasisGameSettings.ENTITY_UPDATE_DISTANCE);
+        entityUpdateDistanceContainer.add(entityUpdateDistanceLabel).padRight(4f);
+        entityUpdateDistanceContainer.add(entityUpdateDistanceSlider);
+        entityUpdateDistanceContainer.add(entityUpdateDistancePercentage = new VisLabel("(100%)", guiManager.getStyle().getSmallerWhite())).padLeft(2f);
+        handleSliderComponent(entityUpdateDistanceSlider);
+
+        gameSettingsTable.add(multiplayerGameContainer).fillX();
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(vsyncContainer).fillX();
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(entityUpdateDistanceContainer).fillX();
+
+        final VisImageTextButton backButton = new VisImageTextButton("Go Back", guiManager.getStyle().getImageTextButtonStyle());
+        addHoverComponents(backButton, new Color(64 / 255f, 64 / 255f, 64 / 255f, 1), Color.WHITE, () -> guiManager.showParentGui(this));
+
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(backButton).fillX();
+
+        primary.add(headerTable);
         primary.row();
-        primary.add(graphicsHeader);
-        primary.row();
-        primary.add(vsyncCheck);
-        primary.row();
-        primary.add(backLabel);
+        primary.add(gameSettingsTable);
 
         rootTable.add(primary);
         guiManager.addGui(rootTable);
@@ -76,10 +97,10 @@ public final class SettingsWindowGui extends Gui {
     /**
      * Handle updating game settings related to the checkbox
      *
-     * @param vsync   the checkbox
-     * @param lanGame lan game checkbox
+     * @param vsync  the checkbox
+     * @param mpGame mp game checkbox
      */
-    private void handleCheckBoxComponents(VisCheckBox vsync, VisCheckBox lanGame) {
+    private void handleCheckBoxComponents(VisCheckBox vsync, VisCheckBox mpGame) {
         vsync.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
@@ -87,37 +108,35 @@ public final class SettingsWindowGui extends Gui {
                 Gdx.graphics.setVSync(OasisGameSettings.V_SYNC);
             }
         });
-        lanGame.addListener(new ChangeListener() {
+
+        mpGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                OasisGameSettings.ENABLE_MP_LAN = lanGame.isChecked();
-                if (lanGame.isChecked()) {
-                    GameManager.enableMultiplayerLan();
+                if (System.currentTimeMillis() - lastMultiplayerChecked <= 1000) {
+                    // prevent spamming of this checkbox
+                    mpGame.setChecked(!mpGame.isChecked());
+                    return;
+                }
+
+                lastMultiplayerChecked = System.currentTimeMillis();
+                OasisGameSettings.ENABLE_MP_LAN = mpGame.isChecked();
+                if (mpGame.isChecked()) {
+                    guiManager.getGame().enableLocalMultiplayer();
                 } else {
-                    GameManager.disableMultiplayerLan();
+                    guiManager.getGame().disableLocalMultiplayer();
                 }
             }
         });
     }
 
-    /**
-     * Handle updating game settings related to the slider
-     *
-     * @param entityUpdateDistanceValue label to update
-     * @return the slider
-     */
-    private VisSlider handleSliderComponent(VisLabel entityUpdateDistanceValue) {
-        final VisSlider entityUpdateDistanceSlider = new VisSlider(10.0f, 200.0f, 5.0f, false);
-        entityUpdateDistanceSlider.setValue(OasisGameSettings.ENTITY_UPDATE_DISTANCE);
-
-        entityUpdateDistanceSlider.addListener(new ChangeListener() {
+    private void handleSliderComponent(VisSlider slider) {
+        slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
-                OasisGameSettings.ENTITY_UPDATE_DISTANCE = entityUpdateDistanceSlider.getValue();
-                entityUpdateDistanceValue.setText(" (" + OasisGameSettings.ENTITY_UPDATE_DISTANCE + "%)");
+                OasisGameSettings.ENTITY_UPDATE_DISTANCE = slider.getValue();
+                entityUpdateDistancePercentage.setText(" (" + OasisGameSettings.ENTITY_UPDATE_DISTANCE + "%)");
             }
         });
-        return entityUpdateDistanceSlider;
     }
 
     @Override
@@ -125,13 +144,6 @@ public final class SettingsWindowGui extends Gui {
         super.show();
         rootTable.setVisible(true);
 
-        // only add check if game is currently an integrated game
-        if (guiManager.getGame().isIntegratedGame()) {
-            primary.row();
-            primary.add(lanGameCheck);
-        } else {
-            lanGameCheck.setDisabled(true);
-        }
         rootTable.invalidate();
     }
 

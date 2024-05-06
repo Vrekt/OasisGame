@@ -22,6 +22,10 @@ public final class WorldManager implements Disposable {
         return (T) worldMap.get(name);
     }
 
+    public boolean doesWorldExist(String name) {
+        return worldMap.containsKey(name);
+    }
+
     @Override
     public void dispose() {
         worldMap.values().forEach(LunarWorld::dispose);

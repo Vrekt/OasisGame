@@ -17,6 +17,8 @@ public final class Save implements GameSave {
     @Expose
     private final String date;
     @Expose
+    private final boolean isMultiplayer;
+    @Expose
     private final int slot;
 
     @Expose
@@ -25,12 +27,13 @@ public final class Save implements GameSave {
     @Expose
     private WorldSaveProperties world;
 
-    public Save(String name, String progress, int slot) {
+    public Save(String name, String progress, boolean isMultiplayer, int slot) {
         this.name = name;
         this.progress = progress;
+        this.isMultiplayer = isMultiplayer;
         this.slot = slot;
 
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm a");
         this.date = LocalDateTime.now().format(formatter);
 
         player = new PlayerSaveProperties(GameManager.getPlayer());
@@ -50,6 +53,11 @@ public final class Save implements GameSave {
     @Override
     public String getDate() {
         return date;
+    }
+
+    @Override
+    public boolean isMultiplayer() {
+        return isMultiplayer;
     }
 
     @Override

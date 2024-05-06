@@ -66,6 +66,7 @@ public final class Crimson {
         final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));
 
         log("Server started successfully at " + localTime + ", version: " + CRIMSON_VERSION + ", game version: " + GAME_VERSION);
+        while (true) {}
     }
 
     private void handlePacket(int id, ByteBuf in) {

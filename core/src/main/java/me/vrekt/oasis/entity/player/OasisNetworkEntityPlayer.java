@@ -23,7 +23,7 @@ public abstract class OasisNetworkEntityPlayer extends AbstractLunarEntityNetwor
 
     @Override
     public boolean isInView(Camera camera) {
-        return camera.frustum.pointInFrustum(getX(), getY(), 0.0f);
+        return true;
     }
 
     /**
@@ -40,8 +40,8 @@ public abstract class OasisNetworkEntityPlayer extends AbstractLunarEntityNetwor
         return other.dst2(getPosition()) <= INTERACTION_DISTANCE;
     }
 
-    protected void draw(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
+    protected void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
+        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, width, height);
     }
 
     @Override

@@ -49,7 +49,6 @@ public class GuiManager {
     private final EntityDialogGui dialogGui;
     private final ReadableSignGui signGui;
 
-    private final Texture defaultCursorTexture;
     private Cursor cursorState;
     private boolean wasCursorChanged;
 
@@ -57,9 +56,7 @@ public class GuiManager {
         this.game = game;
         this.asset = asset;
         this.skin = asset.getDefaultLibgdxSkin();
-        defaultCursorTexture = new Texture(Gdx.files.internal(Cursor.DEFAULT.getFile()));
-
-        styles = new Styles(this, asset);
+        this.styles = game.getStyle();
 
         // fit this stage to always respect the general constraints we want
         stage = new Stage(new FitViewport(640, 480));
@@ -128,10 +125,6 @@ public class GuiManager {
         return signGui;
     }
 
-    public Texture getDefaultCursorTexture() {
-        return defaultCursorTexture;
-    }
-
     /**
      * Set the cursor to something different
      *
@@ -168,12 +161,14 @@ public class GuiManager {
      */
     public void resetCursor() {
         if (cursorState == Cursor.DEFAULT) return;
+        final Texture texture = styles.getDefaultCursorTexture();
 
-        if (!defaultCursorTexture.getTextureData().isPrepared()) defaultCursorTexture.getTextureData().prepare();
+        if (!texture.getTextureData().isPrepared())
+            texture.getTextureData().prepare();
 
-        final Pixmap map = defaultCursorTexture.getTextureData().consumePixmap();
+        final Pixmap map = texture.getTextureData().consumePixmap();
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(map, 0, 0));
-        if (defaultCursorTexture.getTextureData().disposePixmap()) {
+        if (texture.getTextureData().disposePixmap()) {
             map.dispose();
         }
         this.cursorState = Cursor.DEFAULT;

@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.combat.CombatDamageAnimator;
-import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
+import me.vrekt.oasis.entity.ai.agent.Box2dSteeringAgent;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.EntityDamageable;
@@ -26,7 +26,7 @@ public abstract class EntityEnemy extends EntityDamageable {
     protected EntityRotation entityRotation;
     protected EntityRotation lastRotation;
 
-    protected BasicSteeringAgent ai;
+    protected Box2dSteeringAgent ai;
     protected EntityAnimationComponent animationComponent;
 
     protected boolean ignoreCollision;

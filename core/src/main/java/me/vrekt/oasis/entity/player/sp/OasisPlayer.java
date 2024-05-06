@@ -7,8 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import gdx.lunar.protocol.packet.client.C2SPacketPing;
-import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
-import gdx.lunar.protocol.packet.server.S2CPacketPing;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.impl.LunarPlayer;
 import me.vrekt.oasis.OasisGame;
@@ -84,7 +82,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         moved = true;
         setMoving(true);
         setSize(15, 25, OasisGameSettings.SCALE);
-        setNetworkSendRateInMs(0, 0);
+        setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
         this.inventory = new PlayerInventory();
@@ -127,6 +125,10 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public long getServerPingTime() {
         return serverPingTime;
+    }
+
+    public void setServerPingTime(long serverPingTime) {
+        this.serverPingTime = serverPingTime;
     }
 
     public boolean isInInstance() {
@@ -228,30 +230,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     public void setConnectionHandler(PlayerConnection connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
-
-        connectionHandler.registerHandlerSync(S2CPacketJoinWorld.PACKET_ID, packet -> handleWorldJoin(((S2CPacketJoinWorld) packet)));
-        connectionHandler.registerHandlerSync(S2CPacketPing.PACKET_ID, packet -> updatePingTime((S2CPacketPing) packet));
-    }
-
-    /**
-     * Update ping time from the server
-     *
-     * @param packet the packet
-     */
-    private void updatePingTime(S2CPacketPing packet) {
-        final long now = System.currentTimeMillis();
-        serverPingTime = now - packet.getClientTime();
-    }
-
-    /**
-     * Handle world joining request response from the server
-     *
-     * @param world the world
-     */
-    public void handleWorldJoin(S2CPacketJoinWorld world) {
-        GameLogging.info(this, "Attempting to join world %s, our entity ID is %d", world.getWorldName(), world.getEntityId());
-        setEntityId(world.getEntityId());
-        game.loadIntoWorld(game.getWorldManager().getWorld(world.getWorldName()));
     }
 
     public void setIdleRegionState() {
@@ -289,31 +267,19 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
     }
 
-
-    //  @Override
-    // public void setInterpolated(float x, float y) {
-    //     super.setInterpolated(x - getWidthScaled() / 2f, y - getHeightScaled() / 2f);
-    //  }
-
+    /**
+     * Poll input of the user input
+     */
     public void pollInput() {
-
         setVelocity(0.0f, 0.0f);
         if (disableMovement) {
             return;
         }
-        if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_UP_KEY)) {
-            rotation = EntityRotation.UP;
-            setVelocity(0.0f, getMoveSpeed());
-        } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_DOWN_KEY)) {
-            rotation = EntityRotation.DOWN;
-            setVelocity(0.0f, -getMoveSpeed());
-        } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_LEFT_KEY)) {
-            rotation = EntityRotation.LEFT;
-            setVelocity(-getMoveSpeed(), 0.0f);
-        } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_RIGHT_KEY)) {
-            rotation = EntityRotation.RIGHT;
-            setVelocity(getMoveSpeed(), 0.0f);
-        }
+
+        final float velY = getVelocityY();
+        final float velX = getVelocityX();
+        // TODO: Normalize, but fix slow movement
+        setVelocity(velX, velY);
 
         moved = (!getVelocity().isZero());
 
@@ -321,9 +287,35 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         setAngle(rotation.ordinal());
     }
 
+    private float getVelocityY() {
+        if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_UP_KEY)) {
+            rotation = EntityRotation.UP;
+            return getMoveSpeed();
+        } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_DOWN_KEY)) {
+            rotation = EntityRotation.DOWN;
+            return -getMoveSpeed();
+        }
+        return 0.0f;
+    }
+
+    private float getVelocityX() {
+        if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_LEFT_KEY)) {
+            rotation = EntityRotation.LEFT;
+            return -getMoveSpeed();
+        } else if (Gdx.input.isKeyPressed(OasisKeybindings.WALK_RIGHT_KEY)) {
+            rotation = EntityRotation.RIGHT;
+            return getMoveSpeed();
+        }
+        return 0.0f;
+    }
+
     @Override
     public void update(float delta) {
-        super.update(delta);
+        pollInput();
+
+        if (this.body != null) {
+            this.body.setLinearVelocity(this.getVelocity());
+        }
 
         inventory.update();
 
@@ -332,12 +324,22 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             rotationChanged = false;
         }
 
+        if (game.isLocalMultiplayer() || game.isMultiplayer())
+            updateNetworkComponents();
+
+        artifactInventory.forEach(artifact -> artifact.updateArtifact(this, gameWorldIn.getCurrentWorldTick()));
+    }
+
+    /**
+     * Update network components and sending of regular packets
+     */
+    private void updateNetworkComponents() {
+        updateNetworkPositionAndVelocity();
+
         if (System.currentTimeMillis() - lastPingSent >= 2000) {
             lastPingSent = System.currentTimeMillis();
             connection.sendImmediately(new C2SPacketPing(System.currentTimeMillis()));
         }
-
-        artifactInventory.forEach(artifact -> artifact.updateArtifact(this, gameWorldIn.getCurrentWorldTick()));
     }
 
     @Override

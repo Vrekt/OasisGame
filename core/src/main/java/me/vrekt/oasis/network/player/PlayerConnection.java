@@ -2,7 +2,11 @@ package me.vrekt.oasis.network.player;
 
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.GdxProtocol;
+import gdx.lunar.protocol.packet.server.S2CPacketAuthenticate;
+import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
+import gdx.lunar.protocol.packet.server.S2CPacketPing;
 import io.netty.channel.Channel;
+import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -10,15 +14,36 @@ import me.vrekt.shared.network.ServerPacketPlayerEquippedItem;
 import me.vrekt.shared.network.ServerPacketPlayerSwingItem;
 import me.vrekt.shared.network.ServerPacketSpawnEntity;
 
-public class PlayerConnection extends PlayerConnectionHandler {
+/**
+ * Represents our local players connection
+ */
+public final class PlayerConnection extends PlayerConnectionHandler {
 
+    private final OasisGame game;
     private final OasisPlayer player;
 
-    public PlayerConnection(Channel channel, GdxProtocol protocol, OasisPlayer player) {
+    public PlayerConnection(Channel channel, GdxProtocol protocol, OasisGame game, OasisPlayer player) {
         super(channel, protocol);
+        this.game = game;
         this.player = player;
+    }
 
-      //  registerPacket(ServerPacketSpawnEntity.ID, ServerPacketSpawnEntity::new, this::handleSpawnEntity);
+    @Override
+    public void handleJoinWorld(S2CPacketJoinWorld packet) {
+        GameLogging.info(this, "Attempting to join world %s, our entity ID is %d", packet.getWorldName(), packet.getEntityId());
+        player.setEntityId(packet.getEntityId());
+
+        game.loadIntoNetworkWorld(packet.getWorldName());
+    }
+
+    @Override
+    public void handleAuthentication(S2CPacketAuthenticate packet) {
+        GameLogging.info(this, "Authentication result is %s", packet.isAuthenticationSuccessful());
+    }
+
+    @Override
+    public void handlePing(S2CPacketPing packet) {
+        player.setServerPingTime((System.currentTimeMillis() - packet.getClientTime()));
     }
 
     private void handleSpawnEntity(ServerPacketSpawnEntity packet) {

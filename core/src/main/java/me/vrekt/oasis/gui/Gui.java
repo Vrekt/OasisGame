@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import java.util.ArrayList;
@@ -97,6 +98,25 @@ public abstract class Gui {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 label.setColor(original);
+            }
+        });
+    }
+
+    protected void addHoverComponents(VisImageTextButton button, Color color, Color original, Runnable clickAction) {
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                clickAction.run();
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                button.setColor(color);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                button.setColor(original);
             }
         });
     }

@@ -6,7 +6,7 @@ import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.ai.steer.behaviors.Seek;
 import com.badlogic.gdx.ai.steer.limiters.LinearLimiter;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.entity.ai.agent.BasicSteeringAgent;
+import me.vrekt.oasis.entity.ai.agent.Box2dSteeringAgent;
 import me.vrekt.oasis.entity.ai.utilities.PlayerAsSteerable;
 import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityRotation;
@@ -16,7 +16,7 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 /**
  * Seek the player out then pursue them
  */
-public final class SeekAndPursuePlayer extends BasicSteeringAgent {
+public final class SeekAndPursuePlayer extends Box2dSteeringAgent {
 
     private final SteeringAcceleration<Vector2> seekOutput =
             new SteeringAcceleration<>(new Vector2());
@@ -33,7 +33,7 @@ public final class SeekAndPursuePlayer extends BasicSteeringAgent {
     private float nearPlayerDistance, closeToPlayerDistance;
 
     public SeekAndPursuePlayer(EntityEnemy owner, OasisPlayer player, PlayerSteeringLocation target, Vector2 position) {
-        super(position);
+        super(position, owner);
 
         this.player = player;
         this.owner = owner;

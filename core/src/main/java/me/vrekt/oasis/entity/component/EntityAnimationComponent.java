@@ -13,16 +13,26 @@ import java.util.Map;
  */
 public final class EntityAnimationComponent implements Component, Pool.Poolable {
 
-    private final Map<Float, Animation<TextureRegion>> walkingAnimations = new HashMap<>();
+    private final Map<Integer, Animation<TextureRegion>> walkingAnimations = new HashMap<>();
     private float animationTime;
 
-    public void registerWalkingAnimation(float rotation, float ft, TextureRegion... frames) {
+    public void registerWalkingAnimation(int rotation, float ft, TextureRegion... frames) {
         final Animation<TextureRegion> animation = new Animation<>(ft, frames);
         animation.setPlayMode(Animation.PlayMode.LOOP);
         walkingAnimations.put(rotation, animation);
     }
 
-    public TextureRegion playWalkingAnimation(float rotation, float time) {
+    public void registerWalkingAnimation(EntityRotation rotation, float ft, TextureRegion... frames) {
+        final Animation<TextureRegion> animation = new Animation<>(ft, frames);
+        animation.setPlayMode(Animation.PlayMode.LOOP);
+        walkingAnimations.put(rotation.ordinal(), animation);
+    }
+
+    public void setFrameDuration(int rotation, float ft) {
+        walkingAnimations.get(rotation).setFrameDuration(ft);
+    }
+
+    public TextureRegion playWalkingAnimation(int rotation, float time) {
         animationTime += time;
         return walkingAnimations.get(rotation).getKeyFrame(animationTime);
     }

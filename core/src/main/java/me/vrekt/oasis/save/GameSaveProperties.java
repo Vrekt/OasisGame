@@ -27,13 +27,13 @@ public class GameSaveProperties {
     public void setSlotProperty(int slot, GameSave save) {
         switch (slot) {
             case 1:
-                slot1 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), slot);
+                slot1 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
                 break;
             case 2:
-                slot2 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), slot);
+                slot2 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
                 break;
             case 3:
-                slot3 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), slot);
+                slot3 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
                 break;
         }
     }
@@ -54,6 +54,28 @@ public class GameSaveProperties {
             case 3 -> slot3;
             default -> null;
         };
+    }
+
+    /**
+     * Check if a save slot exists
+     *
+     * @param slot the slot
+     * @return {@code true} if so
+     */
+    public boolean hasSaveSlot(int slot) {
+        return switch (slot) {
+            case 1 -> slot1 != null;
+            case 2 -> slot2 != null;
+            case 3 -> slot3 != null;
+            default -> false;
+        };
+    }
+
+    /**
+     * @return {@code true} if there are any saves available
+     */
+    public boolean hasAnySaveSlots() {
+        return slot1 != null || slot2 != null || slot3 != null;
     }
 
 }

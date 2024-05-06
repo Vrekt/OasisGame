@@ -6,7 +6,7 @@ public final class OasisGameSettings {
     public static float TICKS_PER_SECOND = 50;
     public static float ENTITY_UPDATE_DISTANCE = 100;
     public static boolean SHOW_FPS = true;
-    public static boolean ENABLE_MP_LAN = true;
+    public static boolean ENABLE_MP_LAN = false;
 
     public static boolean V_SYNC = true;
 

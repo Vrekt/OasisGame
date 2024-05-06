@@ -18,6 +18,7 @@ public final class IntegratedServer implements Disposable {
     private final GdxProtocol protocol;
     private final NettyServer server;
     private final GameServer gameServer;
+    private boolean isStarted;
 
     public IntegratedServer(OasisGame game, GdxProtocol protocol) {
         this.game = game;
@@ -36,6 +37,21 @@ public final class IntegratedServer implements Disposable {
         gameServer.start();
 
         GameLogging.info(this, "Integrated server started.");
+        isStarted = true;
+    }
+
+    public void suspend() {
+        server.disableIncomingConnections();
+        gameServer.suspend();
+    }
+
+    public void resume() {
+        server.enableIncomingConnections();
+        gameServer.resume();
+    }
+
+    public boolean isStarted() {
+        return isStarted;
     }
 
     public GameServer getGameServer() {

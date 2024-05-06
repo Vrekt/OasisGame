@@ -19,7 +19,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
-import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.packet.server.S2CPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import gdx.lunar.world.AbstractGameWorld;
@@ -43,6 +42,7 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
 import me.vrekt.oasis.save.world.WorldSaveProperties;
@@ -94,6 +94,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     // objects within this world
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
+    protected final List<Vector2> paths = new ArrayList<>();
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
@@ -138,7 +139,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 }
             }
         }
-
     }
 
     public String getMapName() {
@@ -167,16 +167,28 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         return currentWorldTick;
     }
 
+    public boolean isWorldLoaded() {
+        return isWorldLoaded;
+    }
+
     /**
-     * Handle registering custom connection options for a world
+     * Handle world related network packets
      *
      * @param connection the player connection
      */
-    private void registerWorldRelatedNetworkOptions(PlayerConnectionHandler connection) {
+    public void registerWorldRelatedNetworkOptions(PlayerConnection connection) {
+        GameLogging.info(this, "Registering world network handlers");
         connection.registerHandlerSync(S2CPacketStartGame.PACKET_ID, packet -> handleNetworkStartGame((S2CPacketStartGame) packet));
         connection.registerHandlerSync(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
     }
 
+    /**
+     * Create a player from the server network
+     *
+     * @param username their username
+     * @param entityId their ID
+     * @param position and their position
+     */
     public void createPlayerFromNetwork(String username, int entityId, Vector2 position) {
         if (!player.isInWorld()) return;
 
@@ -189,9 +201,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         player.spawnInWorld(this);
         player.setGameWorldIn(this);
-        player.setPosition(position, true);
+        player.setPosition(spawn, true);
     }
-
 
     /**
      * Handle creating a singular player
@@ -209,6 +220,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      * @param packet the packet
      */
     public void handleNetworkStartGame(S2CPacketStartGame packet) {
+        GameLogging.info(this, "Starting network game");
+
         if (packet.hasPlayers()) {
             for (S2CPacketStartGame.BasicServerPlayer serverPlayer : packet.getPlayers()) {
                 createPlayerFromNetwork(serverPlayer.username, serverPlayer.entityId, serverPlayer.position);
@@ -300,6 +313,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadWorldObjects(worldMap, game.getAsset(), worldScale);
         loadWorldInteriors(worldMap, worldScale);
+        loadEntityPaths(worldMap, worldScale);
 
         configuration.worldScale = worldScale;
 
@@ -327,7 +341,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         // load implementation
         this.load();
 
-        registerWorldRelatedNetworkOptions(game.getConnectionHandler());
+        // register network handlers if any multiplayer instance
+        if (game.isLocalMultiplayer() || game.isMultiplayer())
+            registerWorldRelatedNetworkOptions(game.getConnectionHandler());
+
         this.isWorldLoaded = true;
 
         shapes = new ShapeRenderer();
@@ -587,6 +604,13 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         if (result) GameLogging.info(this, "Loaded %d instances.", instances.size());
     }
 
+    public void loadEntityPaths(TiledMap worldMap, float worldScale) {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Paths", (object, rectangle) -> {
+            GameLogging.info(this, "Path point: " + rectangle);
+            paths.add(new Vector2(rectangle.x, rectangle.y));
+        });
+    }
+
     public boolean isPaused() {
         return paused;
     }
@@ -603,7 +627,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     @Override
     public void resize(int width, int height) {
-        ;
         renderer.resize(width, height);
     }
 
@@ -641,7 +664,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         if (paused) {
             // render, no update
-            renderWorld(game.getBatch(), delta);
+            renderWorld(delta);
         } else {
             if (showPausedScreen) showPausedScreen = false;
             // no pause state, render+update normally
@@ -656,7 +679,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      */
     protected void updateAndRender(float delta) {
         delta = this.update(delta);
-        this.renderWorld(game.getBatch(), delta);
+        this.renderWorld(delta);
 
         if (currentWorldTick - lastWorldTickUpdate >= 6.0) {
             lastWorldTickUpdate = currentWorldTick;
@@ -720,10 +743,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     /**
      * Render this world
      *
-     * @param batch batch
      * @param delta delta
      */
-    public void renderWorld(SpriteBatch batch, float delta) {
+    public void renderWorld(float delta) {
         renderer.beginRendering();
         renderer.render();
 
