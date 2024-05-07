@@ -37,7 +37,7 @@ public abstract class AbstractInventory implements Inventory {
         slots.put(empty, slot);
 
         if (empty < 4) {
-            slot.setHotbarItem(true);
+            slot.setIsHotBarItem(true);
         }
 
         return newItem;
@@ -75,7 +75,7 @@ public abstract class AbstractInventory implements Inventory {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
             if (entry.getValue() != null
                     && entry.getValue().isOccupied()
-                    && !entry.getValue().isMarkedForDeletion()
+                    && !entry.getValue().isDeleted()
                     && entry.getValue().getItem().is(key)) {
                 return entry.getValue().getItem();
             }
@@ -108,7 +108,7 @@ public abstract class AbstractInventory implements Inventory {
 
     @Override
     public void removeItem(int slot) {
-        slots.get(slot).setMarkedForDeletion(true);
+        slots.get(slot).delete();
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class AbstractInventory implements Inventory {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
             if (entry.getValue() != null
                     && entry.getValue().isOccupied()
-                    && !entry.getValue().isMarkedForDeletion()
+                    && !entry.getValue().isDeleted()
                     && entry.getValue().getItem().is(key)) {
                 return true;
             }
@@ -204,7 +204,7 @@ public abstract class AbstractInventory implements Inventory {
         if (toSlot == null) {
             // indicates dragging into an empty slot
             final InventorySlot newSlot = new InventorySlot(fromSlot.getItem());
-            newSlot.setHotbarItem(to < 6);
+            newSlot.setIsHotBarItem(to < 6);
             slots.put(to, newSlot);
 
             removeItem(from);

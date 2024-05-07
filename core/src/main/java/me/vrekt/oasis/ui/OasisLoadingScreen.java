@@ -92,7 +92,7 @@ public final class OasisLoadingScreen extends ScreenAdapter {
     public void render(float delta) {
         ScreenUtils.clear(111 / 255f, 194 / 255f, 118 / 255f, 1.0f);
 
-        progress += (delta);
+        progress += (delta / 2f);
         if (updateEveryFrame && render) {
             stepProgress(progress);
             if (progressBar.getValue() >= 100.0f

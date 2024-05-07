@@ -2,8 +2,8 @@ package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.attribute.ItemAttribute;
 

@@ -9,7 +9,7 @@ public final class InventorySlot {
 
     // the item in this slot;
     private Item item;
-    private boolean markedForDeletion;
+    private boolean delete;
     private boolean isHotbarItem;
 
     public InventorySlot(Item item) {
@@ -24,19 +24,19 @@ public final class InventorySlot {
         this.item = item;
     }
 
-    public void setMarkedForDeletion(boolean markedForDeletion) {
-        this.markedForDeletion = markedForDeletion;
+    public void delete() {
+        this.delete = true;
     }
 
-    public boolean isMarkedForDeletion() {
-        return markedForDeletion;
+    public boolean isDeleted() {
+        return delete;
     }
 
     public boolean isOccupied() {
         return item != null && item.getAmount() > 0;
     }
 
-    public void setHotbarItem(boolean hotbarItem) {
+    public void setIsHotBarItem(boolean hotbarItem) {
         isHotbarItem = hotbarItem;
     }
 
@@ -46,8 +46,7 @@ public final class InventorySlot {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof InventorySlot)) return false;
-        final InventorySlot other = (InventorySlot) obj;
+        if (!(obj instanceof InventorySlot other)) return false;
         return other.getItem().getItemName().equals(item.getItemName())
                 && other.getItem().getAmount() == item.getAmount();
     }

@@ -196,7 +196,6 @@ public class GuiManager {
         stage.getRoot().draw(stage.getBatch(), 1);
         guis.values().forEach(gui -> gui.draw(stage.getBatch()));
         stage.getBatch().end();
-
     }
 
     public void resize(int width, int height) {

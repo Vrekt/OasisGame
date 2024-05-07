@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.component;
+package me.vrekt.oasis.entity.component.facing;
 
 /**
  * An entities' rotation, in words.

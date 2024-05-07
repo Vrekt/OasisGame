@@ -67,13 +67,8 @@ public class GameManager {
         registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.DEBUG_MENU);
         registerInventoryKeyMappings();
 
-        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> {
-            oasis.getPlayer().getGameWorldIn().skipCurrentDialog();
-        });
-
-        KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> {
-            oasis.getPlayer().activateArtifact(0);
-        });
+        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().getGameWorldIn().skipCurrentDialog());
+        KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> oasis.getPlayer().activateArtifact(0));
     }
 
     public static boolean handleGuiKeyPress(int key) {
@@ -108,16 +103,6 @@ public class GameManager {
         // handle individual key presses now
         handleGuiKeyPress(keycode);
         return true;
-    }
-
-    /**
-     * Save game is finished, cleanup
-     */
-    public static void saveGameFinished() {
-        isSaving = false;
-        oasis.saveGameFinished();
-
-        getPlayer().getGameWorldIn().saveGameFinished();
     }
 
     /**
@@ -178,8 +163,13 @@ public class GameManager {
         return oasis.getAsset();
     }
 
+    /**
+     * @return the current world tick of the interior/world the player is in
+     */
     public static float getCurrentGameWorldTick() {
-        return oasis.getPlayer().getGameWorldIn().getCurrentWorldTick();
+        return oasis.getPlayer().isInInteriorWorld()
+                ? oasis.getPlayer().getInteriorWorldIn().getCurrentWorldTick()
+                : oasis.getPlayer().getGameWorldIn().getCurrentWorldTick();
     }
 
     public static OasisPlayer getPlayer() {

@@ -1,23 +1,7 @@
 package me.vrekt.oasis.entity.enemy;
 
-import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.*;
-import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.combat.CombatDamageAnimator;
-import me.vrekt.oasis.entity.ai.agent.Box2dSteeringAgent;
-import me.vrekt.oasis.entity.component.EntityAnimationComponent;
-import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.EntityDamageable;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.world.OasisWorld;
-
-public abstract class EntityEnemy extends EntityDamageable {
-    protected final Vector3 worldPosition = new Vector3();
+public abstract class EntityEnemy /*extends EntityDamageable*/ {
+   /* protected final Vector3 worldPosition = new Vector3();
     protected final Vector3 screenPosition = new Vector3();
     protected final CombatDamageAnimator animator;
 
@@ -83,17 +67,18 @@ public abstract class EntityEnemy extends EntityDamageable {
     public void setUseAnimations() {
         entity.add(animationComponent = new EntityAnimationComponent());
     }
+
     public void setEntityRotation(EntityRotation entityRotation) {
         this.entityRotation = entityRotation;
     }
 
-    /**
+    *//**
      * "
      * TODO
      *
      * @param rotation rotation of local player
      * @return {@code  true} if the player is facing this entity
-     */
+     *//*
     public boolean isFacingEntity(float rotation) {
         return true;
     }
@@ -134,6 +119,6 @@ public abstract class EntityEnemy extends EntityDamageable {
             screenPosition.set(game.getGuiManager().getStage().getCamera().project(worldPosition));
             animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
         }
-    }
+    }*/
 
 }

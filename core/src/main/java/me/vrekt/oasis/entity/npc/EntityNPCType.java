@@ -5,8 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
-import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
-import me.vrekt.oasis.entity.npc.tutorial.TutorialCombatDummy;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.shared.entities.EntityType;
 
@@ -16,21 +14,6 @@ import me.vrekt.shared.entities.EntityType;
 @SuppressWarnings("unchecked")
 public enum EntityNPCType {
 
-    /**
-     * Mavia is a tutorial entity on Tutorial World.
-     */
-    MAVIA {
-        @Override
-        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
-            return (T) new MaviaTutorial("Mavia", position, game.getPlayer(), world, game);
-        }
-    },
-    DUMMY {
-        @Override
-        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
-            return (T) new TutorialCombatDummy("CombatDummy", position, game.getPlayer(), world, game);
-        }
-    },
     WRYNN {
         @Override
         public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
@@ -51,8 +34,6 @@ public enum EntityNPCType {
         switch (type) {
             case INVALID:
                 return INVALID;
-            case TUTORIAL_COMBAT_DUMMY:
-                return DUMMY;
         }
         return INVALID;
     }

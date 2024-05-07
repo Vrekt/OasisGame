@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.parts;
+package me.vrekt.oasis.utility;
 
 import me.vrekt.oasis.asset.game.Asset;
 

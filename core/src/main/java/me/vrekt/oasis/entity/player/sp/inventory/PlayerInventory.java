@@ -30,7 +30,7 @@ public final class PlayerInventory extends AbstractInventory {
             if (entry.getValue() == null) continue;
             final Item item = entry.getValue().getItem();
             if (item.getAmount() == 0
-                    || entry.getValue().isMarkedForDeletion()) {
+                    || entry.getValue().isDeleted()) {
                 it.remove();
 
                 guiManager.getInventoryComponent().removeItemFromSlot(entry.getKey());

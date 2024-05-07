@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.OasisWorld;
 
 import java.util.function.BiConsumer;
 
@@ -74,7 +73,7 @@ public final class TiledMapLoader {
      * @param worldMap   the map
      * @param worldScale the scale
      */
-    public static void loadMapCollision(TiledMap worldMap, float worldScale, World world, OasisWorld worldIn) {
+    public static void loadMapCollision(TiledMap worldMap, float worldScale, World world) {
         final MapLayer layer = worldMap.getLayers().get("Collision");
         if (layer == null) {
             return;

@@ -35,7 +35,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240506-0255-2087";
+    public static final String GAME_VERSION = "20240506-2016-2140";
 
     private Asset asset;
 
@@ -145,9 +145,15 @@ public final class OasisGame extends Game {
      * Load a new game
      */
     public void loadNewGame() {
-        isNewGame = true;
+        final OasisLoadingScreen loadingScreen = new OasisLoadingScreen(this, asset, true);
+        setScreen(loadingScreen);
         loadGameStructure();
-        loadIntoWorldLocal(worldManager.getWorld("TutorialWorld"));
+
+        final OasisWorld world = worldManager.getWorld("TutorialWorld");
+        loadingScreen.setWorldLoadingIn(world);
+
+        isNewGame = true;
+        world.enterWorld();
     }
 
     /**
@@ -279,7 +285,7 @@ public final class OasisGame extends Game {
      * @param world the world
      */
     public void loadIntoWorldLocal(OasisWorld world) {
-        world.enterWorld(false);
+        world.enterWorld();
         setScreen(world);
     }
 
@@ -371,19 +377,6 @@ public final class OasisGame extends Game {
         } catch (Exception exception) {
             GameLogging.exceptionThrown(this, "Failed to exit properly", exception);
         }
-    }
-
-    public void showSavingGameScreen() {
-        if (saveScreen == null) {
-            saveScreen = new OasisSaveScreen();
-        } else {
-            saveScreen.reset();
-        }
-        setScreen(saveScreen);
-    }
-
-    public void saveGameFinished() {
-        setScreen(player.getGameWorldIn());
     }
 
     public void executeMain(Runnable action) {

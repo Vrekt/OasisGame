@@ -2,7 +2,6 @@ package me.vrekt.oasis.network.player;
 
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.GdxProtocol;
-import gdx.lunar.protocol.packet.server.S2CPacketAuthenticate;
 import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.S2CPacketPing;
 import io.netty.channel.Channel;
@@ -34,11 +33,6 @@ public final class PlayerConnection extends PlayerConnectionHandler {
         player.setEntityId(packet.getEntityId());
 
         game.loadIntoNetworkWorld(packet.getWorldName());
-    }
-
-    @Override
-    public void handleAuthentication(S2CPacketAuthenticate packet) {
-        GameLogging.info(this, "Authentication result is %s", packet.isAuthenticationSuccessful());
     }
 
     @Override

@@ -121,8 +121,8 @@ public class Instance extends OasisWorldInstance {
             GameLogging.info(this, "Exiting instance: %s", instanceName);
 
             GameManager.transitionScreen(this, worldIn, () -> {
-                player.setPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
-                worldIn.enterWorld(true);
+                player.setBodyPosition(worldExitSpawn.x - 0.5f, worldExitSpawn.y - 1.0f, true);
+                worldIn.enterWorld();
             });
         }
     }

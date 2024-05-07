@@ -6,8 +6,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.npc.tutorial.MaviaTutorial;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
@@ -20,8 +18,6 @@ import me.vrekt.oasis.world.obj.interaction.sign.OasisTutorialWorldSign;
  * This world acts as a debug/tutorial level for now.
  */
 public final class TutorialOasisWorld extends OasisWorld {
-
-    private MaviaTutorial tutorialEntity;
 
     public TutorialOasisWorld(OasisGame game, OasisPlayer player) {
         super(game, player, new World(Vector2.Zero, true));
@@ -48,20 +44,14 @@ public final class TutorialOasisWorld extends OasisWorld {
     @Override
     public void removeInteractableEntity(EntityInteractable entity) {
         super.removeInteractableEntity(entity);
-        if (entity.getType() == EntityNPCType.MAVIA) {
-            // we need to know she is finished so can spawn in instance
-            this.tutorialEntity = (MaviaTutorial) entity;
-        }
     }
 
     @Override
-    public void enterWorld(boolean fromInstance) {
-        super.enterWorld(fromInstance);
-        if (!isWorldLoaded) {
-            loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
-        }
+    public void enterWorld() {
+        super.enterWorld();
 
-        // populate tutorial chests, lock them as-well until a certain point in the tutorial
+        // load this world if we haven't already
+        if (!isWorldLoaded) loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
 
         // if new game, spawn with a few debug items... for now
@@ -101,13 +91,6 @@ public final class TutorialOasisWorld extends OasisWorld {
         final Instance instance = getInstanceToEnterIfAny();
         if (instance != null) {
             enterInstanceAndFadeIn(instance);
-
-            if (tutorialEntity != null) {
-                // spawn mavia in this instance
-                tutorialEntity.setPosition(instance.getWorldSpawn().x, instance.getWorldSpawn().y + 4.0f, false);
-                instance.addInteractableEntity(tutorialEntity);
-            }
-
             guiManager.resetCursor();
             return true;
         }

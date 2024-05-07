@@ -4,12 +4,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.component.EntityRotation;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialogSection;
-import me.vrekt.oasis.entity.npc.animation.EntityTextured;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
 
@@ -19,36 +17,33 @@ import java.util.Map;
 /**
  * Represents an entity that can be spoken to.
  */
-public abstract class EntitySpeakable extends EntityTextured {
+public abstract class EntitySpeakable extends Entity {
 
     protected OasisPlayer player;
 
     protected InteractableEntityDialog entityDialog;
     protected InteractableEntityDialogSection dialog;
 
-    protected String dialogFaceAsset;
     protected boolean speakingTo, speakable;
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
     protected float speakableDistance = 6f, dialogAnimationRange = 50f;
-    protected final Vector2 interaction = new Vector2();
-    protected EntityRotation rotation;
-    protected EntityRotation lastRotation;
+    protected final Vector2 interactionPoint = new Vector2();
 
     protected final Map<String, Runnable> dialogActions = new HashMap<>();
 
     public EntitySpeakable(OasisPlayer player) {
         super(true);
         this.player = player;
+
         entity.add(new EntityDialogComponent());
     }
 
-    public EntityRotation getRotation() {
-        return rotation;
-    }
+    public abstract TextureRegion getDialogFace();
 
     @Override
     public void update(float v) {
         this.speakable = getDistanceFromPlayer() <= speakableDistance;
+        entity.getComponent(EntityDialogComponent.class).isInView = inView;
 
         // update dialog animation state
         if (getDistanceFromPlayer() <= dialogAnimationRange) {
@@ -57,21 +52,18 @@ public abstract class EntitySpeakable extends EntityTextured {
             setDrawDialogAnimationTile(false);
         }
 
-        // update dialog state
+        // stop speaking to this entity if the player moves away
         if (speakingTo) {
-            // player moved, cancel
-            if (player.getPosition().dst(interaction) >= 0.1f) {
+            if (player.getPosition().dst(interactionPoint) >= 0.1f) {
                 GameManager.getGuiManager().hideGui(GuiType.DIALOG);
-                this.speakingTo = false;
+                speakingTo = false;
             }
         }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (drawDialogAnimationTile()) {
-            renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
-        }
+        if (drawDialogAnimationTile()) renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
     }
 
     /**
@@ -81,9 +73,7 @@ public abstract class EntitySpeakable extends EntityTextured {
      * @param region region
      */
     protected void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
-        if (region == null) return;
-        batch.draw(region, getX() + 0.2f, getY() + getScaledHeight() + 0.1f,
-                region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
+        batch.draw(region, getX() + 0.2f, getY() + getScaledHeight() + 0.1f, getScaledWidth(), getScaledHeight());
     }
 
     public int getCurrentDialogFrame() {
@@ -101,10 +91,6 @@ public abstract class EntitySpeakable extends EntityTextured {
         return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
     }
 
-    public TextureRegion getDialogFace() {
-        return getRegion(dialogFaceAsset);
-    }
-
     public InteractableEntityDialogSection getDialog() {
         return dialog;
     }
@@ -120,14 +106,12 @@ public abstract class EntitySpeakable extends EntityTextured {
     public void setSpeakingTo(boolean speakingTo) {
         this.speakingTo = speakingTo;
 
-        // set rotation to face the player.
-        // TODO: Fix this
         if (speakingTo) {
-            //   player.setAngle(Rotation.getOppositeRotation(rotation).ordinal());
+            // TODO: Face the player when speaking to this entity
             player.setIdleRegionState();
             player.setSpeakingToEntity(true);
             player.setEntitySpeakingTo(this);
-            interaction.set(player.getPosition());
+            interactionPoint.set(player.getPosition());
         } else {
             player.setEntitySpeakingTo(null);
             player.setSpeakingToEntity(false);

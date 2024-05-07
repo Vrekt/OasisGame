@@ -2,7 +2,7 @@ package me.vrekt.oasis.combat;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.Iterator;

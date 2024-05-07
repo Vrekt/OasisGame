@@ -13,7 +13,6 @@ public interface Inventory {
      */
     void update();
 
-
     /**
      * Add an item to this inventory
      *

@@ -13,14 +13,11 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.classes.ClassType;
-import me.vrekt.oasis.entity.ai.utilities.PlayerSteeringLocation;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
-import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.Inventory;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.item.Items;
@@ -33,6 +30,7 @@ import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
 import me.vrekt.oasis.save.player.PlayerSaveProperties;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
@@ -51,13 +49,12 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     private boolean rotationChanged;
 
     private OasisWorld gameWorldIn;
-    private ClassType classType;
 
     private PlayerConnection connectionHandler;
     private final PlayerInventory inventory;
 
-    private boolean isInInstance, isInTutorialWorld = true;
-    private OasisWorldInstance instanceIn;
+    private boolean inInteriorWorld, isInTutorialWorld = true;
+    private OasisWorldInstance interiorWorldIn;
     private final PlayerQuestManager questManager;
 
     private EntitySpeakable entitySpeakingTo;
@@ -68,7 +65,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     private final LinkedList<Artifact> artifactInventory = new LinkedList<>();
 
     private EntityRotation rotation = EntityRotation.UP;
-    private final PlayerSteeringLocation location;
 
     // disable movement listening while in dialogs
     private boolean disableMovement, moved;
@@ -88,12 +84,11 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
-        this.location = new PlayerSteeringLocation(this);
     }
 
     @Override
     public void loadFromSave(PlayerSaveProperties state) {
-        setPosition(state.getPosition(), true);
+        setBodyPosition(state.getPosition(), true);
         inventory.clear();
         inventory.transferItemsFrom(state.getInventoryState().getInventory());
     }
@@ -131,20 +126,20 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.serverPingTime = serverPingTime;
     }
 
-    public boolean isInInstance() {
-        return isInInstance;
+    public boolean isInInteriorWorld() {
+        return inInteriorWorld;
     }
 
-    public void setInInstance(boolean inInstance) {
-        isInInstance = inInstance;
+    public void setInInteriorWorld(boolean inInteriorWorld) {
+        this.inInteriorWorld = inInteriorWorld;
     }
 
-    public OasisWorldInstance getInstanceIn() {
-        return instanceIn;
+    public OasisWorldInstance getInteriorWorldIn() {
+        return interiorWorldIn;
     }
 
-    public void setInstanceIn(OasisWorldInstance instanceIn) {
-        this.instanceIn = instanceIn;
+    public void setInteriorWorldIn(OasisWorldInstance interiorWorldIn) {
+        this.interiorWorldIn = interiorWorldIn;
     }
 
     public OasisGame getGame() {
@@ -161,10 +156,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public PlayerQuestManager getQuestManager() {
         return questManager;
-    }
-
-    public void setClassType(ClassType classType) {
-        this.classType = classType;
     }
 
     public OasisWorld getGameWorldIn() {
@@ -230,6 +221,17 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     public void setConnectionHandler(PlayerConnection connectionHandler) {
         this.connectionHandler = connectionHandler;
         this.setConnection(connectionHandler);
+    }
+
+    @Override
+    public void removeFromWorld() {
+        super.removeFromWorld();
+        this.gameWorldIn = null;
+    }
+
+    public void removeFromInteriorWorld() {
+        this.inInteriorWorld = false;
+        this.interiorWorldIn = null;
     }
 
     public void setIdleRegionState() {
@@ -347,7 +349,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         updateAndRenderEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(rotation.ordinal(), delta));
+            draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
         } else {
             if (currentRegion != null) {
                 draw(batch, currentRegion);
@@ -390,7 +392,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             final EntityEnemy hit = gameWorldIn.hasHitEntity(equippedItem);
             if (hit != null) {
                 final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
-                hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
+                // FIXME  hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
             }
         }
 
@@ -403,7 +405,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     @Override
     public void spawnInWorld(LunarWorld world, Vector2 position) {
         this.defineEntity(world.getEntityWorld(), position.x, position.y);
-        setPosition(position, true);
+        setBodyPosition(position, true);
     }
 
     @Override

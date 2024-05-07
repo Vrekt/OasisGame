@@ -42,7 +42,7 @@ public class EntitySaveProperties {
 
         if (entity instanceof EntityInteractable entityInteractable) {
             this.type = entityInteractable.getType();
-            this.isEnemy = entityInteractable.isEnemy();
+            this.isEnemy = false; // FIXME Enemies
         }
 
     }

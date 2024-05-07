@@ -50,9 +50,6 @@ public final class OasisSaveScreen extends ScreenAdapter {
                 stepProgress();
                 if (System.currentTimeMillis() - time >= 2500) {
                     this.cancel();
-
-                    // TODO: Obviously this is just a fake screen
-                    GameManager.saveGameFinished();
                 }
             }
         }, 0.0f, 0.25f);

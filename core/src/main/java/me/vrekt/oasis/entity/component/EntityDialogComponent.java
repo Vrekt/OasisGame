@@ -14,6 +14,9 @@ public final class EntityDialogComponent implements Component, Pool.Poolable {
 
     @Override
     public void reset() {
-
+        currentDialogFrame = 1;
+        isInView = false;
+        drawDialogAnimationTile = false;
+        distanceFromPlayer = 0.0f;
     }
 }

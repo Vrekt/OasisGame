@@ -2,7 +2,7 @@ package me.vrekt.oasis.world.obj.interaction;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.obj.WorldObject;

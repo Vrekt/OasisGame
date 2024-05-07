@@ -1,14 +1,14 @@
 package me.vrekt.oasis.utility.collision;
 
 import com.badlogic.gdx.physics.box2d.*;
-import me.vrekt.oasis.entity.enemy.EntityEnemy;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
  * Basis collision listener
  */
-public final class BasicPlayerCollisionHandler implements ContactListener {
+public final class BasicEntityCollisionHandler implements ContactListener {
 
     @Override
     public void beginContact(Contact contact) {
@@ -30,15 +30,11 @@ public final class BasicPlayerCollisionHandler implements ContactListener {
             final Object a = fixtureA.getBody().getUserData();
             final Object b = fixtureB.getBody().getUserData();
 
-            // ignore enemy collision
-            if (a instanceof OasisPlayer && b instanceof EntityEnemy) {
-                if (((EntityEnemy) b).isIgnoreCollision()) {
-                    contact.setEnabled(false);
-                }
-            } else if (a instanceof EntityEnemy && b instanceof OasisPlayer) {
-                if (((EntityEnemy) a).isIgnoreCollision()) {
-                    contact.setEnabled(false);
-                }
+            // ignore interactable collision
+            if (a instanceof OasisPlayer && b instanceof EntityInteractable) {
+                contact.setEnabled(false);
+            } else if (a instanceof EntityInteractable && b instanceof OasisPlayer) {
+                contact.setEnabled(false);
             }
 
             // ignore player collisions

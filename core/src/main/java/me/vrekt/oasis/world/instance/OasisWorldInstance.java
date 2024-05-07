@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.OasisWorld;
@@ -69,7 +70,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
             return;
         }
 
-        TiledMapLoader.loadMapCollision(map, worldScale, world, worldIn);
+        TiledMapLoader.loadMapCollision(map, worldScale, world);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
         loadWorldObjects(map, game.getAsset(), worldScale);
         loadInteractableEntities(game, game.getAsset(), map, worldScale);
@@ -83,6 +84,7 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
             player.removeFromWorld();
         }
 
+        world.setContactListener(new BasicEntityCollisionHandler());
         spawnPlayerInInstance();
         addDefaultWorldSystems();
 
@@ -91,8 +93,8 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
 
     private void spawnPlayerInInstance() {
         player.spawnInWorld(this, spawn);
-        player.setInInstance(true);
-        player.setInstanceIn(this);
+        player.setInInteriorWorld(true);
+        player.setInteriorWorldIn(this);
     }
 
 }

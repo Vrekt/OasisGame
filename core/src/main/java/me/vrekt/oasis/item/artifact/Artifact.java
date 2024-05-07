@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import org.apache.commons.lang3.StringUtils;
 

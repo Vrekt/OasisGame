@@ -2,9 +2,6 @@ package me.vrekt.oasis.gui.windows;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.VisImage;
@@ -35,11 +32,12 @@ public final class PauseWindowGui extends Gui {
         final VisImageTextButton saveGame = new VisImageTextButton("Save Game", guiManager.getStyle().getImageTextButtonStyle());
         final VisImageTextButton exit = new VisImageTextButton("Exit Game", guiManager.getStyle().getImageTextButtonStyle());
 
-        addActionsToComponent(resume, this::handleResumeGameComponentAction);
-        addActionsToComponent(settings, this::handleSettingsComponentAction);
-        addActionsToComponent(saveGame, this::handleSaveGameComponentAction);
+        addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
+        addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
+        addHoverComponents(settings, Color.LIGHT_GRAY, Color.WHITE, this::handleSettingsComponentAction);
+        addHoverComponents(saveGame, Color.LIGHT_GRAY, Color.WHITE, this::handleSaveGameComponentAction);
         // TODO: Exit and save, Exit without saving
-        addActionsToComponent(exit, () -> Gdx.app.exit());
+        addHoverComponents(exit, Color.LIGHT_GRAY, Color.WHITE, () -> Gdx.app.exit());
 
         table.add(logoImage);
         table.row();
@@ -57,25 +55,6 @@ public final class PauseWindowGui extends Gui {
 
         rootTable.add(table);
         guiManager.addGui(rootTable);
-    }
-
-    private void addActionsToComponent(Actor actor, Runnable action) {
-        actor.addListener(new ClickListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                actor.setColor(Color.LIGHT_GRAY);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                actor.setColor(Color.WHITE);
-            }
-
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                action.run();
-            }
-        });
     }
 
     private void handleResumeGameComponentAction() {

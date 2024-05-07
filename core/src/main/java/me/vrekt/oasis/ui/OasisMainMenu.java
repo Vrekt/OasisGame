@@ -106,8 +106,8 @@ public final class OasisMainMenu extends ScreenAdapter {
             stage.addActor(loadGameTable);
         });
 
-        // just force close us.
-        assignClickAction(quitGameButton, () -> game.joinRemoteServer());
+        // FIXME: Temporary multiplayer testing
+        assignClickAction(quitGameButton, game::joinRemoteServer);
     }
 
     /**

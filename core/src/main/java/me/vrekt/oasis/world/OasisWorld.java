@@ -23,7 +23,6 @@ import gdx.lunar.protocol.packet.server.S2CPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import gdx.lunar.world.AbstractGameWorld;
 import gdx.lunar.world.WorldConfiguration;
-import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
@@ -46,7 +45,7 @@ import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
 import me.vrekt.oasis.save.world.WorldSaveProperties;
-import me.vrekt.oasis.utility.collision.BasicPlayerCollisionHandler;
+import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -57,9 +56,7 @@ import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -89,12 +86,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected GuiManager guiManager;
 
     protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
-    protected final List<ParticleEffect> effects = new ArrayList<>();
+    protected final Array<ParticleEffect> effects = new Array<>();
 
     // objects within this world
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
     protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
-    protected final List<Vector2> paths = new ArrayList<>();
+    protected final Array<Vector2> paths = new Array<>();
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
 
@@ -129,9 +126,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 if (interactable != null) {
                     interactable.setName(entityState.getName());
                     interactable.setEntityId(entityState.getEntityId());
-                    interactable.setPosition(entityState.getPosition(), true);
+                    // FIXME: save entity rotation values
+                    interactable.setBodyPosition(entityState.getPosition(), true);
                     interactable.setHealth(entityState.getHealth());
-                    interactable.setEnemy(entityState.isEnemy());
+                    // FIXME: enemies  interactable.setEnemy(entityState.isEnemy());
 
                     GameLogging.info(this, "Found an entity from save and loaded it: %s", entityState.getType());
                 } else {
@@ -161,8 +159,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         // check if player is in instance to avoid
         // ui problems. Parent world isn't updated so
         // must return instance tick.
-        if (player.isInInstance()) {
-            return player.getInstanceIn().currentWorldTick;
+        if (player.isInInteriorWorld()) {
+            return player.getInteriorWorldIn().currentWorldTick;
         }
         return currentWorldTick;
     }
@@ -201,7 +199,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         player.spawnInWorld(this);
         player.setGameWorldIn(this);
-        player.setPosition(spawn, true);
+        player.setBodyPosition(spawn, player.getAngle(), true);
     }
 
     /**
@@ -230,32 +228,14 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
-     * Enter this world.
+     * Enter this world
      */
-    public void enterWorld(boolean fromInstance) {
-
-        // remove player from a world they could already be in
-        // ensure we are not already in this world
+    public void enterWorld() {
+        // ignore entering this world if we are already in it.
         if (player.getGameWorldIn() != null
-                && !player.getGameWorldIn().getWorldName().equals(worldName)) {
-            player.removeFromWorld();
-            player.setGameWorldIn(null);
-        }
-
-        if (fromInstance) {
-            player.setInInstance(false);
-            player.setInstanceIn(null);
-            player.setGameWorldIn(this);
-            player.setInWorld(true);
-
-
-            renderer.setTiledMap(map, spawn.x, spawn.y);
-
-            player.spawnInWorld(this, player.getPosition());
-            game.getMultiplexer().addProcessor(this);
-            // game.setScreen(this);
-        }
-
+                && player.getGameWorldIn().getWorldName().equals(worldName)) return;
+        if (player.getGameWorldIn() != null) player.removeFromWorld();
+        if (player.isInInteriorWorld()) player.removeFromInteriorWorld();
         guiManager.resetCursor();
     }
 
@@ -288,15 +268,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
-     * Saving game is finished.
-     */
-    public void saveGameFinished() {
-        if (!GameManager.isSaving()) {
-            this.resume();
-        }
-    }
-
-    /**
      * Load the local player into this world.
      *
      * @param worldMap   the map of the world
@@ -308,7 +279,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         preLoad();
 
         TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
-        TiledMapLoader.loadMapCollision(worldMap, worldScale, world, this);
+        TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
         loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         loadWorldObjects(worldMap, game.getAsset(), worldScale);
@@ -323,12 +294,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         game.getMultiplexer().addProcessor(this);
 
         addDefaultWorldSystems();
-        world.setContactListener(new BasicPlayerCollisionHandler());
+        world.setContactListener(new BasicEntityCollisionHandler());
 
         // player was NOT loaded from a save
         if (player.getPosition().isZero()) {
             player.defineEntity(world, spawn.x, spawn.y);
-            player.setPosition(spawn, true);
+            player.setBodyPosition(spawn, true);
         } else {
             // player was loaded from a save, reference their current position
             player.defineEntity(world, player.getX(), player.getY());
@@ -339,14 +310,13 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         player.setGameWorldIn(this);
 
         // load implementation
-        this.load();
+        load();
 
         // register network handlers if any multiplayer instance
         if (game.isLocalMultiplayer() || game.isMultiplayer())
             registerWorldRelatedNetworkOptions(game.getConnectionHandler());
 
-        this.isWorldLoaded = true;
-
+        isWorldLoaded = true;
         shapes = new ShapeRenderer();
     }
 
@@ -367,13 +337,10 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
             final EntitySpeakable speakable = player.getEntitySpeakingTo();
 
-            if (speakable.getDialog().needsUserInput()) {
-                // return since we can't skip without selecting an option
-                return;
-            }
+            // dialog requires input so ignore this key press.
+            if (speakable.getDialog().needsUserInput()) return;
 
-            // check if the dialog is finished for this entity
-            // if so then close it.
+            // check if the dialog is finished for this entity, if so close it.
             final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
             if (!result) {
                 guiManager.hideGui(GuiType.DIALOG);
@@ -385,16 +352,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
     }
 
-    @Override
-    public void spawnEntityInWorld(LunarEntity entity, Vector2 position) {
-        if (entity instanceof OasisPlayer) return;
-        entity.getInterpolatedPosition().set(position.x, position.y);
-        entity.getPreviousPosition().set(position.x, position.y);
-        super.spawnEntityInWorld(entity, position);
-    }
-
     /**
-     * Load world NPCs
+     * Load world entities that can be interacted with
      *
      * @param worldMap   map
      * @param worldScale scale
@@ -440,15 +399,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         nearbyEntities.remove(entity);
     }
 
-    public EntityInteractable getLoadedEntity(EntityNPCType type) {
-        for (Entity entity : entities.values()) {
-            if (entity.isInteractable() && entity.asInteractable().getType() == type) {
-                return entity.asInteractable();
-            }
-        }
-        return null;
-    }
-
     /**
      * Load particles
      *
@@ -464,7 +414,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             effect.start();
         });
 
-        if (result) GameLogging.info(this, "Loaded %d particle effects.", effects.size());
+        if (result) GameLogging.info(this, "Loaded %d particle effects.", effects.size);
     }
 
     /**
@@ -699,7 +649,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         boolean hasEntity = false;
         for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
-            if (!entityInteractable.isEnemy() && entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
+            if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
                 if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(Cursor.DIALOG);
                 hasEntity = true;
@@ -803,21 +753,18 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             }
         }
 
-        // draw damage indicators
-        // use the stage batch to correctly scale the font.
-        EntityEnemy entityEnemy = null;
+        // FIXME: Implement enemies
+       /* EntityEnemy entityEnemy = null;
         for (Entity entity : entities.values()) {
             if (entity instanceof EntityEnemy) {
                 entityEnemy = (EntityEnemy) entity;
                 ((EntityEnemy) entity).drawDamageIndicator(batch);
             }
-        }
-
-        //game.guiManager.renderExclusiveGuis(batch);
+        }*/
 
         batch.end();
 
-        if (entityEnemy != null) {
+       /* if (entityEnemy != null) {
             shapes.setProjectionMatrix(renderer.getCamera().combined);
             shapes.begin(ShapeRenderer.ShapeType.Line);
             shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
@@ -825,7 +772,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
             }
             shapes.end();
-        }
+        }*/
 
         // gui.updateAndRender();
         game.guiManager.updateAndDrawStage();
@@ -850,14 +797,14 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     public EntityEnemy hasHitEntity(ItemWeapon item) {
-        for (Entity value : entities.values()) {
+       /* for (Entity value : entities.values()) {
             if (value instanceof EntityEnemy interactable) {
                 if (interactable.isFacingEntity(player.getAngle())
                         && interactable.getBounds().overlaps(item.getBounds())) {
                     return interactable;
                 }
             }
-        }
+        }*/
         return null;
     }
 
@@ -883,6 +830,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             // check for network players
 
         }
+
+        if (closest != null) System.err.println(closest.getType());
 
         if (closest != null
                 && closest.isSpeakable()
@@ -944,16 +893,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             return interior;
         }
         return null;
-    }
-
-    /**
-     * Destroy a world object within this world. Removes box2d collision and object from list
-     *
-     * @param worldObject the object
-     */
-    public void destroyWorldObject(InteractableWorldObject worldObject) {
-        world.destroyBody(worldObject.getCollisionBody());
-        interactableWorldObjects.remove(worldObject);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package me.vrekt.oasis.graphics.tiled;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Handles rendering of worlds, interiors and anything else that requires TiledMaps.
@@ -31,7 +29,6 @@ public final class GameTiledMapRenderer implements Disposable {
     private final ScreenViewport viewport;
 
     private int width, height;
-    private boolean offset;
 
     /**
      * Initialize a new renderer instance
@@ -49,10 +46,6 @@ public final class GameTiledMapRenderer implements Disposable {
 
         viewport = new ScreenViewport(camera);
         viewport.setUnitsPerPixel(1 / 32f);
-    }
-
-    public Array<TiledMapTileLayer> getLayers() {
-        return layers;
     }
 
     /**
@@ -93,14 +86,6 @@ public final class GameTiledMapRenderer implements Disposable {
         batch.begin();
     }
 
-    public void endRendering() {
-        batch.end();
-    }
-
-    public SpriteBatch getBatch() {
-        return batch;
-    }
-
     /**
      * Render the world
      */
@@ -116,25 +101,12 @@ public final class GameTiledMapRenderer implements Disposable {
         }
     }
 
-    public void renderParallax() {
-        camera.update();
-        updateParallax();
-
-        // update animations and render map.
-        AnimatedTiledMapTile.updateAnimationBaseTime();
-        //   renderer.setView(camera);
-
-        for (TiledMapTileLayer layer : new Array.ArrayIterator<>(layers)) {
-            renderer.renderTileLayer(layer);
-        }
-    }
-
     public OrthographicCamera getCamera() {
         return camera;
     }
 
     /**
-     * Clamps camera position so it doesn't scroll out of bounds
+     * Clamps camera position, so it doesn't scroll out of bounds
      */
     private void update() {
         viewport.apply();
@@ -146,45 +118,6 @@ public final class GameTiledMapRenderer implements Disposable {
         camera.update();
     }
 
-    private void updateParallax() {
-        if (camera.position.x == 10.0f) camera.position.x = 16.0f;
-        //  renderer.setView(camera.combined, camera.position.x, camera.position.y + height, camera.viewportWidth, camera.viewportHeight);
-
-        //   final float x = Interpolation.smooth.apply(camera.position.x, px, 1f);
-        //  final float y = Interpolation.smooth.apply(camera.position.y, py, 1f);
-
-        //  final float maxX = MathUtils.clamp(x, camera.viewportWidth / 2f, width - (camera.viewportWidth / 2f));
-        //  final float maxY = MathUtils.clamp(y, camera.viewportHeight / 2f, height - (camera.viewportHeight / 2f));
-
-
-        if (camera.position.y >= 35) {
-            offset = true;
-        }
-
-        if (!offset) {
-            renderer.setView(camera);
-        } else {
-            float width = camera.viewportWidth;
-            float height = camera.viewportHeight;
-
-            float w = width * Math.abs(camera.up.y) + height * Math.abs(camera.up.x);
-            float h = height * Math.abs(camera.up.y) + width * Math.abs(camera.up.x);
-            float x1 = camera.position.x - w / 2;
-            float y2 = camera.position.y - h / 2;
-
-            //  x1 -= 5.0f;
-            //  w -= 5.0f;
-
-            y2 -= this.height * OasisGameSettings.SCALE;
-            h -= this.height * OasisGameSettings.SCALE;
-            renderer.setView(camera.combined, x1, y2, w, h);
-            offset = false;
-        }
-
-        camera.position.y += (Gdx.graphics.getDeltaTime()) * 4f;
-
-    }
-
     /**
      * Invoked when a resize happens.
      *
@@ -192,10 +125,9 @@ public final class GameTiledMapRenderer implements Disposable {
      * @param height the height
      */
     public void resize(int width, int height) {
-        GameLogging.info("Renderer", "Resized %d %d", width, height);
         viewport.update(width, height, false);
-        // TODO: May be required in the future
-        // camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
+
+        // TODO: if needed later, camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
     }
 
     @Override

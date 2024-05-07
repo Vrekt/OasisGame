@@ -1,7 +1,7 @@
 package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**

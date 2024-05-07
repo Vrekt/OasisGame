@@ -12,8 +12,8 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
-import me.vrekt.oasis.entity.component.EntityRotation;
-import me.vrekt.oasis.entity.parts.ResourceLoader;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRegistry;
@@ -133,7 +133,7 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         // drawEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(entityRotation.ordinal(), delta), getScaledWidth(), getScaledHeight());
+            draw(batch, animationComponent.playWalkingAnimation(entityRotation, delta), getScaledWidth(), getScaledHeight());
         } else {
             if (currentRegion != null) {
                 draw(batch, currentRegion, getScaledWidth(), getScaledHeight());

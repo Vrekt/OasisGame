@@ -6,10 +6,10 @@ import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import me.vrekt.oasis.entity.component.Direction;
-import me.vrekt.oasis.entity.component.EntityRotation;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
+import me.vrekt.oasis.entity.component.facing.Direction;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Represents a basic form of an entities AI
@@ -44,11 +44,6 @@ public final class SteeringEntity implements Steerable<Vector2> {
         this.behavior = behavior;
     }
 
-    public boolean isWithinTarget(float tolerance, EntityLocation target) {
-        GameLogging.info(this, "Dst %s", body.getPosition().dst(target.getPosition()));
-        return body.getPosition().dst2(target.getPosition()) <= tolerance;
-    }
-
     /**
      * @return {@code true} if the velocity is within (technically) zero
      */
@@ -64,11 +59,9 @@ public final class SteeringEntity implements Steerable<Vector2> {
         if (behavior != null) {
             behavior.calculateSteering(output);
             apply(delta);
-        }
-    }
 
-    public SteeringAcceleration<Vector2> getOutput() {
-        return output;
+            owner.setPosition(body.getPosition());
+        }
     }
 
     /**
@@ -91,12 +84,11 @@ public final class SteeringEntity implements Steerable<Vector2> {
             float max = getMaxLinearSpeed();
             if (len > (max * max)) {
                 // magic
-                body.setLinearVelocity(current.scl(max / (float) Math.sqrt(len)));
+                owner.setBodyVelocity(current.scl(max / (float) Math.sqrt(len)), true);
+            } else {
+                owner.setVelocity(body.getLinearVelocity());
             }
         }
-
-        // update owner velocity for convenience sake
-        owner.setVelocity(body.getLinearVelocity());
 
         // https://gamedev.stackexchange.com/questions/49290/whats-the-best-way-of-transforming-a-2d-vector-into-the-closest-8-way-compass-d
         final float angle = (float) Math.atan2(body.getLinearVelocity().y, body.getLinearVelocity().x);
@@ -196,12 +188,12 @@ public final class SteeringEntity implements Steerable<Vector2> {
 
     @Override
     public float vectorToAngle(Vector2 vector2) {
-        return SteeringUtils.vectorToAngle(vector2);
+        return AiVectorUtility.vectorToAngle(vector2);
     }
 
     @Override
     public Vector2 angleToVector(Vector2 vector2, float angle) {
-        return SteeringUtils.angleToVector(vector2, angle);
+        return AiVectorUtility.angleToVector(vector2, angle);
     }
 
     @Override

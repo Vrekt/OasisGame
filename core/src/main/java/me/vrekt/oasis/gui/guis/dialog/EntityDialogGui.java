@@ -40,8 +40,8 @@ public final class EntityDialogGui extends Gui {
     private boolean hasAnyFocus;
     private int suggestionsBeingShown;
     private final LinkedList<String> suggestionsShowing = new LinkedList<>();
-
     private final JaroWinklerSimilarity similarity = new JaroWinklerSimilarity();
+
     public EntityDialogGui(GuiManager guiManager) {
         super(GuiType.DIALOG, guiManager);
 

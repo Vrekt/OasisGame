@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Pool;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +33,9 @@ public final class EntityAnimationComponent implements Component, Pool.Poolable 
         walkingAnimations.get(rotation).setFrameDuration(ft);
     }
 
-    public TextureRegion playWalkingAnimation(int rotation, float time) {
+    public TextureRegion playWalkingAnimation(EntityRotation rotation, float time) {
         animationTime += time;
-        return walkingAnimations.get(rotation).getKeyFrame(animationTime);
+        return walkingAnimations.get(rotation.ordinal()).getKeyFrame(animationTime);
     }
 
     @Override

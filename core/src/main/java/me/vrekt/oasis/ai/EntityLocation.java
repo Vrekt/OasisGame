@@ -2,6 +2,7 @@ package me.vrekt.oasis.ai;
 
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 
 public class EntityLocation implements Location<Vector2> {
 
@@ -30,12 +31,12 @@ public class EntityLocation implements Location<Vector2> {
 
     @Override
     public float vectorToAngle(Vector2 vector) {
-        return SteeringUtils.vectorToAngle(vector);
+        return AiVectorUtility.vectorToAngle(vector);
     }
 
     @Override
     public Vector2 angleToVector(Vector2 outVector, float angle) {
-        return SteeringUtils.angleToVector(outVector, angle);
+        return AiVectorUtility.angleToVector(outVector, angle);
     }
 
     @Override
