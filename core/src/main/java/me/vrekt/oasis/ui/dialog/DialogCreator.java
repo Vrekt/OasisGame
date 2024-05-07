@@ -2,101 +2,213 @@ package me.vrekt.oasis.ui.dialog;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.dialog.InteractableDialogEntry;
+import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
+import me.vrekt.oasis.utility.logging.GameLogging;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class DialogCreator extends ScreenAdapter {
 
     private final Stage stage;
     private final VisTable rootTable;
-    private final Label.LabelStyle large;
+
+    private final InteractableEntityDialog jsonData;
+
+    private String name, keyFormat;
+    private int dialogIndex;
+    private boolean isFirstStage = true;
+
+    private final Gson gson;
+    private final Map<String, Float> suggestionStorage = new HashMap<>();
 
     public DialogCreator(OasisGame game) {
         stage = new Stage();
-        stage.setViewport(new ScreenViewport());
+
+        jsonData = new InteractableEntityDialog();
+        gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
 
         rootTable = new VisTable(true);
         rootTable.setFillParent(true);
         stage.addActor(rootTable);
 
-        large = new Label.LabelStyle(game.getAsset().getLarge(), Color.BLACK);
-        populateCreateDialogComponents();
+        final VisTable left = new VisTable(), right = new VisTable();
+        final VisTable buttonTable = getButtonTable(game);
+        left.add(buttonTable).left();
 
-        //     final VisTextButton newDialogButton = new VisTextButton("New Dialog");
-        //  handleNewButton(newDialogButton);
+        final VisTable inputField = populateInputField(game);
+        right.add(inputField);
 
-        //   final VisLabel loadText = new VisLabel("File: ");
-        //   final VisTextField loadField = new VisTextField("");
-        //    final VisTextButton loadButton = new VisTextButton("Load Dialog");
-        //    handleLoadButton(loadButton, loadField);
+        final VisSplitPane pane = new VisSplitPane(left, right, false);
 
-        //  rootTable.add(newDialogButton);
-        //  rootTable.row();
-
-        //   rootTable.add(loadText);
-        //   rootTable.add(loadField);
-        //   rootTable.add(loadButton);
-        //    rootTable.row();
-
+        rootTable.add(right);
     }
 
-    private void populateCreateDialogComponents() {
-        final VisTable parent = new VisTable();
-        final VisLabel name = new VisLabel("Dialog Name: ", Color.BLACK);
-        final VisTextField nameField = new VisTextField("");
-        parent.add(name);
-        parent.add(nameField);
-        parent.row();
+    private VisTable getButtonTable(OasisGame game) {
+        final VisTable buttonTable = new VisTable();
+        buttonTable.left();
 
-        final VisTable scrollContents = new VisTable();
-        scrollContents.setFillParent(true);
-        final VisScrollPane scrollPane = new VisScrollPane(scrollContents);
-        for(int i = 0; i < 10; i++) scrollContents.add(createInputTable()).row();
-        parent.add(scrollPane).fill().expand();
-        rootTable.add(parent);
+        final VisImageTextButton createButton = new VisImageTextButton("Create", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton loadButton = new VisImageTextButton("Load", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton saveButton = new VisImageTextButton("Save", game.getStyle().getImageTextButtonStyle());
 
+        buttonTable.add(createButton);
+        buttonTable.row().padBottom(4f);
+        buttonTable.add(loadButton);
+        buttonTable.row().padBottom(4f);
+        buttonTable.add(saveButton);
+        return buttonTable;
     }
 
-    private VisTable createInputTable() {
-        final VisTable table = new VisTable();
-        final VisLabel label = new VisLabel("Key: ", Color.BLACK);
-        final VisTextField field = new VisTextField("");
-        final VisLabel text = new VisLabel("Text: ", Color.BLACK);
-        final VisTextField textField = new VisTextField("");
-        table.add(label);
-        table.add(field);
-        table.row();
-        table.add(text);
-        table.add(textField);
-        return table;
+    private VisTable populateInputField(OasisGame game) {
+        final VisTable root = new VisTable();
+
+        final VisLabel currentKeyLabel = new VisLabel("", game.getStyle().getMediumBlack());
+        root.add(currentKeyLabel);
+        root.row();
+
+        final VisLabel nameLabel = new VisLabel("Name: ", game.getStyle().getSmallBlack());
+        final VisTextField nameField = new VisTextField();
+
+        root.add(nameLabel);
+        root.add(nameField);
+        root.row().padTop(4f);
+
+        final VisLabel keyFormatLabel = new VisLabel("Key Format: ", game.getStyle().getSmallBlack());
+        final VisTextField keyFormatField = new VisTextField();
+
+        root.add(keyFormatLabel);
+        root.add(keyFormatField);
+        root.row().padTop(4f);
+
+        final VisLabel suggestionLabel = new VisLabel("Suggestion: ", game.getStyle().getSmallBlack());
+        final VisTextField suggestionField = new VisTextField();
+        final VisImageTextButton nextSuggestionButtion = new VisImageTextButton("NS", game.getStyle().getImageTextButtonStyle());
+
+        root.add(suggestionLabel);
+        root.add(suggestionField);
+        root.add(nextSuggestionButtion);
+        root.row().padTop(4f);
+
+        final VisLabel linksToLabel = new VisLabel("Links To: ", game.getStyle().getSmallBlack());
+        final VisTextField linksToField = new VisTextField();
+
+        root.add(linksToLabel);
+        root.add(linksToField);
+        root.row().padTop(4f);
+
+        final VisLabel k1Label = new VisLabel("K1: ", game.getStyle().getSmallBlack());
+        final VisTextArea k1Field = new VisTextArea();
+
+        root.add(k1Label);
+        root.add(k1Field).size(400, 200);
+        root.row().padTop(4f);
+
+        final VisImageTextButton nextButton = new VisImageTextButton("Next", game.getStyle().getImageTextButtonStyle());
+        root.add(nextButton);
+
+        final VisImageTextButton saveButton = new VisImageTextButton("Save", game.getStyle().getImageTextButtonStyle());
+        root.row().padTop(4f);
+        root.add(saveButton);
+
+        handleNextSuggestionButton(nextSuggestionButtion, suggestionField);
+        handleNextButton(nextButton, nameField, keyFormatField, suggestionField, k1Field, linksToField, keyFormatLabel);
+        handleSaveButton(saveButton);
+
+        return root;
     }
 
-    private void populateDialogFile() {
-        rootTable.clear();
-    }
-
-    private void handleNewButton(VisTextButton button) {
+    private void handleNextButton(VisImageTextButton button,
+                                  VisTextField nameField,
+                                  VisTextField keyFormatField,
+                                  VisTextField suggestionField,
+                                  VisTextArea k1Field,
+                                  VisTextField linkField,
+                                  VisLabel currentKeyLabel) {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                populateCreateDialogComponents();
+                if (isFirstStage) {
+                    nameField.setVisible(false);
+                    keyFormatField.setVisible(false);
+
+                    name = nameField.getText();
+                    keyFormat = keyFormatField.getText();
+                    isFirstStage = false;
+
+                    jsonData.setName(name);
+                    jsonData.setKeyFormat(keyFormat);
+                }
+
+                final InteractableDialogEntry data = new InteractableDialogEntry();
+                final String key = keyFormat + "_" + dialogIndex;
+
+                data.setKey(key);
+                data.setContent(k1Field.getText());
+                data.setLink(linkField.getText());
+
+                data.setRequiresInput(!suggestionStorage.isEmpty());
+
+                suggestionStorage.forEach(data::addSuggestion);
+                suggestionStorage.clear();
+
+                jsonData.addEntry(key, data);
+
+                suggestionField.clearText();
+                k1Field.clearText();
+                linkField.clearText();
+
+                dialogIndex++;
+
+                // reflect the new changes next time around
+                currentKeyLabel.setText(keyFormat + "_" + dialogIndex);
             }
         });
     }
 
-    private void handleLoadButton(VisTextButton button, VisTextField input) {
+    private void handleNextSuggestionButton(VisImageTextButton button, VisTextField suggestionField) {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                populateDialogFile();
-                // Gdx.files.internal(input.getText().trim());
+                final String[] text = StringUtils.split(suggestionField.getText(), ":");
+                suggestionStorage.put(text[0], Float.valueOf(text[1]));
+
+                suggestionField.clearText();
+            }
+        });
+    }
+
+    private void handleSaveButton(VisImageTextButton button) {
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                final FileHandle handle = Gdx.files.internal("assets/dialog/" + name + ".json");
+                try {
+                    if (!handle.exists()) Files.createFile(Paths.get(handle.path()));
+                    try (FileWriter writer = new FileWriter(handle.file(), false)) {
+                        gson.toJson(jsonData, writer);
+                    }
+                } catch (IOException exception) {
+                    GameLogging.exceptionThrown(this, "Failed to write dialog!", exception);
+                }
+
             }
         });
     }

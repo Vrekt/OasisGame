@@ -35,6 +35,14 @@ public final class AiArrivalComponent extends AiComponent {
     }
 
     /**
+     * Ignore the last path and only move next on the next opportunity.
+     */
+    public void ignoreLastPath() {
+        isWalkingToPath = false;
+        lastPointTick = entity.getWorldIn().getCurrentWorldTick();
+    }
+
+    /**
      * Add an arrival point
      *
      * @param point the point

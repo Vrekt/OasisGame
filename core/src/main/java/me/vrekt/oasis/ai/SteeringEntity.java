@@ -198,6 +198,6 @@ public final class SteeringEntity implements Steerable<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        return new EntityLocation();
+        return new VectorLocation();
     }
 }

@@ -12,15 +12,16 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.dialog.EntityDialogBuilder;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 
 public final class EntityDialogGui extends Gui {
@@ -147,15 +148,21 @@ public final class EntityDialogGui extends Gui {
 
         entityNameLabel.setText(entity.getName());
         entityPreview.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
-        dialogTextLabel.setText(entity.getDialog().getText());
+        dialogTextLabel.setText(entity.getDialog().getContent());
         dialogTextLabel.restart();
 
-        if (entity.getDialog().hasSuggestions()) {
+        if (entity.getDialog().requiresUserInput()) {
             // enable suggestions input box
             userInputField.setVisible(true);
         } else {
             userInputField.setVisible(false);
-            entity.getDialog().getOptions().forEach(this::addOption);
+            userInputField.setText("...");
+            // un-focus so global keyboard listener and retrieve input again
+            guiManager.getStage().unfocus(userInputField);
+            // clear options container so the input field is set correctly the next time around
+            dialogOptionContainers.forEach(container -> dialogOptionsWrapper.removeActor(container.parent));
+            suggestionsBeingShown = 0;
+            // FIXME: Options entity.getDialog().getOptions().forEach(this::addOption);
         }
     }
 
@@ -182,6 +189,7 @@ public final class EntityDialogGui extends Gui {
      * @param suggestion the suggestion string
      */
     private void addSuggestion(int index, String suggestion, String key) {
+        GameLogging.info(this, "Showing %s", key);
         final DialogOptionContainer container = dialogOptionContainers.get(index);
         container.label.setText(suggestion);
         container.listener.setKeyAndEntity(key, entity);
@@ -304,17 +312,18 @@ public final class EntityDialogGui extends Gui {
         }
 
         // may or may not need the second statement
-        if (entity != null && entity.getDialog().hasSuggestions()) {
+        if (entity != null && entity.getDialog().requiresUserInput()) {
             // if suggestions is already maxed, just return.
             if (suggestionsBeingShown >= 3) return;
-            for (EntityDialogBuilder.Suggestion entry : entity.getDialog().getSuggestions()) {
-                final String suggestion = entry.suggestion;
-                final double tolerance = entry.tolerance;
+
+            for (Map.Entry<String, Float> entry : entity.getDialog().getSuggestions().entrySet()) {
+                final String suggestion = entry.getKey();
+                final double tolerance = entry.getValue();
                 final double sim = similarity.apply(text, suggestion);
                 if (sim >= tolerance && !suggestionsShowing.contains(suggestion)) {
                     // string is similar show it as a suggestion.
                     suggestionsShowing.add(suggestion);
-                    addSuggestion(suggestionsBeingShown, suggestion, entry.keyLink);
+                    addSuggestion(suggestionsBeingShown, suggestion, entity.getDialog().getLink());
                     suggestionsBeingShown++;
                 } else if (sim <= tolerance && suggestionsShowing.contains(suggestion)) {
                     clearTextContainerSuggestion(suggestion);
@@ -386,11 +395,12 @@ public final class EntityDialogGui extends Gui {
 
         @Override
         public void clicked(InputEvent event, float x, float y) {
-            if (entity.advanceDialogStage(key)) {
+            if (!entity.advanceDialogStage(key)) {
                 // no more dialog so stop speaking
                 entity.setSpeakingTo(false);
                 EntityDialogGui.this.hide();
             } else {
+                System.err.println("GOTO " + key);
                 EntityDialogGui.this.showEntityDialog(entity);
             }
         }

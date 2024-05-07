@@ -1,52 +1,72 @@
 package me.vrekt.oasis.entity.dialog;
 
 import com.badlogic.gdx.utils.Disposable;
+import com.google.gson.annotations.Expose;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
- * OasisEntity dialog
+ * Represents an entities dialog in it entirety.
  */
-public class InteractableEntityDialog implements Disposable {
+public final class InteractableEntityDialog implements Disposable {
 
-    // dialog(s) stored by key
-    private final Map<String, InteractableEntityDialogSection> dialog = new LinkedHashMap<>();
+    @Expose
+    private String name;
 
-    // start and end dialog
-    private String starting, ending;
+    @Expose
+    private String keyFormat;
 
-    public InteractableEntityDialog(LinkedHashMap<String, InteractableEntityDialogSection> dialog) {
-        this.dialog.putAll(dialog);
-        dialog.clear();
+    @Expose
+    private HashMap<String, InteractableDialogEntry> contents;
+
+    private int currentEntryIndex;
+
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setStarting(String starting) {
-        this.starting = starting;
+    public void setKeyFormat(String keyFormat) {
+        this.keyFormat = keyFormat;
     }
 
-    public void setEnding(String ending) {
-        this.ending = ending;
+    /**
+     * Add an entry
+     *
+     * @param key   the key
+     * @param entry the entry
+     */
+    public void addEntry(String key, InteractableDialogEntry entry) {
+        if (contents == null) contents = new HashMap<>();
+        contents.put(key, entry);
     }
 
-    public InteractableEntityDialogSection getSection(String key) {
-        return dialog.get(key);
+    /**
+     * Get a dialog entry
+     *
+     * @param key the key
+     * @return the entry
+     */
+    public InteractableDialogEntry getEntry(String key) {
+        currentEntryIndex++;
+        return contents.get(key);
     }
 
-    public InteractableEntityDialogSection getSectionDefault(String key, InteractableEntityDialogSection section) {
-        return dialog.getOrDefault(key, section);
+    /**
+     * Check if this dialog has the specified entry
+     *
+     * @param key the key
+     * @return {@code true} if so
+     */
+    public boolean hasEntryKey(String key) {
+        return contents.containsKey(key);
     }
 
-    public InteractableEntityDialogSection getStarting() {
-        return dialog.get(starting);
-    }
-
-    public boolean isEnd(String option) {
-        return option.equals(this.ending);
+    public boolean hasNextEntry() {
+        return currentEntryIndex <= contents.size();
     }
 
     @Override
     public void dispose() {
-        this.dialog.clear();
+        contents.clear();
     }
 }

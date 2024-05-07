@@ -3,7 +3,7 @@ package me.vrekt.oasis.entity.interactable;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.ai.EntityLocation;
+import me.vrekt.oasis.ai.VectorLocation;
 import me.vrekt.oasis.ai.SteeringEntity;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
@@ -18,7 +18,7 @@ public abstract class EntityInteractable extends EntitySpeakable {
 
     // entity AI steering
     protected SteeringEntity entitySteering;
-    protected EntityLocation location;
+    protected VectorLocation location;
 
     protected final OasisGame game;
     protected EntityNPCType type;

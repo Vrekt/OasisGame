@@ -338,8 +338,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             final EntitySpeakable speakable = player.getEntitySpeakingTo();
 
             // dialog requires input so ignore this key press.
-            if (speakable.getDialog().needsUserInput()) return;
-
+            if (speakable.getDialog().requiresUserInput()) return;
             // check if the dialog is finished for this entity, if so close it.
             final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
             if (!result) {

@@ -67,7 +67,13 @@ public class GameManager {
         registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.DEBUG_MENU);
         registerInventoryKeyMappings();
 
-        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().getGameWorldIn().skipCurrentDialog());
+        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> {
+            if (oasis.getPlayer().isInInteriorWorld()) {
+                oasis.getPlayer().getInteriorWorldIn().skipCurrentDialog();
+            } else {
+                oasis.getPlayer().getGameWorldIn().skipCurrentDialog();
+            }
+        });
         KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> oasis.getPlayer().activateArtifact(0));
     }
 

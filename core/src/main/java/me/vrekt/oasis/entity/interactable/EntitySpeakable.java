@@ -6,10 +6,10 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
-import me.vrekt.oasis.entity.dialog.InteractableEntityDialogSection;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.entity.dialog.InteractableDialogEntry;
+import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public abstract class EntitySpeakable extends Entity {
     protected OasisPlayer player;
 
     protected InteractableEntityDialog entityDialog;
-    protected InteractableEntityDialogSection dialog;
+    protected InteractableDialogEntry dialogEntry;
 
     protected boolean speakingTo, speakable;
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
@@ -91,8 +91,8 @@ public abstract class EntitySpeakable extends Entity {
         return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
     }
 
-    public InteractableEntityDialogSection getDialog() {
-        return dialog;
+    public InteractableDialogEntry getDialog() {
+        return dialogEntry;
     }
 
     public boolean isSpeakable() {
@@ -159,11 +159,11 @@ public abstract class EntitySpeakable extends Entity {
     @Override
     public void dispose() {
         super.dispose();
-        this.entityDialog.dispose();
+        entityDialog.dispose();
+        entityDialog = null;
+        dialogEntry = null;
         dialogFrames[0] = null;
         dialogFrames[1] = null;
         dialogFrames[2] = null;
-        this.entityDialog = null;
-        this.dialog = null;
     }
 }

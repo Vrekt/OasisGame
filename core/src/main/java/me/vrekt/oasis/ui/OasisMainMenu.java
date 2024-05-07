@@ -22,6 +22,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
+import me.vrekt.oasis.ui.dialog.DialogCreator;
 
 /**
  * The main menu of the game
@@ -107,7 +108,7 @@ public final class OasisMainMenu extends ScreenAdapter {
         });
 
         // FIXME: Temporary multiplayer testing
-        assignClickAction(quitGameButton, game::joinRemoteServer);
+        assignClickAction(quitGameButton, () -> game.setScreen(new DialogCreator(game)));
     }
 
     /**

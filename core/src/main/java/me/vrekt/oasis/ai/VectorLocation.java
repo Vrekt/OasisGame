@@ -4,12 +4,15 @@ import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 
-public class EntityLocation implements Location<Vector2> {
+/**
+ * Represents a basic location
+ */
+public final class VectorLocation implements Location<Vector2> {
 
     private final Vector2 position;
     private float orientation;
 
-    public EntityLocation() {
+    public VectorLocation() {
         position = new Vector2();
         orientation = 0.0f;
     }
@@ -41,6 +44,6 @@ public class EntityLocation implements Location<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        return new EntityLocation();
+        return new VectorLocation();
     }
 }

@@ -1,6 +1,6 @@
 package me.vrekt.oasis.ai.components;
 
-import me.vrekt.oasis.ai.EntityLocation;
+import me.vrekt.oasis.ai.VectorLocation;
 import me.vrekt.oasis.ai.SteeringEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
@@ -12,12 +12,12 @@ public abstract class AiComponent {
 
     protected final EntityInteractable entity;
     protected final SteeringEntity steering;
-    protected final EntityLocation location;
+    protected final VectorLocation location;
 
     public AiComponent(EntityInteractable entity) {
         this.entity = entity;
         steering = new SteeringEntity(entity, entity.getBody());
-        location = new EntityLocation();
+        location = new VectorLocation();
     }
 
     public void setMaxLinearSpeed(float value) {

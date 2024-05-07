@@ -14,9 +14,9 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.npc.wrynn.dialog.WrynnDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.OasisWorld;
@@ -32,9 +32,6 @@ public final class WrynnEntity extends EntityInteractable {
 
     public WrynnEntity(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
-
-        entityDialog = WrynnDialog.create();
-        dialog = entityDialog.getStarting();
     }
 
     public AiArrivalComponent getArrivalComponent() {
@@ -59,6 +56,9 @@ public final class WrynnEntity extends EntityInteractable {
         // FIXME, add other walking animations
         animationComponent.registerWalkingAnimation(EntityRotation.RIGHT, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
         animationComponent.registerWalkingAnimation(EntityRotation.UP, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
+
+        entityDialog = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
+        dialogEntry = entityDialog.getEntry("wrynn_dialog_0");
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);
@@ -110,6 +110,9 @@ public final class WrynnEntity extends EntityInteractable {
         } else {
             // stop moving entirely
             setBodyVelocity(0, 0, true);
+            // don't continue going towards the same path after the player is done speaking to us
+            // that would look weird.
+            arrivalComponent.ignoreLastPath();
         }
 
         setMoving(!getVelocity().isZero());
@@ -145,5 +148,20 @@ public final class WrynnEntity extends EntityInteractable {
             game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, 12.0f);
             hintShown = true;
         }
+    }
+
+    @Override
+    public boolean advanceDialogStage(String option) {
+        if (!entityDialog.hasEntryKey(option)) return false;
+        dialogEntry = entityDialog.getEntry(option);
+        return true;
+    }
+
+    @Override
+    public boolean advanceDialogStage() {
+        if (!entityDialog.hasNextEntry()) return false;
+        System.err.println(dialogEntry.getLink());
+        dialogEntry = entityDialog.getEntry(dialogEntry.getLink());
+        return true;
     }
 }
