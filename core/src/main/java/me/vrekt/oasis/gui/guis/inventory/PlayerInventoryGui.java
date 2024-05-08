@@ -52,7 +52,6 @@ public final class PlayerInventoryGui extends InventoryGui {
         this.player = guiManager.getGame().getPlayer();
 
         hideWhenVisible.add(GuiType.HUD);
-
         initializeRarityIcons();
 
         rootTable.setFillParent(true);
@@ -156,7 +155,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         final AtomicInteger slotTracker = new AtomicInteger();
         // Inventory: populate each individual UI component
-        populateInventoryUiComponents(guiManager, player.getInventory(), slotDrawable, component -> {
+        populateInventoryUiComponents(guiManager, player.getInventory().getInventorySize(), slotDrawable, true, component -> {
             // add to list of slots
             guiSlots.add(new InventoryGuiSlot(guiManager,
                     this,

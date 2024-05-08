@@ -44,6 +44,16 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
+    public int addItemToExistingStack(Item item) {
+        final int slot = getItemSlot(item.getItemType());
+        if (slot == -1) throw new IllegalArgumentException("Stack does not exist! (" + item.getItemType() + ")");
+
+        final Item stack = getItem(slot);
+        stack.add(item.getAmount());
+        return slot;
+    }
+
+    @Override
     public Inventory addItems(Items items, int amount) {
         addItem(items, amount);
         return this;
@@ -64,10 +74,11 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
-    public void addItem(Item item) {
-        if (isInventoryFull()) return;
-
-        slots.put(getAnyEmptySlot(), new InventorySlot(item));
+    public int addItem(Item item) {
+        if (isInventoryFull()) return -1;
+        final int slot = getAnyEmptySlot();
+        slots.put(slot, new InventorySlot(item));
+        return slot;
     }
 
     @Override
@@ -92,6 +103,16 @@ public abstract class AbstractInventory implements Inventory {
     public int getItemSlot(Item item) {
         for (Integer slot : slots.keySet()) {
             if (slots.get(slot).getItem().is(item)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public int getItemSlot(Items itemType) {
+        for (Integer slot : slots.keySet()) {
+            if (slots.get(slot).getItem().getItemType() == itemType) {
                 return slot;
             }
         }
@@ -182,12 +203,43 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
-    public void transferItemTo(int slot, Inventory other) {
-        if (!slots.containsKey(slot)) return;
+    public int transferItemsTo(int slot, Inventory other) {
+        if (!slots.containsKey(slot)) return -1;
         final Item item = slots.get(slot).getItem();
-        other.addItem(item);
+        int newSlot;
+
+        // only transfer items to other stacks if the item is stackable
+        if (other.hasItem(item.getItemType()) && item.isStackable()) {
+            // other inventory has this item, so ideally transfer into that stack if possible.
+            // TODO: Stack sizes
+            newSlot = other.addItemToExistingStack(item);
+        } else {
+            newSlot = other.addItem(item);
+        }
 
         slots.remove(slot);
+        return newSlot;
+    }
+
+    @Override
+    public int transferItemTo(int slot, int amount, Inventory other) {
+        if (!slots.containsKey(slot)) return -1;
+
+        // should hopefully catch stackable items
+        // since their amount can only be 1
+        final Item item = slots.get(slot).getItem();
+        if (amount >= item.getAmount()) {
+            return transferItemsTo(slot, other);
+        }
+
+        // item amount is decreased in item implementation
+        final Item newItem = item.split(amount);
+
+        if (other.hasItem(newItem.getItemType())) {
+            return other.addItemToExistingStack(newItem);
+        }
+
+        return other.addItem(newItem);
     }
 
     @Override

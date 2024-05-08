@@ -6,9 +6,14 @@ import me.vrekt.oasis.entity.inventory.InventoryType;
 /**
  * An inventory for a containers
  */
-public abstract class ContainerInventory extends AbstractInventory {
+public class ContainerInventory extends AbstractInventory {
 
     public ContainerInventory(int inventorySize) {
         super(inventorySize, InventoryType.CONTAINER);
+    }
+
+    @Override
+    public void update() {
+
     }
 }

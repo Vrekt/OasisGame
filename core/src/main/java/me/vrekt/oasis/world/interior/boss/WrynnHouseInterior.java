@@ -8,6 +8,8 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.container.WrynnOfficeContainerInteraction;
 
 import java.util.Random;
 
@@ -20,6 +22,11 @@ public final class WrynnHouseInterior extends Instance {
         super(game, player, world, name, cursor, bounds);
         this.enterable = true;
         random = new Random();
+    }
+
+    @Override
+    protected void preLoad() {
+        interactionManager.registerChildInteraction(WorldInteractionType.CONTAINER, "wrynn:container", WrynnOfficeContainerInteraction::new);
     }
 
     @Override

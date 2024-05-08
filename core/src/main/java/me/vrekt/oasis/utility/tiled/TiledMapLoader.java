@@ -28,9 +28,7 @@ public final class TiledMapLoader {
      */
     public static boolean loadMapObjects(TiledMap worldMap, float worldScale, String layerName, BiConsumer<MapObject, Rectangle> handler) {
         final MapLayer layer = worldMap.getLayers().get(layerName);
-        if (layer == null) {
-            return false;
-        }
+        if (layer == null) return false;
 
         for (MapObject object : layer.getObjects()) {
             if (object instanceof RectangleMapObject) {

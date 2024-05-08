@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.ItemRarity;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.artifact.artifacts.QuickStepArtifact;
@@ -19,7 +20,7 @@ public final class QuickStepItemArtifact extends ItemArtifact {
     private Artifact artifact;
 
     public QuickStepItemArtifact() {
-        super(KEY, NAME, "Allows you to move faster!");
+        super(Items.QUICKSTEP_ARTIFACT, KEY, NAME, "Allows you to move faster!");
     }
 
     @Override

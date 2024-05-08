@@ -64,7 +64,7 @@ public class GameManager {
     private static void registerGlobalKeyActions() {
         registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
         registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
-        registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.DEBUG_MENU);
+        registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.CONTAINER);
         registerInventoryKeyMappings();
 
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> {

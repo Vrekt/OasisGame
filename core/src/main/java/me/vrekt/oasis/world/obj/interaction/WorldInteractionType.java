@@ -5,7 +5,7 @@ package me.vrekt.oasis.world.obj.interaction;
  */
 public enum WorldInteractionType {
 
-    READABLE_SIGN("readable_sign");
+    READABLE_SIGN("readable_sign"), CONTAINER("container");
 
     private final String type;
     // specifies this interaction has other interactions within
@@ -16,8 +16,8 @@ public enum WorldInteractionType {
         this.poolingClass = null;
     }
 
-    WorldInteractionType(Class<? extends InteractableWorldObject> poolingClass) {
-        this.type = null;
+    WorldInteractionType(String type, Class<? extends InteractableWorldObject> poolingClass) {
+        this.type = type;
         this.poolingClass = poolingClass;
     }
 

@@ -23,6 +23,14 @@ public interface Inventory {
     Item addItem(Items item, int amount);
 
     /**
+     * Add an item to a pre-existing stack
+     *
+     * @param item the item
+     * @return the slot added to
+     */
+    int addItemToExistingStack(Item item);
+
+    /**
      * Add an item to this inventory
      *
      * @param item   the item
@@ -45,9 +53,9 @@ public interface Inventory {
      * Add an item
      *
      * @param item the item
+     * @return the slot the item was added to
      */
-    void addItem(Item item);
-
+    int addItem(Item item);
 
     /**
      * Get an item by key name
@@ -72,6 +80,14 @@ public interface Inventory {
      * @return the slot or {@code -1}
      */
     int getItemSlot(Item item);
+
+    /**
+     * Get the item slot by type
+     *
+     * @param itemType the type
+     * @return the slot or {@code  -1}
+     */
+    int getItemSlot(Items itemType);
 
     /**
      * Get an item by the slot number
@@ -147,8 +163,19 @@ public interface Inventory {
      * Transfer an item to the other inventory
      *
      * @param other other
+     * @return the new slot the item was transferred to
      */
-    void transferItemTo(int slot, Inventory other);
+    int transferItemsTo(int slot, Inventory other);
+
+    /**
+     * Transfer a certain amount of items to the other inventory
+     *
+     * @param slot   the slot
+     * @param amount the amount
+     * @param other  the other inventory
+     * @return the new slot the item was transferred to
+     */
+    int transferItemTo(int slot, int amount, Inventory other);
 
     /**
      * Transfer items from another inventory

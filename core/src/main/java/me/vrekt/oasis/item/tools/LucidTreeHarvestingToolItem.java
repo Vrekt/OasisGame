@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.item.AbstractItem;
 import me.vrekt.oasis.item.ItemRarity;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 /**
@@ -18,7 +19,7 @@ public final class LucidTreeHarvestingToolItem extends AbstractItem {
     public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     public LucidTreeHarvestingToolItem() {
-        super(KEY, NAME, DESCRIPTION);
+        super(Items.NO_ITEM, KEY, NAME, DESCRIPTION);
         this.rarity = ItemRarity.BASIC;
     }
 

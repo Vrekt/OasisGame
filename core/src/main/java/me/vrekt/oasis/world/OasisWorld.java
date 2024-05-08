@@ -830,8 +830,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         }
 
-        if (closest != null) System.err.println(closest.getType());
-
         if (closest != null
                 && closest.isSpeakable()
                 && !closest.isSpeakingTo()) {

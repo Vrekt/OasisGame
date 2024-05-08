@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
+import me.vrekt.oasis.item.Items;
 
 public abstract class ItemWeapon extends ItemEquippable {
 
@@ -21,8 +22,8 @@ public abstract class ItemWeapon extends ItemEquippable {
     protected float targetAngle;
     protected float swingTick;
 
-    public ItemWeapon(String key, String name, String description) {
-        super(key, name, description);
+    public ItemWeapon(Items itemType, String key, String name, String description) {
+        super(itemType, key, name, description);
         bounds = new Rectangle();
     }
 

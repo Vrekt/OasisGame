@@ -12,6 +12,8 @@ import me.vrekt.oasis.item.attribute.ItemAttribute;
  */
 public interface Item extends ResourceLoader {
 
+    Items getItemType();
+
     String getKey();
 
     String getItemName();
@@ -27,6 +29,10 @@ public interface Item extends ResourceLoader {
     int getAmount();
 
     void setAmount(int amount);
+
+    void add(int amount);
+
+    void decrease(int amount);
 
     void decreaseItemAmount();
 
@@ -55,6 +61,8 @@ public interface Item extends ResourceLoader {
     void draw(SpriteBatch batch, float width, float height, float rotation);
 
     float getScaleSize();
+
+    Item split(int amount);
 
     boolean is(Item other);
 

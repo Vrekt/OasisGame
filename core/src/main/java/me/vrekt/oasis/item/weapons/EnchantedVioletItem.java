@@ -7,6 +7,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class EnchantedVioletItem extends ItemWeapon {
@@ -19,7 +20,7 @@ public final class EnchantedVioletItem extends ItemWeapon {
     private ParticleEffect swingEffect;
 
     public EnchantedVioletItem() {
-        super(KEY, NAME, "Something something this item is special.");
+        super(Items.ENCHANTED_VIOLET_ITEM, KEY, NAME, "Something something this item is special.");
         this.baseDamage = 1.5f;
         this.swingCooldown = 0.25f;
         this.swingTime = .25f;
@@ -28,6 +29,7 @@ public final class EnchantedVioletItem extends ItemWeapon {
         this.knockbackMultiplier = 3.5f;
         this.range = 0.8f;
         this.rarity = ItemRarity.VOID;
+        this.isStackable = false;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.ItemRarity;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
@@ -20,7 +21,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     public LucidTreeFruitItem() {
-        super(KEY, NAME, DESCRIPTION);
+        super(Items.LUCID_FRUIT_TREE_ITEM, KEY, NAME, DESCRIPTION);
         addAttribute(new PlayerHealingAttribute(20.0f));
 
         this.scaleSize = 1f;

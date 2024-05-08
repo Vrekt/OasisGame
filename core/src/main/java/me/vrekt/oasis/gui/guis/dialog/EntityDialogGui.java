@@ -23,7 +23,9 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import java.util.LinkedList;
 import java.util.Map;
 
-
+/**
+ * The dialog GUI for speaking with entities
+ */
 public final class EntityDialogGui extends Gui {
 
     private final LinkedList<DialogOptionContainer> dialogOptionContainers = new LinkedList<>();
@@ -400,7 +402,6 @@ public final class EntityDialogGui extends Gui {
                 entity.setSpeakingTo(false);
                 EntityDialogGui.this.hide();
             } else {
-                System.err.println("GOTO " + key);
                 EntityDialogGui.this.showEntityDialog(entity);
             }
         }

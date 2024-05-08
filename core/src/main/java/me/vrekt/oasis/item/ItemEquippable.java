@@ -11,8 +11,8 @@ public abstract class ItemEquippable extends AbstractItem {
 
     protected boolean isEquipped;
 
-    public ItemEquippable(String key, String name, String description) {
-        super(key, name, description);
+    public ItemEquippable(Items itemType, String key, String name, String description) {
+        super(itemType, key, name, description);
     }
 
     public void calculateItemPositionAndRotation(Vector2 position, EntityRotation rotation) {

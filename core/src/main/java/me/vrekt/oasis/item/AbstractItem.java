@@ -13,6 +13,7 @@ import java.util.Map;
 public abstract class AbstractItem implements Item {
 
 
+    protected final Items itemType;
     protected String key, name, description;
     protected Sprite sprite;
     protected ItemRarity rarity;
@@ -23,10 +24,16 @@ public abstract class AbstractItem implements Item {
     protected Map<String, ItemAttribute> attributes = new HashMap<>();
     protected float scaleSize = 1.0f;
 
-    public AbstractItem(String key, String name, String description) {
+    public AbstractItem(Items itemType, String key, String name, String description) {
+        this.itemType = itemType;
         this.key = key;
         this.name = name;
         this.description = description;
+    }
+
+    @Override
+    public Items getItemType() {
+        return itemType;
     }
 
     @Override
@@ -67,6 +74,16 @@ public abstract class AbstractItem implements Item {
     @Override
     public void setAmount(int amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public void add(int amount) {
+        this.amount += amount;
+    }
+
+    @Override
+    public void decrease(int amount) {
+        this.amount -= amount;
     }
 
     @Override
@@ -142,6 +159,12 @@ public abstract class AbstractItem implements Item {
     @Override
     public float getScaleSize() {
         return scaleSize;
+    }
+
+    @Override
+    public Item split(int amount) {
+        setAmount(getAmount() - amount);
+        return ItemRegistry.createItem(itemType, amount);
     }
 
     @Override

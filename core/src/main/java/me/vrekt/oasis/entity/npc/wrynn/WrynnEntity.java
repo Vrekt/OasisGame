@@ -160,7 +160,6 @@ public final class WrynnEntity extends EntityInteractable {
     @Override
     public boolean advanceDialogStage() {
         if (!entityDialog.hasNextEntry()) return false;
-        System.err.println(dialogEntry.getLink());
         dialogEntry = entityDialog.getEntry(dialogEntry.getLink());
         return true;
     }

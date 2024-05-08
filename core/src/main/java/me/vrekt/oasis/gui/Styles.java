@@ -31,6 +31,7 @@ public class Styles {
     private final Texture defaultCursorTexture;
 
     private final VisCheckBox.VisCheckBoxStyle checkBoxStyle;
+    private final TextureRegionDrawable themeDownSelected;
 
     public Styles(Asset asset) {
         final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
@@ -66,6 +67,8 @@ public class Styles {
         mediumBlack = new Label.LabelStyle(asset.getMedium(), Color.BLACK);
         largeBlack = new Label.LabelStyle(asset.getLarge(), Color.BLACK);
         smallerWhite = new Label.LabelStyle(asset.getSmaller(), Color.WHITE);
+
+        themeDownSelected = new TextureRegionDrawable(asset.get("theme_down"));
 
         final NinePatch themeOverPatch = new NinePatch(asset.get("theme_over"), 6, 6, 6, 6);
         final NinePatch themeDownPatch = new NinePatch(asset.get("theme_down"), 6, 6, 6, 6);
@@ -133,6 +136,10 @@ public class Styles {
 
     public Label.LabelStyle getLargeBlack() {
         return largeBlack;
+    }
+
+    public TextureRegionDrawable getThemeDownSelected() {
+        return themeDownSelected;
     }
 
     public VisImageTextButton.VisImageTextButtonStyle getImageTextButtonStyle() {

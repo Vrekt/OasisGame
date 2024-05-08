@@ -8,26 +8,32 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
+import me.vrekt.oasis.entity.inventory.Inventory;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
 import me.vrekt.oasis.item.Item;
 
 /**
- * Inventory slot for representing slots within the GUI
+ * Represents a gui slot that should be extended depending on if it's a container or player inventory
  */
-public class InventoryGuiSlot {
+public final class InventoryGuiSlot {
 
     private static final String EMPTY_SLOT = "Empty Slot";
     private static final float APPEAR_DELAY = 0.35f;
 
-    protected Stack parent;
-    protected VisImage slotIcon;
-    protected VisLabel amountText;
-    protected Tooltip tooltip;
-    protected Item item;
-    protected boolean occupied, isHotbarSlot;
+    private final Stack parent;
+    private final VisImage slotIcon;
+    private final VisLabel amountText;
+    private final Tooltip tooltip;
+    private Item item;
+    private boolean occupied, isHotbarSlot, isContainerSlot;
     private String lastItemKey;
     private final int slotNumber;
+
+    public InventoryGuiSlot(GuiManager manager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, int slotNumber) {
+        this(manager, owner, parent, slotIcon, amountText, false, slotNumber);
+        this.isContainerSlot = true;
+    }
 
     public InventoryGuiSlot(GuiManager guiManager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, boolean isHotbarSlot, int slotNumber) {
         this.parent = parent;
@@ -49,8 +55,8 @@ public class InventoryGuiSlot {
         slotIcon.setUserObject(slotNumber);
     }
 
-    public boolean isHotbarSlot() {
-        return isHotbarSlot;
+    public boolean isContainerSlot() {
+        return isContainerSlot;
     }
 
     public boolean isEmpty() {
@@ -78,14 +84,44 @@ public class InventoryGuiSlot {
     }
 
     /**
+     * Update this slot when a transfer has occurred
+     *
+     * @param owner the owner inventory
+     * @param slot  the new slot
+     * @return if the item was fully transferred and thus removed
+     */
+    public boolean updateTransfer(Inventory owner, int slot) {
+        final Item item = owner.getItem(slot);
+        if (item == null || item.getAmount() <= 0) {
+            resetSlot();
+            return true;
+        } else if (this.item == null || !item.is(this.item)) {
+            // this item is new, so just reset entirely.
+            // not sure if this will ever happen but maybe.
+            setOccupiedItem(item);
+            return false;
+        }
+
+        amountText.setText(item.getAmount());
+        return false;
+    }
+
+
+    /**
      * Set the occupied item that is in this slot
      *
      * @param item the item
      */
     public void setOccupiedItem(Item item) {
+        if (item == null) {
+            resetSlot();
+            return;
+        }
+
         this.item = item;
         this.lastItemKey = item.getKey();
 
+        // TODO: Cache drawables?
         slotIcon.setDrawable(new TextureRegionDrawable(item.getSprite()));
         slotIcon.setScale(item.getScaleSize());
 
@@ -112,6 +148,5 @@ public class InventoryGuiSlot {
 
         amountText.setVisible(false);
     }
-
 
 }

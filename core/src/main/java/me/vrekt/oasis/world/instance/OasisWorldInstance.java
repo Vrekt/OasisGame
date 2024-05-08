@@ -70,6 +70,8 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
             return;
         }
 
+        preLoad();
+
         TiledMapLoader.loadMapCollision(map, worldScale, world);
         TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
         loadWorldObjects(map, game.getAsset(), worldScale);
@@ -83,6 +85,8 @@ public abstract class OasisWorldInstance extends OasisWorld implements Disposabl
             GameLogging.info(this, "Removing local player from parent world.");
             player.removeFromWorld();
         }
+
+        load();
 
         world.setContactListener(new BasicEntityCollisionHandler());
         spawnPlayerInInstance();
