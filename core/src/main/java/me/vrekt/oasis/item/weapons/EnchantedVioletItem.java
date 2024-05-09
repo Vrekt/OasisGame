@@ -8,6 +8,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class EnchantedVioletItem extends ItemWeapon {
@@ -30,6 +31,8 @@ public final class EnchantedVioletItem extends ItemWeapon {
         this.range = 0.8f;
         this.rarity = ItemRarity.VOID;
         this.isStackable = false;
+
+        attributes.put("test", new PlayerHealingAttribute(1.0f));
     }
 
     @Override

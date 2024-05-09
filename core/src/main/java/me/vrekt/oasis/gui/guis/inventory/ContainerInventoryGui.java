@@ -1,15 +1,21 @@
 package me.vrekt.oasis.gui.guis.inventory;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.entity.inventory.Inventory;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
+import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,6 +29,8 @@ public final class ContainerInventoryGui extends InventoryGui {
 
     private final Array<InventoryGuiSlot> containerSlots = new Array<>();
     private final Array<InventoryGuiSlot> playerSlots = new Array<>();
+
+    private final DragAndDrop dragAndDrop;
 
     private ContainerInventory activeContainerInventory;
     private InventoryGuiSlot selectedContainerSlot;
@@ -47,6 +55,24 @@ public final class ContainerInventoryGui extends InventoryGui {
         final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(guiManager.getAsset().get("theme"));
         populateContainerInventoryComponents(topTable, slotDrawable);
         populatePlayerInventoryComponents(bottomTable, slotDrawable);
+
+        dragAndDrop = new DragAndDrop();
+        //  register drag handlers
+        for (InventoryGuiSlot containerSlot : containerSlots) {
+            dragAndDrop.addSource(new InventorySlotSource(this, containerSlot));
+            final InventorySlotTarget target = new InventorySlotTarget(this, containerSlot, player.getInventory());
+            containerSlot.setRegularTarget(target);
+
+            dragAndDrop.addTarget(target);
+        }
+
+        for (InventoryGuiSlot playerSlot : playerSlots) {
+            dragAndDrop.addSource(new InventorySlotSource(this, playerSlot));
+            // no active container yet so null for now
+            final InventorySlotTarget target = new InventorySlotTarget(this, playerSlot, null);
+            playerSlot.setRegularTarget(target);
+            dragAndDrop.addTarget(target);
+        }
 
         final VisImageTextButton moveAllButton = new VisImageTextButton("Move All", guiManager.getStyle().getImageTextButtonStyle());
         final VisImageTextButton moveOneButton = new VisImageTextButton("Move One", guiManager.getStyle().getImageTextButtonStyle());
@@ -79,11 +105,9 @@ public final class ContainerInventoryGui extends InventoryGui {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (isOnContainer && selectedContainerSlot != null) {
-                    final int newSlot = activeContainerInventory.transferItemTo(selectedContainerSlot.getSlotNumber(), 1, player.getInventory());
-                    updateSingleContainerSlotTransfer(selectedContainerSlot.getSlotNumber(), newSlot);
+                    doTransferSingle(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
                 } else if (!isOnContainer && selectedPlayerSlot != null) {
-                    final int newSlot = player.getInventory().transferItemTo(selectedPlayerSlot.getSlotNumber(), 1, activeContainerInventory);
-                    updateSinglePlayerSlotTransfer(selectedPlayerSlot.getSlotNumber(), newSlot);
+                    doTransferSingle(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
                 }
             }
         });
@@ -99,14 +123,46 @@ public final class ContainerInventoryGui extends InventoryGui {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (isOnContainer && selectedContainerSlot != null) {
-                    final int newSlot = activeContainerInventory.transferItemsTo(selectedContainerSlot.getSlotNumber(), player.getInventory());
-                    updateContainerSlotTransfer(selectedContainerSlot.getSlotNumber(), newSlot);
+                    doTransferAll(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
                 } else if (!isOnContainer && selectedPlayerSlot != null) {
-                    final int newSlot = player.getInventory().transferItemsTo(selectedPlayerSlot.getSlotNumber(), activeContainerInventory);
-                    updatePlayerSlotTransfer(selectedPlayerSlot.getSlotNumber(), newSlot);
+                    doTransferAll(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
                 }
             }
         });
+    }
+
+    /**
+     * Transfer all items within a slot
+     *
+     * @param from        the from inventory
+     * @param to          the to inventory
+     * @param slot        the slot to transfer
+     * @param isContainer if the from inventory is a container
+     */
+    private void doTransferAll(Inventory from, Inventory to, int slot, boolean isContainer) {
+        final int newSlot = from.transferItemsTo(slot, to);
+        if (isContainer) {
+            updateContainerSlotTransfer(slot, newSlot);
+        } else {
+            updatePlayerSlotTransfer(slot, newSlot);
+        }
+    }
+
+    /**
+     * Do a single item transfer
+     *
+     * @param from        the from inventory
+     * @param to          the to inventory
+     * @param slot        the slot to transfer
+     * @param isContainer if the from inventory is a container
+     */
+    private void doTransferSingle(Inventory from, Inventory to, int slot, boolean isContainer) {
+        final int newSlot = from.transferItemTo(slot, 1, to);
+        if (isContainer) {
+            updateSingleContainerSlotTransfer(slot, newSlot);
+        } else {
+            updateSinglePlayerSlotTransfer(slot, newSlot);
+        }
     }
 
     /**
@@ -163,14 +219,67 @@ public final class ContainerInventoryGui extends InventoryGui {
         playerSlots.get(newPlayerSlot).updateTransfer(player.getInventory(), newPlayerSlot);
     }
 
+    /**
+     * Update a slot transfer from dragging
+     *
+     * @param from the from slot
+     * @param to   the to slot
+     */
+    public void updateSlotTransfer(int from, int to) {
+        containerSlots.get(from).resetSlot();
+        containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
+    }
+
+    @Override
+    public void itemTransferred(int from, int to) {
+        super.itemTransferred(from, to);
+        updateSlotTransfer(from, to);
+    }
+
+    @Override
+    public void itemTransferredBetweenInventories(boolean isContainerTransfer, int from, int to) {
+        super.itemTransferredBetweenInventories(isContainerTransfer, from, to);
+        if (isContainerTransfer) {
+            containerSlots.get(from).resetSlot();
+            playerSlots.get(to).setOccupiedItem(player.getInventory().getItem(to));
+        } else {
+            playerSlots.get(from).resetSlot();
+            containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
+        }
+    }
+
+    @Override
+    public void itemSwappedBetweenInventories(boolean isContainerTransfer, int from, int to) {
+        super.itemSwappedBetweenInventories(isContainerTransfer, from, to);
+        if (isContainerTransfer) {
+            containerSlots.get(from).setOccupiedItem(activeContainerInventory.getItem(from));
+            playerSlots.get(to).setOccupiedItem(player.getInventory().getItem(to));
+        } else {
+            containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
+            playerSlots.get(from).setOccupiedItem(player.getInventory().getItem(from));
+        }
+    }
+
     @Override
     public void handleSlotClicked(InventoryGuiSlot slot) {
+        final boolean isShiftPressed = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT);
+
         if (slot.isContainerSlot()) {
             selectedContainerSlot = slot.isEmpty() ? null : slot;
+            if (selectedContainerSlot != null && isShiftPressed) {
+                // transfer instantly since the player shift clicked this slot
+                doTransferAll(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
+                selectedContainerSlot = null;
+            }
             selectedPlayerSlot = null;
             isOnContainer = true;
         } else {
             selectedPlayerSlot = slot.isEmpty() ? null : slot;
+            if (selectedPlayerSlot != null && isShiftPressed) {
+                // transfer instantly since the player shift clicked this slot
+                doTransferAll(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
+                selectedContainerSlot = null;
+            }
             selectedContainerSlot = null;
             isOnContainer = false;
         }
@@ -239,6 +348,13 @@ public final class ContainerInventoryGui extends InventoryGui {
      */
     public void populateContainerItemsAndShow(ContainerInventory inventory) {
         activeContainerInventory = inventory;
+
+        // container slots do not have a source inventory yet, but the players inventory as a receiver
+        containerSlots.forEach(slot -> slot.getRegularTarget().setSourceInventory(player.getInventory()));
+        containerSlots.forEach(slot -> slot.getRegularTarget().setTargetInventory(activeContainerInventory));
+        // player slots have their own inventory but no receiver for dragging of items
+        playerSlots.forEach(slot -> slot.getRegularTarget().setSourceInventory(activeContainerInventory));
+        playerSlots.forEach(slot -> slot.getRegularTarget().setTargetInventory(player.getInventory()));
 
         inventory.getSlots().forEach((slotNumber, slot) -> {
             final InventoryGuiSlot guiSlot = containerSlots.get(slotNumber);

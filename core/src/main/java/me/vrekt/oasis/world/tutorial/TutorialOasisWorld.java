@@ -57,6 +57,8 @@ public final class TutorialOasisWorld extends OasisWorld {
         // if new game, spawn with a few debug items... for now
         if (game.isNewGame()) {
             player.getInventory().addItem(Items.ENCHANTED_VIOLET_ITEM, 1);
+
+
             guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, 10.0f);
 //            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
             // TODO

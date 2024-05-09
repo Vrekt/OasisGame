@@ -11,6 +11,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import me.vrekt.oasis.entity.inventory.Inventory;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
+import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.item.Item;
 
 /**
@@ -29,6 +30,8 @@ public final class InventoryGuiSlot {
     private boolean occupied, isHotbarSlot, isContainerSlot;
     private String lastItemKey;
     private final int slotNumber;
+
+    private InventorySlotTarget regularTarget;
 
     public InventoryGuiSlot(GuiManager manager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, int slotNumber) {
         this(manager, owner, parent, slotIcon, amountText, false, slotNumber);
@@ -53,6 +56,14 @@ public final class InventoryGuiSlot {
         this.isHotbarSlot = isHotbarSlot;
         this.slotNumber = slotNumber;
         slotIcon.setUserObject(slotNumber);
+    }
+
+    public void setRegularTarget(InventorySlotTarget regularTarget) {
+        this.regularTarget = regularTarget;
+    }
+
+    public InventorySlotTarget getRegularTarget() {
+        return regularTarget;
     }
 
     public boolean isContainerSlot() {
@@ -105,7 +116,6 @@ public final class InventoryGuiSlot {
         amountText.setText(item.getAmount());
         return false;
     }
-
 
     /**
      * Set the occupied item that is in this slot

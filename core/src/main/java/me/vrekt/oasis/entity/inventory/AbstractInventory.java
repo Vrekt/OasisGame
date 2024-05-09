@@ -82,6 +82,15 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
+    public void replaceItemInSlot(int slot, Item newItem) {
+        if (slots.containsKey(slot)) {
+            slots.get(slot).setItem(newItem);
+        } else {
+            slots.put(slot, new InventorySlot(newItem));
+        }
+    }
+
+    @Override
     public Item getItemByKey(String key) {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
             if (entry.getValue() != null
@@ -138,6 +147,11 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
+    public void removeItemNow(int slot) {
+        slots.remove(slot);
+    }
+
+    @Override
     public boolean hasItem(String key) {
         for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
             if (entry.getValue() != null
@@ -153,6 +167,12 @@ public abstract class AbstractInventory implements Inventory {
     @Override
     public boolean hasItem(Items item) {
         return hasItem(item.getKey());
+    }
+
+    @Override
+    public boolean hasItemInSlot(int slot) {
+        final InventorySlot is = slots.get(slot);
+        return is != null && is.isOccupied() && !is.isDeleted();
     }
 
     @Override
@@ -222,6 +242,17 @@ public abstract class AbstractInventory implements Inventory {
     }
 
     @Override
+    public void swapInventorySlots(int slotSource, int targetSource, Inventory target) {
+        if (!slots.containsKey(slotSource)) return;
+
+        final Item sourceItem = slots.get(slotSource).getItem();
+        final Item targetItem = target.getItem(targetSource);
+
+        target.replaceItemInSlot(targetSource, sourceItem);
+        replaceItemInSlot(slotSource, targetItem);
+    }
+
+    @Override
     public int transferItemTo(int slot, int amount, Inventory other) {
         if (!slots.containsKey(slot)) return -1;
 
@@ -259,7 +290,11 @@ public abstract class AbstractInventory implements Inventory {
             newSlot.setIsHotBarItem(to < 6);
             slots.put(to, newSlot);
 
-            removeItem(from);
+            if (type == InventoryType.PLAYER) {
+                removeItem(from);
+            } else {
+                removeItemNow(from);
+            }
         } else {
             slots.put(from, toSlot);
         }

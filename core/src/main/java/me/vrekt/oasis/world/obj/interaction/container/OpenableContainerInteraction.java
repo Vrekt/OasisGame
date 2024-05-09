@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction.container;
 
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 
 /**
@@ -18,10 +17,7 @@ public abstract class OpenableContainerInteraction extends InteractableWorldObje
 
     @Override
     public void interact() {
-        GameLogging.info(this, "Interacting with container");
-
         super.interact();
-
         world.getGame().getGuiManager().getContainerComponent().populateContainerItemsAndShow(containerInventory);
     }
 }

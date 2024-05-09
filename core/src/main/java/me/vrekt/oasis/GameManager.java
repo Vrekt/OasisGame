@@ -1,5 +1,6 @@
 package me.vrekt.oasis;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
@@ -56,6 +57,9 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
+        KEY_ACTIONS.put(Input.Keys.SHIFT_LEFT, () -> {
+            System.err.println("SHJIFT");
+        });
     }
 
     /**

@@ -58,6 +58,14 @@ public interface Inventory {
     int addItem(Item item);
 
     /**
+     * Replace an item in a slot
+     *
+     * @param slot    the slot
+     * @param newItem the new item
+     */
+    void replaceItemInSlot(int slot, Item newItem);
+
+    /**
      * Get an item by key name
      *
      * @param key the key
@@ -112,6 +120,13 @@ public interface Inventory {
     void removeItem(Item item);
 
     /**
+     * Remove an item now
+     *
+     * @param slot the slot
+     */
+    void removeItemNow(int slot);
+
+    /**
      * @param key the item key
      * @return if this inventory has the item
      */
@@ -122,6 +137,10 @@ public interface Inventory {
      * @return if this inventory has the item
      */
     boolean hasItem(Items item);
+
+    boolean hasItemInSlot(int slot);
+
+    // boolean hasSameItemInSlot(Items item, int slot);
 
     /**
      * @return {@code  true} if this inventory is full
@@ -166,6 +185,15 @@ public interface Inventory {
      * @return the new slot the item was transferred to
      */
     int transferItemsTo(int slot, Inventory other);
+
+    /**
+     * Swap slots between this inventory and the target
+     *
+     * @param slotSource   the slot source
+     * @param targetSource the target slot
+     * @param target       the target inventory
+     */
+    void swapInventorySlots(int slotSource, int targetSource, Inventory target);
 
     /**
      * Transfer a certain amount of items to the other inventory

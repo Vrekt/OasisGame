@@ -1,6 +1,5 @@
 package me.vrekt.oasis.gui.guis.inventory;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -11,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
@@ -40,9 +39,6 @@ public final class PlayerInventoryGui extends InventoryGui {
     private final VisImage[] itemStats;
     private final VisTextButton itemActionButton;
     private final Tooltip[] itemStatTooltips;
-
-    private TextureRegionDrawable draggingItem;
-    private float dragX, dragY, dragWidth, dragHeight;
 
     // currently selected item
     private Item selectedItem;
@@ -218,39 +214,6 @@ public final class PlayerInventoryGui extends InventoryGui {
     }
 
     /**
-     * Set the current item being dragged
-     *
-     * @param slot the slot being dragged
-     * @param x    initial X
-     * @param y    initial Y
-     */
-    public void setDraggingItem(InventoryGuiSlot slot, float x, float y) {
-        draggingItem = new TextureRegionDrawable((TextureRegionDrawable) slot.getSlotIcon().getDrawable());
-        dragWidth = slot.getSlotIcon().getImageWidth() * slot.getSlotIcon().getScaleX();
-        dragHeight = slot.getSlotIcon().getImageHeight() * slot.getSlotIcon().getScaleY();
-        dragX = x - (dragWidth / 2f);
-        dragY = y - (dragHeight / 2f);
-    }
-
-    /**
-     * Stop the dragging action
-     */
-    public void setStoppedDragging() {
-        draggingItem = null;
-    }
-
-    /**
-     * Update drag position of the item that is being dragged
-     *
-     * @param x the X
-     * @param y the Y
-     */
-    public void updateDragPosition(float x, float y) {
-        dragX = Math.round(x - (dragWidth / 2f));
-        dragY = Math.round(y - (dragHeight / 2f));
-    }
-
-    /**
      * Initialize icon drawables
      */
     private void initializeRarityIcons() {
@@ -414,13 +377,6 @@ public final class PlayerInventoryGui extends InventoryGui {
     public void hide() {
         super.hide();
         rootTable.setVisible(false);
-    }
-
-    @Override
-    public void draw(Batch batch) {
-        if (draggingItem != null) {
-            draggingItem.draw(batch, dragX, dragY, 0, 0, dragWidth, dragHeight, 2.0f, 2.0f, 1f);
-        }
     }
 
     @Override

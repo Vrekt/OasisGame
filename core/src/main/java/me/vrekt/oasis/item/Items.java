@@ -4,6 +4,9 @@ import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
 
+/**
+ * Map of all items within the game
+ */
 public enum Items {
 
     NO_ITEM("oasis:none"),

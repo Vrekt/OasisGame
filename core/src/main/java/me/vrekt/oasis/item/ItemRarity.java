@@ -2,7 +2,7 @@ package me.vrekt.oasis.item;
 
 public enum ItemRarity {
 
-    BASIC("Basic", "[LIGHT_GRAY]", null), COMSIC("Cosmic", "[azure]", null), VOID("Void", "[PURPLE]", "void_rarity"), DIVINE("Divine", "[butter]", null);
+    BASIC("Basic", "[LIGHT_GRAY]", null), COSMIC("Cosmic", "[azure]", null), VOID("Void", "[PURPLE]", "void_rarity"), DIVINE("Divine", "[butter]", null);
 
     private final String rarityName, colorName, texture;
 

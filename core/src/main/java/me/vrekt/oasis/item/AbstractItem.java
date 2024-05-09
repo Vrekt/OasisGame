@@ -10,8 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Default item implementation
+ */
 public abstract class AbstractItem implements Item {
-
 
     protected final Items itemType;
     protected String key, name, description;
@@ -181,4 +183,5 @@ public abstract class AbstractItem implements Item {
     public boolean isComplex(Item other) {
         return is(other) && other.getAmount() == getAmount() && other.getItemRarity() == getItemRarity() && StringUtils.equals(other.getItemName(), getItemName());
     }
+
 }

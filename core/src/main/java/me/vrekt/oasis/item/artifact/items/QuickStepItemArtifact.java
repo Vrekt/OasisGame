@@ -30,7 +30,7 @@ public final class QuickStepItemArtifact extends ItemArtifact {
         this.artifact = new QuickStepArtifact();
         this.artifact.load(asset);
         this.icon = asset.get("quickstep_artifact_icon");
-        this.rarity = ItemRarity.COMSIC;
+        this.rarity = ItemRarity.COSMIC;
     }
 
     @Override

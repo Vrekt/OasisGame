@@ -1,6 +1,7 @@
 package me.vrekt.oasis.gui.guis.inventory;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -24,10 +25,80 @@ import java.util.function.Consumer;
  */
 public abstract class InventoryGui extends Gui {
 
+    protected TextureRegionDrawable draggingItem;
+    protected int draggingSlot;
+    protected float dragX, dragY, dragWidth, dragHeight;
+
     public abstract void handleSlotClicked(InventoryGuiSlot slot);
 
     public InventoryGui(GuiType type, GuiManager guiManager) {
         super(type, guiManager);
+    }
+
+    /**
+     * Item started being dragged
+     *
+     * @param slot slot
+     * @param x    first X
+     * @param y    first Y
+     */
+    public void itemDragStarted(InventoryGuiSlot slot, float x, float y) {
+        draggingItem = new TextureRegionDrawable((TextureRegionDrawable) slot.getSlotIcon().getDrawable());
+        draggingSlot = slot.getSlotNumber();
+        dragWidth = slot.getSlotIcon().getImageWidth() * slot.getSlotIcon().getScaleX();
+        dragHeight = slot.getSlotIcon().getImageHeight() * slot.getSlotIcon().getScaleY();
+        dragX = x - (dragWidth / 2f);
+        dragY = y - (dragHeight / 2f);
+    }
+
+    /**
+     * Update drag position
+     *
+     * @param x x
+     * @param y y
+     */
+    public void updateItemDragPosition(float x, float y) {
+        dragX = Math.round(x - (dragWidth / 2f));
+        dragY = Math.round(y - (dragHeight / 2f));
+    }
+
+    /**
+     * An item drag was cancelled
+     */
+    public void itemDragCancelled() {
+        draggingItem = null;
+    }
+
+    /**
+     * An item was transferred between slots
+     *
+     * @param from the from slot
+     * @param to   the to slot
+     */
+    public void itemTransferred(int from, int to) {
+        draggingItem = null;
+    }
+
+    /**
+     * Item was transferred between inventories
+     *
+     * @param isContainerTransfer if this was a container -> player transfer
+     * @param from                from slot
+     * @param to                  to slot
+     */
+    public void itemTransferredBetweenInventories(boolean isContainerTransfer, int from, int to) {
+        draggingItem = null;
+    }
+
+    /**
+     * An item stack was transferred between inventories
+     *
+     * @param isContainerTransfer if this was a container -> player transfer
+     * @param from                from slot
+     * @param to                  to slot
+     */
+    public void itemSwappedBetweenInventories(boolean isContainerTransfer, int from, int to) {
+        draggingItem = null;
     }
 
     /**
@@ -120,6 +191,13 @@ public abstract class InventoryGui extends Gui {
     public void hide() {
         super.hide();
         if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().resumeCurrentHint();
+    }
+
+    @Override
+    public void draw(Batch batch) {
+        if (draggingItem != null) {
+            draggingItem.draw(batch, dragX, dragY, 0, 0, dragWidth, dragHeight, 2.0f, 2.0f, 1f);
+        }
     }
 
     /**
