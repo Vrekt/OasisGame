@@ -5,129 +5,87 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
-import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.utility.ResourceLoader;
+import me.vrekt.oasis.world.OasisWorld;
 
 /**
- * A object within the world that is added at runtime
+ * Represents an object within the tiled world.
+ * This is added within the .tmx file.
  */
-public class WorldObject implements TiledWorldObject, Pool.Poolable {
+public interface WorldObject extends Disposable, ResourceLoader {
 
-    // possible particle effects this object has
-    protected List<ParticleEffect> effects;
-    protected boolean playEffects = true;
+    /**
+     * @return the key of this object
+     */
+    String getKey();
 
-    // texture and location
-    protected TextureRegion texture;
-    protected final Vector2 location = new Vector2();
-    protected final Vector2 size = new Vector2();
-    protected Body body;
+    /**
+     * Set the world this object is in
+     *
+     * @param world the world
+     */
+    void setWorldIn(OasisWorld world);
 
-    @Override
-    public void render(SpriteBatch batch) {
-        if (texture == null) return;
-        batch.draw(texture, location.x, location.y, texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
-    }
+    /**
+     * Set the position of this object
+     *
+     * @param x x
+     * @param y y
+     */
+    void setPosition(float x, float y);
 
-    @Override
-    public void renderEffects(SpriteBatch batch, float delta) {
-        for (ParticleEffect effect : effects) {
-            effect.update(delta);
-            effect.draw(batch);
-        }
-    }
+    /**
+     * @return the position of this object
+     */
+    Vector2 getPosition();
 
-    @Override
-    public TextureRegion getTexture() {
-        return texture;
-    }
+    /**
+     * Set the size of this object
+     *
+     * @param width  width
+     * @param height height
+     */
+    void setSize(float width, float height);
 
-    @Override
-    public void setTexture(TextureRegion texture) {
-        this.texture = texture;
-    }
+    /**
+     * @return the size of this object
+     */
+    Vector2 getSize();
 
-    @Override
-    public void setPosition(float x, float y) {
-        location.set(x, y);
-    }
+    /**
+     * Set the texture of this object
+     *
+     * @param texture the texture
+     */
+    void setTexture(TextureRegion texture);
 
-    @Override
-    public Vector2 getPosition() {
-        return location;
-    }
+    /**
+     * Add a particle effect to this object
+     *
+     * @param effect the effect
+     */
+    void addEffect(ParticleEffect effect);
 
-    @Override
-    public void setSize(float x, float y) {
-        size.set(x, y);
-    }
+    /**
+     * @param mouse the mouse position
+     * @return {@code true} if the mouse is over this object
+     */
+    boolean isMouseOver(Vector3 mouse);
 
-    @Override
-    public Vector2 getSize() {
-        return size;
-    }
+    /**
+     * @return the cursor this object should use.
+     */
+    Cursor getCursor();
 
-    @Override
-    public void setCollisionBody(Body collisionBody) {
-        this.body = collisionBody;
-    }
+    /**
+     * Render this object
+     * This will also render any associated particle effects.
+     *
+     * @param batch the batch
+     * @param delta delta time
+     */
+    void render(SpriteBatch batch, float delta);
 
-    @Override
-    public Body getCollisionBody() {
-        return body;
-    }
-
-    @Override
-    public Collection<ParticleEffect> getEffects() {
-        return effects;
-    }
-
-    @Override
-    public boolean playEffects() {
-        return playEffects;
-    }
-
-    @Override
-    public void setPlayEffects(boolean playEffects) {
-        this.playEffects = playEffects;
-    }
-
-    @Override
-    public boolean clickedOn(Vector3 clicked) {
-        return clicked.x > location.x && clicked.x < (location.x + size.x) && clicked.y > location.y && clicked.y < (location.y + size.y);
-    }
-
-    @Override
-    public void load(Asset asset) {
-        effects = new ArrayList<>();
-    }
-
-    @Override
-    public void dispose() {
-        this.reset();
-        Pools.free(this);
-    }
-
-    @Override
-    public void reset() {
-        body = null;
-        texture = null;
-        if (effects != null) {
-            effects.forEach(ParticleEffect::dispose);
-            effects.clear();
-        }
-        effects = null;
-        playEffects = true;
-
-        location.set(0, 0);
-        size.set(0, 0);
-    }
 }

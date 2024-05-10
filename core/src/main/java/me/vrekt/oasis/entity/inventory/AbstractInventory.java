@@ -304,4 +304,9 @@ public abstract class AbstractInventory implements Inventory {
     public void clear() {
         slots.clear();
     }
+
+    @Override
+    public void dispose() {
+        clear();
+    }
 }

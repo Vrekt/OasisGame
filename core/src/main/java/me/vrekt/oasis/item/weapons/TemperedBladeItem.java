@@ -8,20 +8,20 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
-import me.vrekt.oasis.item.attribute.attributes.PlayerHealingAttribute;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
-public final class EnchantedVioletItem extends ItemWeapon {
+public final class TemperedBladeItem extends ItemWeapon {
 
     public static final String KEY = "oasis:enchanted_violet_sword";
-    public static final String NAME = "Enchanted Sword";
+    public static final String NAME = "Tempered Blade";
     public static final String TEXTURE = "enchanted_violet";
     public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
 
     private ParticleEffect swingEffect;
 
-    public EnchantedVioletItem() {
-        super(Items.ENCHANTED_VIOLET_ITEM, KEY, NAME, "Something something this item is special.");
+    public TemperedBladeItem() {
+        super(Items.TEMPERED_BLADE, KEY, NAME, "A blade with a razor sharp edge.");
+
         this.baseDamage = 1.5f;
         this.swingCooldown = 0.25f;
         this.swingTime = .25f;
@@ -31,8 +31,6 @@ public final class EnchantedVioletItem extends ItemWeapon {
         this.range = 0.8f;
         this.rarity = ItemRarity.VOID;
         this.isStackable = false;
-
-        attributes.put("test", new PlayerHealingAttribute(1.0f));
     }
 
     @Override

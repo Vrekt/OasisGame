@@ -71,7 +71,6 @@
    <properties>
     <property name="hasCollision" type="bool" value="true"/>
     <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_distance" type="float" value="2.5"/>
     <property name="interaction_type" value="container"/>
     <property name="key" value="wrynn:container"/>
    </properties>

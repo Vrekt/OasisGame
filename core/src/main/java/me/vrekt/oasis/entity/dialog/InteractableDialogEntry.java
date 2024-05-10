@@ -20,6 +20,9 @@ public final class InteractableDialogEntry {
     private String link;
 
     @Expose
+    private String action;
+
+    @Expose
     private boolean requiresInput;
 
     @Expose
@@ -35,6 +38,10 @@ public final class InteractableDialogEntry {
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public void setRequiresInput(boolean requiresInput) {
@@ -65,6 +72,20 @@ public final class InteractableDialogEntry {
      */
     public String getContent() {
         return content;
+    }
+
+    /**
+     * @return {@code true} if this entry has an action that should execute
+     */
+    public boolean hasAction() {
+        return action != null;
+    }
+
+    /**
+     * @return the action this dialog entry should execute
+     */
+    public String getAction() {
+        return action;
     }
 
     /**

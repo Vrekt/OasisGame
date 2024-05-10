@@ -9,7 +9,7 @@ import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.container.WrynnOfficeContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.container.WrynnOfficeContainerInteraction;
 
 import java.util.Random;
 
@@ -26,7 +26,7 @@ public final class WrynnHouseInterior extends Instance {
 
     @Override
     protected void preLoad() {
-        interactionManager.registerChildInteraction(WorldInteractionType.CONTAINER, "wrynn:container", WrynnOfficeContainerInteraction::new);
+        interactionManager.registerInteraction(WorldInteractionType.CONTAINER, "wrynn:container", WrynnOfficeContainerInteraction::new);
     }
 
     @Override

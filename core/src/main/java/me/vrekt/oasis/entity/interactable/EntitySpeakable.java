@@ -6,10 +6,10 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.entity.dialog.InteractableDialogEntry;
 import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
+import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.gui.GuiType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -133,7 +133,7 @@ public abstract class EntitySpeakable extends Entity {
     }
 
     /**
-     * Add a dialog option
+     * Add a dialog action
      *
      * @param key    the key
      * @param action the action to run

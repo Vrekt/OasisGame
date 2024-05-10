@@ -2,7 +2,7 @@ package me.vrekt.oasis.questing.quests.tutorial;
 
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.tools.LucidTreeHarvestingToolItem;
-import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
+import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 import me.vrekt.oasis.questing.Quest;
 import me.vrekt.oasis.questing.QuestDifficulty;
 import me.vrekt.oasis.questing.QuestObjective;
@@ -22,9 +22,9 @@ public final class TutorialIslandQuest extends Quest {
 
         // TODO: Placeholders
         this.itemsRequired.add(LucidTreeHarvestingToolItem.DESCRIPTOR);
-        this.itemsRequired.add(EnchantedVioletItem.DESCRIPTOR);
+        this.itemsRequired.add(TemperedBladeItem.DESCRIPTOR);
         this.itemsRequired.add(LucidTreeFruitItem.DESCRIPTOR);
         this.rewards.add(LucidTreeHarvestingToolItem.DESCRIPTOR);
-        this.rewards.add(EnchantedVioletItem.DESCRIPTOR);
+        this.rewards.add(TemperedBladeItem.DESCRIPTOR);
     }
 }

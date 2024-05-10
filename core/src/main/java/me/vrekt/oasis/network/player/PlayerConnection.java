@@ -8,10 +8,10 @@ import io.netty.channel.Channel;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.shared.network.ServerPacketPlayerEquippedItem;
-import me.vrekt.shared.network.ServerPacketPlayerSwingItem;
-import me.vrekt.shared.network.ServerPacketSpawnEntity;
+import me.vrekt.shared.network.*;
 
 /**
  * Represents our local players connection
@@ -25,6 +25,28 @@ public final class PlayerConnection extends PlayerConnectionHandler {
         super(channel, protocol);
         this.game = game;
         this.player = player;
+    }
+
+    /**
+     * Update item equip status
+     *
+     * @param item the item or {@code null} if no item is currently equipped anymore.
+     */
+    public void updateItemEquipped(Item item) {
+        if (item == null) {
+            sendImmediately(new C2SResetEquippedItem());
+        } else {
+            sendImmediately(new C2SEquipItem(player.getEntityId(), item.getKey()));
+        }
+    }
+
+    /**
+     * Update artifact activation
+     *
+     * @param artifact the artifact
+     */
+    public void updateArtifactActivated(Artifact artifact) {
+        sendImmediately(new C2SArtifactActivated(artifact));
     }
 
     @Override

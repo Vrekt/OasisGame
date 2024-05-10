@@ -61,7 +61,7 @@ public final class ContainerInventoryGui extends InventoryGui {
         for (InventoryGuiSlot containerSlot : containerSlots) {
             dragAndDrop.addSource(new InventorySlotSource(this, containerSlot));
             final InventorySlotTarget target = new InventorySlotTarget(this, containerSlot, player.getInventory());
-            containerSlot.setRegularTarget(target);
+            containerSlot.setTarget(target);
 
             dragAndDrop.addTarget(target);
         }
@@ -70,7 +70,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             dragAndDrop.addSource(new InventorySlotSource(this, playerSlot));
             // no active container yet so null for now
             final InventorySlotTarget target = new InventorySlotTarget(this, playerSlot, null);
-            playerSlot.setRegularTarget(target);
+            playerSlot.setTarget(target);
             dragAndDrop.addTarget(target);
         }
 
@@ -350,11 +350,11 @@ public final class ContainerInventoryGui extends InventoryGui {
         activeContainerInventory = inventory;
 
         // container slots do not have a source inventory yet, but the players inventory as a receiver
-        containerSlots.forEach(slot -> slot.getRegularTarget().setSourceInventory(player.getInventory()));
-        containerSlots.forEach(slot -> slot.getRegularTarget().setTargetInventory(activeContainerInventory));
+        containerSlots.forEach(slot -> slot.getTarget().setSourceInventory(player.getInventory()));
+        containerSlots.forEach(slot -> slot.getTarget().setTargetInventory(activeContainerInventory));
         // player slots have their own inventory but no receiver for dragging of items
-        playerSlots.forEach(slot -> slot.getRegularTarget().setSourceInventory(activeContainerInventory));
-        playerSlots.forEach(slot -> slot.getRegularTarget().setTargetInventory(player.getInventory()));
+        playerSlots.forEach(slot -> slot.getTarget().setSourceInventory(activeContainerInventory));
+        playerSlots.forEach(slot -> slot.getTarget().setTargetInventory(player.getInventory()));
 
         inventory.getSlots().forEach((slotNumber, slot) -> {
             final InventoryGuiSlot guiSlot = containerSlots.get(slotNumber);

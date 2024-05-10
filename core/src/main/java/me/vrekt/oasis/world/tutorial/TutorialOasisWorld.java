@@ -7,12 +7,11 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.sign.OasisTutorialWorldSign;
+import me.vrekt.oasis.world.obj.interaction.impl.sign.OasisTutorialWorldSign;
 
 /**
  * This world acts as a debug/tutorial level for now.
@@ -33,7 +32,7 @@ public final class TutorialOasisWorld extends OasisWorld {
 
     @Override
     protected void preLoad() {
-        interactionManager.registerChildInteraction(WorldInteractionType.READABLE_SIGN, "oasis:tutorial_sign", OasisTutorialWorldSign::new);
+        interactionManager.registerInteraction(WorldInteractionType.READABLE_SIGN, "oasis:tutorial_sign", OasisTutorialWorldSign::new);
     }
 
     @Override
@@ -56,7 +55,7 @@ public final class TutorialOasisWorld extends OasisWorld {
 
         // if new game, spawn with a few debug items... for now
         if (game.isNewGame()) {
-            player.getInventory().addItem(Items.ENCHANTED_VIOLET_ITEM, 1);
+         //   player.getInventory().addItem(Items.TEMPERED_BLADE, 1);
 
 
             guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, 10.0f);

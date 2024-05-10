@@ -18,7 +18,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pools;
 import gdx.lunar.protocol.packet.server.S2CPacketCreatePlayer;
 import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import gdx.lunar.world.AbstractGameWorld;
@@ -51,12 +50,15 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
-import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.WorldObject;
+import me.vrekt.oasis.world.obj.SimpleWorldObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -90,7 +92,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     // objects within this world
     protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
-    protected final CopyOnWriteArraySet<InteractableWorldObject> interactableWorldObjects = new CopyOnWriteArraySet<>();
+    protected final List<InteractableWorldObject> interactableWorldObjects = new ArrayList<>();
     protected final Array<Vector2> paths = new Array<>();
 
     protected final Map<InstanceType, Instance> instances = new HashMap<>();
@@ -433,43 +435,35 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
                 if (interactable) {
                     // find interaction and create world object either from key or type
-                    final WorldInteractionType interactionType = WorldInteractionType.getType(type);
-                    InteractableWorldObject worldObject = interactionType.assignType(key, interactionManager);
+                    final WorldInteractionType interactionType = WorldInteractionType.of(type);
+                    final InteractableWorldObject worldObject = interactionType.get(key, interactionManager);
 
+                    worldObject.setWorldIn(this);
+                    worldObject.setPosition(rectangle.x, rectangle.y);
+                    worldObject.setSize(rectangle.width, rectangle.height);
                     worldObject.load(asset);
-                    worldObject.initialize(this, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-                    worldObject.setInteractionDistance(distance);
 
                     loadWorldObjectParticles(worldObject, object, asset);
 
                     // load collision for this object
-                    if (hasCollision) loadWorldObjectBody(worldObject, rectangle);
+                    if (hasCollision) createObjectCollisionBody(worldObject, rectangle);
                     interactableWorldObjects.add(worldObject);
                 } else {
                     // load base object
-                    final WorldObject worldObject = Pools.obtain(WorldObject.class);
+                    final WorldObject worldObject = new SimpleWorldObject();
                     worldObject.load(asset);
 
                     // find texture of this object
-                    // TODO: Objects should always have a texture or else that is pointless (maybe)
-                    final String sprite = TiledMapLoader.ofString(object, "sprite");
-                    TextureRegion texture = sprite == null ? null : asset.get(sprite);
+                    final String textureKey = TiledMapLoader.ofString(object, "texture");
+                    final TextureRegion texture = asset.get(textureKey);
 
-                    // define collision body with or without texture
-                    // also define size
-                    if (hasCollision && texture != null) {
-                        loadWorldObjectBodyWithTexture(worldObject, rectangle, texture);
-                        worldObject.setSize(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
-                    } else if (hasCollision) {
-                        loadWorldObjectBody(worldObject, rectangle);
-                        worldObject.setSize(rectangle.width, rectangle.height);
-                    }
+                    if (hasCollision) createObjectCollisionBodyFromTexture(worldObject, rectangle, texture);
 
-                    // set texture and position
                     worldObject.setTexture(texture);
                     worldObject.setPosition(rectangle.x - rectangle.width, rectangle.y - rectangle.height);
-
+                    worldObject.setSize(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
                     loadWorldObjectParticles(worldObject, object, asset);
+
                     worldObjects.add(worldObject);
                 }
 
@@ -499,12 +493,19 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         final ParticleEffect effect = new ParticleEffect();
         effect.load(Gdx.files.internal(particleKey), asset.getAtlasAssets());
         effect.setPosition(wb.getPosition().x + (wb.getSize().x / 2f) + xOffset, wb.getPosition().y + (wb.getSize().y / 2f) + yOffset);
-        wb.getEffects().add(effect);
+        wb.addEffect(effect);
     }
 
-    private void loadWorldObjectBody(WorldObject wb, Rectangle rectangle) {
+    /**
+     * Create a collision body for the provided object
+     *
+     * @param wb        wb - unused
+     * @param rectangle the rectangle shape
+     */
+    private void createObjectCollisionBody(WorldObject wb, Rectangle rectangle) {
         // create collision body, offset position to fit within bounds.
-        final Body body = CollisionShapeCreator
+        // TODO: Store collision body for disposal later.
+        CollisionShapeCreator
                 .createPolygonShapeInWorld(
                         rectangle.x,
                         rectangle.y,
@@ -513,10 +514,18 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                         OasisGameSettings.SCALE,
                         true,
                         world);
-        wb.setCollisionBody(body);
     }
 
-    private void loadWorldObjectBodyWithTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
+    /**
+     * Create a collision body for the object using the textures bounds
+     *
+     * @param wb        object - unused
+     * @param rectangle rectangle shape
+     * @param texture   texture
+     */
+    private void createObjectCollisionBodyFromTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
+        if (texture == null) return;
+
         // create collision body, offset position to fit within bounds.
         final Body body = CollisionShapeCreator.createPolygonShapeInWorld(
                 rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
@@ -527,8 +536,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 true,
                 world
         );
-
-        wb.setCollisionBody(body);
     }
 
     /**
@@ -669,9 +676,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         boolean hasObj = false;
         if (!hasEntity) {
             for (InteractableWorldObject worldObject : interactableWorldObjects) {
-                if (worldObject.clickedOn(cursorInWorld)
+                if (worldObject.isMouseOver(cursorInWorld)
                         && worldObject.getCursor() != null
-                        && worldObject.isInteractable()) {
+                        && worldObject.isEnabled()) {
                     guiManager.setCursorInGame(worldObject.getCursor());
                     hasObj = true;
                     break;
@@ -716,18 +723,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
 
         // general world objects
-        for (WorldObject object : worldObjects) {
-            object.render(batch);
-            if (object.playEffects()) object.renderEffects(batch, delta);
-        }
+        for (WorldObject object : worldObjects) object.render(batch, delta);
 
         // interactions
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            // TODO: Requires updating? + just interaction update
-            if (worldObject.isInteractedWith()) worldObject.update();
-
-            worldObject.render(batch);
-            if (worldObject.playEffects()) worldObject.renderEffects(batch, delta);
+            if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
+            worldObject.render(batch, delta);
         }
 
         // render particles
@@ -791,6 +792,22 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 .orElse(null);
     }
 
+    /**
+     * Enable an interaction that is currently disabled.
+     * Used for instances where an item or an entity needs to be used/spoken to first.
+     *
+     * @param type the type
+     * @param key  the key
+     */
+    public void enableWorldInteraction(WorldInteractionType type, String key) {
+        for (InteractableWorldObject interaction : interactableWorldObjects) {
+            if (interaction.matches(type, key)) {
+                interaction.enable();
+                break;
+            }
+        }
+    }
+
     public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
         return nearbyEntities;
     }
@@ -847,20 +864,15 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected boolean interactWithObject() {
         final InteractableWorldObject worldObject = interactableWorldObjects
                 .stream()
-                .filter(wb -> wb.isWithinInteractionDistance(player.getPosition()))
-                .filter(wb -> wb.clickedOn(cursorInWorld))
+                .filter(InteractableWorldObject::isInInteractionRange)
+                .filter(wb -> wb.isMouseOver(cursorInWorld))
+                .filter(InteractableWorldObject::isEnabled)
+                .filter(wb -> !wb.wasInteractedWith())
                 .findFirst()
                 .orElse(null);
 
-        if (worldObject != null
-                && worldObject.isWithinInteractionDistance(player.getPosition())
-                && worldObject.isInteractable()
-                && !worldObject.isInteractedWith()) {
-            if (worldObject.hasRequiredItem()) {
-                worldObject.interact();
-            } else {
-                // TODO: Maybe in the future show missing item?
-            }
+        if (worldObject != null) {
+            worldObject.interact();
             return true;
         }
         return false;

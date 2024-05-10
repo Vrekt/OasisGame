@@ -3,9 +3,9 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
+import me.vrekt.oasis.utility.ResourceLoader;
 
 /**
  * Represents an item within the game
@@ -42,13 +42,13 @@ public interface Item extends ResourceLoader {
 
     void useItem(OasisPlayer player);
 
-    void addAttribute(ItemAttribute attribute);
+    void addAttribute(Attribute attribute);
 
     void removeAttribute(String attribute);
 
     boolean hasAttribute(String attribute);
 
-    ItemAttribute getAttribute(String attribute);
+    Attribute getAttribute(String attribute);
 
     void applyAttributes(OasisPlayer player);
 

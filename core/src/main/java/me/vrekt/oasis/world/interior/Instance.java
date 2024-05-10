@@ -62,6 +62,10 @@ public class Instance extends OasisWorldInstance {
     public void enter(boolean setScreen) {
         GameLogging.info(this, "Entering instance: %s", instanceName);
         worldExitSpawn.set(player.getPosition());
+        // update current world tick to the previous worlds
+        // prevents things that have a delay or expire
+        // from glitching out since we start a new world tick at 0
+        currentWorldTick = worldIn.getCurrentWorldTick();
         super.enter(setScreen);
     }
 

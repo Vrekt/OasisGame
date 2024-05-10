@@ -6,19 +6,19 @@ import io.netty.buffer.ByteBuf;
 /**
  * Player has equipped an item, notify all other players
  */
-public final class ClientPacketEquipItem extends GamePacket {
+public final class C2SEquipItem extends GamePacket {
 
     public static final int ID = 2001_2;
 
     private int entityId;
     private String itemKey;
 
-    public ClientPacketEquipItem(int entityId, String itemKey) {
+    public C2SEquipItem(int entityId, String itemKey) {
         this.entityId = entityId;
         this.itemKey = itemKey;
     }
 
-    public ClientPacketEquipItem(ByteBuf buffer) {
+    public C2SEquipItem(ByteBuf buffer) {
         super(buffer);
     }
 

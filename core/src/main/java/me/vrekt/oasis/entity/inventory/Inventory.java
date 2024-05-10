@@ -1,12 +1,13 @@
 package me.vrekt.oasis.entity.inventory;
 
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.Items;
 
 import java.util.Map;
 
-public interface Inventory {
+public interface Inventory extends Disposable {
 
     /**
      * Update the inventory if needed.

@@ -35,7 +35,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240509-0415-2352";
+    public static final String GAME_VERSION = "20240510-0128-2376";
 
     private Asset asset;
 
@@ -351,6 +351,13 @@ public final class OasisGame extends Game {
      */
     public boolean isMultiplayer() {
         return isMultiplayer;
+    }
+
+    /**
+     * @return if this game is multiplayer regardless of local or remote
+     */
+    public boolean isAnyMultiplayer() {
+        return isLocalMultiplayer || isMultiplayer;
     }
 
     public Styles getStyle() {

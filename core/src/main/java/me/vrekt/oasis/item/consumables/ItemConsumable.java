@@ -34,6 +34,10 @@ public abstract class ItemConsumable extends AbstractItem {
      *
      * @param player the player
      */
-    public abstract void consume(OasisPlayer player);
+    public void consume(OasisPlayer player) {
+        decreaseItemAmount();
+        // automatically apply all attributes
+        applyAttributes(player);
+    }
 
 }

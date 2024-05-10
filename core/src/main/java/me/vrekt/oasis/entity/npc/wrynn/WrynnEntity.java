@@ -20,6 +20,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
 /**
  * Wrynn.
@@ -59,6 +60,9 @@ public final class WrynnEntity extends EntityInteractable {
 
         entityDialog = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
         dialogEntry = entityDialog.getEntry("wrynn_dialog_0");
+
+        // enable the container interaction when we get to the right dialog stage
+        addDialogAction("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);
@@ -154,6 +158,7 @@ public final class WrynnEntity extends EntityInteractable {
     public boolean advanceDialogStage(String option) {
         if (!entityDialog.hasEntryKey(option)) return false;
         dialogEntry = entityDialog.getEntry(option);
+        if (dialogEntry.hasAction()) executeDialogAction(dialogEntry.getAction());
         return true;
     }
 
@@ -161,6 +166,7 @@ public final class WrynnEntity extends EntityInteractable {
     public boolean advanceDialogStage() {
         if (!entityDialog.hasNextEntry()) return false;
         dialogEntry = entityDialog.getEntry(dialogEntry.getLink());
+        if (dialogEntry.hasAction()) executeDialogAction(dialogEntry.getAction());
         return true;
     }
 }

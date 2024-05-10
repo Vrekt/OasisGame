@@ -4,8 +4,9 @@ import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
+import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
 import me.vrekt.oasis.item.utility.InstanceFactory;
-import me.vrekt.oasis.item.weapons.EnchantedVioletItem;
+import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 
 import java.util.HashMap;
@@ -24,8 +25,9 @@ public final class ItemRegistry {
      */
     public static void registerItems() {
         registry.put(LucidTreeFruitItem.KEY, LucidTreeFruitItem::new);
-        registry.put(EnchantedVioletItem.KEY, EnchantedVioletItem::new);
+        registry.put(TemperedBladeItem.KEY, TemperedBladeItem::new);
         registry.put(QuickStepItemArtifact.KEY, QuickStepItemArtifact::new);
+        registry.put(PigHeartConsumable.KEY, PigHeartConsumable::new);
     }
 
     public static boolean isWeapon(Item item) {

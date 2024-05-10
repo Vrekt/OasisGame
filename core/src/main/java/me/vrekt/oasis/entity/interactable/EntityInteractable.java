@@ -44,6 +44,8 @@ public abstract class EntityInteractable extends EntitySpeakable {
         return bounds;
     }
 
+
+
     /**
      * Add arrival AI component
      */

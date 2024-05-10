@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.item.attribute.ItemAttribute;
+import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public abstract class AbstractItem implements Item {
     protected boolean isStackable;
 
     // map of all attributes on this item
-    protected Map<String, ItemAttribute> attributes = new HashMap<>();
+    protected Map<String, Attribute> attributes = new HashMap<>();
     protected float scaleSize = 1.0f;
 
     public AbstractItem(Items itemType, String key, String name, String description) {
@@ -109,8 +109,8 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public void addAttribute(ItemAttribute attribute) {
-        attributes.put(attribute.getAttributeKey(), attribute);
+    public void addAttribute(Attribute attribute) {
+        this.attributes.put(attribute.getKey(), attribute);
     }
 
     @Override
@@ -124,20 +124,20 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public ItemAttribute getAttribute(String attribute) {
+    public Attribute getAttribute(String attribute) {
         return attributes.get(attribute);
     }
 
     @Override
     public void applyAttributes(OasisPlayer player) {
-        for (ItemAttribute attribute : attributes.values()) {
-            attribute.applyToPlayer(player);
+        for (Attribute attribute : attributes.values()) {
+            player.applyAttribute(attribute);
         }
     }
 
     @Override
     public void applyAttribute(String attribute, OasisPlayer player) {
-        getAttribute(attribute).applyToPlayer(player);
+
     }
 
     @Override

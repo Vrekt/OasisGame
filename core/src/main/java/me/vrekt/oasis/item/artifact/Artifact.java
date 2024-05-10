@@ -34,6 +34,10 @@ public abstract class Artifact implements ResourceLoader {
         this.effectPosition = new Vector2();
     }
 
+    public String getKey() {
+        return key;
+    }
+
     public boolean isApplied() {
         return isApplied;
     }

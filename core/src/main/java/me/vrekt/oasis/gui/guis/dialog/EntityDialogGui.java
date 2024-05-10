@@ -16,7 +16,6 @@ import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
@@ -191,7 +190,11 @@ public final class EntityDialogGui extends Gui {
      * @param suggestion the suggestion string
      */
     private void addSuggestion(int index, String suggestion, String key) {
-        GameLogging.info(this, "Showing %s", key);
+        if (index <= 0 || index >= dialogOptionContainers.size()) {
+            // FIXME: random exceptions sometimes.
+            throw new IllegalArgumentException("Caught! Index was " + index + ", suggestion was " + suggestion + ", key was " + key);
+        }
+
         final DialogOptionContainer container = dialogOptionContainers.get(index);
         container.label.setText(suggestion);
         container.listener.setKeyAndEntity(key, entity);

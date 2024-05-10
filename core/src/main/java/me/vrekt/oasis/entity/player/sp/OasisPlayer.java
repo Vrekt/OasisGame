@@ -6,9 +6,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import gdx.lunar.network.AbstractConnectionHandler;
 import gdx.lunar.protocol.packet.client.C2SPacketPing;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.impl.LunarPlayer;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -18,9 +20,11 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.Inventory;
+import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
+import me.vrekt.oasis.entity.player.sp.attribute.AttributeType;
+import me.vrekt.oasis.entity.player.sp.attribute.Attributes;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
-import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
@@ -34,9 +38,10 @@ import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.instance.OasisWorldInstance;
-import me.vrekt.shared.network.ClientPacketEquipItem;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Represents the local player SP
@@ -65,9 +70,10 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     private final LinkedList<Artifact> artifactInventory = new LinkedList<>();
 
     private EntityRotation rotation = EntityRotation.UP;
+    private final Map<AttributeType, Attributes> attributes = new HashMap<>();
 
     // disable movement listening while in dialogs
-    private boolean disableMovement, moved;
+    private boolean disableMovement;
 
     public OasisPlayer(OasisGame game, String name) {
         super(true);
@@ -75,15 +81,26 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
         setName(name);
         setMoveSpeed(6.0f);
-        moved = true;
         setMoving(true);
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
+
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
         questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
+    }
+
+    public void applyAttribute(Attribute attribute) {
+        if (!attribute.expires()) {
+            // this attribute is instant and does not expire, so apply now.
+            attribute.apply(this);
+        } else {
+            // this attribute expires and has other special functionality.
+            attribute.apply(this);
+            attributes.get(attribute.getType()).add(attribute);
+        }
     }
 
     @Override
@@ -97,6 +114,11 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.disableMovement = disableMovement;
     }
 
+    /**
+     * Activate an artifact within the given slot
+     *
+     * @param slotNumber the slot
+     */
     public void activateArtifact(int slotNumber) {
         if (artifactInventory.isEmpty()) {
             GameLogging.warn(this, "Attempted to activate artifact with none in inventory %d", slotNumber);
@@ -109,6 +131,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             return;
         }
 
+        if (game.isAnyMultiplayer()) connectionHandler.updateArtifactActivated(artifact);
         artifact.apply(this, gameWorldIn.getCurrentWorldTick());
         game.getGuiManager().getHudComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
@@ -140,10 +163,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public void setInteriorWorldIn(OasisWorldInstance interiorWorldIn) {
         this.interiorWorldIn = interiorWorldIn;
-    }
-
-    public OasisGame getGame() {
-        return game;
     }
 
     public Inventory getInventory() {
@@ -200,14 +219,12 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public void removeEquippedItem() {
         this.equippedItem = null;
-        // -1 indicates un-equip item
-        connection.sendImmediately(new ClientPacketEquipItem(getEntityId(), Items.NO_ITEM.getKey()));
+        if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(null);
     }
 
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
-
-        connection.sendImmediately(new ClientPacketEquipItem(getEntityId(), item.getKey()));
+        if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(item);
     }
 
     public boolean canEquipItem() {
@@ -220,7 +237,11 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public void setConnectionHandler(PlayerConnection connectionHandler) {
         this.connectionHandler = connectionHandler;
-        this.setConnection(connectionHandler);
+    }
+
+    @Override
+    public AbstractConnectionHandler getConnection() {
+        return connectionHandler;
     }
 
     @Override
@@ -283,8 +304,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         // TODO: Normalize, but fix slow movement
         setVelocity(velX, velY);
 
-        moved = (!getVelocity().isZero());
-
         rotationChanged = getAngle() != rotation.ordinal();
         setAngle(rotation.ordinal());
     }
@@ -318,6 +337,10 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         if (this.body != null) {
             this.body.setLinearVelocity(this.getVelocity());
         }
+
+        // handle all attributes currently applied
+        final float tick = GameManager.getCurrentGameWorldTick();
+        attributes.forEach((type, attr) -> attr.update(tick));
 
         inventory.update();
 
@@ -392,6 +415,9 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             final EntityEnemy hit = gameWorldIn.hasHitEntity(equippedItem);
             if (hit != null) {
                 final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
+                final float mod = attributes.get(AttributeType.BASE_DAMAGE_MULTIPLIER).getAttributeStrength();
+                final float f = damage * mod; // final damage
+
                 // FIXME  hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
             }
         }

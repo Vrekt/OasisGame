@@ -31,7 +31,7 @@ public final class InventoryGuiSlot {
     private String lastItemKey;
     private final int slotNumber;
 
-    private InventorySlotTarget regularTarget;
+    private InventorySlotTarget target;
 
     public InventoryGuiSlot(GuiManager manager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, int slotNumber) {
         this(manager, owner, parent, slotIcon, amountText, false, slotNumber);
@@ -53,17 +53,18 @@ public final class InventoryGuiSlot {
                 if (occupied) owner.handleSlotClicked(InventoryGuiSlot.this);
             }
         });
+
         this.isHotbarSlot = isHotbarSlot;
         this.slotNumber = slotNumber;
         slotIcon.setUserObject(slotNumber);
     }
 
-    public void setRegularTarget(InventorySlotTarget regularTarget) {
-        this.regularTarget = regularTarget;
+    public void setTarget(InventorySlotTarget target) {
+        this.target = target;
     }
 
-    public InventorySlotTarget getRegularTarget() {
-        return regularTarget;
+    public InventorySlotTarget getTarget() {
+        return target;
     }
 
     public boolean isContainerSlot() {

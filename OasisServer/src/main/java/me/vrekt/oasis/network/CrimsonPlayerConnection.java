@@ -24,7 +24,7 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
         super(channel, server);
 
         registerPacket(ClientPacketSpawnEntity.ID, ClientPacketSpawnEntity::new, this::handleSpawnEntity);
-        registerPacket(ClientPacketEquipItem.ID, ClientPacketEquipItem::new, this::handleEquipItem);
+        registerPacket(C2SEquipItem.ID, C2SEquipItem::new, this::handleEquipItem);
         registerPacket(ClientPacketSwingItem.ID, ClientPacketSwingItem::new, this::handleSwingItem);
     }
 
@@ -95,7 +95,7 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
         }
     }
 
-    private void handleEquipItem(ClientPacketEquipItem packet) {
+    private void handleEquipItem(C2SEquipItem packet) {
         //worldIn.broadcastNowWithExclusion(packet.getEntityId(), new ServerPacketPlayerEquippedItem(packet.getEntityId(), packet.getItemId()));
     }
 
