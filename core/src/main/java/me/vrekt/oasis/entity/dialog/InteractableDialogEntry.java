@@ -2,97 +2,149 @@ package me.vrekt.oasis.entity.dialog;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A single dialog entry
  */
-public final class InteractableDialogEntry {
-
-    @Expose
-    private String content;
-
+public final class InteractableDialogEntry implements DialogEntry {
     @Expose
     private String key;
-
     @Expose
-    private String link;
-
+    private String content;
+    // what this entry links to next
+    @Expose
+    private String linksTo;
     @Expose
     private String action;
+    // if this entry requires a specific task before continuing
+    @Expose
+    private String requires;
+    // the content text to show if the player
+    // comes back and speaks to us without completing the task yet
+    @Expose
+    private String waitContent;
+    @Expose
+    private boolean hasOptions;
+    @Expose
+    private boolean skippable;
 
     @Expose
-    private boolean requiresInput;
+    private Map<String, Float> suggestions = new HashMap<>();
 
+    // only advance the dialog stage once exited
+    // used for waitContent cases
+    // we don't want to show the next link, only when we come back to speak
+    // when the player hasn't done the task
     @Expose
-    private Map<String, Float> suggestions;
+    private boolean advanceOnceExited;
 
-    public void setContent(String content) {
-        this.content = content;
+    // if the dialog owner is waiting for the requirement to be met
+    private transient boolean isWaiting, visited;
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
+    @Override
     public void setKey(String key) {
         this.key = key;
     }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public void setRequiresInput(boolean requiresInput) {
-        this.requiresInput = requiresInput;
-    }
-
-    public void addSuggestion(String suggestion, float tolerance) {
-        if (suggestions == null) suggestions = new LinkedHashMap<>();
-        suggestions.put(suggestion, tolerance);
-    }
-
-    /**
-     * @return the next link in the dialog entry
-     */
-    public String getLink() {
-        return link;
-    }
-
-    /**
-     * @return the suggestions of this dialog
-     */
-    public Map<String, Float> getSuggestions() {
-        return suggestions;
-    }
-
-    /**
-     * @return the contents of this entry
-     */
+    @Override
     public String getContent() {
         return content;
     }
 
-    /**
-     * @return {@code true} if this entry has an action that should execute
-     */
-    public boolean hasAction() {
-        return action != null;
+    @Override
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    /**
-     * @return the action this dialog entry should execute
-     */
+    @Override
+    public String getLinksTo() {
+        return linksTo;
+    }
+
+    @Override
+    public void setLinksTo(String linksTo) {
+        this.linksTo = linksTo;
+    }
+
+    @Override
     public String getAction() {
         return action;
     }
 
-    /**
-     * @return if this entry requires the user to reply with a suggestion
-     */
-    public boolean requiresUserInput() {
-        return requiresInput;
+    @Override
+    public boolean hasAction() {
+        return action != null;
     }
 
+    @Override
+    public String getWaitingContent() {
+        return waitContent;
+    }
+
+    @Override
+    public boolean hasOptions() {
+        return hasOptions;
+    }
+
+    @Override
+    public void setHasOptions(boolean hasOptions) {
+        this.hasOptions = hasOptions;
+    }
+
+    @Override
+    public boolean hasSuggestions() {
+        return suggestions != null;
+    }
+
+    @Override
+    public boolean isSkippable() {
+        return skippable;
+    }
+
+    @Override
+    public void setSkippable(boolean skippable) {
+        this.skippable = skippable;
+    }
+
+    @Override
+    public Map<String, Float> getSuggestions() {
+        return suggestions;
+    }
+
+    @Override
+    public boolean advanceOnceExited() {
+        return advanceOnceExited;
+    }
+
+    @Override
+    public boolean isWaiting() {
+        return isWaiting;
+    }
+
+    @Override
+    public void setWaiting(boolean waiting) {
+        isWaiting = waiting;
+    }
+
+    @Override
+    public void setVisited() {
+        visited = true;
+    }
+
+    @Override
+    public boolean hasVisited() {
+        return visited;
+    }
+
+    @Override
+    public void dispose() {
+        suggestions.clear();
+    }
 }

@@ -20,7 +20,7 @@ public final class LucidTreeHarvestingToolItem extends AbstractItem {
 
     public LucidTreeHarvestingToolItem() {
         super(Items.NO_ITEM, KEY, NAME, DESCRIPTION);
-        this.rarity = ItemRarity.BASIC;
+        this.rarity = ItemRarity.COMMON;
     }
 
     @Override

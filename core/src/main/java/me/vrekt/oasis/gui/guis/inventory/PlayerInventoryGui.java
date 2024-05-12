@@ -7,9 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
@@ -35,10 +37,12 @@ public final class PlayerInventoryGui extends InventoryGui {
     private final Map<ItemRarity, TextureRegionDrawable> rarityIcons = new HashMap<>();
     private final TypingLabel itemNameHeader, itemDescriptionHeader;
 
+    // attributes and stats of the item
+    private final Array<VisImage> itemInformationComponents = new Array<>();
+    private final Array<Tooltip> itemInformationTooltipComponents = new Array<>();
+
     private final VisImage itemRarityIcon;
-    private final VisImage[] itemStats;
     private final VisTextButton itemActionButton;
-    private final Tooltip[] itemStatTooltips;
 
     // currently selected item
     private Item selectedItem;
@@ -58,7 +62,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         right.top().padTop(36).padLeft(32).left();
 
         // Headers: init item name and description labels
-        itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumBlack());
+        itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
         itemNameHeader.setVisible(true);
         itemNameHeader.setWrap(true);
         itemNameHeader.setWidth(140);
@@ -87,25 +91,37 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         // Item info: Info and stats
         final VisTable itemInformationTable = new VisTable();
-        final VisTable itemStatsTable = new VisTable();
+        final VisTable itemInformationImageComponents = new VisTable();
         itemInformationTable.left();
-        itemStatsTable.left();
+        itemInformationImageComponents.left();
 
         // Item info: init drawables for icons
         final TextureRegionDrawable rangeIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_range_icon"));
         final TextureRegionDrawable damageIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_damage_icon"));
-        final TextureRegionDrawable critIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_crit_icon"));
+        final TextureRegionDrawable criticalIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_crit_icon"));
 
-        // Item info: init item stat icons
-        itemStats = new VisImage[3];
-        itemStatsTable.add(itemStats[0] = new VisImage(rangeIcon)).size(36, 36).padRight(4);
-        itemStatsTable.add(itemStats[1] = new VisImage(damageIcon)).size(36, 36).padRight(4);
-        itemStatsTable.add(itemStats[2] = new VisImage(critIcon)).size(36, 36);
-        for (VisImage itemStat : itemStats) itemStat.setVisible(false);
+        // stores images in an array
+        itemInformationComponents.add(new VisImage(), new VisImage(), new VisImage());
+        // add them to the table
+        itemInformationImageComponents.add(itemInformationComponents.get(0)).size(36, 36).padRight(4);
+        itemInformationImageComponents.add(itemInformationComponents.get(1)).size(36, 36).padRight(4);
+        itemInformationImageComponents.add(itemInformationComponents.get(2)).size(36, 36).padRight(4);
+        itemInformationComponents.forEach(image -> image.setVisible(false));
 
         // Item info: add to table
-        itemInformationTable.add(itemStatsTable).left();
+        itemInformationTable.add(itemInformationImageComponents).left();
         itemInformationTable.row();
+
+        // populate tooltips
+        for (VisImage component : itemInformationComponents) {
+            final Tooltip tooltip = new Tooltip.Builder(StringUtils.EMPTY)
+                    .target(component)
+                    .style(guiManager.getStyle().getTooltipStyle())
+                    .build();
+
+            tooltip.setVisible(false);
+            itemInformationTooltipComponents.add(tooltip);
+        }
 
         // Use item button
         final VisTable buttonTable = new VisTable();
@@ -127,23 +143,6 @@ public final class PlayerInventoryGui extends InventoryGui {
         right.add(itemInformationTable).left();
         right.row();
 
-        // Init item stat tooltips
-        itemStatTooltips = new Tooltip[3];
-        itemStatTooltips[0] = new Tooltip.Builder(StringUtils.EMPTY)
-                .target(itemStats[0])
-                .style(guiManager.getStyle().getTooltipStyle())
-                .build();
-        itemStatTooltips[1] = new Tooltip.Builder(StringUtils.EMPTY)
-                .target(itemStats[1])
-                .style(guiManager.getStyle().getTooltipStyle())
-                .build();
-        itemStatTooltips[2] = new Tooltip.Builder(StringUtils.EMPTY)
-                .target(itemStats[2])
-                .style(guiManager.getStyle().getTooltipStyle())
-                .build();
-
-        // hide tooltips by default
-        for (Tooltip tooltip : itemStatTooltips) tooltip.setVisible(true);
         addItemActionButtonListener();
 
         left.top().padTop(52).padLeft(84);
@@ -259,6 +258,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         hideItemOptionals();
         selectedItem = slot.getItem();
 
+        System.err.println(selectedItem.getItemRarity().getColorName());
         itemNameHeader.setText(selectedItem.getItemRarity().getColorName() + selectedItem.getItemName());
         itemNameHeader.setVisible(true);
         itemNameHeader.restart();
@@ -271,7 +271,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         itemRarityIcon.setDrawable((Drawable) null);
         final ItemRarity rarity = selectedItem.getItemRarity();
-        if (rarity != ItemRarity.BASIC && rarityIcons.containsKey(rarity)) {
+        if (rarityIcons.containsKey(rarity)) {
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
         }
 
@@ -306,7 +306,28 @@ public final class PlayerInventoryGui extends InventoryGui {
             populateItemStats(weapon);
         } else if (item instanceof ItemArtifact artifact) {
             populateArtifactStats(artifact);
+        } else if (item instanceof ItemConsumable) {
+            int index = 0;
+            for (Attribute attribute : item.getItemAttributes().values()) {
+                if (attribute.getTexture() == null) continue;
+                populateAttributeInformation(attribute, index);
+                index++;
+            }
         }
+    }
+
+    /**
+     * Populate attribute information
+     *
+     * @param attribute attribute
+     * @param index     current index, should not exceed 2
+     */
+    private void populateAttributeInformation(Attribute attribute, int index) {
+        itemInformationComponents.get(index).setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.getTexture())));
+        itemInformationComponents.get(index).setVisible(true);
+
+        itemInformationTooltipComponents.get(index).setText(attribute.getName() + StringUtils.LF + attribute.getDescription());
+        itemInformationTooltipComponents.get(index).setVisible(true);
     }
 
     /**
@@ -315,13 +336,13 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the item
      */
     private void populateItemStats(ItemWeapon item) {
-        for (Tooltip tooltip : itemStatTooltips) tooltip.setVisible(true);
+        for (Tooltip tooltip : itemInformationTooltipComponents) tooltip.setVisible(true);
 
-        itemStatTooltips[0].setText("Range ~=~ " + item.getRange());
-        itemStatTooltips[1].setText("Damage ~=~ " + item.getBaseDamage());
-        itemStatTooltips[2].setText("Critical hit chance ~=~ " + item.getCriticalHitChance() + "%");
+        itemInformationTooltipComponents.get(0).setText("Range ~=~ " + item.getRange());
+        itemInformationTooltipComponents.get(1).setText("Damage ~=~ " + item.getBaseDamage());
+        itemInformationTooltipComponents.get(2).setText("Critical hit chance ~=~ " + item.getCriticalHitChance() + "%");
 
-        for (VisImage itemStat : itemStats) {
+        for (VisImage itemStat : itemInformationComponents) {
             itemStat.setVisible(true);
             fadeIn(itemStat, 1.5f);
         }
@@ -333,8 +354,8 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the artifact
      */
     private void populateArtifactStats(ItemArtifact item) {
-        final Tooltip tooltip = itemStatTooltips[0];
-        final VisImage itemStat = itemStats[0];
+        final Tooltip tooltip = itemInformationTooltipComponents.get(0);
+        final VisImage itemStat = itemInformationComponents.get(0);
 
         tooltip.setText(
                 "Artifact Level: " + item.getArtifact().getArtifactLevel()
@@ -349,7 +370,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
     private void hideItemOptionals() {
         itemActionButton.setVisible(false);
-        for (VisImage itemStat : itemStats) itemStat.setVisible(false);
+        for (VisImage itemStat : itemInformationComponents) itemStat.setVisible(false);
     }
 
     /**
@@ -363,8 +384,8 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemNameHeader.setVisible(false);
         itemDescriptionHeader.setVisible(false);
         itemActionButton.setVisible(false);
-        for (VisImage image : itemStats) image.setVisible(false);
-        for (Tooltip tooltip : itemStatTooltips) tooltip.setVisible(false);
+        for (VisImage image : itemInformationComponents) image.setVisible(false);
+        for (Tooltip tooltip : itemInformationTooltipComponents) tooltip.setVisible(false);
     }
 
     @Override

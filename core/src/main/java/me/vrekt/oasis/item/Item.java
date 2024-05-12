@@ -7,6 +7,8 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.utility.ResourceLoader;
 
+import java.util.Map;
+
 /**
  * Represents an item within the game
  */
@@ -49,6 +51,8 @@ public interface Item extends ResourceLoader {
     boolean hasAttribute(String attribute);
 
     Attribute getAttribute(String attribute);
+
+    Map<String, Attribute> getItemAttributes();
 
     void applyAttributes(OasisPlayer player);
 

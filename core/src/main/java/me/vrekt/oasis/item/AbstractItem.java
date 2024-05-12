@@ -129,6 +129,11 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
+    public Map<String, Attribute> getItemAttributes() {
+        return attributes;
+    }
+
+    @Override
     public void applyAttributes(OasisPlayer player) {
         for (Attribute attribute : attributes.values()) {
             player.applyAttribute(attribute);

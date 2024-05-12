@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -296,23 +297,28 @@ public final class GameHudGui extends Gui {
         table.bottom().padBottom(8);
 
         // 6 hotbar slots
-        for (int i = 0; i < 6; i++) {
-            final VisTable slotTable = new VisTable();
-            slotTable.add(new VisLabel(Integer.toString((i + 1)), guiManager.getStyle().getMediumWhite()));
-            final Stack stack = new Stack();
+        final Label.LabelStyle style = new Label.LabelStyle(guiManager.getSmallFont(), Color.LIGHT_GRAY);
 
+        for (int i = 0; i < 6; i++) {
+            // adapter from InventoryGui class
             final VisImage slot = new VisImage(guiManager.getStyle().getTheme());
             final VisImage item = new VisImage();
+            item.setOrigin(16 / 2f, 16 / 2f);
+
+            final VisTable itemTable = new VisTable(false);
+            itemTable.add(item).size(32, 32);
+            final Stack overlay = new Stack(slot, itemTable);
+
+            final VisTable slotNumber = new VisTable(true);
+            final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i + 1), style);
+            slotNumber.top().left();
+            slotNumber.add(slotNumberLabel).top().left().padLeft(2);
+            overlay.add(slotNumber);
 
             hotbarIconComponents.add(new HotbarComponentSlot(slot, item));
 
             slot.setColor(Color.WHITE);
-            stack.add(slot);
-            stack.add(item);
-
-            slotTable.row();
-            slotTable.add(stack).size(48, 48);
-            table.add(slotTable).padLeft(2);
+            table.add(overlay).size(48, 48).padLeft(2);
         }
 
         guiManager.addGui(table);

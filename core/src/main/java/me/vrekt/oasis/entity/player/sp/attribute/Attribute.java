@@ -7,7 +7,9 @@ import me.vrekt.oasis.entity.player.sp.OasisPlayer;
  */
 public abstract class Attribute {
 
-    protected final String key, name;
+    protected final String key, name, description;
+    protected String texture;
+
     private final AttributeType type;
 
     private final float duration;
@@ -16,18 +18,20 @@ public abstract class Attribute {
     private boolean expires;
     private float tickApplied;
 
-    public Attribute(String key, String name) {
+    public Attribute(String key, String name, String description) {
         this.key = key;
         this.name = name;
+        this.description = description;
         this.type = AttributeType.NONE;
         this.duration = 0.0f;
         this.strength = 1.0f;
     }
 
-    public Attribute(String key, String name, AttributeType type, float duration, float strength) {
+    public Attribute(String key, String name, String description, AttributeType type, float duration, float strength) {
         this.key = key;
         this.name = name;
         this.type = type;
+        this.description = description;
         this.duration = duration;
         this.strength = strength;
     }
@@ -48,6 +52,20 @@ public abstract class Attribute {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * @return description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @return the texture of this attribute for the inventory GUI
+     */
+    public String getTexture() {
+        return texture;
     }
 
     /**

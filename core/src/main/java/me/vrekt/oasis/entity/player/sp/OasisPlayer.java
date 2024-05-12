@@ -17,6 +17,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.dialog.DialogEntry;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.Inventory;
@@ -25,6 +26,7 @@ import me.vrekt.oasis.entity.player.sp.attribute.AttributeType;
 import me.vrekt.oasis.entity.player.sp.attribute.Attributes;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.graphics.Drawable;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
@@ -139,6 +141,30 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     public void equipArtifact(ItemArtifact artifact) {
         getInventory().removeItem(artifact);
         artifactInventory.add(artifact.getArtifact());
+    }
+
+    /**
+     * Handle dialog 'F" key press
+     */
+    public void handleDialogKeyPress() {
+        if (isSpeakingToEntity && entitySpeakingTo != null) {
+            final DialogEntry entry = entitySpeakingTo.getEntry();
+            //  waiting to pick an option
+            if (entry.hasOptions() || entry.hasSuggestions() || !entry.isSkippable()) return;
+
+            // advance this dialog after we close the GUI
+            // Basically the dialog is 'finished' but if we go back
+            // and speak to the entity they will show a message reminding them what to do
+            // So we only show that afterwards.
+            if (entry.advanceOnceExited() && !entry.hasVisited()) {
+                game.getGuiManager().hideGui(GuiType.DIALOG);
+                entitySpeakingTo.nextUnsafe();
+            }
+
+            // consume if only accepted if next is allowed
+            // TODO: Do we care about the result?
+            entitySpeakingTo.next(next -> game.getGuiManager().getDialogComponent().showEntityDialog(entitySpeakingTo));
+        }
     }
 
     public long getServerPingTime() {

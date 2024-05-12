@@ -152,9 +152,6 @@ public final class DialogCreator extends ScreenAdapter {
                     name = nameField.getText();
                     keyFormat = keyFormatField.getText();
                     isFirstStage = false;
-
-                    jsonData.setName(name);
-                    jsonData.setKeyFormat(keyFormat);
                 }
 
                 final InteractableDialogEntry data = new InteractableDialogEntry();
@@ -162,11 +159,11 @@ public final class DialogCreator extends ScreenAdapter {
 
                 data.setKey(key);
                 data.setContent(k1Field.getText());
-                data.setLink(linkField.getText());
+                data.setLinksTo(linkField.getText());
 
-                data.setRequiresInput(!suggestionStorage.isEmpty());
+              //  data.setRequiresInput(!suggestionStorage.isEmpty());
 
-                suggestionStorage.forEach(data::addSuggestion);
+             //   suggestionStorage.forEach(data::addSuggestion);
                 suggestionStorage.clear();
 
                 jsonData.addEntry(key, data);

@@ -29,7 +29,6 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
@@ -50,11 +49,11 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.interior.Instance;
 import me.vrekt.oasis.world.interior.InstanceType;
+import me.vrekt.oasis.world.obj.SimpleWorldObject;
+import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.WorldObject;
-import me.vrekt.oasis.world.obj.SimpleWorldObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -334,24 +333,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected abstract void preLoad();
 
     protected abstract void load();
-
-    public void skipCurrentDialog() {
-        if (player.isSpeakingToEntity() && player.getEntitySpeakingTo() != null) {
-            final EntitySpeakable speakable = player.getEntitySpeakingTo();
-
-            // dialog requires input so ignore this key press.
-            if (speakable.getDialog().requiresUserInput()) return;
-            // check if the dialog is finished for this entity, if so close it.
-            final boolean result = player.getEntitySpeakingTo().advanceDialogStage();
-            if (!result) {
-                guiManager.hideGui(GuiType.DIALOG);
-                return;
-            }
-
-            // TODO: GUI update 'F' key press
-            guiManager.getDialogComponent().showEntityDialog(player.getEntitySpeakingTo());
-        }
-    }
 
     /**
      * Load world entities that can be interacted with

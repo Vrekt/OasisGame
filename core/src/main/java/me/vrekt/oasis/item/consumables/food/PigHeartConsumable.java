@@ -28,7 +28,7 @@ public final class PigHeartConsumable extends ItemConsumable {
         addAttribute(new PlayerSatisfactionAttribute(5.0f, 1.5f));
 
         this.scaleSize = 1f;
-        this.rarity = ItemRarity.BASIC;
+        this.rarity = ItemRarity.COMMON;
         this.isStackable = true;
     }
 

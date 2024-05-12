@@ -12,11 +12,13 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.entity.dialog.DialogResult;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.function.Consumers;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.util.LinkedList;
@@ -149,10 +151,17 @@ public final class EntityDialogGui extends Gui {
 
         entityNameLabel.setText(entity.getName());
         entityPreview.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
-        dialogTextLabel.setText(entity.getDialog().getContent());
+
+        if (entity.getEntry().isWaiting()) {
+            System.err.println("yessirr");
+            dialogTextLabel.setText(entity.getEntry().getWaitingContent());
+        } else {
+            dialogTextLabel.setText(entity.getEntry().getContent());
+        }
+
         dialogTextLabel.restart();
 
-        if (entity.getDialog().requiresUserInput()) {
+        if (!entity.getEntry().isSkippable()) {
             // enable suggestions input box
             userInputField.setVisible(true);
         } else {
@@ -190,7 +199,7 @@ public final class EntityDialogGui extends Gui {
      * @param suggestion the suggestion string
      */
     private void addSuggestion(int index, String suggestion, String key) {
-        if (index <= 0 || index >= dialogOptionContainers.size()) {
+        if (index < 0 || index >= dialogOptionContainers.size()) {
             // FIXME: random exceptions sometimes.
             throw new IllegalArgumentException("Caught! Index was " + index + ", suggestion was " + suggestion + ", key was " + key);
         }
@@ -317,18 +326,19 @@ public final class EntityDialogGui extends Gui {
         }
 
         // may or may not need the second statement
-        if (entity != null && entity.getDialog().requiresUserInput()) {
+        if (entity != null && entity.getEntry().hasSuggestions()) {
             // if suggestions is already maxed, just return.
             if (suggestionsBeingShown >= 3) return;
 
-            for (Map.Entry<String, Float> entry : entity.getDialog().getSuggestions().entrySet()) {
+            for (Map.Entry<String, Float> entry : entity.getEntry().getSuggestions().entrySet()) {
                 final String suggestion = entry.getKey();
                 final double tolerance = entry.getValue();
                 final double sim = similarity.apply(text, suggestion);
                 if (sim >= tolerance && !suggestionsShowing.contains(suggestion)) {
                     // string is similar show it as a suggestion.
                     suggestionsShowing.add(suggestion);
-                    addSuggestion(suggestionsBeingShown, suggestion, entity.getDialog().getLink());
+                    System.err.println("LINKS TO " + entity.getEntry().getLinksTo());
+                    addSuggestion(suggestionsBeingShown, suggestion, entity.getEntry().getLinksTo());
                     suggestionsBeingShown++;
                 } else if (sim <= tolerance && suggestionsShowing.contains(suggestion)) {
                     clearTextContainerSuggestion(suggestion);
@@ -400,8 +410,12 @@ public final class EntityDialogGui extends Gui {
 
         @Override
         public void clicked(InputEvent event, float x, float y) {
-            if (!entity.advanceDialogStage(key)) {
-                // no more dialog so stop speaking
+            final DialogResult result = entity.next(key, Consumers.nop());
+
+            // un-focus so we are not stuck
+            guiManager.getStage().unfocus(userInputField);
+
+            if (result == DialogResult.FINISHED) {
                 entity.setSpeakingTo(false);
                 EntityDialogGui.this.hide();
             } else {

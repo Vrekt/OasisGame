@@ -6,13 +6,16 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.dialog.InteractableDialogEntry;
-import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
+import me.vrekt.oasis.entity.dialog.DialogEntry;
+import me.vrekt.oasis.entity.dialog.utility.DialogRequirementTest;
+import me.vrekt.oasis.entity.dialog.DialogResult;
+import me.vrekt.oasis.entity.dialog.EntityDialog;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Represents an entity that can be spoken to.
@@ -21,8 +24,8 @@ public abstract class EntitySpeakable extends Entity {
 
     protected OasisPlayer player;
 
-    protected InteractableEntityDialog entityDialog;
-    protected InteractableDialogEntry dialogEntry;
+    protected EntityDialog dialog;
+    protected DialogEntry activeEntry;
 
     protected boolean speakingTo, speakable;
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
@@ -30,6 +33,14 @@ public abstract class EntitySpeakable extends Entity {
     protected final Vector2 interactionPoint = new Vector2();
 
     protected final Map<String, Runnable> dialogActions = new HashMap<>();
+    protected final Map<String, Runnable> entryListeners = new HashMap<>();
+    protected final Map<String, DialogRequirementTest> updateListeners = new HashMap<>();
+
+    protected float lastDialogUpdate;
+
+    // the active requirement that needs to be completed
+    protected boolean hasActiveRequirement;
+    protected String activeRequirement;
 
     public EntitySpeakable(OasisPlayer player) {
         super(true);
@@ -58,6 +69,12 @@ public abstract class EntitySpeakable extends Entity {
                 GameManager.getGuiManager().hideGui(GuiType.DIALOG);
                 speakingTo = false;
             }
+        }
+
+        // update dialog listeners
+        if ((worldIn.getCurrentWorldTick() - lastDialogUpdate) >= 3f) {
+            updateListeners.values().forEach(DialogRequirementTest::test);
+            lastDialogUpdate = worldIn.getCurrentWorldTick();
         }
     }
 
@@ -91,8 +108,8 @@ public abstract class EntitySpeakable extends Entity {
         return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
     }
 
-    public InteractableDialogEntry getDialog() {
-        return dialogEntry;
+    public DialogEntry getEntry() {
+        return activeEntry;
     }
 
     public boolean isSpeakable() {
@@ -116,52 +133,82 @@ public abstract class EntitySpeakable extends Entity {
             player.setEntitySpeakingTo(null);
             player.setSpeakingToEntity(false);
         }
+
+        // also check here so if we go back and speak
+        // we want to update the waiting state
+        // because the entry has to be visited before
+        // activating the wait content
+        if (entryListeners.containsKey(activeEntry.getKey()))
+            entryListeners.get(activeEntry.getKey()).run();
+
+    }
+
+    public DialogResult next(String optionPicked, Consumer<DialogEntry> entry) {
+        if (optionPicked != null && !dialog.hasEntryKey(optionPicked)) return DialogResult.FINISHED;
+
+        if (activeEntry.isWaiting()) {
+            // entity is waiting for an action to be completed
+            return DialogResult.WAIT;
+        }
+
+        // TODO DOESNT UPDATE IF JUST PRESS F
+        activeEntry = optionPicked == null ? dialog.next() : dialog.getEntry(optionPicked);
+
+        // invoke any valid listeners
+        if (entryListeners.containsKey(activeEntry.getKey()))
+            entryListeners.get(activeEntry.getKey()).run();
+
+        activeEntry.setVisited();
+
+        //    if (activeEntry.hasRequirement()) {
+        ///       hasActiveRequirement = true;
+        //       activeRequirement = activeEntry.getRequirement();
+        //   } else {
+        //        hasActiveRequirement = false;
+        //        activeRequirement = null;
+        //   }
+
+        if (activeEntry.hasAction()) executeAction(activeEntry.getAction());
+        entry.accept(activeEntry);
+        return DialogResult.CONTINUED;
+    }
+
+    public DialogResult next(Consumer<DialogEntry> entry) {
+        return next(null, entry);
     }
 
     /**
-     * Advance to the next dialog
-     *
-     * @param option the option
-     * @return {@code true} if dialog is complete.
+     * Advance the dialog ignoring any safety checks.
      */
-    public boolean advanceDialogStage(String option) {
-        return false;
+    public void nextUnsafe() {
+        activeEntry = dialog.next();
     }
 
-    public boolean advanceDialogStage() {
-        return false;
-    }
-
-    /**
-     * Add a dialog action
-     *
-     * @param key    the key
-     * @param action the action to run
-     */
-    protected void addDialogAction(String key, Runnable action) {
+    public void addAction(String key, Runnable action) {
         this.dialogActions.put(key, action);
     }
 
+    public void executeAction(String key) {
+        if (dialogActions.containsKey(key)) dialogActions.get(key).run();
+    }
+
     /**
-     * Execute a dialog action
-     *
-     * @param key the key entry
-     * @return {@code  true} if executed
+     * Add a listener for when a specific dialog stage is reached
      */
-    protected boolean executeDialogAction(String key) {
-        if (dialogActions.containsKey(key)) {
-            dialogActions.get(key).run();
-            return true;
-        }
-        return false;
+    protected void addEntryListener(String key, Runnable listener) {
+        entryListeners.put(key, listener);
+    }
+
+    protected void addUpdateListener(String key, DialogRequirementTest requirementTest) {
+        updateListeners.put(key, requirementTest);
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        entityDialog.dispose();
-        entityDialog = null;
-        dialogEntry = null;
+        dialog.dispose();
+        dialog = null;
+        activeEntry = null;
         dialogFrames[0] = null;
         dialogFrames[1] = null;
         dialogFrames[2] = null;

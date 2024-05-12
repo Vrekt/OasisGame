@@ -222,6 +222,11 @@ public interface Inventory extends Disposable {
     void swapSlot(int from, int to);
 
     /**
+     * Register a listener for when an item is taken
+     */
+    //void registerItemTakenListener();
+
+    /**
      * Clear this inventory
      */
     void clear();

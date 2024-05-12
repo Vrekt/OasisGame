@@ -255,7 +255,7 @@
   <object id="34" x="691.5" y="364" width="9.5" height="142"/>
   <object id="35" x="546.904" y="503.289" width="140" height="5"/>
  </objectgroup>
- <objectgroup id="10" name="WorldObjects" visible="0">
+ <objectgroup id="10" name="WorldObjects">
   <object id="52" x="414" y="349.5" width="21" height="18.5">
    <properties>
     <property name="hasCollision" type="bool" value="false"/>

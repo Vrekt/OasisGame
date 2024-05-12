@@ -290,5 +290,24 @@ License: OGA-BY 3.0
 Author: CraftPix.net
 ```
 
+```
+Inventory/Quest/Container UI icons
+Source: https://opengameart.org/content/roguelikerpg-icons
+License: CC-BY-SA 3.0
+Author: @JoeCreates on twitter
+```
+
+```
+Rarity icons
+Source: https://opengameart.org/content/roguelikerpg-items
+License: CC-BY-SA 3.0
+Author: @JoeCreates on twitter
+```
+
 # Items
-TBD
+```
+Pig's heart item
+Source: https://opengameart.org/content/64-16x16-food-sprites
+License: CC0
+Author Sanglorian
+```

@@ -7,6 +7,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.interior.Instance;
@@ -57,7 +58,7 @@ public final class TutorialOasisWorld extends OasisWorld {
         if (game.isNewGame()) {
          //   player.getInventory().addItem(Items.TEMPERED_BLADE, 1);
 
-
+            player.getInventory().addItem(Items.PIG_HEART, 1);
             guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, 10.0f);
 //            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
             // TODO

@@ -1,0 +1,67 @@
+{
+  "contents": {
+    "wrynn_dialog_0": {
+      "key": "wrynn_dialog_0",
+      "content": "Hello! I see you stumbled in without knocking, that's great!",
+      "linksTo": "wrynn_dialog_1",
+      "skippable": true
+    },
+    "wrynn_dialog_1": {
+      "key": "wrynn_dialog_1",
+      "content": "Joking of course, but hey, since you're here I could use your help.",
+      "linksTo": "wrynn_dialog_2",
+      "hasSuggestions": true,
+      "skippable": false,
+      "suggestions": {
+        "Okay": 0.4,
+        "Sure": 0.45,
+        "What is it?": 0.5,
+        "What is it": 0.4,
+        "Fine": 0.65,
+        "Ok": 0.45
+      }
+    },
+    "wrynn_dialog_2": {
+      "key": "wrynn_dialog_2",
+      "content": "Well, recently, I went down into my cellar, and to my surprise a few undesirable critters decided to move in! In my haste to get the hell out of there I left behind my recipe book.",
+      "linksTo": "wrynn_dialog_3",
+      "skippable": true
+    },
+    "wrynn_dialog_3": {
+      "key": "wrynn_dialog_3",
+      "content": "If you go down there and retrieve it for me I could provide you with the best food you've ever had! Of course I can provide you with some weapons, I'm not that crazy (yet)",
+      "linksTo": "wrynn_dialog_4",
+      "hasSuggestions": true,
+      "skippable": false,
+      "suggestions": {
+        "Of course": 0.65,
+        "Yes": 0.4,
+        "Ok": 0.45,
+        "Sounds good": 0.65
+      }
+    },
+    "wrynn_dialog_4": {
+      "content": "Great! Walk over to my storage, I have a weapon and some food in there. Come back and speak with me once you have them.",
+      "key": "wrynn_dialog_4",
+      "linksTo": "wrynn_dialog_5",
+      "action": "wrynn:unlock_container",
+      "requires": "wrynn:player_has_items",
+      "waitContent": "My storage is unlocked, feel free to go grab your items.",
+      "skippable": false
+    },
+    "wrynn_dialog_5": {
+      "content": "You got them? Good! The cellar is right outside, the two double doors in the ground. Come back when you've found it, good luck!",
+      "key": "wrynn_dialog_5",
+      "linksTo": "wrynn_dialog_6",
+      "advanceOnceExited": true,
+      "skippable": true
+    },
+    "wrynn_dialog_6": {
+      "content": "Please hurry. I'm dying without my daily indulgence of bread.",
+      "key": "wrynn_dialog_6",
+      "linksTo": "wrynn_dialog_6",
+      "locked": true,
+      "skippable": false
+    }
+  }
+}

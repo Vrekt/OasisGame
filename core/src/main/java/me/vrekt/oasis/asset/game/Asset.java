@@ -3,6 +3,7 @@ package me.vrekt.oasis.asset.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -67,11 +68,17 @@ public final class Asset implements Disposable {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/Romulus.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.06);
+        parameter.size = (int) Math.ceil(640 * 0.06);
         large = generator.generateFont(parameter);
 
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.04);
+        // TODO: Fix font blurriness
+        parameter.size = (int) Math.ceil(640 * 0.04);
+        parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
+        parameter.magFilter = Texture.TextureFilter.Linear;
+        parameter.genMipMaps = true;
+
         medium = generator.generateFont(parameter);
+        medium.setUseIntegerPositions(false);
 
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.033);
         small = generator.generateFont(parameter);

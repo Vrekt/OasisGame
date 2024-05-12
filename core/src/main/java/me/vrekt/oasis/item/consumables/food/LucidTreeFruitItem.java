@@ -25,7 +25,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
 
         this.scaleSize = 1f;
         this.allowedToConsume = false;
-        this.rarity = ItemRarity.BASIC;
+        this.rarity = ItemRarity.COMMON;
         this.isStackable = true;
     }
 

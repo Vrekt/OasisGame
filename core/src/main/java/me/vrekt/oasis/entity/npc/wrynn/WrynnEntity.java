@@ -14,10 +14,12 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.dialog.utility.DialogRequirementTest;
 import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.OasisWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -58,11 +60,19 @@ public final class WrynnEntity extends EntityInteractable {
         animationComponent.registerWalkingAnimation(EntityRotation.RIGHT, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
         animationComponent.registerWalkingAnimation(EntityRotation.UP, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
 
-        entityDialog = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
-        dialogEntry = entityDialog.getEntry("wrynn_dialog_0");
+        dialog = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
+        activeEntry = dialog.getEntry("wrynn_dialog_0");
+
+
+        // set we are waiting for the requirement to be met
+        addEntryListener("wrynn_dialog_4", () -> {
+            if (activeEntry.hasVisited()) activeEntry.setWaiting(true);
+        });
+        // check if the player has required items every 1.5 seconds
+        addUpdateListener("wrynn:player_has_items", new DialogRequirementTest(this::checkPlayerHasItems, this::checkPlayerHasItemsSuccess));
 
         // enable the container interaction when we get to the right dialog stage
-        addDialogAction("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
+        addAction("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);
@@ -154,19 +164,22 @@ public final class WrynnEntity extends EntityInteractable {
         }
     }
 
-    @Override
-    public boolean advanceDialogStage(String option) {
-        if (!entityDialog.hasEntryKey(option)) return false;
-        dialogEntry = entityDialog.getEntry(option);
-        if (dialogEntry.hasAction()) executeDialogAction(dialogEntry.getAction());
-        return true;
+    /**
+     * Check if the player has the items from the container
+     *
+     * @return the result
+     */
+    public boolean checkPlayerHasItems() {
+        return player.getInventory().hasItem(Items.PIG_HEART);
     }
 
-    @Override
-    public boolean advanceDialogStage() {
-        if (!entityDialog.hasNextEntry()) return false;
-        dialogEntry = entityDialog.getEntry(dialogEntry.getLink());
-        if (dialogEntry.hasAction()) executeDialogAction(dialogEntry.getAction());
-        return true;
+    /**
+     * We got the items, advance the dialog.
+     */
+    public void checkPlayerHasItemsSuccess() {
+        activeEntry.setWaiting(false);
+        activeEntry.setSkippable(true);
+        nextUnsafe();
     }
+
 }
