@@ -1,6 +1,7 @@
 package me.vrekt.oasis.item.artifact.artifacts;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.artifact.Artifact;
@@ -14,7 +15,7 @@ public final class QuickStepArtifact extends Artifact {
 
     public QuickStepArtifact() {
         super("artifact:quick_step", "Quickstep", "Allows you to move around the environment faster.");
-        this.artifactDuration = 1.5f;
+        this.artifactDuration = GameManager.secondsToTicks(1.5f);
     }
 
     @Override

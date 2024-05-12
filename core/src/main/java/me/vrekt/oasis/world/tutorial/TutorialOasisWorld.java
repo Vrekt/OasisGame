@@ -2,6 +2,7 @@ package me.vrekt.oasis.world.tutorial;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -58,8 +59,7 @@ public final class TutorialOasisWorld extends OasisWorld {
         if (game.isNewGame()) {
          //   player.getInventory().addItem(Items.TEMPERED_BLADE, 1);
 
-            player.getInventory().addItem(Items.PIG_HEART, 1);
-            guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, 10.0f);
+            guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
 //            gui.getHud().showHintWithNoFade("Welcome to Oasis! Follow the path and enter the house at the end.");
             // TODO
             // player.getInventory().addItem(EnchantedVioletItem.ID, 1);

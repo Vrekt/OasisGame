@@ -17,7 +17,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.dialog.DialogEntry;
+import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.Inventory;
@@ -134,7 +134,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         }
 
         if (game.isAnyMultiplayer()) connectionHandler.updateArtifactActivated(artifact);
-        artifact.apply(this, gameWorldIn.getCurrentWorldTick());
+        artifact.apply(this, GameManager.getTick());
         game.getGuiManager().getHudComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
 
@@ -148,22 +148,21 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
      */
     public void handleDialogKeyPress() {
         if (isSpeakingToEntity && entitySpeakingTo != null) {
-            final DialogEntry entry = entitySpeakingTo.getEntry();
+            final DialogueEntry entry = entitySpeakingTo.getEntry();
             //  waiting to pick an option
-            if (entry.hasOptions() || entry.hasSuggestions() || !entry.isSkippable()) return;
+            if (entry.suggestions() || !entry.isSkippable()) return;
 
             // advance this dialog after we close the GUI
             // Basically the dialog is 'finished' but if we go back
             // and speak to the entity they will show a message reminding them what to do
             // So we only show that afterwards.
-            if (entry.advanceOnceExited() && !entry.hasVisited()) {
+            if (entitySpeakingTo.advance()) {
                 game.getGuiManager().hideGui(GuiType.DIALOG);
-                entitySpeakingTo.nextUnsafe();
+                return;
             }
 
-            // consume if only accepted if next is allowed
-            // TODO: Do we care about the result?
-            entitySpeakingTo.next(next -> game.getGuiManager().getDialogComponent().showEntityDialog(entitySpeakingTo));
+            entitySpeakingTo.next();
+            game.getGuiManager().getDialogComponent().showEntityDialog(entitySpeakingTo);
         }
     }
 
@@ -365,7 +364,8 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         }
 
         // handle all attributes currently applied
-        final float tick = GameManager.getCurrentGameWorldTick();
+        // TODO: Only needs to update every second.
+        final float tick = GameManager.getTick();
         attributes.forEach((type, attr) -> attr.update(tick));
 
         inventory.update();
@@ -378,7 +378,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         if (game.isLocalMultiplayer() || game.isMultiplayer())
             updateNetworkComponents();
 
-        artifactInventory.forEach(artifact -> artifact.updateArtifact(this, gameWorldIn.getCurrentWorldTick()));
+        artifactInventory.forEach(artifact -> artifact.updateArtifact(this, GameManager.getTick()));
     }
 
     /**
@@ -406,7 +406,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         }
 
         artifactInventory.forEach(artifact -> {
-            if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, gameWorldIn.getCurrentWorldTick());
+            if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, GameManager.getTick());
             if (artifact.isApplied()) artifact.drawParticleEffect(batch);
         });
     }
@@ -430,7 +430,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         equippedItem.draw(batch);
 
         if (equippedItem.isSwinging()) {
-            final float tick = gameWorldIn.getCurrentWorldTick();
+            final float tick = GameManager.getTick();
             if (!equippedItem.isOnSwingCooldown(tick)) {
                 equippedItem.setLastSwing(tick);
             } else {

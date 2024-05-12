@@ -60,7 +60,7 @@ public abstract class Artifact implements ResourceLoader {
      * @param player the player
      */
     protected void createEffect(OasisPlayer player) {
-        effectTickActivated = GameManager.getCurrentGameWorldTick();
+        effectTickActivated = GameManager.getTick();
         effectPosition.set(player.getInterpolatedPosition());
         effectAlpha = 1.0f;
         drawEffect = true;
@@ -85,7 +85,7 @@ public abstract class Artifact implements ResourceLoader {
                 0.0f);
         effectPosition.add(0.0f, delta * 2f);
 
-        if (tick - effectTickActivated >= 2) {
+        if (tick - effectTickActivated >= GameManager.secondsToTicks(2)) {
             drawEffect = false;
         }
 

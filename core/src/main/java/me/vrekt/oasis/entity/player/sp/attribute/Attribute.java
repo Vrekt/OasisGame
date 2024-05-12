@@ -1,5 +1,6 @@
 package me.vrekt.oasis.entity.player.sp.attribute;
 
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
@@ -103,7 +104,7 @@ public abstract class Attribute {
      * @param player the player
      */
     public void apply(OasisPlayer player) {
-        tickApplied = player.getGameWorldIn().getCurrentWorldTick();
+        tickApplied = GameManager.getTick();
     }
 
 }

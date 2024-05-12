@@ -375,4 +375,9 @@ public final class ContainerInventoryGui extends InventoryGui {
         super.hide();
         rootTable.setVisible(false);
     }
+
+    @Override
+    public void hideRelatedGuis() {
+        guiManager.hideGui(GuiType.INVENTORY);
+    }
 }

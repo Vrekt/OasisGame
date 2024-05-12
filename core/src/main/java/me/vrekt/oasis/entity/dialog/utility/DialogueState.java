@@ -1,6 +1,9 @@
-package me.vrekt.oasis.entity.dialog;
+package me.vrekt.oasis.entity.dialog.utility;
 
-public enum DialogResult {
+/**
+ * A dialogue result.
+ */
+public enum DialogueState {
 
     /**
      * The dialog continues.
@@ -13,6 +16,6 @@ public enum DialogResult {
     /**
      * Entity is waiting for an action to be completed before continuing
      */
-    WAIT,
+    INCOMPLETE,
 
 }

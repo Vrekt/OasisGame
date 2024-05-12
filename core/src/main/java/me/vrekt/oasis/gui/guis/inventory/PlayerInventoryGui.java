@@ -52,6 +52,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         this.player = guiManager.getGame().getPlayer();
 
         hideWhenVisible.add(GuiType.HUD);
+
         initializeRarityIcons();
 
         rootTable.setFillParent(true);
@@ -94,11 +95,6 @@ public final class PlayerInventoryGui extends InventoryGui {
         final VisTable itemInformationImageComponents = new VisTable();
         itemInformationTable.left();
         itemInformationImageComponents.left();
-
-        // Item info: init drawables for icons
-        final TextureRegionDrawable rangeIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_range_icon"));
-        final TextureRegionDrawable damageIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_damage_icon"));
-        final TextureRegionDrawable criticalIcon = new TextureRegionDrawable(guiManager.getAsset().get("weapon_crit_icon"));
 
         // stores images in an array
         itemInformationComponents.add(new VisImage(), new VisImage(), new VisImage());
@@ -404,5 +400,6 @@ public final class PlayerInventoryGui extends InventoryGui {
     public void hideRelatedGuis() {
         guiManager.hideGui(GuiType.QUEST);
         guiManager.hideGui(GuiType.QUEST_ENTRY);
+        guiManager.hideGui(GuiType.CONTAINER);
     }
 }

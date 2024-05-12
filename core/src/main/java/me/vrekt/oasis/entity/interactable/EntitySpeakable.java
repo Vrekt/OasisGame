@@ -6,16 +6,11 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
-import me.vrekt.oasis.entity.dialog.DialogEntry;
-import me.vrekt.oasis.entity.dialog.utility.DialogRequirementTest;
-import me.vrekt.oasis.entity.dialog.DialogResult;
-import me.vrekt.oasis.entity.dialog.EntityDialog;
+import me.vrekt.oasis.entity.dialog.Dialogue;
+import me.vrekt.oasis.entity.dialog.DialogueEntry;
+import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.gui.GuiType;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Represents an entity that can be spoken to.
@@ -24,23 +19,15 @@ public abstract class EntitySpeakable extends Entity {
 
     protected OasisPlayer player;
 
-    protected EntityDialog dialog;
-    protected DialogEntry activeEntry;
+    protected Dialogue dialogue;
+    protected DialogueEntry activeEntry;
 
     protected boolean speakingTo, speakable;
     protected final TextureRegion[] dialogFrames = new TextureRegion[3];
     protected float speakableDistance = 6f, dialogAnimationRange = 50f;
     protected final Vector2 interactionPoint = new Vector2();
 
-    protected final Map<String, Runnable> dialogActions = new HashMap<>();
-    protected final Map<String, Runnable> entryListeners = new HashMap<>();
-    protected final Map<String, DialogRequirementTest> updateListeners = new HashMap<>();
-
     protected float lastDialogUpdate;
-
-    // the active requirement that needs to be completed
-    protected boolean hasActiveRequirement;
-    protected String activeRequirement;
 
     public EntitySpeakable(OasisPlayer player) {
         super(true);
@@ -69,12 +56,6 @@ public abstract class EntitySpeakable extends Entity {
                 GameManager.getGuiManager().hideGui(GuiType.DIALOG);
                 speakingTo = false;
             }
-        }
-
-        // update dialog listeners
-        if ((worldIn.getCurrentWorldTick() - lastDialogUpdate) >= 3f) {
-            updateListeners.values().forEach(DialogRequirementTest::test);
-            lastDialogUpdate = worldIn.getCurrentWorldTick();
         }
     }
 
@@ -108,8 +89,15 @@ public abstract class EntitySpeakable extends Entity {
         return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
     }
 
-    public DialogEntry getEntry() {
+    /**
+     * @return the active entry of the dialogue.
+     */
+    public DialogueEntry getEntry() {
         return activeEntry;
+    }
+
+    public boolean advance() {
+        return dialogue.advance();
     }
 
     public boolean isSpeakable() {
@@ -133,81 +121,36 @@ public abstract class EntitySpeakable extends Entity {
             player.setEntitySpeakingTo(null);
             player.setSpeakingToEntity(false);
         }
-
-        // also check here so if we go back and speak
-        // we want to update the waiting state
-        // because the entry has to be visited before
-        // activating the wait content
-        if (entryListeners.containsKey(activeEntry.getKey()))
-            entryListeners.get(activeEntry.getKey()).run();
-
-    }
-
-    public DialogResult next(String optionPicked, Consumer<DialogEntry> entry) {
-        if (optionPicked != null && !dialog.hasEntryKey(optionPicked)) return DialogResult.FINISHED;
-
-        if (activeEntry.isWaiting()) {
-            // entity is waiting for an action to be completed
-            return DialogResult.WAIT;
-        }
-
-        // TODO DOESNT UPDATE IF JUST PRESS F
-        activeEntry = optionPicked == null ? dialog.next() : dialog.getEntry(optionPicked);
-
-        // invoke any valid listeners
-        if (entryListeners.containsKey(activeEntry.getKey()))
-            entryListeners.get(activeEntry.getKey()).run();
-
-        activeEntry.setVisited();
-
-        //    if (activeEntry.hasRequirement()) {
-        ///       hasActiveRequirement = true;
-        //       activeRequirement = activeEntry.getRequirement();
-        //   } else {
-        //        hasActiveRequirement = false;
-        //        activeRequirement = null;
-        //   }
-
-        if (activeEntry.hasAction()) executeAction(activeEntry.getAction());
-        entry.accept(activeEntry);
-        return DialogResult.CONTINUED;
-    }
-
-    public DialogResult next(Consumer<DialogEntry> entry) {
-        return next(null, entry);
     }
 
     /**
-     * Advance the dialog ignoring any safety checks.
+     * Get the next entry
+     *
+     * @param key the key
+     * @return the result
      */
-    public void nextUnsafe() {
-        activeEntry = dialog.next();
-    }
-
-    public void addAction(String key, Runnable action) {
-        this.dialogActions.put(key, action);
-    }
-
-    public void executeAction(String key) {
-        if (dialogActions.containsKey(key)) dialogActions.get(key).run();
+    public DialogueResult next(String key) {
+        final DialogueResult result = dialogue.getEntry(key);
+        if (result.getEntry() != null) this.activeEntry = result.getEntry();
+        return result;
     }
 
     /**
-     * Add a listener for when a specific dialog stage is reached
+     * Get the next entry
+     *
+     * @return the result
      */
-    protected void addEntryListener(String key, Runnable listener) {
-        entryListeners.put(key, listener);
-    }
-
-    protected void addUpdateListener(String key, DialogRequirementTest requirementTest) {
-        updateListeners.put(key, requirementTest);
+    public DialogueResult next() {
+        final DialogueResult result = dialogue.getEntry(activeEntry.getNextKey());
+        if (result.getEntry() != null) this.activeEntry = result.getEntry();
+        return result;
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        dialog.dispose();
-        dialog = null;
+        dialogue.dispose();
+        dialogue = null;
         activeEntry = null;
         dialogFrames[0] = null;
         dialogFrames[1] = null;

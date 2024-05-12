@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a base world within the game
@@ -72,7 +73,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected final OasisPlayer player;
 
     protected TiledMap map;
-    protected String mapName, worldName;
+    protected String worldName;
 
     protected final SpriteBatch batch;
     protected final GameTiledMapRenderer renderer;
@@ -99,14 +100,15 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     // TODO: Maybe global? Or just per world.
     protected final InteractionManager interactionManager;
     // the current tick of this world.
-    protected float currentWorldTick;
+
+    protected long lastTick;
 
     protected ShapeRenderer shapes;
     protected NinePatch gradient;
-    protected float lastWorldTickUpdate;
 
     public OasisWorld(OasisGame game, OasisPlayer player, World world) {
         super(player, world, new WorldConfiguration(), new PooledEngine());
+
         this.player = player;
         this.game = game;
         this.renderer = game.getRenderer();
@@ -140,10 +142,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
     }
 
-    public String getMapName() {
-        return mapName;
-    }
-
     public String getWorldName() {
         return worldName;
     }
@@ -154,16 +152,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     public OasisGame getGame() {
         return game;
-    }
-
-    public float getCurrentWorldTick() {
-        // check if player is in instance to avoid
-        // ui problems. Parent world isn't updated so
-        // must return instance tick.
-        if (player.isInInteriorWorld()) {
-            return player.getInteriorWorldIn().currentWorldTick;
-        }
-        return currentWorldTick;
     }
 
     public boolean isWorldLoaded() {
@@ -615,14 +603,16 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      * @param delta the delta
      */
     protected void updateAndRender(float delta) {
-        delta = this.update(delta);
-        this.renderWorld(delta);
+        final long now = System.nanoTime();
+        final long elapsed = TimeUnit.NANOSECONDS.toMillis(now - lastTick);
 
-        if (currentWorldTick - lastWorldTickUpdate >= 6.0) {
-            lastWorldTickUpdate = currentWorldTick;
+        if (elapsed >= 50) {
+            lastTick = now;
+            GameManager.tick++;
         }
 
-        currentWorldTick += delta;
+        delta = this.update(delta);
+        this.renderWorld(delta);
     }
 
     /**

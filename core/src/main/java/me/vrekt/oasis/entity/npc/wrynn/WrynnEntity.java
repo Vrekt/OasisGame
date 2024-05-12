@@ -8,13 +8,13 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiArrivalComponent;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.dialog.utility.DialogRequirementTest;
 import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
@@ -60,19 +60,14 @@ public final class WrynnEntity extends EntityInteractable {
         animationComponent.registerWalkingAnimation(EntityRotation.RIGHT, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
         animationComponent.registerWalkingAnimation(EntityRotation.UP, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
 
-        dialog = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
-        activeEntry = dialog.getEntry("wrynn_dialog_0");
+        dialogue = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
+        dialogue.setOwner(this);
 
+        activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
 
-        // set we are waiting for the requirement to be met
-        addEntryListener("wrynn_dialog_4", () -> {
-            if (activeEntry.hasVisited()) activeEntry.setWaiting(true);
-        });
-        // check if the player has required items every 1.5 seconds
-        addUpdateListener("wrynn:player_has_items", new DialogRequirementTest(this::checkPlayerHasItems, this::checkPlayerHasItemsSuccess));
-
-        // enable the container interaction when we get to the right dialog stage
-        addAction("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
+        // dialog will be set to complete once the player has the items
+        dialogue.addEntryCondition("wrynn:dialog_stage_4", this::checkPlayerHasItems);
+        dialogue.addActionHandler("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);
@@ -80,7 +75,7 @@ public final class WrynnEntity extends EntityInteractable {
         createBoxBody(worldIn.getEntityWorld());
 
         arrivalComponent = new AiArrivalComponent(this);
-        arrivalComponent.setPathingInterval(15f);
+        arrivalComponent.setPathingInterval(GameManager.secondsToTicks(15));
         arrivalComponent.setMaxLinearSpeed(2.0f);
         arrivalComponent.setMaxLinearAcceleration(2.85f);
         arrivalComponent.setTargetArrivalTolerance(1.55f);
@@ -130,6 +125,7 @@ public final class WrynnEntity extends EntityInteractable {
         }
 
         setMoving(!getVelocity().isZero());
+        dialogue.update();
     }
 
     public void createBoxBody(World world) {
@@ -159,7 +155,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         if (speakingTo && !hintShown) {
             // show player hint about how to interact with the dialog system
-            game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, 12.0f);
+            game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, GameManager.secondsToTicks(10));
             hintShown = true;
         }
     }
@@ -171,15 +167,6 @@ public final class WrynnEntity extends EntityInteractable {
      */
     public boolean checkPlayerHasItems() {
         return player.getInventory().hasItem(Items.PIG_HEART);
-    }
-
-    /**
-     * We got the items, advance the dialog.
-     */
-    public void checkPlayerHasItemsSuccess() {
-        activeEntry.setWaiting(false);
-        activeEntry.setSkippable(true);
-        nextUnsafe();
     }
 
 }

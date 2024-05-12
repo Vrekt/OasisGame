@@ -82,7 +82,7 @@ public final class GameHudGui extends Gui {
 
     @Override
     public void update() {
-        final float now = GameManager.getCurrentGameWorldTick();
+        final float now = GameManager.getTick();
         for (int i = 0; i < player.getArtifacts().size(); i++) {
             final Artifact artifact = player.getArtifacts().get(i);
             if (artifact != null) artifactComponentSlots.get(i).update(artifact);
@@ -147,7 +147,7 @@ public final class GameHudGui extends Gui {
     }
 
     public void showPlayerHint(String text) {
-        showPlayerHint(text, 0.0f);
+        showPlayerHint(text, 0);
     }
 
     /**
@@ -164,10 +164,10 @@ public final class GameHudGui extends Gui {
             hintPaused = false;
         }
 
-        final float now = GameManager.getCurrentGameWorldTick();
+        final float now = GameManager.getTick();
         // don't show the hint if one is already active
         // TODO: Maybe in the future some method to check if any hints, if so expire?
-        if (lastHintTime != 0.0f && now - lastHintTime < 2.5f) {
+        if (lastHintTime != 0.0f && now - lastHintTime < 32 /* 1.5ish seconds */) {
             return;
         }
 

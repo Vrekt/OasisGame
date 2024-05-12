@@ -11,8 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.entity.dialog.InteractableDialogEntry;
-import me.vrekt.oasis.entity.dialog.InteractableEntityDialog;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +26,7 @@ public final class DialogCreator extends ScreenAdapter {
     private final Stage stage;
     private final VisTable rootTable;
 
-    private final InteractableEntityDialog jsonData;
+    //  private final InteractableEntityDialog jsonData;
 
     private String name, keyFormat;
     private int dialogIndex;
@@ -40,7 +38,7 @@ public final class DialogCreator extends ScreenAdapter {
     public DialogCreator(OasisGame game) {
         stage = new Stage();
 
-        jsonData = new InteractableEntityDialog();
+        //jsonData = new InteractableEntityDialog();
         gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .create();
@@ -154,19 +152,19 @@ public final class DialogCreator extends ScreenAdapter {
                     isFirstStage = false;
                 }
 
-                final InteractableDialogEntry data = new InteractableDialogEntry();
-                final String key = keyFormat + "_" + dialogIndex;
+                //final InteractableDialogEntry data = new InteractableDialogEntry();
+                //  final String key = keyFormat + "_" + dialogIndex;
 
-                data.setKey(key);
-                data.setContent(k1Field.getText());
-                data.setLinksTo(linkField.getText());
+                //   data.setKey(key);
+                //   data.setContent(k1Field.getText());
+                //    data.setLinksTo(linkField.getText());
 
-              //  data.setRequiresInput(!suggestionStorage.isEmpty());
+                //  data.setRequiresInput(!suggestionStorage.isEmpty());
 
-             //   suggestionStorage.forEach(data::addSuggestion);
+                //   suggestionStorage.forEach(data::addSuggestion);
                 suggestionStorage.clear();
 
-                jsonData.addEntry(key, data);
+                //   jsonData.addEntry(key, data);
 
                 suggestionField.clearText();
                 k1Field.clearText();
@@ -200,7 +198,7 @@ public final class DialogCreator extends ScreenAdapter {
                 try {
                     if (!handle.exists()) Files.createFile(Paths.get(handle.path()));
                     try (FileWriter writer = new FileWriter(handle.file(), false)) {
-                        gson.toJson(jsonData, writer);
+                        //     gson.toJson(jsonData, writer);
                     }
                 } catch (IOException exception) {
                     GameLogging.exceptionThrown(this, "Failed to write dialog!", exception);

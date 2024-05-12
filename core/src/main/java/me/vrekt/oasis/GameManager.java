@@ -32,6 +32,9 @@ public class GameManager {
     // keep track of the current loading screen
     private static OasisLoadingScreen currentLoadingScreen;
 
+    // tick
+    public static float tick;
+
     public static OasisGame getOasis() {
         return oasis;
     }
@@ -49,7 +52,7 @@ public class GameManager {
         KEY_ACTIONS.put(key, () -> GameManager.guiManager.toggleGui(gui));
     }
 
-    private static void registerInventoryKeyMappings() {
+    private static void registerHotBarKeys() {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> guiManager.getHudComponent().hotbarItemSelected(0));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_2, () -> guiManager.getHudComponent().hotbarItemSelected(1));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_3, () -> guiManager.getHudComponent().hotbarItemSelected(2));
@@ -58,14 +61,11 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
     }
 
-    /**
-     * TODO: Dirty with saving, need better system
-     */
     private static void registerGlobalKeyActions() {
         registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
         registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
         registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.CONTAINER);
-        registerInventoryKeyMappings();
+        registerHotBarKeys();
 
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().handleDialogKeyPress());
         KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> oasis.getPlayer().activateArtifact(0));
@@ -143,6 +143,18 @@ public class GameManager {
         }, delay);
     }
 
+    public static float getTick() {
+        return tick;
+    }
+
+    public static float secondsToTicks(float seconds) {
+        return seconds * 20; // 20 ticks in a second
+    }
+
+    public static boolean hasTimeElapsed(float last, float seconds) {
+        return tick - last >= secondsToTicks(seconds);
+    }
+
     public static String getGameProgress() {
         return gameProgress;
     }
@@ -161,15 +173,6 @@ public class GameManager {
 
     public static Asset getAssets() {
         return oasis.getAsset();
-    }
-
-    /**
-     * @return the current world tick of the interior/world the player is in
-     */
-    public static float getCurrentGameWorldTick() {
-        return oasis.getPlayer().isInInteriorWorld()
-                ? oasis.getPlayer().getInteriorWorldIn().getCurrentWorldTick()
-                : oasis.getPlayer().getGameWorldIn().getCurrentWorldTick();
     }
 
     public static OasisPlayer getPlayer() {

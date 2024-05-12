@@ -1,6 +1,7 @@
 package me.vrekt.oasis.item.consumables.food;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.attribute.attributes.PlayerHealingAttribute;
 import me.vrekt.oasis.entity.player.sp.attribute.attributes.PlayerSatisfactionAttribute;
@@ -24,8 +25,8 @@ public final class PigHeartConsumable extends ItemConsumable {
     public PigHeartConsumable() {
         super(Items.PIG_HEART, KEY, NAME, DESCRIPTION);
 
-        addAttribute(new PlayerHealingAttribute(2.5f));
-        addAttribute(new PlayerSatisfactionAttribute(5.0f, 1.5f));
+        addAttribute(new PlayerHealingAttribute(GameManager.secondsToTicks(2.5f)));
+        addAttribute(new PlayerSatisfactionAttribute(GameManager.secondsToTicks(5.5f), 1.5f));
 
         this.scaleSize = 1f;
         this.rarity = ItemRarity.COMMON;
