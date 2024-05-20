@@ -58,7 +58,7 @@ public final class TiledMapLoader {
                     || object.getName().equalsIgnoreCase("Spawn")) {
                 GameLogging.info("TiledMapLoader", "Found WorldSpawn %s", rectangle);
                 worldSpawn.set(rectangle.x, rectangle.y);
-            } else if (object.getName().equalsIgnoreCase("Exit")) {
+            } else if (object.getName().equalsIgnoreCase("Exit") && worldExitArea != null) {
                 GameLogging.info("TiledMapLoader", "Found WorldExitArea %s ", rectangle);
                 worldExitArea.set(rectangle);
             }
@@ -96,6 +96,10 @@ public final class TiledMapLoader {
 
     public static float ofFloat(MapObject object, String key) {
         return object.getProperties().get(key, 1.0f, Float.class);
+    }
+
+    public static float ofFloat(MapObject object, String key, float defaultValue) {
+        return object.getProperties().get(key, defaultValue, Float.class);
     }
 
 }

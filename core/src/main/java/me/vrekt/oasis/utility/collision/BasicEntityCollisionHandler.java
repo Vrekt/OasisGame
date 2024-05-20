@@ -2,7 +2,7 @@ package me.vrekt.oasis.utility.collision;
 
 import com.badlogic.gdx.physics.box2d.*;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 
 /**
@@ -39,9 +39,9 @@ public final class BasicEntityCollisionHandler implements ContactListener {
 
             // ignore player collisions
             if (fixtureA.getBody().getUserData() instanceof OasisPlayer
-                    && fixtureB.getBody().getUserData() instanceof OasisNetworkPlayer) {
+                    && fixtureB.getBody().getUserData() instanceof NetworkPlayer) {
                 if (((OasisPlayer) fixtureA.getBody().getUserData()).isPlayerCollisionDisabled()
-                        || ((OasisNetworkPlayer) fixtureB.getBody().getUserData()).isPlayerCollisionDisabled()) {
+                        || ((NetworkPlayer) fixtureB.getBody().getUserData()).isPlayerCollisionDisabled()) {
                     contact.setEnabled(false);
                 }
             }

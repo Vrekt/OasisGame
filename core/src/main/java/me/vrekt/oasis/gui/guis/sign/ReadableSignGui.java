@@ -25,22 +25,19 @@ public final class ReadableSignGui extends Gui {
         rootTable.setFillParent(true);
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("pause")));
 
-        final VisLabel label = new VisLabel("Sign", guiManager.getStyle().getMediumBlack());
+        final VisLabel label = new VisLabel("The sign reads...", guiManager.getStyle().getMediumBlack());
         rootTable.add(label);
         rootTable.row();
 
         final VisTable table = new VisTable();
-        final NinePatch patch = new NinePatch(guiManager.getAsset().get("sign_scale"), 2, 2, 2, 2);
+        final NinePatch patch = new NinePatch(guiManager.getAsset().get("sign"), 6, 6, 6, 6);
         table.setBackground(new NinePatchDrawable(patch));
 
         signTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
         signTextLabel.setWrap(true);
         signTextLabel.setColor(Color.BLACK);
 
-        table.add(signTextLabel)
-                .width(448)
-                .padTop(-96)
-                .padLeft(12);
+        table.add(signTextLabel).width(448).padTop(6).padBottom(20);
 
         rootTable.add(table).center();
 

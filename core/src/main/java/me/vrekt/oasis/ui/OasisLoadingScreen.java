@@ -14,7 +14,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 
 /**
@@ -32,7 +32,7 @@ public final class OasisLoadingScreen extends ScreenAdapter {
     private boolean render = true;
     private float progress;
 
-    private OasisWorld world;
+    private GameWorld world;
 
     public OasisLoadingScreen(OasisGame game, Asset asset, boolean updateEveryFrame) {
         this.updateEveryFrame = updateEveryFrame;
@@ -64,7 +64,7 @@ public final class OasisLoadingScreen extends ScreenAdapter {
         progressBar.setValue(progressBar.getValue() + progress);
     }
 
-    public void setWorldLoadingIn(OasisWorld world) {
+    public void setWorldLoadingIn(GameWorld world) {
         this.world = world;
     }
 

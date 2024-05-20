@@ -69,15 +69,15 @@ public final class PlayerConnection extends PlayerConnectionHandler {
             case TUTORIAL_COMBAT_DUMMY:
                 final EntityNPCType type = EntityNPCType.typeOfServer(packet.getType());
                 if (type != EntityNPCType.INVALID) {
-                    player.getGameWorldIn().spawnEntityTypeAt(type, packet.getPosition());
+                    //    player.getGameWorld().spawnEntityTypeAt(type, packet.getPosition());
                 }
                 break;
         }
     }
 
     private void handlePlayerEquippedItem(ServerPacketPlayerEquippedItem packet) {
-        if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
-            player.getGameWorldIn()
+        if (player.getGameWorld().hasPlayer(packet.getEntityId())) {
+            player.getGameWorld()
                     .getPlayer(packet.getEntityId())
                     .setEquippingItem(packet.getItemId());
         } else {
@@ -86,8 +86,8 @@ public final class PlayerConnection extends PlayerConnectionHandler {
     }
 
     private void handleSwingItem(ServerPacketPlayerSwingItem packet) {
-        if (player.getGameWorldIn().hasPlayer(packet.getEntityId())) {
-            player.getGameWorldIn()
+        if (player.getGameWorld().hasPlayer(packet.getEntityId())) {
+            player.getGameWorld()
                     .getPlayer(packet.getEntityId())
                     .setSwingingItem(packet.getItemId());
         } else {

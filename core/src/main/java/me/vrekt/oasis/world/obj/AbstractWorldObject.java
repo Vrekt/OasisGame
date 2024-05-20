@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Base implementation of {@link WorldObject}
@@ -17,7 +17,7 @@ import me.vrekt.oasis.world.OasisWorld;
 public abstract class AbstractWorldObject implements WorldObject {
 
     protected final Array<ParticleEffect> effects = new Array<>();
-    protected OasisWorld world;
+    protected GameWorld world;
 
     protected TextureRegion texture;
     protected final Vector2 position = new Vector2();
@@ -32,7 +32,7 @@ public abstract class AbstractWorldObject implements WorldObject {
     }
 
     @Override
-    public void setWorldIn(OasisWorld world) {
+    public void setWorldIn(GameWorld world) {
         this.world = world;
     }
 
@@ -59,6 +59,17 @@ public abstract class AbstractWorldObject implements WorldObject {
     @Override
     public void setTexture(TextureRegion texture) {
         this.texture = texture;
+    }
+
+    @Override
+    public void setBody(Body body) {
+        this.body = body;
+    }
+
+    @Override
+    public void destroyCollision() {
+        world.getEntityWorld().destroyBody(body);
+        body = null;
     }
 
     @Override
@@ -95,6 +106,7 @@ public abstract class AbstractWorldObject implements WorldObject {
         effects.clear();
         texture = null;
         key = null;
+        if (body != null) world.getEntityWorld().destroyBody(body);
         body = null;
     }
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.lunar.network.AbstractConnectionHandler;
 import gdx.lunar.protocol.packet.client.C2SPacketPing;
 import gdx.lunar.world.LunarWorld;
 import lunar.shared.entity.player.impl.LunarPlayer;
@@ -38,8 +37,8 @@ import me.vrekt.oasis.save.loading.SaveStateLoader;
 import me.vrekt.oasis.save.player.PlayerSaveProperties;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.OasisWorld;
-import me.vrekt.oasis.world.instance.OasisWorldInstance;
+import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.instance.GameWorldInterior;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -55,13 +54,13 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     private EntityAnimationComponent animationComponent;
     private boolean rotationChanged;
 
-    private OasisWorld gameWorldIn;
+    private GameWorld gameWorldIn;
 
     private PlayerConnection connectionHandler;
     private final PlayerInventory inventory;
 
-    private boolean inInteriorWorld, isInTutorialWorld = true;
-    private OasisWorldInstance interiorWorldIn;
+    private boolean inInteriorWorld;
+    private GameWorldInterior interiorWorldIn;
     private final PlayerQuestManager questManager;
 
     private EntitySpeakable entitySpeakingTo;
@@ -182,11 +181,11 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.inInteriorWorld = inInteriorWorld;
     }
 
-    public OasisWorldInstance getInteriorWorldIn() {
+    public GameWorldInterior getInteriorWorldIn() {
         return interiorWorldIn;
     }
 
-    public void setInteriorWorldIn(OasisWorldInstance interiorWorldIn) {
+    public void setInteriorWorldIn(GameWorldInterior interiorWorldIn) {
         this.interiorWorldIn = interiorWorldIn;
     }
 
@@ -202,12 +201,14 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         return questManager;
     }
 
-    public OasisWorld getGameWorldIn() {
-        return gameWorldIn;
+    public void setWorldState(GameWorld world) {
+        this.gameWorldIn = world;
+        this.setInWorld(true);
+        this.setWorld(gameWorldIn);
     }
 
-    public void setGameWorldIn(OasisWorld gameWorldIn) {
-        this.gameWorldIn = gameWorldIn;
+    public GameWorld getGameWorld() {
+        return gameWorldIn;
     }
 
     public void setRotationChanged(boolean rotationChanged) {
@@ -224,14 +225,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public void setEntitySpeakingTo(EntitySpeakable entitySpeakingTo) {
         this.entitySpeakingTo = entitySpeakingTo;
-    }
-
-    public boolean isInTutorialWorld() {
-        return isInTutorialWorld;
-    }
-
-    public void setInTutorialWorld(boolean inTutorialWorld) {
-        isInTutorialWorld = inTutorialWorld;
     }
 
     public EntitySpeakable getEntitySpeakingTo() {
@@ -265,7 +258,7 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     }
 
     @Override
-    public AbstractConnectionHandler getConnection() {
+    public PlayerConnection getConnection() {
         return connectionHandler;
     }
 
@@ -275,7 +268,12 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.gameWorldIn = null;
     }
 
+    /**
+     * Remove this player from their interior world.
+     */
     public void removeFromInteriorWorld() {
+        interiorWorldIn.getEntityWorld().destroyBody(body);
+        this.body = null;
         this.inInteriorWorld = false;
         this.interiorWorldIn = null;
     }

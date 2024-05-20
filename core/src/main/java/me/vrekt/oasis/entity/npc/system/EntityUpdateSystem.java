@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Handles updating entities
@@ -13,10 +13,10 @@ import me.vrekt.oasis.world.OasisWorld;
 public final class EntityUpdateSystem extends EntitySystem {
 
     private final OasisGame game;
-    private final OasisWorld world;
+    private final GameWorld world;
     private final OrthographicCamera gameCamera;
 
-    public EntityUpdateSystem(OasisGame game, OasisWorld world) {
+    public EntityUpdateSystem(OasisGame game, GameWorld world) {
         super();
         this.game = game;
         this.world = world;
@@ -36,12 +36,12 @@ public final class EntityUpdateSystem extends EntitySystem {
 
                 if (entity.isInteractable() && !entity.isNearby()) {
                     entity.setNearby(true);
-                    world.getNearbyEntities().put(entity.asInteractable(), distance);
+                    world.addNearbyEntity(entity.asInteractable(), distance);
                 }
             } else {
                 if (entity.isInteractable() && entity.isNearby()) {
                     entity.setNearby(false);
-                    world.getNearbyEntities().remove(entity.asInteractable());
+                    world.removeEntity(entity.asInteractable());
                 }
             }
         }

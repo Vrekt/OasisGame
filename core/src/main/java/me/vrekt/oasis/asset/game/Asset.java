@@ -16,8 +16,8 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 
 public final class Asset implements Disposable {
 
-    public static final String TUTORIAL_WORLD = "world/worlds/OasisTutorialWorld.tmx";
-    public static final String LAIR_OF_HOPELESS_WIDOW = "world/worlds/LairOfHopelessWidow.tmx";
+    public static final String TUTORIAL_WORLD = "world/worlds/TutorialWorld.tmx";
+    public static final String WRYNN_BASEMENT = "world/interiors/WrynnBasement.tmx";
     public static final String WRYNN_OFFICE = "world/interiors/Office.tmx";
     public static final String ASSETS = "OasisAssets.atlas";
 
@@ -53,7 +53,7 @@ public final class Asset implements Disposable {
      */
     private void loadWorlds() {
         assetManager.load(TUTORIAL_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
-        assetManager.load(LAIR_OF_HOPELESS_WIDOW, TiledMap.class, new TmxMapLoader.Parameters());
+        assetManager.load(WRYNN_BASEMENT, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(WRYNN_OFFICE, TiledMap.class, new TmxMapLoader.Parameters());
     }
 

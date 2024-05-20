@@ -23,6 +23,12 @@ public interface InteractableWorldObject extends WorldObject {
     boolean isInInteractionRange();
 
     /**
+     * Set the interaction range
+     * @param range the range
+     */
+    void setInteractionRange(float range);
+
+    /**
      * @return if this interaction is enabled.
      */
     boolean isEnabled();

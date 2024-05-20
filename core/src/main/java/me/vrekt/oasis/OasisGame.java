@@ -10,7 +10,7 @@ import gdx.lunar.LunarClientServer;
 import gdx.lunar.protocol.GdxProtocol;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
+import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.ItemRegistry;
@@ -23,7 +23,7 @@ import me.vrekt.oasis.ui.OasisSaveScreen;
 import me.vrekt.oasis.ui.OasisSplashScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.tutorial.TutorialOasisWorld;
 import me.vrekt.shared.network.ProtocolDefaults;
@@ -35,11 +35,11 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240512-1703-2481";
+    public static final String GAME_VERSION = "20240519-2121-2557";
 
     private Asset asset;
 
-    private GameTiledMapRenderer renderer;
+    private MapRenderer renderer;
     private OasisPlayer player;
     private SpriteBatch batch;
 
@@ -108,7 +108,7 @@ public final class OasisGame extends Game {
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
-        renderer = new GameTiledMapRenderer(batch, player);
+        renderer = new MapRenderer(batch, player);
         GameManager.initialize(this);
 
         final TutorialOasisWorld world = new TutorialOasisWorld(this, player);
@@ -133,7 +133,7 @@ public final class OasisGame extends Game {
 
         player.loadFromSave(state.getPlayerProperties());
         final String worldName = state.getWorldProperties().getWorldName();
-        final OasisWorld world = worldManager.getWorld(worldName);
+        final GameWorld world = worldManager.getWorld(worldName);
         loadingScreen.setWorldLoadingIn(world);
         world.loadFromSave(state.getWorldProperties());
 
@@ -149,11 +149,11 @@ public final class OasisGame extends Game {
         setScreen(loadingScreen);
         loadGameStructure();
 
-        final OasisWorld world = worldManager.getWorld("TutorialWorld");
+        final GameWorld world = worldManager.getWorld("TutorialWorld");
         loadingScreen.setWorldLoadingIn(world);
 
         isNewGame = true;
-        world.enterWorld();
+        world.enter();
     }
 
     /**
@@ -284,8 +284,8 @@ public final class OasisGame extends Game {
      *
      * @param world the world
      */
-    public void loadIntoWorldLocal(OasisWorld world) {
-        world.enterWorld();
+    public void loadIntoWorldLocal(GameWorld world) {
+        world.enter();
         setScreen(world);
     }
 
@@ -330,8 +330,8 @@ public final class OasisGame extends Game {
             guiManager.resize(width, height);
         }
         // TODO: Fix this shit
-        if (player != null && player.getGameWorldIn() != null) {
-            player.getGameWorldIn().resize(width, height);
+        if (player != null && player.getGameWorld() != null) {
+            player.getGameWorld().resize(width, height);
         }
     }
 
@@ -394,7 +394,7 @@ public final class OasisGame extends Game {
         return batch;
     }
 
-    public GameTiledMapRenderer getRenderer() {
+    public MapRenderer getRenderer() {
         return renderer;
     }
 

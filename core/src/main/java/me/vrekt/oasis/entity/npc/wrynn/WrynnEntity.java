@@ -21,7 +21,9 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
 /**
@@ -33,7 +35,7 @@ public final class WrynnEntity extends EntityInteractable {
     private EntityAnimationComponent animationComponent;
     private AiArrivalComponent arrivalComponent;
 
-    public WrynnEntity(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
+    public WrynnEntity(String name, Vector2 position, OasisPlayer player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
     }
 
@@ -43,6 +45,8 @@ public final class WrynnEntity extends EntityInteractable {
 
     @Override
     public void load(Asset asset) {
+        this.parentWorld = ((GameWorldInterior) worldIn).getParentWorld();
+
         addTexturePart("face", asset.get("wrynn_face"));
         addTexturePart(EntityRotation.DOWN.name(), asset.get("wrynn_facing_down"));
         activeEntityTexture = addTexturePart(EntityRotation.UP.name(), asset.get("wrynn_facing_up"));
@@ -67,7 +71,11 @@ public final class WrynnEntity extends EntityInteractable {
 
         // dialog will be set to complete once the player has the items
         dialogue.addEntryCondition("wrynn:dialog_stage_4", this::checkPlayerHasItems);
-        dialogue.addActionHandler("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
+        dialogue.addTaskHandler("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
+        dialogue.addTaskHandler("wrynn:unlock_basement", () -> {
+            parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
+            parentWorld.removeSimpleObject("oasis:basement_gate");
+        });
 
         dialogFrames[0] = asset.get("dialog", 1);
         dialogFrames[1] = asset.get("dialog", 2);

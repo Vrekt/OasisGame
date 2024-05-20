@@ -11,7 +11,7 @@ public final class OasisTutorialWorldSign extends ReadableSignInteraction {
     public static final String KEY = "oasis:tutorial_sign";
 
     public OasisTutorialWorldSign() {
-        super(KEY, "Here lies my dignity after losing my recipe book.");
+        super(KEY, "WARNING: Abhorrent creatures inside.");
     }
 
 }

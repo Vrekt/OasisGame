@@ -5,4 +5,8 @@ package me.vrekt.oasis.world.obj;
  */
 public final class SimpleWorldObject extends AbstractWorldObject {
 
+    public SimpleWorldObject(String key) {
+        this.key = key;;
+    }
+
 }

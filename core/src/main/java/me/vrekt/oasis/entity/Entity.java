@@ -14,7 +14,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 import me.vrekt.oasis.utility.ResourceLoader;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents a basic entity within Oasis
@@ -29,7 +29,9 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
     protected EntityRotation rotation = EntityRotation.DOWN, previousRotation = EntityRotation.DOWN;
 
     // the world this entity is in
-    protected OasisWorld worldIn;
+    protected GameWorld worldIn;
+    // if entity is in interior
+    protected GameWorld parentWorld;
 
     public Entity(boolean initializeComponents) {
         super(initializeComponents);
@@ -119,7 +121,7 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
         return rotation;
     }
 
-    public OasisWorld getWorldIn() {
+    public GameWorld getWorldIn() {
         return worldIn;
     }
 

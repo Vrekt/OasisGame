@@ -37,7 +37,7 @@ public final class Save implements GameSave {
         this.date = LocalDateTime.now().format(formatter);
 
         player = new PlayerSaveProperties(GameManager.getPlayer());
-        world = new WorldSaveProperties(GameManager.getPlayer().getGameWorldIn());
+        world = new WorldSaveProperties(GameManager.getPlayer().getGameWorld());
     }
 
     @Override

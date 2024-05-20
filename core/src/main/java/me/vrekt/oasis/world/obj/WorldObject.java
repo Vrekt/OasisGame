@@ -5,10 +5,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.ResourceLoader;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents an object within the tiled world.
@@ -26,7 +27,7 @@ public interface WorldObject extends Disposable, ResourceLoader {
      *
      * @param world the world
      */
-    void setWorldIn(OasisWorld world);
+    void setWorldIn(GameWorld world);
 
     /**
      * Set the position of this object
@@ -60,6 +61,18 @@ public interface WorldObject extends Disposable, ResourceLoader {
      * @param texture the texture
      */
     void setTexture(TextureRegion texture);
+
+    /**
+     * Set the body of this object
+     *
+     * @param body the body
+     */
+    void setBody(Body body);
+
+    /**
+     * Destroy the collision body.
+     */
+    void destroyCollision();
 
     /**
      * Add a particle effect to this object

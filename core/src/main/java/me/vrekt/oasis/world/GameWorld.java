@@ -2,14 +2,11 @@ package me.vrekt.oasis.world;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -18,8 +15,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import gdx.lunar.protocol.packet.server.S2CPacketCreatePlayer;
-import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import gdx.lunar.world.AbstractGameWorld;
 import gdx.lunar.world.WorldConfiguration;
 import me.vrekt.oasis.GameManager;
@@ -32,23 +27,22 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
-import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.graphics.tiled.GameTiledMapRenderer;
+import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.network.player.PlayerConnection;
-import me.vrekt.oasis.save.entity.EntitySaveProperties;
 import me.vrekt.oasis.save.loading.SaveStateLoader;
 import me.vrekt.oasis.save.world.WorldSaveProperties;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.interior.Instance;
-import me.vrekt.oasis.world.interior.InstanceType;
+import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
 import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -60,14 +54,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a base world within the game
  */
-public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, Entity>
-        implements InputProcessor, SaveStateLoader<WorldSaveProperties>, Screen {
+public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
+        implements WorldInputAdapter, SaveStateLoader<WorldSaveProperties>, Screen {
 
     protected final OasisGame game;
     protected final OasisPlayer player;
@@ -76,37 +69,33 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     protected String worldName;
 
     protected final SpriteBatch batch;
-    protected final GameTiledMapRenderer renderer;
+    protected final MapRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
-    protected boolean isWorldLoaded;
+    protected final Vector2 enteredInteriorPosition = new Vector2();
+    protected boolean isWorldLoaded, isGameSave;
 
-    protected int width, height;
-
-    // pause state
-    protected boolean paused, showPausedScreen;
+    protected boolean paused;
 
     protected GuiManager guiManager;
+    protected final WorldNetworkHandler networkHandler;
 
     protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
     // objects within this world
-    protected final CopyOnWriteArraySet<WorldObject> worldObjects = new CopyOnWriteArraySet<>();
+    protected final Map<String, WorldObject> worldObjects = new HashMap<>();
     protected final List<InteractableWorldObject> interactableWorldObjects = new ArrayList<>();
     protected final Array<Vector2> paths = new Array<>();
 
-    protected final Map<InstanceType, Instance> instances = new HashMap<>();
+    protected final Map<InteriorWorldType, GameWorldInterior> interiorWorlds = new HashMap<>();
+    protected boolean refreshTiles;
 
     // TODO: Maybe global? Or just per world.
     protected final InteractionManager interactionManager;
     // the current tick of this world.
-
     protected long lastTick;
 
-    protected ShapeRenderer shapes;
-    protected NinePatch gradient;
-
-    public OasisWorld(OasisGame game, OasisPlayer player, World world) {
+    public GameWorld(OasisGame game, OasisPlayer player, World world) {
         super(player, world, new WorldConfiguration(), new PooledEngine());
 
         this.player = player;
@@ -115,31 +104,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         this.batch = game.getBatch();
         this.guiManager = game.guiManager;
         this.interactionManager = new InteractionManager();
+        this.networkHandler = new WorldNetworkHandler(game, this);
 
         configuration.stepTime = 1 / 240f;
-    }
-
-    @Override
-    public void loadFromSave(WorldSaveProperties state) {
-        loadWorld(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
-
-        for (EntitySaveProperties entityState : state.getEntities()) {
-            if (entityState.getType() != null) {
-                final EntityInteractable interactable = getEntityByType(entityState.getType());
-                if (interactable != null) {
-                    interactable.setName(entityState.getName());
-                    interactable.setEntityId(entityState.getEntityId());
-                    // FIXME: save entity rotation values
-                    interactable.setBodyPosition(entityState.getPosition(), true);
-                    interactable.setHealth(entityState.getHealth());
-                    // FIXME: enemies  interactable.setEnemy(entityState.isEnemy());
-
-                    GameLogging.info(this, "Found an entity from save and loaded it: %s", entityState.getType());
-                } else {
-                    GameLogging.warn(this, "Failed to find an entity from save by type: " + entityState.getType());
-                }
-            }
-        }
     }
 
     public String getWorldName() {
@@ -159,88 +126,125 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
-     * Handle world related network packets
-     *
-     * @param connection the player connection
+     * Invoked before world is loaded
+     * Useful for registering things that are already defined or known
      */
-    public void registerWorldRelatedNetworkOptions(PlayerConnection connection) {
-        GameLogging.info(this, "Registering world network handlers");
-        connection.registerHandlerSync(S2CPacketStartGame.PACKET_ID, packet -> handleNetworkStartGame((S2CPacketStartGame) packet));
-        connection.registerHandlerSync(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
+    protected void preLoad() {
+
     }
 
     /**
-     * Create a player from the server network
-     *
-     * @param username their username
-     * @param entityId their ID
-     * @param position and their position
+     * Load this world, implementing function.
      */
-    public void createPlayerFromNetwork(String username, int entityId, Vector2 position) {
-        if (!player.isInWorld()) return;
+    protected void load() {
 
-        GameLogging.info(this, "Spawning new network player with ID %d and username %s", entityId, username);
-        final OasisNetworkPlayer player = new OasisNetworkPlayer(true);
-        player.load(game.getAsset());
-
-        player.setProperties(username, entityId);
-        player.setSize(15, 25, OasisGameSettings.SCALE);
-
-        player.spawnInWorld(this);
-        player.setGameWorldIn(this);
-        player.setBodyPosition(spawn, player.getAngle(), true);
     }
 
     /**
-     * Handle creating a singular player
-     *
-     * @param packet the packet
+     * Load network components if the world supports it.
      */
-    public void handleNetworkCreatePlayer(S2CPacketCreatePlayer packet) {
-        if (packet.getEntityId() == player.getEntityId()) return;
-        createPlayerFromNetwork(packet.getUsername(), packet.getEntityId(), Vector2.Zero);
+    protected void loadNetworkComponents() {
+
+    }
+
+    @Override
+    public void loadFromSave(WorldSaveProperties state) {
+
     }
 
     /**
-     * Handle the start game packet from the server
+     * Create and initialize this world.
      *
-     * @param packet the packet
+     * @param worldMap   the map of the world
+     * @param worldScale the scale of the world
      */
-    public void handleNetworkStartGame(S2CPacketStartGame packet) {
-        GameLogging.info(this, "Starting network game");
+    public void create(TiledMap worldMap, float worldScale) {
+        this.map = worldMap;
 
-        if (packet.hasPlayers()) {
-            for (S2CPacketStartGame.BasicServerPlayer serverPlayer : packet.getPlayers()) {
-                createPlayerFromNetwork(serverPlayer.username, serverPlayer.entityId, serverPlayer.position);
-            }
+        preLoad();
+
+        TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
+        TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
+        createEntities(game, game.getAsset(), worldMap, worldScale);
+        loadParticleEffects(worldMap, game.getAsset(), worldScale);
+        createWorldObjects(worldMap, game.getAsset(), worldScale);
+        createInteriors(worldMap, worldScale);
+        findEntityPathing(worldMap, worldScale);
+
+        configuration.worldScale = worldScale;
+
+        updateRendererMap();
+        game.getMultiplexer().addProcessor(this);
+
+        addDefaultWorldSystems();
+        world.setContactListener(new BasicEntityCollisionHandler());
+
+        if (isGameSave) {
+            player.defineEntity(world, player.getX(), player.getY());
+        } else {
+            player.defineEntity(world, spawn.x, spawn.y);
+            player.setBodyPosition(spawn, true);
         }
+
+        player.setWorldState(this);
+        if (game.isAnyMultiplayer()) loadNetworkComponents();
+
+        load();
+
+        isWorldLoaded = true;
+    }
+
+    /**
+     * Adds the default world systems
+     */
+    protected void addDefaultWorldSystems() {
+        engine.addSystem(new EntityInteractableAnimationSystem(engine));
+        engine.addSystem(new EntityUpdateSystem(game, this));
+    }
+
+    /**
+     * Update the tiled map renderer
+     */
+    protected void updateRendererMap() {
+        renderer.setTiledMap(map, spawn.x, spawn.y);
+    }
+
+    /**
+     * Fade in to this world
+     *
+     * @param from the world coming from
+     */
+    public void fadeInThenEnter(GameWorld from) {
+        GameManager.transitionScreen(from, this, this::enter);
+    }
+
+    /**
+     * Enter an interior
+     *
+     * @param interior the interior
+     */
+    protected void enterInterior(GameWorldInterior interior) {
+        enteredInteriorPosition.set(player.getBody().getPosition());
+        GameManager.transitionScreen(this, interior, interior::enter);
     }
 
     /**
      * Enter this world
      */
-    public void enterWorld() {
-        // ignore entering this world if we are already in it.
-        if (player.getGameWorldIn() != null
-                && player.getGameWorldIn().getWorldName().equals(worldName)) return;
-        if (player.getGameWorldIn() != null) player.removeFromWorld();
-        if (player.isInInteriorWorld()) player.removeFromInteriorWorld();
-        guiManager.resetCursor();
-    }
+    public void enter() {
+        if (player.isInInteriorWorld()) {
+            player.removeFromInteriorWorld();
 
-    /**
-     * Fade in when entering an instance
-     */
-    public void enterInstanceAndFadeIn(Instance entering) {
-        guiManager.resetCursor();
-        GameManager.transitionScreen(this, entering, () -> entering.enter(false));
-    }
+            player.defineEntity(world, enteredInteriorPosition.x, enteredInteriorPosition.y);
+            player.spawnInWorld(this, enteredInteriorPosition);
+            player.setWorldState(this);
 
-    public void spawnEntityTypeAt(EntityNPCType type, Vector2 position) {
-        GameLogging.info(this, "Spawning a new entity %s", type);
-        final EntityInteractable entity = type.create(position, game, this);
-        entity.load(game.getAsset());
-        addInteractableEntity(entity);
+            game.getMultiplexer().addProcessor(this);
+
+            updateRendererMap();
+            if (game.getScreen() != this) game.setScreen(this);
+        }
+        guiManager.resetCursor();
     }
 
     /**
@@ -257,84 +261,19 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
-     * Load the local player into this world.
-     *
-     * @param worldMap   the map of the world
-     * @param worldScale the scale of the world
-     */
-    public void loadWorld(TiledMap worldMap, float worldScale) {
-        this.map = worldMap;
-
-        preLoad();
-
-        TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
-        TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
-        loadInteractableEntities(game, game.getAsset(), worldMap, worldScale);
-        loadParticleEffects(worldMap, game.getAsset(), worldScale);
-        loadWorldObjects(worldMap, game.getAsset(), worldScale);
-        loadWorldInteriors(worldMap, worldScale);
-        loadEntityPaths(worldMap, worldScale);
-
-        configuration.worldScale = worldScale;
-
-        this.renderer.setTiledMap(worldMap, spawn.x, spawn.y);
-        this.width = renderer.getWidth();
-        this.height = renderer.getHeight();
-        game.getMultiplexer().addProcessor(this);
-
-        addDefaultWorldSystems();
-        world.setContactListener(new BasicEntityCollisionHandler());
-
-        // player was NOT loaded from a save
-        if (player.getPosition().isZero()) {
-            player.defineEntity(world, spawn.x, spawn.y);
-            player.setBodyPosition(spawn, true);
-        } else {
-            // player was loaded from a save, reference their current position
-            player.defineEntity(world, player.getX(), player.getY());
-        }
-
-        player.setWorld(this);
-        player.setInWorld(true);
-        player.setGameWorldIn(this);
-
-        // load implementation
-        load();
-
-        // register network handlers if any multiplayer instance
-        if (game.isLocalMultiplayer() || game.isMultiplayer())
-            registerWorldRelatedNetworkOptions(game.getConnectionHandler());
-
-        isWorldLoaded = true;
-        shapes = new ShapeRenderer();
-    }
-
-    protected void addDefaultWorldSystems() {
-        engine.addSystem(new EntityInteractableAnimationSystem(engine));
-        engine.addSystem(new EntityUpdateSystem(game, this));
-    }
-
-    /**
-     * Invoked before world is loaded
-     * Useful for registering things that are already defined or known
-     */
-    protected abstract void preLoad();
-
-    protected abstract void load();
-
-    /**
-     * Load world entities that can be interacted with
+     * Creates and loads all entities within this world
      *
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void loadInteractableEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
+    protected void createEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final EntityNPCType type = EntityNPCType.findType(object);
             if (type != null) {
                 final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
                 entity.load(asset);
-                addInteractableEntity(entity);
+
+                populateEntity(entity);
             } else {
                 GameLogging.warn(this, "Found invalid entity: " + object);
             }
@@ -343,17 +282,15 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         GameLogging.info(this, "Loaded %d entities.", entities.size());
     }
 
+
     /**
-     * Add an interactable entity to this world
-     * Automatically assigns ID and to engine
+     * Populate this entity to the engine and list
      *
      * @param entity the entity
      */
-    public void addInteractableEntity(EntityInteractable entity) {
+    protected void populateEntity(EntityInteractable entity) {
         entity.setEntityId(this.entities.size() + 1);
-        this.entities.put(entity.getEntityId(), entity);
-        // allows the entity update system to add this to the nearby entities list
-        entity.setNearby(false);
+        entities.put(entity.getEntityId(), entity);
         engine.addEntity(entity.getEntity());
     }
 
@@ -363,8 +300,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      *
      * @param entity the entity
      */
-    public void removeInteractableEntity(EntityInteractable entity) {
-        this.entities.remove(entity.getEntityId());
+    public void removeEntity(EntityInteractable entity) {
+        entities.remove(entity.getEntityId());
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity);
     }
@@ -393,12 +330,12 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
      */
-    protected void loadWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
+    protected void createWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "WorldObjects", (object, rectangle) -> {
             try {
                 final boolean hasCollision = TiledMapLoader.ofBoolean(object, "hasCollision");
                 final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
-                final float distance = TiledMapLoader.ofFloat(object, "interaction_distance");
+                final float range = TiledMapLoader.ofFloat(object, "interaction_range", 3.5f);
                 final String key = TiledMapLoader.ofString(object, "key");
                 final String type = TiledMapLoader.ofString(object, "interaction_type");
 
@@ -410,30 +347,48 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                     worldObject.setWorldIn(this);
                     worldObject.setPosition(rectangle.x, rectangle.y);
                     worldObject.setSize(rectangle.width, rectangle.height);
+                    worldObject.setInteractionRange(range);
                     worldObject.load(asset);
 
-                    loadWorldObjectParticles(worldObject, object, asset);
+                    createObjectParticles(worldObject, object, asset);
 
                     // load collision for this object
                     if (hasCollision) createObjectCollisionBody(worldObject, rectangle);
                     interactableWorldObjects.add(worldObject);
                 } else {
                     // load base object
-                    final WorldObject worldObject = new SimpleWorldObject();
+                    final WorldObject worldObject = new SimpleWorldObject(key);
                     worldObject.load(asset);
+                    worldObject.setWorldIn(this);
 
                     // find texture of this object
                     final String textureKey = TiledMapLoader.ofString(object, "texture");
                     final TextureRegion texture = asset.get(textureKey);
 
-                    if (hasCollision) createObjectCollisionBodyFromTexture(worldObject, rectangle, texture);
 
-                    worldObject.setTexture(texture);
-                    worldObject.setPosition(rectangle.x - rectangle.width, rectangle.y - rectangle.height);
-                    worldObject.setSize(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
-                    loadWorldObjectParticles(worldObject, object, asset);
+                    if (texture != null) {
 
-                    worldObjects.add(worldObject);
+                        // check if this object needs to be offset
+                        // depends on the case of the object, the position and texture size
+                        final float x = TiledMapLoader.ofBoolean(object, "offset_x")
+                                ? rectangle.x - (texture.getRegionWidth() * worldScale)
+                                : rectangle.x;
+
+                        final float y = TiledMapLoader.ofBoolean(object, "offset_y")
+                                ? rectangle.y - (texture.getRegionHeight() * worldScale)
+                                : rectangle.y;
+
+                        // TODO: Will not activate if object does not have texture
+                        if (hasCollision)
+                            createObjectCollisionBodyFromTexture(worldObject, rectangle, texture, x, y);
+
+                        worldObject.setTexture(texture);
+                        worldObject.setPosition(x, y);
+                        worldObject.setSize(texture.getRegionWidth() * worldScale, texture.getRegionHeight() * worldScale);
+                    }
+
+                    createObjectParticles(worldObject, object, asset);
+                    worldObjects.put(key, worldObject);
                 }
 
             } catch (Exception any) {
@@ -446,13 +401,30 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
+     * Remove an object from the map
+     *
+     * @param key the key
+     */
+    public void removeSimpleObject(String key) {
+        final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
+        if (object == null) return;
+
+        System.err.println("hey");
+
+        object.destroyCollision();
+        object.dispose();
+
+        worldObjects.remove(key);
+    }
+
+    /**
      * Load particle effects for a world object, interactable or not.
      *
      * @param wb     wb
      * @param object obj
      * @param asset  assets
      */
-    private void loadWorldObjectParticles(WorldObject wb, MapObject object, Asset asset) {
+    protected void createObjectParticles(WorldObject wb, MapObject object, Asset asset) {
         final String particleKey = TiledMapLoader.ofString(object, "particle");
         if (particleKey == null) return; // this object has no particles
 
@@ -468,13 +440,11 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     /**
      * Create a collision body for the provided object
      *
-     * @param wb        wb - unused
+     * @param wb        wb
      * @param rectangle the rectangle shape
      */
-    private void createObjectCollisionBody(WorldObject wb, Rectangle rectangle) {
-        // create collision body, offset position to fit within bounds.
-        // TODO: Store collision body for disposal later.
-        CollisionShapeCreator
+    protected void createObjectCollisionBody(WorldObject wb, Rectangle rectangle) {
+        final Body body = CollisionShapeCreator
                 .createPolygonShapeInWorld(
                         rectangle.x,
                         rectangle.y,
@@ -483,28 +453,32 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                         OasisGameSettings.SCALE,
                         true,
                         world);
+        wb.setBody(body);
     }
 
     /**
      * Create a collision body for the object using the textures bounds
      *
-     * @param wb        object - unused
-     * @param rectangle rectangle shape
+     * @param wb        object
+     * @param rectangle rectangle shape - unused, for now,
      * @param texture   texture
+     * @param x         x
+     * @param y         y
      */
-    private void createObjectCollisionBodyFromTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture) {
+    protected void createObjectCollisionBodyFromTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture, float x, float y) {
         if (texture == null) return;
 
         // create collision body, offset position to fit within bounds.
         final Body body = CollisionShapeCreator.createPolygonShapeInWorld(
-                rectangle.x - ((texture.getRegionWidth() / 2f) * OasisGameSettings.SCALE),
-                rectangle.y - ((texture.getRegionHeight() / 3f) * OasisGameSettings.SCALE),
+                x,
+                y,
                 texture.getRegionWidth(),
                 texture.getRegionHeight(),
                 OasisGameSettings.SCALE,
                 true,
-                world
-        );
+                world);
+
+        wb.setBody(body);
     }
 
     /**
@@ -513,24 +487,45 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
      * @param worldMap   map
      * @param worldScale scale
      */
-    public void loadWorldInteriors(TiledMap worldMap, float worldScale) {
+    protected void createInteriors(TiledMap worldMap, float worldScale) {
         final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Interior", (object, bounds) -> {
-            final boolean enterable = object.getProperties().get("enterable", true, Boolean.class);
-            final String interiorName = object.getProperties().get("instance_name", null, String.class);
-            final String interiorType = object.getProperties().get("instance_type", null, String.class);
-            final InstanceType type = interiorType == null ? InstanceType.DEFAULT : InstanceType.valueOf(interiorType.toUpperCase());
-            if (interiorName != null && enterable) {
-                final Cursor instanceCursor = Cursor.valueOf(object.getProperties().get("cursor", "default", String.class).toUpperCase());
-                this.instances.put(type, type.createInstance(game, player, this, interiorName, instanceCursor, bounds));
+            final boolean enterable = object.getProperties().get("enterable", false, Boolean.class);
+            final String asset = object.getProperties().get("interior_asset", null, String.class);
+            final String typeString = object.getProperties().get("interior_type", null, String.class);
+            final InteriorWorldType type = InteriorWorldType.of(typeString);
+
+            if (asset != null) {
+                final String cursorType = object.getProperties().get("cursor", "default", String.class).toUpperCase();
+                final Cursor cursor = Cursor.valueOf(cursorType);
+                final GameWorldInterior interior = type.createInterior(this, asset, cursor, bounds);
+                interior.setEnterable(enterable);
+
+                interiorWorlds.put(type, interior);
                 GameLogging.info(this, "Loaded interior: %s", type);
             }
         });
 
-        if (result) GameLogging.info(this, "Loaded %d instances.", instances.size());
+        if (result) GameLogging.info(this, "Loaded %d instances.", interiorWorlds.size());
     }
 
-    public void loadEntityPaths(TiledMap worldMap, float worldScale) {
-        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Paths", (object, rectangle) -> {
+    /**
+     * Get an interior world by type
+     *
+     * @param type the type
+     * @return the interior or {@code null} if none
+     */
+    public GameWorldInterior findInteriorByType(InteriorWorldType type) {
+        return interiorWorlds.get(type);
+    }
+
+    /**
+     * Find and create the entity paths for their AI
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    protected void findEntityPathing(TiledMap worldMap, float worldScale) {
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "Paths", (object, rectangle) -> {
             GameLogging.info(this, "Path point: " + rectangle);
             paths.add(new Vector2(rectangle.x, rectangle.y));
         });
@@ -569,30 +564,13 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
     @Override
     public void render(float delta) {
-        preRender(delta);
-    }
-
-    @Override
-    public float update(float d) {
-        d = super.update(d);
-        updateCursorState();
-        return d;
-    }
-
-    /**
-     * Handle pausing states before actually rendering or updating
-     *
-     * @param delta the delta
-     */
-    protected void preRender(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (paused) {
             // render, no update
             renderWorld(delta);
         } else {
-            if (showPausedScreen) showPausedScreen = false;
-            // no pause state, render+update normally
+            //render+update normally
             updateAndRender(delta);
         }
     }
@@ -611,8 +589,9 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
             GameManager.tick++;
         }
 
-        delta = this.update(delta);
-        this.renderWorld(delta);
+        delta = update(delta);
+        updateCursorState();
+        renderWorld(delta);
     }
 
     /**
@@ -635,8 +614,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
 
         boolean hasInterior = false;
-        for (Instance interior : instances.values()) {
-            if (interior.isMouseWithinBounds(cursorInWorld)) {
+        for (GameWorldInterior interior : interiorWorlds.values()) {
+            if (interior.isEnterable() && interior.isMouseWithinBounds(cursorInWorld)) {
                 if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(interior.getCursor());
                 hasInterior = true;
                 break;
@@ -664,7 +643,6 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
                 && guiManager.wasCursorChanged()) {
             guiManager.resetCursor();
         }
-
     }
 
     /**
@@ -677,7 +655,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         renderer.render();
 
         // render MP players first,
-        for (OasisNetworkPlayer player : players.values()) {
+        for (NetworkPlayer player : players.values()) {
             if (player.isInView(renderer.getCamera())) {
                 player.render(batch, delta);
                 player.setRenderNametag(true);
@@ -694,7 +672,7 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
 
         // general world objects
-        for (WorldObject object : worldObjects) object.render(batch, delta);
+        for (WorldObject object : worldObjects.values()) object.render(batch, delta);
 
         // interactions
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
@@ -710,42 +688,22 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
 
         // render local player next
         player.render(batch, delta);
+        endRender();
     }
 
     /**
      * End world rendering and render GUI(s)
      */
-    public void endRender() {
+    protected void endRender() {
         // render player name-tags last
         batch.setProjectionMatrix(guiManager.getStage().getCamera().combined);
-        for (OasisNetworkPlayer player : players.values()) {
+        for (NetworkPlayer player : players.values()) {
             if (player.shouldRenderNametag()) {
                 guiManager.renderPlayerNametag(player, renderer.getCamera(), batch);
             }
         }
-
-        // FIXME: Implement enemies
-       /* EntityEnemy entityEnemy = null;
-        for (Entity entity : entities.values()) {
-            if (entity instanceof EntityEnemy) {
-                entityEnemy = (EntityEnemy) entity;
-                ((EntityEnemy) entity).drawDamageIndicator(batch);
-            }
-        }*/
-
         batch.end();
 
-       /* if (entityEnemy != null) {
-            shapes.setProjectionMatrix(renderer.getCamera().combined);
-            shapes.begin(ShapeRenderer.ShapeType.Line);
-            shapes.box(entityEnemy.getBounds().x, entityEnemy.getBounds().y, 0.0f, entityEnemy.getBounds().width, entityEnemy.getBounds().getHeight(), 1.0f);
-            if (player.getEquippedItem() != null) {
-                shapes.box(player.getEquippedItem().getBounds().x, player.getEquippedItem().getBounds().y, 0.0f, player.getEquippedItem().getBounds().getWidth(), player.getEquippedItem().getBounds().getHeight(), 1.0f);
-            }
-            shapes.end();
-        }*/
-
-        // gui.updateAndRender();
         game.guiManager.updateAndDrawStage();
     }
 
@@ -764,6 +722,25 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     /**
+     * Add a nearby entity
+     *
+     * @param entity   the entity
+     * @param distance the distance
+     */
+    public void addNearbyEntity(EntityInteractable entity, float distance) {
+        nearbyEntities.put(entity, distance);
+    }
+
+    /**
+     * Remove a nearby entity
+     *
+     * @param entity the entity
+     */
+    public void removeNearbyEntity(EntityInteractable entity) {
+        nearbyEntities.remove(entity);
+    }
+
+    /**
      * Enable an interaction that is currently disabled.
      * Used for instances where an item or an entity needs to be used/spoken to first.
      *
@@ -779,97 +756,76 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
         }
     }
 
-    public ConcurrentHashMap<EntityInteractable, Float> getNearbyEntities() {
-        return nearbyEntities;
-    }
-
+    /**
+     * Check if the provided item hit an entity when swung
+     * TODO: Implement this!
+     *
+     * @param item the item
+     * @return the entity if hit
+     */
     public EntityEnemy hasHitEntity(ItemWeapon item) {
-       /* for (Entity value : entities.values()) {
-            if (value instanceof EntityEnemy interactable) {
-                if (interactable.isFacingEntity(player.getAngle())
-                        && interactable.getBounds().overlaps(item.getBounds())) {
-                    return interactable;
-                }
-            }
-        }*/
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Instance> T getInstance(InstanceType type) {
-        return (T) instances.get(type);
     }
 
     /**
      * Interact with an entity if they were clicked on.
      * Finds the first entity and does not allow multiple
      */
-    protected boolean interactWithEntity() {
-        // find entity clicked on
-        final EntityInteractable closest = getNearbyEntities()
-                .keySet()
-                .stream()
-                .filter(entity -> entity.isMouseInEntityBounds(cursorInWorld))
-                .findFirst()
-                .orElse(null);
-
-        if (closest == null) {
-            // check for network players
-
+    protected boolean didInteractWithEntity() {
+        EntityInteractable entity = null;
+        for (Map.Entry<EntityInteractable, Float> entry : nearbyEntities.entrySet()) {
+            if (entry.getKey().isMouseInEntityBounds(cursorInWorld)
+                    && entry.getKey().isSpeakable()
+                    && !entry.getKey().isSpeakingTo()) {
+                entity = entry.getKey();
+                break;
+            }
         }
 
-        if (closest != null
-                && closest.isSpeakable()
-                && !closest.isSpeakingTo()) {
-            closest.setSpeakingTo(true);
+        if (entity != null) {
+            entity.setSpeakingTo(true);
             guiManager.showGui(GuiType.DIALOG);
-            guiManager.getDialogComponent().showEntityDialog(closest);
+            guiManager.getDialogComponent().showEntityDialog(entity);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the player interacted with a world object
+     */
+    protected boolean didInteractWithWorldObject() {
+        InteractableWorldObject interaction = null;
+        for (InteractableWorldObject object : interactableWorldObjects) {
+            if (object.isEnabled()
+                    && object.isInInteractionRange()
+                    && object.isMouseOver(cursorInWorld)
+                    && !object.wasInteractedWith()) {
+                interaction = object;
+                break;
+            }
+        }
+
+        if (interaction != null) {
+            interaction.interact();
             return true;
         }
         return false;
     }
 
     /**
-     * Interact with the environment
+     * @return an interior if the entrance was clicked on
      */
-    protected boolean interactWithObject() {
-        final InteractableWorldObject worldObject = interactableWorldObjects
-                .stream()
-                .filter(InteractableWorldObject::isInInteractionRange)
-                .filter(wb -> wb.isMouseOver(cursorInWorld))
-                .filter(InteractableWorldObject::isEnabled)
-                .filter(wb -> !wb.wasInteractedWith())
-                .findFirst()
-                .orElse(null);
-
-        if (worldObject != null) {
-            worldObject.interact();
-            return true;
-        }
-        return false;
-    }
-
-    protected boolean interactWithOtherPlayer() {
-        players
-                .values()
-                .stream()
-                .filter(np -> np.isMouseInEntityBounds(cursorInWorld) && np.isWithinInteractionDistance(player.getPosition()))
-                .findFirst().ifPresent(otherPlayer -> GameLogging.info(this, "Trade"));
-
-        return false;
-    }
-
-    protected Instance getInstanceToEnterIfAny() {
-        final Instance interior = instances
+    protected GameWorldInterior getInteriorToEnter() {
+        final GameWorldInterior interior = interiorWorlds
                 .values()
                 .stream()
                 .filter(e -> e.clickedOn(cursorInWorld))
                 .findFirst()
                 .orElse(null);
 
-        if (interior != null
-                && interior.enterable()
-                && interior.isWithinEnteringDistance(player.getPosition())) {
+        if (interior != null && interior.isEnterable() && interior.isWithinEnteringDistance(player.getPosition())) {
             return interior;
         }
         return null;
@@ -881,46 +837,8 @@ public abstract class OasisWorld extends AbstractGameWorld<OasisNetworkPlayer, E
     }
 
     @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (interactWithEntity()) return true;
-        if (interactWithObject()) return true;
-        if (interactWithOtherPlayer()) return true;
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
-    }
-
-    @Override
-    public boolean touchCancelled(int i, int i1, int i2, int i3) {
-        return false;
+        return didInteractWithEntity() || didInteractWithWorldObject();
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.google.gson.*;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.save.entity.EntitySaveProperties;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 public class WorldSaveProperties {
 
     // the actual world for saving
-    private transient OasisWorld world;
+    private transient GameWorld world;
 
     // world map
     private transient String worldMap;
@@ -22,7 +22,7 @@ public class WorldSaveProperties {
     // list of entities in this world state
     private final transient List<EntitySaveProperties> entities = new ArrayList<>();
 
-    public WorldSaveProperties(OasisWorld world) {
+    public WorldSaveProperties(GameWorld world) {
         this.world = world;
     }
 
@@ -44,7 +44,7 @@ public class WorldSaveProperties {
     public static final class WorldSaver implements JsonSerializer<WorldSaveProperties> {
         @Override
         public JsonElement serialize(WorldSaveProperties src, Type typeOfSrc, JsonSerializationContext context) {
-            final OasisWorld world = src.world;
+            final GameWorld world = src.world;
             final JsonObject base = new JsonObject();
 
             base.addProperty("worldIn", Asset.TUTORIAL_WORLD);

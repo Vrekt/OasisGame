@@ -17,12 +17,12 @@ import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRegistry;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents any player over the network
  */
-public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
+public final class NetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
 
     private EntityAnimationComponent animationComponent;
 
@@ -37,9 +37,9 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
     private EntityRotation lastRotation = EntityRotation.UP;
     private EntityRotation entityRotation = EntityRotation.UP;
 
-    private OasisWorld gameWorldIn;
+    private GameWorld gameWorldIn;
 
-    public OasisNetworkPlayer(boolean initializeComponents) {
+    public NetworkPlayer(boolean initializeComponents) {
         super(initializeComponents);
 
         setInterpolatePosition(true);
@@ -74,9 +74,11 @@ public final class OasisNetworkPlayer extends OasisNetworkEntityPlayer implement
         // ((ItemWeapon) equippedItem).swingItem();
     }
 
-    public void setGameWorldIn(OasisWorld gameWorldIn) {
-        this.gameWorldIn = gameWorldIn;
+    public void spawnPlayerAndSetWorldState(GameWorld world) {
+        spawnInWorld(world);
+        this.gameWorldIn = world;
     }
+
 
     @Override
     public void setName(String name) {

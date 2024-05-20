@@ -86,12 +86,12 @@ public final class Dialogue implements Disposable {
     }
 
     /**
-     * Add an action handler
+     * Add a task handler handler
      *
      * @param key    the key
      * @param action the action
      */
-    public void addActionHandler(String key, Runnable action) {
+    public void addTaskHandler(String key, Runnable action) {
         dialogueTaskHandlers.put(key, action);
     }
 

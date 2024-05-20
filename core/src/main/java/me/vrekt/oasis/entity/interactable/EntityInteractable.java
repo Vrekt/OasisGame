@@ -9,7 +9,7 @@ import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.OasisPlayer;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents an NPC within the game
@@ -24,12 +24,13 @@ public abstract class EntityInteractable extends EntitySpeakable {
     protected EntityNPCType type;
     protected Rectangle bounds;
 
-    public EntityInteractable(String name, Vector2 position, OasisPlayer player, OasisWorld worldIn, OasisGame game, EntityNPCType type) {
+    public EntityInteractable(String name, Vector2 position, OasisPlayer player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
         super(player);
 
         setName(name);
         setAngle(EntityRotation.DOWN.ordinal());
         setBodyPosition(position, getAngle(), true);
+        setNearby(false);
 
         this.worldIn = worldIn;
         this.game = game;

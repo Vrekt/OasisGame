@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.mp.OasisNetworkPlayer;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
@@ -219,7 +219,7 @@ public class GuiManager {
      * @param camera the game camera
      * @param batch  batch to draw with
      */
-    public void renderPlayerNametag(OasisNetworkPlayer player, Camera camera, Batch batch) {
+    public void renderPlayerNametag(NetworkPlayer player, Camera camera, Batch batch) {
         player.renderNametag(asset.getSmall(), batch, camera, stage.getCamera());
     }
 

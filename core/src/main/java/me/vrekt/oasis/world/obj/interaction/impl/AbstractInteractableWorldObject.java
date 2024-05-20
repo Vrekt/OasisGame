@@ -41,6 +41,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     }
 
     @Override
+    public void setInteractionRange(float interactionRange) {
+        this.interactionRange = interactionRange;
+    }
+
+    @Override
     public boolean isEnabled() {
         return isEnabled;
     }

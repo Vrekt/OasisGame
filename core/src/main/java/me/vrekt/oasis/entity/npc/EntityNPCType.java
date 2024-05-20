@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
-import me.vrekt.oasis.world.OasisWorld;
+import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.shared.entities.EntityType;
 
 /**
@@ -16,19 +16,19 @@ public enum EntityNPCType {
 
     WRYNN {
         @Override
-        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
+        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, GameWorld world) {
             return (T) new WrynnEntity("Wrynn", position, game.getPlayer(), world, game, EntityNPCType.WRYNN);
         }
     },
 
     INVALID {
         @Override
-        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world) {
+        public <T extends EntityInteractable> T create(Vector2 position, OasisGame game, GameWorld world) {
             return null;
         }
     };
 
-    public abstract <T extends EntityInteractable> T create(Vector2 position, OasisGame game, OasisWorld world);
+    public abstract <T extends EntityInteractable> T create(Vector2 position, OasisGame game, GameWorld world);
 
     public static EntityNPCType typeOfServer(EntityType type) {
         switch (type) {
