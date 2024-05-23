@@ -1,23 +1,25 @@
 package me.vrekt.oasis.ai.components;
 
-import me.vrekt.oasis.ai.VectorLocation;
-import me.vrekt.oasis.ai.SteeringEntity;
+import me.vrekt.oasis.ai.EntitySteerable;
+import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
+import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.interactable.EntityInteractable;
 
 /**
  * Represents a base AI component
  */
 public abstract class AiComponent {
 
-    protected final EntityInteractable entity;
-    protected final SteeringEntity steering;
-    protected final VectorLocation location;
+    protected final Entity entity;
+    protected final EntitySteerable steering;
+    protected final SimpleVectorLocation location;
 
-    public AiComponent(EntityInteractable entity) {
+    public AiComponent(Entity entity, ApplyBehavior behavior) {
         this.entity = entity;
-        steering = new SteeringEntity(entity, entity.getBody());
-        location = new VectorLocation();
+
+        steering = new EntitySteerable(entity, entity.getBody(), behavior);
+        location = new SimpleVectorLocation().set(entity.getPosition());
     }
 
     public void setMaxLinearSpeed(float value) {

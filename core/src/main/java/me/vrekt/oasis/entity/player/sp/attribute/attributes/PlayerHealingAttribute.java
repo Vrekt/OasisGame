@@ -1,6 +1,6 @@
 package me.vrekt.oasis.entity.player.sp.attribute.attributes;
 
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 
 /**
@@ -19,10 +19,11 @@ public final class PlayerHealingAttribute extends Attribute {
         super(KEY, NAME, DESCRIPTION);
         this.amount = amount;
         this.texture = TEXTURE;
+        this.instant = true;
     }
 
     @Override
-    public void apply(OasisPlayer player) {
+    public void apply(PlayerSP player) {
         player.heal(amount);
     }
 }

@@ -3,12 +3,12 @@ package me.vrekt.oasis.entity.interactable;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.ai.VectorLocation;
-import me.vrekt.oasis.ai.SteeringEntity;
+import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
+import me.vrekt.oasis.ai.EntitySteerable;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -17,14 +17,14 @@ import me.vrekt.oasis.world.GameWorld;
 public abstract class EntityInteractable extends EntitySpeakable {
 
     // entity AI steering
-    protected SteeringEntity entitySteering;
-    protected VectorLocation location;
+    protected EntitySteerable entitySteering;
+    protected SimpleVectorLocation location;
 
     protected final OasisGame game;
     protected EntityNPCType type;
     protected Rectangle bounds;
 
-    public EntityInteractable(String name, Vector2 position, OasisPlayer player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
+    public EntityInteractable(String name, Vector2 position, PlayerSP player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
         super(player);
 
         setName(name);
@@ -44,8 +44,6 @@ public abstract class EntityInteractable extends EntitySpeakable {
     public Rectangle getBounds() {
         return bounds;
     }
-
-
 
     /**
      * Add arrival AI component

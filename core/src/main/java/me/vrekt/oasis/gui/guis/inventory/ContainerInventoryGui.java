@@ -11,7 +11,7 @@ import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.entity.inventory.Inventory;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ContainerInventoryGui extends InventoryGui {
 
-    private final OasisPlayer player;
+    private final PlayerSP player;
 
     private final Array<InventoryGuiSlot> containerSlots = new Array<>();
     private final Array<InventoryGuiSlot> playerSlots = new Array<>();

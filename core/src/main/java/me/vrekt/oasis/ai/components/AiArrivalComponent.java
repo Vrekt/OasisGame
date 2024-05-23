@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.steer.behaviors.Arrive;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
@@ -26,7 +27,7 @@ public final class AiArrivalComponent extends AiComponent {
     private float lastPointTick, pathingInterval, arrivalTolerance;
 
     public AiArrivalComponent(EntityInteractable entity) {
-        super(entity);
+        super(entity, ApplyBehavior.DEFAULT);
 
         arrive = new Arrive<>(steering, location);
         arrive.setTimeToTarget(TIME_TO_TARGET);
@@ -101,7 +102,7 @@ public final class AiArrivalComponent extends AiComponent {
      */
     private void assignRandomPoint() {
         location.getPosition().set(points.get(ThreadLocalRandom.current().nextInt(points.size)));
-        GameLogging.info(this, "%s is walking to a new point: %s", entity.getType(), location.getPosition());
+        GameLogging.info(this, "%s is walking to a new point: %s", entity.getName(), location.getPosition());
     }
 
 }

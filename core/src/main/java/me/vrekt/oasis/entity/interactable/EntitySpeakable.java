@@ -4,20 +4,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 
 /**
  * Represents an entity that can be spoken to.
  */
 public abstract class EntitySpeakable extends Entity {
-
-    protected OasisPlayer player;
 
     protected Dialogue dialogue;
     protected DialogueEntry activeEntry;
@@ -29,7 +28,7 @@ public abstract class EntitySpeakable extends Entity {
 
     protected float lastDialogUpdate;
 
-    public EntitySpeakable(OasisPlayer player) {
+    public EntitySpeakable(PlayerSP player) {
         super(true);
         this.player = player;
 
@@ -37,6 +36,13 @@ public abstract class EntitySpeakable extends Entity {
     }
 
     public abstract TextureRegion getDialogFace();
+
+    @Override
+    public void load(Asset asset) {
+        dialogFrames[0] = asset.get("dialog", 1);
+        dialogFrames[1] = asset.get("dialog", 2);
+        dialogFrames[2] = asset.get("dialog", 3);
+    }
 
     @Override
     public void update(float v) {
@@ -108,19 +114,16 @@ public abstract class EntitySpeakable extends Entity {
         return speakingTo;
     }
 
-    public void setSpeakingTo(boolean speakingTo) {
+    /**
+     * Set speaking to this entity
+     *
+     * @param speakingTo state
+     */
+    public void speak(boolean speakingTo) {
         this.speakingTo = speakingTo;
 
-        if (speakingTo) {
-            // TODO: Face the player when speaking to this entity
-            player.setIdleRegionState();
-            player.setSpeakingToEntity(true);
-            player.setEntitySpeakingTo(this);
-            interactionPoint.set(player.getPosition());
-        } else {
-            player.setEntitySpeakingTo(null);
-            player.setSpeakingToEntity(false);
-        }
+        player.speak(this, speakingTo);
+        interactionPoint.set(player.getPosition());
     }
 
     /**

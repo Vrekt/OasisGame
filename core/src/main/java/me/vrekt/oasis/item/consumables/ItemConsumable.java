@@ -1,6 +1,6 @@
 package me.vrekt.oasis.item.consumables;
 
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.AbstractItem;
 import me.vrekt.oasis.item.Items;
 
@@ -17,7 +17,7 @@ public abstract class ItemConsumable extends AbstractItem {
     }
 
     @Override
-    public void useItem(OasisPlayer player) {
+    public void useItem(PlayerSP player) {
         this.consume(player);
     }
 
@@ -34,7 +34,7 @@ public abstract class ItemConsumable extends AbstractItem {
      *
      * @param player the player
      */
-    public void consume(OasisPlayer player) {
+    public void consume(PlayerSP player) {
         decreaseItemAmount();
         // automatically apply all attributes
         applyAttributes(player);

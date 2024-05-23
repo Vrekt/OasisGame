@@ -68,12 +68,18 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     @Override
     public void update() {
         // player moved away from this interaction so exit.
-        if (wasInteractedWith && interactionPoint.dst2(world.getLocalPlayer().getPosition()) >= INTERACTION_EXIT_DISTANCE)
+        if (world.getLocalPlayer().movementNotified()
+                || (wasInteractedWith && interactionPoint.dst2(world.getLocalPlayer().getPosition())
+                >= INTERACTION_EXIT_DISTANCE)) {
             reset();
+        }
     }
 
     @Override
     public void interact() {
+        world.getGame().getGuiManager().resetCursor();
+        world.getLocalPlayer().notifyIfMoved();
+
         wasInteractedWith = true;
         isEnabled = false;
         interactionPoint.set(world.getLocalPlayer().getPosition());

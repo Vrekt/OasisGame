@@ -2,12 +2,14 @@ package me.vrekt.oasis.network.player;
 
 import gdx.lunar.network.types.PlayerConnectionHandler;
 import gdx.lunar.protocol.GdxProtocol;
+import gdx.lunar.protocol.packet.client.C2SPacketPing;
 import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
 import gdx.lunar.protocol.packet.server.S2CPacketPing;
 import io.netty.channel.Channel;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -19,12 +21,29 @@ import me.vrekt.shared.network.*;
 public final class PlayerConnection extends PlayerConnectionHandler {
 
     private final OasisGame game;
-    private final OasisPlayer player;
+    private final PlayerSP player;
 
-    public PlayerConnection(Channel channel, GdxProtocol protocol, OasisGame game, OasisPlayer player) {
+    private float lastPingSent, pingMs;
+
+    public PlayerConnection(Channel channel, GdxProtocol protocol, OasisGame game, PlayerSP player) {
         super(channel, protocol);
         this.game = game;
         this.player = player;
+    }
+
+    /**
+     * @return ping time
+     */
+    public float getPingMs() {
+        return pingMs;
+    }
+
+    @Override
+    public void update() {
+        if (GameManager.hasTimeElapsed(lastPingSent, 1.0f)) {
+            sendImmediately(new C2SPacketPing(System.currentTimeMillis()));
+            lastPingSent = GameManager.getTick();
+        }
     }
 
     /**
@@ -59,7 +78,7 @@ public final class PlayerConnection extends PlayerConnectionHandler {
 
     @Override
     public void handlePing(S2CPacketPing packet) {
-        player.setServerPingTime((System.currentTimeMillis() - packet.getClientTime()));
+        pingMs = System.currentTimeMillis() - packet.getClientTime();
     }
 
     private void handleSpawnEntity(ServerPacketSpawnEntity packet) {
@@ -76,8 +95,8 @@ public final class PlayerConnection extends PlayerConnectionHandler {
     }
 
     private void handlePlayerEquippedItem(ServerPacketPlayerEquippedItem packet) {
-        if (player.getGameWorld().hasPlayer(packet.getEntityId())) {
-            player.getGameWorld()
+        if (player.getWorldState().hasPlayer(packet.getEntityId())) {
+            player.getWorldState()
                     .getPlayer(packet.getEntityId())
                     .setEquippingItem(packet.getItemId());
         } else {
@@ -86,8 +105,8 @@ public final class PlayerConnection extends PlayerConnectionHandler {
     }
 
     private void handleSwingItem(ServerPacketPlayerSwingItem packet) {
-        if (player.getGameWorld().hasPlayer(packet.getEntityId())) {
-            player.getGameWorld()
+        if (player.getWorldState().hasPlayer(packet.getEntityId())) {
+            player.getWorldState()
                     .getPlayer(packet.getEntityId())
                     .setSwingingItem(packet.getItemId());
         } else {

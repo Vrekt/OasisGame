@@ -41,7 +41,7 @@ public final class EntityUpdateSystem extends EntitySystem {
             } else {
                 if (entity.isInteractable() && entity.isNearby()) {
                     entity.setNearby(false);
-                    world.removeEntity(entity.asInteractable());
+                    world.removeNearbyEntity(entity.asInteractable());
                 }
             }
         }

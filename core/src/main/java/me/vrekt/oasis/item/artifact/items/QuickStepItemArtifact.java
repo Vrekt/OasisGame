@@ -2,7 +2,7 @@ package me.vrekt.oasis.item.artifact.items;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.artifact.Artifact;
@@ -34,8 +34,8 @@ public final class QuickStepItemArtifact extends ItemArtifact {
     }
 
     @Override
-    public void equip(OasisPlayer player) {
-        player.equipArtifact(this);
+    public void equip(PlayerSP player) {
+        player.equipArtifactToArtifactInventory(this);
     }
 
     @Override

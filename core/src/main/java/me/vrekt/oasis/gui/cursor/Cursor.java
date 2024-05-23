@@ -8,7 +8,7 @@ public enum Cursor {
     DEFAULT("ui/cursors/cursor.png"),
     ARROW_UP("ui/cursors/arrow_up.png"),
     DIALOG("ui/cursors/dialog_cursor.png"),
-    READ_SIGN("ui/cursors/sign_cursor.png");
+    READ_SIGN("ui/cursors/read_sign.png");
 
     private final String file;
 

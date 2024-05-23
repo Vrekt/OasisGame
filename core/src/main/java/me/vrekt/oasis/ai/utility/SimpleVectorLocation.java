@@ -1,20 +1,24 @@
-package me.vrekt.oasis.ai;
+package me.vrekt.oasis.ai.utility;
 
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.ai.utility.AiVectorUtility;
 
 /**
- * Represents a basic location
+ * Represents a simple location
  */
-public final class VectorLocation implements Location<Vector2> {
+public final class SimpleVectorLocation implements Location<Vector2> {
 
     private final Vector2 position;
     private float orientation;
 
-    public VectorLocation() {
+    public SimpleVectorLocation() {
         position = new Vector2();
         orientation = 0.0f;
+    }
+
+    public SimpleVectorLocation set(Vector2 position) {
+        this.position.set(position);
+        return this;
     }
 
     @Override
@@ -44,6 +48,6 @@ public final class VectorLocation implements Location<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        return new VectorLocation();
+        return new SimpleVectorLocation();
     }
 }

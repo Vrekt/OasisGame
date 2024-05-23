@@ -6,11 +6,11 @@ package me.vrekt.oasis.world.obj.interaction.impl.sign;
  * This ties in with wrynn, she lost her recipe book and decided to put a sign in "memoriam"
  * Of course, we come along and save the day.
  */
-public final class OasisTutorialWorldSign extends ReadableSignInteraction {
+public final class WrynnBasementWarningSign extends ReadableSignInteraction {
 
-    public static final String KEY = "oasis:tutorial_sign";
+    public static final String KEY = "oasis:basement_sign";
 
-    public OasisTutorialWorldSign() {
+    public WrynnBasementWarningSign() {
         super(KEY, "WARNING: Abhorrent creatures inside.");
     }
 

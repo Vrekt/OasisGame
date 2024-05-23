@@ -4,13 +4,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.HashMap;
@@ -56,7 +57,10 @@ public class GameManager {
     private static void registerGlobalKeyActions() {
         registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
         registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
-        registerGlobalKeyAction(OasisKeybindings.DEBUG_MENU_KEY, GuiType.CONTAINER);
+        KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
+            getPlayer().getWorldState().findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
+            getPlayer().getWorldState().removeSimpleObject("oasis:basement_gate");
+        });
         registerHotBarKeys();
 
         KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().handleDialogKeyPress());
@@ -108,7 +112,7 @@ public class GameManager {
     }
 
     public static void resumeGame() {
-        getPlayer().getGameWorld().resume();
+        getPlayer().getWorldState().resume();
     }
 
     /**
@@ -144,7 +148,7 @@ public class GameManager {
     }
 
     public static boolean hasTimeElapsed(float last, float seconds) {
-        return tick - last >= secondsToTicks(seconds);
+        return last == 0 || tick - last >= secondsToTicks(seconds);
     }
 
     public static String getGameProgress() {
@@ -163,7 +167,7 @@ public class GameManager {
         return oasis.getAsset();
     }
 
-    public static OasisPlayer getPlayer() {
+    public static PlayerSP getPlayer() {
         return oasis.getPlayer();
     }
 

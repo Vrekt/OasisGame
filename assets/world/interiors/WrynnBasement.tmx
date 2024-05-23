@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="19" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="5">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="19" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="6">
  <tileset firstgid="1" source="../asset/data/Dungeon1.tsx"/>
  <tileset firstgid="1051" source="../asset/data/Interior2.tsx"/>
  <tileset firstgid="2075" source="../asset/data/Objects.tsx"/>
@@ -101,10 +101,20 @@
 </data>
  </layer>
  <objectgroup id="5" name="Actions">
-  <object id="1" name="WorldSpawn" x="151.75" y="96.5">
+  <object id="1" name="WorldSpawn" x="151.75" y="102.576">
    <point/>
   </object>
   <object id="2" name="Exit" x="137.25" y="46.5" width="27.25" height="30.5"/>
+ </objectgroup>
+ <objectgroup id="7" name="Entities">
+  <object id="5" x="144" y="208">
+   <properties>
+    <property name="enemy" type="bool" value="true"/>
+    <property name="entity_type" value="BEETLE"/>
+    <property name="variety" value="BLUE"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="6" name="Collision">
   <object id="4" x="45.75" y="76.5">

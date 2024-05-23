@@ -2,18 +2,22 @@ package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.lunar.protocol.packet.client.C2SPacketPing;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.impl.LunarPlayer;
+import lunar.shared.entity.player.AbstractLunarEntityPlayer;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.combat.CombatDamageAnimator;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -31,28 +35,24 @@ import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
-import me.vrekt.oasis.questing.quests.QuestType;
-import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
-import me.vrekt.oasis.save.loading.SaveStateLoader;
-import me.vrekt.oasis.save.player.PlayerSaveProperties;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.instance.GameWorldInterior;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
  * Represents the local player SP
  */
-public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Drawable, SaveStateLoader<PlayerSaveProperties> {
+public final class PlayerSP extends AbstractLunarEntityPlayer implements ResourceLoader, Drawable {
 
     private final OasisGame game;
 
     private EntityAnimationComponent animationComponent;
     private boolean rotationChanged;
+    private TextureRegion activeTexture;
 
     private GameWorld gameWorldIn;
 
@@ -63,55 +63,133 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
     private GameWorldInterior interiorWorldIn;
     private final PlayerQuestManager questManager;
 
-    private EntitySpeakable entitySpeakingTo;
-    private boolean isSpeakingToEntity;
-    private long lastPingSent, serverPingTime;
-
     private ItemWeapon equippedItem;
-    private final LinkedList<Artifact> artifactInventory = new LinkedList<>();
+    private final IntMap<Artifact> artifacts = new IntMap<>(3);
 
     private EntityRotation rotation = EntityRotation.UP;
     private final Map<AttributeType, Attributes> attributes = new HashMap<>();
+    private final CombatDamageAnimator animator = new CombatDamageAnimator();
+    // list of enemies attacking us.
+    private final Array<EntityEnemy> enemiesAttacking = new Array<>();
+
+    private EntitySpeakable speakable;
+
+    private final Vector3 worldPosition = new Vector3();
+    private final Vector3 screenPosition = new Vector3();
 
     // disable movement listening while in dialogs
     private boolean disableMovement;
+    // if the player has moved since some class requested it to be set.
+    private boolean hasMoved = true;
 
-    public OasisPlayer(OasisGame game, String name) {
+    public PlayerSP(OasisGame game) {
         super(true);
         this.game = game;
+        create();
 
-        setName(name);
+        this.inventory = new PlayerInventory();
+        this.questManager = new PlayerQuestManager();
+    }
+
+    /**
+     * Create and initialize the basic properties of the player
+     */
+    private void create() {
+        setName("Player" + OasisGame.GAME_VERSION);
         setMoveSpeed(6.0f);
-        setMoving(true);
+        setHealth(100);
+
         setSize(15, 25, OasisGameSettings.SCALE);
         setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
-
-        this.inventory = new PlayerInventory();
-        this.questManager = new PlayerQuestManager();
-        questManager.addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
     }
 
+    @Override
+    public void load(Asset asset) {
+        animationComponent = new EntityAnimationComponent();
+        entity.add(animationComponent);
+
+        getTextureComponent().add("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
+        getTextureComponent().add("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
+        getTextureComponent().add("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
+        getTextureComponent().add("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
+        activeTexture = getTextureComponent().get("healer_walking_up_idle");
+
+        // up, down, left, right
+        animationComponent.createMoveAnimation(EntityRotation.UP, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
+        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
+        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public PlayerQuestManager getQuestManager() {
+        return questManager;
+    }
+
+    public void connection(PlayerConnection connectionHandler) {
+        this.connectionHandler = connectionHandler;
+    }
+
+    @Override
+    public PlayerConnection getConnection() {
+        return connectionHandler;
+    }
+
+    /**
+     * Set the speaking state of the entity
+     *
+     * @param entity   the entity
+     * @param speaking state
+     */
+    public void speak(EntitySpeakable entity, boolean speaking) {
+        this.speakable = speaking ? entity : null;
+    }
+
+    /**
+     * Apply an attribute to this player
+     *
+     * @param attribute the attribute
+     */
     public void applyAttribute(Attribute attribute) {
-        if (!attribute.expires()) {
+        if (attribute.isInstant()) {
             // this attribute is instant and does not expire, so apply now.
             attribute.apply(this);
         } else {
             // this attribute expires and has other special functionality.
             attribute.apply(this);
-            attributes.get(attribute.getType()).add(attribute);
+
+            game.getGuiManager().getHudComponent().showAttribute(attribute);
+            attributes.computeIfAbsent(attribute.getType(), a -> new Attributes())
+                    .add(attribute);
         }
     }
 
-    @Override
-    public void loadFromSave(PlayerSaveProperties state) {
-        setBodyPosition(state.getPosition(), true);
-        inventory.clear();
-        inventory.transferItemsFrom(state.getInventoryState().getInventory());
+    /**
+     * Monitor the movement of this player
+     * Used for interactions, once the player moves a little hide the interaction
+     */
+    public void notifyIfMoved() {
+        hasMoved = false;
     }
 
-    public void setDisableMovement(boolean disableMovement) {
+    /**
+     * @return if the player moved from the monitoring position
+     */
+    public boolean movementNotified() {
+        return hasMoved;
+    }
+
+    /**
+     * Enable or disable movement of the playerF
+     *
+     * @param disableMovement state
+     */
+    public void disableMovement(boolean disableMovement) {
         this.disableMovement = disableMovement;
     }
 
@@ -121,12 +199,12 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
      * @param slotNumber the slot
      */
     public void activateArtifact(int slotNumber) {
-        if (artifactInventory.isEmpty()) {
+        if (artifacts.isEmpty()) {
             GameLogging.warn(this, "Attempted to activate artifact with none in inventory %d", slotNumber);
             return;
         }
 
-        final Artifact artifact = artifactInventory.get(slotNumber);
+        final Artifact artifact = artifacts.get(slotNumber);
         if (artifact == null) {
             GameLogging.error(this, "Found no artifact within slot %d", slotNumber);
             return;
@@ -137,17 +215,39 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         game.getGuiManager().getHudComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
 
-    public void equipArtifact(ItemArtifact artifact) {
+    /**
+     * Equip an artifact into the artifact inventory
+     *
+     * @param artifact artifact
+     */
+    public void equipArtifactToArtifactInventory(ItemArtifact artifact) {
         getInventory().removeItem(artifact);
-        artifactInventory.add(artifact.getArtifact());
+        artifacts.put(findEmptyArtifactSlot(), artifact.getArtifact());
     }
 
     /**
-     * Handle dialog 'F" key press
+     * Find an empty artifact slot
+     * TODO: Can equip artifact/replacing
+     *
+     * @return the slot
+     */
+    private int findEmptyArtifactSlot() {
+        for (int i = 0; i < 3; i++) {
+            if (!artifacts.containsKey(i)) return i;
+        }
+        return -1;
+    }
+
+    public IntMap<Artifact> getArtifacts() {
+        return artifacts;
+    }
+
+    /**
+     * Handle dialog 'F' key press
      */
     public void handleDialogKeyPress() {
-        if (isSpeakingToEntity && entitySpeakingTo != null) {
-            final DialogueEntry entry = entitySpeakingTo.getEntry();
+        if (speakable != null) {
+            final DialogueEntry entry = speakable.getEntry();
             //  waiting to pick an option
             if (entry.suggestions() || !entry.isSkippable()) return;
 
@@ -155,24 +255,26 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             // Basically the dialog is 'finished' but if we go back
             // and speak to the entity they will show a message reminding them what to do
             // So we only show that afterwards.
-            if (entitySpeakingTo.advance()) {
+            if (speakable.advance()) {
                 game.getGuiManager().hideGui(GuiType.DIALOG);
                 return;
             }
 
-            entitySpeakingTo.next();
-            game.getGuiManager().getDialogComponent().showEntityDialog(entitySpeakingTo);
+            speakable.next();
+            game.getGuiManager().getDialogComponent().showEntityDialog(speakable);
         }
     }
 
-    public long getServerPingTime() {
-        return serverPingTime;
+    /**
+     * @return list of all enemies attacking us
+     */
+    public Array<EntityEnemy> getEnemiesAttacking() {
+        return enemiesAttacking;
     }
 
-    public void setServerPingTime(long serverPingTime) {
-        this.serverPingTime = serverPingTime;
-    }
-
+    /**
+     * @return {@code true} if the player is in an interior
+     */
     public boolean isInInteriorWorld() {
         return inInteriorWorld;
     }
@@ -181,65 +283,49 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         this.inInteriorWorld = inInteriorWorld;
     }
 
-    public GameWorldInterior getInteriorWorldIn() {
-        return interiorWorldIn;
+    /**
+     * Update the world state for this player
+     *
+     * @param world world or interior
+     */
+    public void updateWorldState(GameWorld world) {
+        if (world instanceof GameWorldInterior interior) {
+            interiorWorldIn = interior;
+            inInteriorWorld = true;
+        } else {
+            this.gameWorldIn = world;
+            this.setInWorld(true);
+            this.setWorld(gameWorldIn);
+        }
     }
 
-    public void setInteriorWorldIn(GameWorldInterior interiorWorldIn) {
-        this.interiorWorldIn = interiorWorldIn;
+    /**
+     * @return the world state of this player
+     */
+    public GameWorld getWorldState() {
+        return inInteriorWorld ? interiorWorldIn : gameWorldIn;
     }
 
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public LinkedList<Artifact> getArtifacts() {
-        return artifactInventory;
-    }
-
-    public PlayerQuestManager getQuestManager() {
-        return questManager;
-    }
-
-    public void setWorldState(GameWorld world) {
-        this.gameWorldIn = world;
-        this.setInWorld(true);
-        this.setWorld(gameWorldIn);
-    }
-
-    public GameWorld getGameWorld() {
-        return gameWorldIn;
-    }
-
-    public void setRotationChanged(boolean rotationChanged) {
-        this.rotationChanged = rotationChanged;
-    }
-
-    public void setSpeakingToEntity(boolean speakingToEntity) {
-        isSpeakingToEntity = speakingToEntity;
-    }
-
-    public boolean isSpeakingToEntity() {
-        return isSpeakingToEntity;
-    }
-
-    public void setEntitySpeakingTo(EntitySpeakable entitySpeakingTo) {
-        this.entitySpeakingTo = entitySpeakingTo;
-    }
-
-    public EntitySpeakable getEntitySpeakingTo() {
-        return entitySpeakingTo;
-    }
-
+    /**
+     * @return activate equipped item
+     */
     public ItemWeapon getEquippedItem() {
         return equippedItem;
     }
 
+    /**
+     * Remove the active equipped item
+     */
     public void removeEquippedItem() {
         this.equippedItem = null;
         if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(null);
     }
 
+    /**
+     * Equip an item
+     *
+     * @param item the item
+     */
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
         if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(item);
@@ -247,19 +333,6 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
     public boolean canEquipItem() {
         return this.equippedItem == null;
-    }
-
-    public EntityRotation getPlayerRotation() {
-        return rotation;
-    }
-
-    public void setConnectionHandler(PlayerConnection connectionHandler) {
-        this.connectionHandler = connectionHandler;
-    }
-
-    @Override
-    public PlayerConnection getConnection() {
-        return connectionHandler;
     }
 
     @Override
@@ -273,50 +346,56 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
      */
     public void removeFromInteriorWorld() {
         interiorWorldIn.getEntityWorld().destroyBody(body);
+
         this.body = null;
         this.inInteriorWorld = false;
         this.interiorWorldIn = null;
     }
 
+    /**
+     * Set the idle region state for this player when not moving.
+     */
     public void setIdleRegionState() {
         switch (rotation) {
             case UP:
-                currentRegion = getRegion("healer_walking_up_idle");
+                activeTexture = getTextureComponent().get("healer_walking_up_idle");
                 break;
             case DOWN:
-                currentRegion = getRegion("healer_walking_down_idle");
+                activeTexture = getTextureComponent().get("healer_walking_down_idle");
                 break;
             case LEFT:
-                currentRegion = getRegion("healer_walking_left_idle");
+                activeTexture = getTextureComponent().get("healer_walking_left_idle");
                 break;
             case RIGHT:
-                currentRegion = getRegion("healer_walking_right_idle");
+                activeTexture = getTextureComponent().get("healer_walking_right_idle");
                 break;
         }
     }
 
     @Override
-    public void load(Asset asset) {
-        animationComponent = new EntityAnimationComponent();
-        entity.add(animationComponent);
+    public void update(float delta) {
+        pollInput();
 
-        addRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        addRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        addRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        addRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        currentRegion = getRegion("healer_walking_up_idle");
+        if (this.body != null) this.body.setLinearVelocity(this.getVelocity());
 
-        // up, down, left, right
-        animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
-        animationComponent.registerWalkingAnimation(1, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
-        animationComponent.registerWalkingAnimation(2, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
-        animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
+        // handle all attributes currently applied
+        // TODO: Only needs to update every second.
+        attributes.forEach((type, attr) -> attr.update());
+
+        inventory.update();
+        if (rotationChanged) {
+            setIdleRegionState();
+            rotationChanged = false;
+        }
+
+        if (game.isLocalMultiplayer() || game.isMultiplayer()) updateNetworkComponents();
+        artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
     }
 
     /**
      * Poll input of the user input
      */
-    public void pollInput() {
+    private void pollInput() {
         setVelocity(0.0f, 0.0f);
         if (disableMovement) {
             return;
@@ -324,8 +403,10 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
 
         final float velY = getVelocityY();
         final float velX = getVelocityX();
+
         // TODO: Normalize, but fix slow movement
         setVelocity(velX, velY);
+        if (velX != 0.0 || velY != 0.0) hasMoved = true;
 
         rotationChanged = getAngle() != rotation.ordinal();
         setAngle(rotation.ordinal());
@@ -353,42 +434,12 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         return 0.0f;
     }
 
-    @Override
-    public void update(float delta) {
-        pollInput();
-
-        if (this.body != null) {
-            this.body.setLinearVelocity(this.getVelocity());
-        }
-
-        // handle all attributes currently applied
-        // TODO: Only needs to update every second.
-        final float tick = GameManager.getTick();
-        attributes.forEach((type, attr) -> attr.update(tick));
-
-        inventory.update();
-
-        if (rotationChanged) {
-            setIdleRegionState();
-            rotationChanged = false;
-        }
-
-        if (game.isLocalMultiplayer() || game.isMultiplayer())
-            updateNetworkComponents();
-
-        artifactInventory.forEach(artifact -> artifact.updateArtifact(this, GameManager.getTick()));
-    }
-
     /**
      * Update network components and sending of regular packets
      */
     private void updateNetworkComponents() {
         updateNetworkPositionAndVelocity();
-
-        if (System.currentTimeMillis() - lastPingSent >= 2000) {
-            lastPingSent = System.currentTimeMillis();
-            connection.sendImmediately(new C2SPacketPing(System.currentTimeMillis()));
-        }
+        connectionHandler.update();
     }
 
     @Override
@@ -396,17 +447,18 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
         updateAndRenderEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(rotation, delta));
+            draw(batch, animationComponent.animate(rotation, delta));
         } else {
-            if (currentRegion != null) {
-                draw(batch, currentRegion);
+            if (activeTexture != null) {
+                draw(batch, activeTexture);
             }
         }
 
-        artifactInventory.forEach(artifact -> {
+        // draw all artifact effects
+        for (Artifact artifact : artifacts.values()) {
             if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, GameManager.getTick());
             if (artifact.isApplied()) artifact.drawParticleEffect(batch);
-        });
+        }
     }
 
     /**
@@ -436,20 +488,36 @@ public final class OasisPlayer extends LunarPlayer implements ResourceLoader, Dr
             }
 
             final boolean isCritical = equippedItem.isCriticalHit();
-            final EntityEnemy hit = gameWorldIn.hasHitEntity(equippedItem);
+            final EntityEnemy hit = getWorldState().hasHitEntity(equippedItem);
+
+            if (hit != null && !enemiesAttacking.contains(hit, true)) enemiesAttacking.add(hit);
+
             if (hit != null) {
                 final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
-                final float mod = attributes.get(AttributeType.BASE_DAMAGE_MULTIPLIER).getAttributeStrength();
-                final float f = damage * mod; // final damage
 
-                // FIXME  hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
+                hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
             }
         }
 
     }
 
+    public void attack(float amount, EntityEnemy by) {
+        super.damage(amount);
+
+        animator.accumulateDamage(amount, EntityRotation.DOWN, false);
+    }
+
     private void draw(SpriteBatch batch, TextureRegion region) {
+        animator.update(Gdx.graphics.getDeltaTime());
+
         batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
+    }
+
+    public void drawDamage(SpriteBatch batch, Camera worldCamera, Camera guiCamera) {
+        worldPosition.set(worldCamera.project(worldPosition.set(getPosition().x + 1.0f, getInterpolatedPosition().y + 2.5f, 0.0f)));
+        screenPosition.set(guiCamera.project(worldPosition));
+
+        animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
     }
 
     @Override

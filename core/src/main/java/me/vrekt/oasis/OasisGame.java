@@ -9,7 +9,7 @@ import com.kotcrab.vis.ui.VisUI;
 import gdx.lunar.LunarClientServer;
 import gdx.lunar.protocol.GdxProtocol;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.Styles;
@@ -35,12 +35,12 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240519-2121-2557";
+    public static final String GAME_VERSION = "20240522-2310-2696";
 
     private Asset asset;
 
     private MapRenderer renderer;
-    private OasisPlayer player;
+    private PlayerSP player;
     private SpriteBatch batch;
 
     private WorldManager worldManager;
@@ -100,7 +100,7 @@ public final class OasisGame extends Game {
      * Load main game structure
      */
     public void loadGameStructure() {
-        player = new OasisPlayer(this, "Player" + (System.currentTimeMillis() / 1000));
+        player = new PlayerSP(this);
         player.load(asset);
 
         guiManager = new GuiManager(this, asset, multiplexer);
@@ -131,7 +131,7 @@ public final class OasisGame extends Game {
             startIntegratedServer();
         }
 
-        player.loadFromSave(state.getPlayerProperties());
+        // FIXME  player.loadFromSave(state.getPlayerProperties());
         final String worldName = state.getWorldProperties().getWorldName();
         final GameWorld world = worldManager.getWorld(worldName);
         loadingScreen.setWorldLoadingIn(world);
@@ -218,7 +218,7 @@ public final class OasisGame extends Game {
         }
 
         handler = (PlayerConnection) clientServer.getConnection();
-        player.setConnectionHandler(handler);
+        player.connection(handler);
 
         isLocalMultiplayer = true;
     }
@@ -274,7 +274,7 @@ public final class OasisGame extends Game {
         }
 
         handler = (PlayerConnection) clientServer.getConnection();
-        player.setConnectionHandler(handler);
+        player.connection(handler);
 
         handler.joinWorld("TutorialWorld", player.getName());
     }
@@ -330,8 +330,8 @@ public final class OasisGame extends Game {
             guiManager.resize(width, height);
         }
         // TODO: Fix this shit
-        if (player != null && player.getGameWorld() != null) {
-            player.getGameWorld().resize(width, height);
+        if (player != null && player.getWorldState() != null) {
+            player.getWorldState().resize(width, height);
         }
     }
 
@@ -410,7 +410,7 @@ public final class OasisGame extends Game {
         return guiManager;
     }
 
-    public OasisPlayer getPlayer() {
+    public PlayerSP getPlayer() {
         return player;
     }
 

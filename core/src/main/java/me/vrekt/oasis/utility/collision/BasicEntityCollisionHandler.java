@@ -1,9 +1,9 @@
 package me.vrekt.oasis.utility.collision;
 
 import com.badlogic.gdx.physics.box2d.*;
-import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
  * Basis collision listener
@@ -31,16 +31,16 @@ public final class BasicEntityCollisionHandler implements ContactListener {
             final Object b = fixtureB.getBody().getUserData();
 
             // ignore interactable collision
-            if (a instanceof OasisPlayer && b instanceof EntityInteractable) {
+            if (a instanceof PlayerSP && b instanceof Entity) {
                 contact.setEnabled(false);
-            } else if (a instanceof EntityInteractable && b instanceof OasisPlayer) {
+            } else if (a instanceof Entity && b instanceof PlayerSP) {
                 contact.setEnabled(false);
             }
 
             // ignore player collisions
-            if (fixtureA.getBody().getUserData() instanceof OasisPlayer
+            if (fixtureA.getBody().getUserData() instanceof PlayerSP
                     && fixtureB.getBody().getUserData() instanceof NetworkPlayer) {
-                if (((OasisPlayer) fixtureA.getBody().getUserData()).isPlayerCollisionDisabled()
+                if (((PlayerSP) fixtureA.getBody().getUserData()).isPlayerCollisionDisabled()
                         || ((NetworkPlayer) fixtureB.getBody().getUserData()).isPlayerCollisionDisabled()) {
                     contact.setEnabled(false);
                 }

@@ -2,7 +2,7 @@ package me.vrekt.oasis.item.artifact.artifacts;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.artifact.Artifact;
 
 public final class FusionArtifact extends Artifact {
@@ -17,17 +17,17 @@ public final class FusionArtifact extends Artifact {
     }
 
     @Override
-    public boolean apply(OasisPlayer player, float tick) {
+    public boolean apply(PlayerSP player, float tick) {
         return false;
     }
 
     @Override
-    public void expire(OasisPlayer player) {
+    public void expire(PlayerSP player) {
 
     }
 
     @Override
-    protected void update(OasisPlayer player, float tick) {
+    protected void update(PlayerSP player, float tick) {
 
     }
 }

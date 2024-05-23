@@ -6,15 +6,17 @@ import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
-import me.vrekt.oasis.entity.component.facing.Direction;
+import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
+import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.interactable.EntityInteractable;
 
 /**
  * Represents a basic form of an entities AI
  */
-public final class SteeringEntity implements Steerable<Vector2> {
+public final class EntitySteerable implements Steerable<Vector2> {
 
     private static final float DEFAULT_BOUNDING_RADIUS = 0.4f;
     private static final float DEFAULT_ZERO_LINEAR_SPEED = 0.01f;
@@ -25,18 +27,21 @@ public final class SteeringEntity implements Steerable<Vector2> {
     private SteeringBehavior<Vector2> behavior;
 
     // box2d body of the entity
-    private final EntityInteractable owner;
+    private final Entity owner;
     private final Body body;
+    private final ApplyBehavior applyBehavior;
 
     // various configuration options
     private float maxSpeed, maxAcceleration, maxAngleSpeed, maxAngleAcceleration;
     private boolean isTagged;
 
     private EntityRotation direction;
+    private float last;
 
-    public SteeringEntity(EntityInteractable owner, Body body) {
+    public EntitySteerable(Entity owner, Body body, ApplyBehavior applyBehavior) {
         this.owner = owner;
         this.body = body;
+        this.applyBehavior = applyBehavior;
         direction = owner.getRotation();
     }
 
@@ -70,6 +75,17 @@ public final class SteeringEntity implements Steerable<Vector2> {
      * @param delta delta
      */
     private void apply(float delta) {
+        switch (applyBehavior) {
+            case DEFAULT -> applyDefault();
+            case VELOCITY_ONLY -> applyVelocityOnly();
+        }
+    }
+
+    /**
+     * Calculate forces and other things
+     * more involved than {@code applyVelocityOnly}
+     */
+    private void applyDefault() {
         boolean hasAcceleration = false;
 
         if (!output.linear.isZero()) {
@@ -90,10 +106,19 @@ public final class SteeringEntity implements Steerable<Vector2> {
             }
         }
 
-        // https://gamedev.stackexchange.com/questions/49290/whats-the-best-way-of-transforming-a-2d-vector-into-the-closest-8-way-compass-d
-        final float angle = (float) Math.atan2(body.getLinearVelocity().y, body.getLinearVelocity().x);
-        final int octant = (int) Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
-        direction = EntityRotation.fromDirection(Direction.values()[octant]);
+        direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
+    }
+
+    /**
+     * Only apply linear velocity and nothing else.
+     */
+    private void applyVelocityOnly() {
+        body.setLinearVelocity(output.linear);
+
+        if (GameManager.hasTimeElapsed(last, 0.1f)) {
+            direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
+            last = GameManager.getTick();
+        }
     }
 
     @Override
@@ -198,6 +223,6 @@ public final class SteeringEntity implements Steerable<Vector2> {
 
     @Override
     public Location<Vector2> newLocation() {
-        return new VectorLocation();
+        return new SimpleVectorLocation();
     }
 }

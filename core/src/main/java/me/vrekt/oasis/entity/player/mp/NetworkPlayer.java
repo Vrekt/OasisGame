@@ -2,10 +2,7 @@ package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
@@ -25,6 +22,7 @@ import me.vrekt.oasis.world.GameWorld;
 public final class NetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
 
     private EntityAnimationComponent animationComponent;
+    private TextureRegion activeTexture;
 
     private float nametagRenderWidth;
     private final Vector3 worldPosition = new Vector3();
@@ -94,17 +92,17 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        addRegion("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        addRegion("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        addRegion("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        addRegion("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        currentRegion = getRegion("healer_walking_up_idle");
+        getTextureComponent().add("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
+        getTextureComponent().add("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
+        getTextureComponent().add("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
+        getTextureComponent().add("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
+        activeTexture = getTextureComponent().get("healer_walking_up_idle");
 
         // up, down, left, right
-        animationComponent.registerWalkingAnimation(0, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
-        animationComponent.registerWalkingAnimation(1, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
-        animationComponent.registerWalkingAnimation(2, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
-        animationComponent.registerWalkingAnimation(3, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
+        animationComponent.createMoveAnimation(EntityRotation.UP, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
+        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
+        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
     }
 
     @Override
@@ -135,10 +133,10 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
         // drawEquippedItem(batch);
 
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.playWalkingAnimation(entityRotation, delta), getScaledWidth(), getScaledHeight());
+            draw(batch, animationComponent.animate(entityRotation, delta), getScaledWidth(), getScaledHeight());
         } else {
-            if (currentRegion != null) {
-                draw(batch, currentRegion, getScaledWidth(), getScaledHeight());
+            if (activeTexture != null) {
+                draw(batch, activeTexture, getScaledWidth(), getScaledHeight());
             }
         }
     }
@@ -168,19 +166,19 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     private void setIdleRegionState() {
         switch (entityRotation) {
             case UP:
-                currentRegion = getRegion("healer_walking_up_idle");
+                activeTexture = getTextureComponent().get("healer_walking_up_idle");
                 entityRotation = EntityRotation.UP;
                 break;
             case DOWN:
-                currentRegion = getRegion("healer_walking_down_idle");
+                activeTexture = getTextureComponent().get("healer_walking_down_idle");
                 entityRotation = EntityRotation.DOWN;
                 break;
             case LEFT:
-                currentRegion = getRegion("healer_walking_left_idle");
+                activeTexture = getTextureComponent().get("healer_walking_left_idle");
                 entityRotation = EntityRotation.LEFT;
                 break;
             case RIGHT:
-                currentRegion = getRegion("healer_walking_right_idle");
+                activeTexture = getTextureComponent().get("healer_walking_right_idle");
                 entityRotation = EntityRotation.RIGHT;
                 break;
         }

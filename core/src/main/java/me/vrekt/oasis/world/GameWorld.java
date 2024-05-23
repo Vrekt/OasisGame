@@ -23,12 +23,13 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
+import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -63,7 +64,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         implements WorldInputAdapter, SaveStateLoader<WorldSaveProperties>, Screen {
 
     protected final OasisGame game;
-    protected final OasisPlayer player;
+    protected final PlayerSP player;
 
     protected TiledMap map;
     protected String worldName;
@@ -95,8 +96,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     // the current tick of this world.
     protected long lastTick;
 
-    public GameWorld(OasisGame game, OasisPlayer player, World world) {
-        super(player, world, new WorldConfiguration(), new PooledEngine());
+    public GameWorld(OasisGame game, PlayerSP player, World world) {
+        super(world, new WorldConfiguration(), new PooledEngine());
 
         this.player = player;
         this.game = game;
@@ -113,12 +114,16 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         return worldName;
     }
 
-    public OasisPlayer getLocalPlayer() {
+    public PlayerSP getLocalPlayer() {
         return player;
     }
 
     public OasisGame getGame() {
         return game;
+    }
+
+    public MapRenderer getRenderer() {
+        return renderer;
     }
 
     public boolean isWorldLoaded() {
@@ -163,7 +168,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
         preLoad();
 
-        TiledMapLoader.loadMapActions(worldMap, worldScale, spawn, new Rectangle());
+        TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
         createEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
@@ -182,11 +187,11 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         if (isGameSave) {
             player.defineEntity(world, player.getX(), player.getY());
         } else {
-            player.defineEntity(world, spawn.x, spawn.y);
-            player.setBodyPosition(spawn, true);
+            player.defineEntity(world, worldOrigin.x, worldOrigin.y);
+            player.setBodyPosition(worldOrigin, true);
         }
 
-        player.setWorldState(this);
+        player.updateWorldState(this);
         if (game.isAnyMultiplayer()) loadNetworkComponents();
 
         load();
@@ -206,7 +211,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * Update the tiled map renderer
      */
     protected void updateRendererMap() {
-        renderer.setTiledMap(map, spawn.x, spawn.y);
+        renderer.setTiledMap(map, worldOrigin.x, worldOrigin.y);
     }
 
     /**
@@ -237,7 +242,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
             player.defineEntity(world, enteredInteriorPosition.x, enteredInteriorPosition.y);
             player.spawnInWorld(this, enteredInteriorPosition);
-            player.setWorldState(this);
+            player.updateWorldState(this);
 
             game.getMultiplexer().addProcessor(this);
 
@@ -268,18 +273,41 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      */
     protected void createEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
-            final EntityNPCType type = EntityNPCType.findType(object);
-            if (type != null) {
-                final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
-                entity.load(asset);
-
-                populateEntity(entity);
+            final boolean enemy = TiledMapLoader.ofBoolean(object, "enemy");
+            if (enemy) {
+                createEnemy(object, rectangle, asset);
             } else {
-                GameLogging.warn(this, "Found invalid entity: " + object);
+                final EntityNPCType type = EntityNPCType.findType(object);
+                if (type != null) {
+                    final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
+                    entity.load(asset);
+
+                    populateEntity(entity);
+                } else {
+                    GameLogging.warn(this, "Found invalid entity: " + object);
+                }
             }
         });
 
-        GameLogging.info(this, "Loaded %d entities.", entities.size());
+        GameLogging.info(this, "Loaded %d entities.", entities.size);
+    }
+
+    /**
+     * Create an enemy
+     *
+     * @param object    map object
+     * @param rectangle bounds
+     * @param asset     asset
+     */
+    protected void createEnemy(MapObject object, Rectangle rectangle, Asset asset) {
+        final EntityEnemyType type = EntityEnemyType.valueOf(TiledMapLoader.ofString(object, "entity_type"));
+        final String variety = TiledMapLoader.ofString(object, "variety");
+
+        final EntityEnemy enemy = type.create(new Vector2(rectangle.x, rectangle.y), game, this, variety);
+        enemy.load(asset);
+        populateEntity(enemy);
+
+        GameLogging.info(this, "Loaded an enemy %s", type);
     }
 
 
@@ -288,8 +316,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      *
      * @param entity the entity
      */
-    protected void populateEntity(EntityInteractable entity) {
-        entity.setEntityId(this.entities.size() + 1);
+    protected void populateEntity(Entity entity) {
+        entity.setEntityId(entities.size + 1);
         entities.put(entity.getEntityId(), entity);
         engine.addEntity(entity.getEntity());
     }
@@ -590,6 +618,15 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         }
 
         delta = update(delta);
+
+        // added back since it was removed from lunar
+        // may be added back
+        // but ideally, user should implement updating player
+        // not the library
+        player.setPosition(player.getBody().getPosition());
+        player.interpolatePosition();
+        player.update(delta);
+
         updateCursorState();
         renderWorld(delta);
     }
@@ -696,12 +733,15 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      */
     protected void endRender() {
         // render player name-tags last
-        batch.setProjectionMatrix(guiManager.getStage().getCamera().combined);
+        batch.setProjectionMatrix(guiManager.getCamera().combined);
         for (NetworkPlayer player : players.values()) {
             if (player.shouldRenderNametag()) {
                 guiManager.renderPlayerNametag(player, renderer.getCamera(), batch);
             }
         }
+
+        // render damage amount animations for the player and enemies attacking
+        guiManager.renderDamageAmountAnimations(renderer.getCamera(), batch, player);
         batch.end();
 
         game.guiManager.updateAndDrawStage();
@@ -714,11 +754,13 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @return the {@link EntityInteractable} or {@code  null} if not found
      */
     public EntityInteractable getEntityByType(EntityNPCType type) {
-        return (EntityInteractable) entities.values()
-                .stream()
-                .filter(entity -> entity instanceof EntityInteractable && ((EntityInteractable) entity).getType() == type)
-                .findFirst()
-                .orElse(null);
+        for (Entity entity : entities.values()) {
+            if (entity.isInteractable()
+                    && entity.asInteractable().getType() == type) {
+                return entity.asInteractable();
+            }
+        }
+        return null;
     }
 
     /**
@@ -764,6 +806,14 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @return the entity if hit
      */
     public EntityEnemy hasHitEntity(ItemWeapon item) {
+        for (Entity entity : entities.values()) {
+            if (entity instanceof EntityEnemy enemy) {
+                if (enemy.getBounds().overlaps(item.getBounds())) {
+                    System.err.println("HIT");
+                    return enemy;
+                }
+            }
+        }
         return null;
     }
 
@@ -783,7 +833,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         }
 
         if (entity != null) {
-            entity.setSpeakingTo(true);
+            entity.speak(true);
             guiManager.showGui(GuiType.DIALOG);
             guiManager.getDialogComponent().showEntityDialog(entity);
             return true;

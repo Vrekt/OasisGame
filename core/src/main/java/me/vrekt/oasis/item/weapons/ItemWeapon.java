@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.Items;
 
@@ -32,7 +32,7 @@ public abstract class ItemWeapon extends ItemEquippable {
     }
 
     @Override
-    public void equip(OasisPlayer player) {
+    public void equip(PlayerSP player) {
         player.equipItem(this);
     }
 

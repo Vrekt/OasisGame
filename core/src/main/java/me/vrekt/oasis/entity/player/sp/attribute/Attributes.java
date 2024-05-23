@@ -32,13 +32,11 @@ public class Attributes {
 
     /**
      * Update all active attributes
-     *
-     * @param tick the current world tick
      */
-    public void update(float tick) {
+    public void update() {
         for (Iterator<Attribute> iterator = attributes.iterator(); iterator.hasNext(); ) {
             final Attribute attribute = iterator.next();
-            if (attribute.isExpired(tick)) {
+            if (attribute.isExpired()) {
                 iterator.remove();
             }
         }

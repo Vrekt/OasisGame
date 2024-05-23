@@ -20,7 +20,7 @@ public final class CombatDamageAnimator {
     }
 
     public boolean hasDamage() {
-        return damage.size() > 0;
+        return !damage.isEmpty();
     }
 
     /**
@@ -74,7 +74,6 @@ public final class CombatDamageAnimator {
                         esd.offsetY += RandomUtils.nextFloat(0.25f, 0.5f);
                         break;
                 }
-                //  esd.offsetY += 0.5f;
                 esd.fade -= delta;
             }
         }

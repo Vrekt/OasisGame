@@ -2,7 +2,7 @@ package me.vrekt.oasis.item.consumables.food;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
@@ -35,7 +35,7 @@ public final class LucidTreeFruitItem extends ItemConsumable {
     }
 
     @Override
-    public void consume(OasisPlayer player) {
+    public void consume(PlayerSP player) {
         if (!allowedToConsume) return;
         decreaseItemAmount();
         applyAttributes(player);

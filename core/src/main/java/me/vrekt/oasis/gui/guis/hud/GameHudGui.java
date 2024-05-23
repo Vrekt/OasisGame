@@ -10,12 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
-import com.kotcrab.vis.ui.widget.Tooltip;
-import com.kotcrab.vis.ui.widget.VisImage;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -40,15 +38,17 @@ public final class GameHudGui extends Gui {
     private static final String MS = "ms";
     private final StringBuilder builder;
 
-    private final OasisPlayer player;
+    private final PlayerSP player;
 
     // store artifact components
     private final LinkedList<ArtifactComponentSlot> artifactComponentSlots = new LinkedList<>();
+    private final LinkedList<AttributeComponentSlot> attributeComponentSlots = new LinkedList<>();
 
     private final VisLabel debugComponentText;
     private final TypingLabel hintComponentText;
 
     private final VisTable hintComponent;
+    private final VisTable attributeComponent;
 
     private float lastHintTime, currentHintDuration;
 
@@ -57,6 +57,8 @@ public final class GameHudGui extends Gui {
 
     private boolean hintVisibilityOverridden, hintPaused;
     private HotbarComponentSlot selectedSlot;
+
+    private VisProgressBar healthBar;
 
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
@@ -75,6 +77,14 @@ public final class GameHudGui extends Gui {
         initializeArtifactComponent();
         hintComponent = initializeHintComponent();
         initializeHotbarComponent();
+        attributeComponent = initializeAttributeComponents();
+
+        final VisTable top = new VisTable();
+        top.bottom().padBottom(64);
+        healthBar = new VisProgressBar(0.0f, 100.0f, 1.0f, false);
+        healthBar.setValue(100);
+        top.add(healthBar).width(48 * 6 + 12);
+        guiManager.addGui(top);
 
         builder = new StringBuilder();
         this.updateInterval = 1000;
@@ -83,7 +93,7 @@ public final class GameHudGui extends Gui {
     @Override
     public void update() {
         final float now = GameManager.getTick();
-        for (int i = 0; i < player.getArtifacts().size(); i++) {
+        for (int i = 0; i < player.getArtifacts().size; i++) {
             final Artifact artifact = player.getArtifacts().get(i);
             if (artifact != null) artifactComponentSlots.get(i).update(artifact);
         }
@@ -97,7 +107,14 @@ public final class GameHudGui extends Gui {
             }
         });
 
+        // update attribute states
+        // cannot use forEach "iterator cannot be nested"
+        for (AttributeComponentSlot component : attributeComponentSlots) {
+            component.update();
+        }
+
         updatePlayerHintComponent(now);
+        healthBar.setValue(player.getHealth());
     }
 
     /**
@@ -325,15 +342,71 @@ public final class GameHudGui extends Gui {
         components.add(table);
     }
 
+    private VisTable initializeAttributeComponents() {
+        final VisTable attributeComponentTable = new VisTable();
+
+        attributeComponentTable.setVisible(false);
+        attributeComponentTable.bottom().right().padRight(8).padBottom(24);
+
+        for (int i = 0; i < 3; i++) createAttributeContainer(attributeComponentTable);
+
+        guiManager.addGui(attributeComponentTable);
+        components.add(attributeComponentTable);
+        return attributeComponentTable;
+    }
+
+    private void createAttributeContainer(VisTable parent) {
+        final VisImage icon = new VisImage();
+        icon.setVisible(false);
+
+        parent.add(icon).size(36, 36);
+        parent.row();
+
+        attributeComponentSlots.add(new AttributeComponentSlot(icon));
+    }
+
+    /**
+     * Show an attribute icon component
+     *
+     * @param attribute the attribute
+     */
+    public void showAttribute(Attribute attribute) {
+        attributeComponent.setVisible(true);
+
+        for (AttributeComponentSlot component : attributeComponentSlots) {
+            if (!component.isActive) {
+                component.show(attribute);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Hide the components table if no attributes are active anymore.
+     */
+    private void hideAttributeComponentsIfNoneActive() {
+        boolean visible = false;
+        for (AttributeComponentSlot component : attributeComponentSlots) {
+            if (component.isActive) {
+                visible = true;
+                break;
+            }
+        }
+        if (!visible) attributeComponent.setVisible(false);
+    }
+
     @Override
     public void timedUpdate(long currentTime) {
         builder.setLength(0);
         builder.append(FPS)
                 .append(Gdx.graphics.getFramesPerSecond())
-                .append(StringUtils.SPACE)
-                .append(PING)
-                .append(guiManager.getGame().getPlayer().getServerPingTime())
                 .append(StringUtils.SPACE);
+
+        if (GameManager.getOasis().isMultiplayer()) {
+            builder.append(PING)
+                    .append(guiManager.getGame().getConnectionHandler().getPingMs())
+                    .append(StringUtils.SPACE);
+        }
 
         if (guiManager.getGame().isLocalMultiplayer()) {
             builder.append(MSPT)
@@ -445,6 +518,45 @@ public final class GameHudGui extends Gui {
             artifactImageComponent.addAction(Actions.fadeIn(cooldown));
         }
 
+    }
+
+    private final class AttributeComponentSlot {
+        private Attribute activeAttribute;
+        private final VisImage icon;
+        private boolean isActive;
+
+        AttributeComponentSlot(VisImage icon) {
+            this.icon = icon;
+        }
+
+        void show(Attribute attribute) {
+            this.activeAttribute = attribute;
+
+            icon.getColor().a = 0.0f;
+            icon.addAction(Actions.fadeIn(1.0f));
+            icon.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.getTexture())));
+            icon.setVisible(true);
+            isActive = true;
+        }
+
+        void expire() {
+            icon.addAction(
+                    Actions.sequence(
+                            Actions.fadeOut(1.0f),
+                            Actions.visible(false),
+                            Actions.run(GameHudGui.this::hideAttributeComponentsIfNoneActive))
+            );
+            activeAttribute = null;
+            isActive = false;
+        }
+
+        void update() {
+            if (activeAttribute == null) return;
+
+            if (activeAttribute.isExpired()) {
+                expire();
+            }
+        }
     }
 
 }

@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PlayerInventoryGui extends InventoryGui {
 
-    private final OasisPlayer player;
+    private final PlayerSP player;
     private final LinkedList<InventoryGuiSlot> guiSlots = new LinkedList<>();
     private final Map<ItemRarity, TextureRegionDrawable> rarityIcons = new HashMap<>();
     private final TypingLabel itemNameHeader, itemDescriptionHeader;
@@ -66,7 +66,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
         itemNameHeader.setVisible(true);
         itemNameHeader.setWrap(true);
-        itemNameHeader.setWidth(140);
+        itemNameHeader.setWidth(50);
         itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumBlack());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
@@ -75,7 +75,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         // Headers: item name and rarity icons
         final VisTable headerTable = new VisTable();
         headerTable.left();
-        headerTable.add(itemNameHeader).width(140).left();
+        headerTable.add(itemNameHeader).width(50).left();
         headerTable.add(itemRarityIcon = new VisImage())
                 .size(36, 36)
                 .left()
@@ -254,7 +254,6 @@ public final class PlayerInventoryGui extends InventoryGui {
         hideItemOptionals();
         selectedItem = slot.getItem();
 
-        System.err.println(selectedItem.getItemRarity().getColorName());
         itemNameHeader.setText(selectedItem.getItemRarity().getColorName() + selectedItem.getItemName());
         itemNameHeader.setVisible(true);
         itemNameHeader.restart();

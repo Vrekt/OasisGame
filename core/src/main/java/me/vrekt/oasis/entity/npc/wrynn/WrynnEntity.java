@@ -4,10 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiArrivalComponent;
@@ -18,7 +14,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
@@ -35,7 +31,7 @@ public final class WrynnEntity extends EntityInteractable {
     private EntityAnimationComponent animationComponent;
     private AiArrivalComponent arrivalComponent;
 
-    public WrynnEntity(String name, Vector2 position, OasisPlayer player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
+    public WrynnEntity(String name, Vector2 position, PlayerSP player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
         super(name, position, player, worldIn, game, type);
     }
 
@@ -45,6 +41,8 @@ public final class WrynnEntity extends EntityInteractable {
 
     @Override
     public void load(Asset asset) {
+        super.load(asset);
+
         this.parentWorld = ((GameWorldInterior) worldIn).getParentWorld();
 
         addTexturePart("face", asset.get("wrynn_face"));
@@ -58,11 +56,20 @@ public final class WrynnEntity extends EntityInteractable {
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        animationComponent.registerWalkingAnimation(EntityRotation.LEFT, 0.4f, asset.get("wrynn_walking_left", 1), asset.get("wrynn_walking_left", 2));
-        animationComponent.registerWalkingAnimation(EntityRotation.DOWN, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.4f,
+                asset.get("wrynn_walking_left", 1),
+                asset.get("wrynn_walking_left", 2));
+        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.4f,
+                asset.get("wrynn_walking_down", 1),
+                asset.get("wrynn_walking_down", 2));
+
         // FIXME, add other walking animations
-        animationComponent.registerWalkingAnimation(EntityRotation.RIGHT, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
-        animationComponent.registerWalkingAnimation(EntityRotation.UP, 0.4f, asset.get("wrynn_walking_down", 1), asset.get("wrynn_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.4f,
+                asset.get("wrynn_walking_down", 1),
+                asset.get("wrynn_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.UP, 0.4f,
+                asset.get("wrynn_walking_down", 1),
+                asset.get("wrynn_walking_down", 2));
 
         dialogue = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
         dialogue.setOwner(this);
@@ -77,9 +84,6 @@ public final class WrynnEntity extends EntityInteractable {
             parentWorld.removeSimpleObject("oasis:basement_gate");
         });
 
-        dialogFrames[0] = asset.get("dialog", 1);
-        dialogFrames[1] = asset.get("dialog", 2);
-        dialogFrames[2] = asset.get("dialog", 3);
         createBoxBody(worldIn.getEntityWorld());
 
         arrivalComponent = new AiArrivalComponent(this);
@@ -101,7 +105,7 @@ public final class WrynnEntity extends EntityInteractable {
             if (!isMoving()) {
                 drawCurrentPosition(batch, activeEntityTexture);
             } else {
-                drawCurrentPosition(batch, animationComponent.playWalkingAnimation(rotation, delta));
+                drawCurrentPosition(batch, animationComponent.animate(rotation, delta));
             }
         }
     }
@@ -136,30 +140,9 @@ public final class WrynnEntity extends EntityInteractable {
         dialogue.update();
     }
 
-    public void createBoxBody(World world) {
-        final BodyDef definition = new BodyDef();
-        final FixtureDef fixture = new FixtureDef();
-
-        definition.type = BodyDef.BodyType.DynamicBody;
-        definition.fixedRotation = false;
-        definition.position.set(getPosition());
-
-        body = world.createBody(definition);
-        PolygonShape shape;
-
-        shape = new PolygonShape();
-        shape.setAsBox(getScaledWidth() / 2.0F, getScaledHeight() / 2.0F);
-        fixture.shape = shape;
-        fixture.density = 1.0f;
-
-        body.createFixture(fixture);
-        body.setUserData(this);
-        shape.dispose();
-    }
-
     @Override
-    public void setSpeakingTo(boolean speakingTo) {
-        super.setSpeakingTo(speakingTo);
+    public void speak(boolean speakingTo) {
+        super.speak(speakingTo);
 
         if (speakingTo && !hintShown) {
             // show player hint about how to interact with the dialog system

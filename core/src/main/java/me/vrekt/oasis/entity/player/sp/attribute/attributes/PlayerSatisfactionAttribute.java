@@ -10,7 +10,7 @@ public final class PlayerSatisfactionAttribute extends Attribute {
 
     private static final String KEY = "attribute:satisfaction";
     private static final String NAME = "Satisfaction";
-    private static final String TEXTURE = "satisfaction_attribute2";
+    private static final String TEXTURE = "satisfaction_attribute3";
     private static final String DESCRIPTION = "Gives you a small damage boost.";
 
     public PlayerSatisfactionAttribute(float duration, float strength) {

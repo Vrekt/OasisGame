@@ -309,9 +309,9 @@ public final class EntityDialogGui extends Gui {
             public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
                 if (focused) {
                     hasAnyFocus = true;
-                    GameManager.getPlayer().setDisableMovement(true);
+                    GameManager.getPlayer().disableMovement(true);
                 } else if (hasAnyFocus) {
-                    GameManager.getPlayer().setDisableMovement(false);
+                    GameManager.getPlayer().disableMovement(false);
                 }
             }
         });
@@ -373,7 +373,7 @@ public final class EntityDialogGui extends Gui {
         rootTable.setVisible(false);
 
         // give control back to player if this GUI was unexpectedly closed.
-        if (hasAnyFocus) GameManager.getPlayer().setDisableMovement(false);
+        if (hasAnyFocus) GameManager.getPlayer().disableMovement(false);
     }
 
 
@@ -428,7 +428,7 @@ public final class EntityDialogGui extends Gui {
             guiManager.getStage().unfocus(userInputField);
 
             if (result.isFinished()) {
-                entity.setSpeakingTo(false);
+                entity.speak(false);
                 EntityDialogGui.this.hide();
             } else {
                 EntityDialogGui.this.showEntityDialog(entity);

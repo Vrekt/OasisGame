@@ -1,7 +1,7 @@
 package me.vrekt.oasis.entity.player.sp.attribute;
 
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
  * Base implementation of an attribute that is applied from an item to the player.
@@ -11,13 +11,13 @@ public abstract class Attribute {
     protected final String key, name, description;
     protected String texture;
 
-    private final AttributeType type;
+    protected final AttributeType type;
 
-    private final float duration;
-    private final float strength;
+    protected final float duration;
+    protected final float strength;
 
-    private boolean expires;
-    private float tickApplied;
+    protected boolean instant;
+    protected float tickApplied;
 
     public Attribute(String key, String name, String description) {
         this.key = key;
@@ -35,10 +35,6 @@ public abstract class Attribute {
         this.description = description;
         this.duration = duration;
         this.strength = strength;
-    }
-
-    protected void setExpires() {
-        this.expires = true;
     }
 
     /**
@@ -77,18 +73,17 @@ public abstract class Attribute {
     }
 
     /**
-     * @return {@code true} if this attribute expires.
+     * @return {@code true} if this attribute is instant
      */
-    public boolean expires() {
-        return expires;
+    public boolean isInstant() {
+        return instant;
     }
 
     /**
-     * @param tick the current world tick
      * @return {@code true} if this attribute has expired
      */
-    public boolean isExpired(float tick) {
-        return expires && (tick - tickApplied >= duration);
+    public boolean isExpired() {
+        return (GameManager.getTick() - tickApplied >= duration);
     }
 
     /**
@@ -103,7 +98,7 @@ public abstract class Attribute {
      *
      * @param player the player
      */
-    public void apply(OasisPlayer player) {
+    public void apply(PlayerSP player) {
         tickApplied = GameManager.getTick();
     }
 

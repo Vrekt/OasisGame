@@ -2,8 +2,7 @@ package me.vrekt.oasis.save.player;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
-import me.vrekt.oasis.entity.inventory.AbstractInventory;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.save.inventory.InventorySaveProperties;
 import me.vrekt.oasis.save.keys.HasPosition;
 
@@ -18,7 +17,7 @@ public class PlayerSaveProperties implements HasPosition {
     @Expose
     private InventorySaveProperties inventory;
 
-    public PlayerSaveProperties(OasisPlayer player) {
+    public PlayerSaveProperties(PlayerSP player) {
         position = player.getPosition();
         inventory = new InventorySaveProperties(player.getInventory());
     }

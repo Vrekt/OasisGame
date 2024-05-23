@@ -3,7 +3,7 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import org.apache.commons.lang3.StringUtils;
 
@@ -104,7 +104,7 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public void useItem(OasisPlayer player) {
+    public void useItem(PlayerSP player) {
 
     }
 
@@ -134,14 +134,14 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public void applyAttributes(OasisPlayer player) {
+    public void applyAttributes(PlayerSP player) {
         for (Attribute attribute : attributes.values()) {
             player.applyAttribute(attribute);
         }
     }
 
     @Override
-    public void applyAttribute(String attribute, OasisPlayer player) {
+    public void applyAttribute(String attribute, PlayerSP player) {
 
     }
 

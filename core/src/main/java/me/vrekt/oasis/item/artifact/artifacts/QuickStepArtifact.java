@@ -3,7 +3,7 @@ package me.vrekt.oasis.item.artifact.artifacts;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.artifact.Artifact;
 
 /**
@@ -27,7 +27,7 @@ public final class QuickStepArtifact extends Artifact {
     }
 
     @Override
-    public boolean apply(OasisPlayer player, float tick) {
+    public boolean apply(PlayerSP player, float tick) {
         if (this.isApplied || (tick - this.tick) < artifactCooldown) {
             return false;
         }
@@ -43,13 +43,13 @@ public final class QuickStepArtifact extends Artifact {
     }
 
     @Override
-    public void expire(OasisPlayer player) {
+    public void expire(PlayerSP player) {
         player.setMoveSpeed(moveSpeed);
         this.isApplied = false;
     }
 
     @Override
-    public void update(OasisPlayer player, float tick) {
+    public void update(PlayerSP player, float tick) {
         if (tick - this.tick >= artifactDuration) {
             this.expire(player);
         }

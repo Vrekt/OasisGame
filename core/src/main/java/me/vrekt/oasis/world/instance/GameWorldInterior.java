@@ -105,6 +105,8 @@ public abstract class GameWorldInterior extends GameWorld {
      */
     @Override
     public void enter() {
+        GameLogging.info(this, "Entering interior %s", worldName);
+
         create(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
         game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
@@ -142,7 +144,7 @@ public abstract class GameWorldInterior extends GameWorld {
         preLoad();
 
         TiledMapLoader.loadMapCollision(map, worldScale, world);
-        TiledMapLoader.loadMapActions(map, worldScale, spawn, exit);
+        TiledMapLoader.loadMapActions(map, worldScale, worldOrigin, exit);
         createWorldObjects(map, game.getAsset(), worldScale);
         createEntities(game, game.getAsset(), map, worldScale);
         findEntityPathing(map, worldScale);
@@ -163,9 +165,8 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     private void setPlayerState() {
-        player.spawnInWorld(this, spawn);
-        player.setInInteriorWorld(true);
-        player.setInteriorWorldIn(this);
+        player.spawnInWorld(this, worldOrigin);
+        player.updateWorldState(this);
     }
 
     @Override

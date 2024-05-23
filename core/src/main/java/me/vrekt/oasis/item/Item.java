@@ -3,7 +3,7 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.utility.ResourceLoader;
 
@@ -42,7 +42,7 @@ public interface Item extends ResourceLoader {
 
     void setStackable(boolean stackable);
 
-    void useItem(OasisPlayer player);
+    void useItem(PlayerSP player);
 
     void addAttribute(Attribute attribute);
 
@@ -54,9 +54,9 @@ public interface Item extends ResourceLoader {
 
     Map<String, Attribute> getItemAttributes();
 
-    void applyAttributes(OasisPlayer player);
+    void applyAttributes(PlayerSP player);
 
-    void applyAttribute(String attribute, OasisPlayer player);
+    void applyAttribute(String attribute, PlayerSP player);
 
     void update(float delta, EntityRotation rotation);
 

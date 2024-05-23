@@ -2,7 +2,7 @@ package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
  * Represents an item the player can equip
@@ -19,7 +19,7 @@ public abstract class ItemEquippable extends AbstractItem {
 
     }
 
-    public boolean canEquip(OasisPlayer player) {
+    public boolean canEquip(PlayerSP player) {
         return player.canEquipItem();
     }
 
@@ -28,7 +28,7 @@ public abstract class ItemEquippable extends AbstractItem {
      *
      * @param player the local player
      */
-    public void equip(OasisPlayer player) {
+    public void equip(PlayerSP player) {
         isEquipped = true;
     }
 

@@ -5,7 +5,7 @@ import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.entity.player.sp.OasisPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 
@@ -16,7 +16,7 @@ public final class WorldNetworkHandler {
 
     private final OasisGame game;
     private final GameWorld world;
-    private final OasisPlayer player;
+    private final PlayerSP player;
 
     public WorldNetworkHandler(OasisGame game, GameWorld world) {
         this.game = game;
@@ -84,7 +84,7 @@ public final class WorldNetworkHandler {
         networkPlayer.setProperties(username, entityId);
         networkPlayer.setSize(15, 25, OasisGameSettings.SCALE);
         networkPlayer.spawnPlayerAndSetWorldState(world);
-        networkPlayer.setBodyPosition(world.getWorldSpawn(), 1.0f, true);
+        networkPlayer.setBodyPosition(world.getWorldOrigin(), 1.0f, true);
     }
 
 }
