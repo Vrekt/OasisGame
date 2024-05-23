@@ -8,7 +8,6 @@ import me.vrekt.oasis.entity.dialog.utility.DialogueState;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -111,14 +110,9 @@ public final class Dialogue implements Disposable {
      * Run dialogue updates
      */
     public void update() {
-        for (Iterator<DialogueEntry> iterator = entryUpdates.iterator(); iterator.hasNext(); ) {
-            final DialogueEntry entry = iterator.next();
-            if (entry.update()) {
-
-                // condition was successful so remove this update listener
-                iterator.remove();
-
-                // we want to advance too.
+        if (activeEntry.hasCondition()) {
+            if (activeEntry.update()) {
+                entryUpdates.removeValue(activeEntry, true);
                 owner.next();
             }
         }

@@ -58,8 +58,6 @@ public final class GameHudGui extends Gui {
     private boolean hintVisibilityOverridden, hintPaused;
     private HotbarComponentSlot selectedSlot;
 
-    private VisProgressBar healthBar;
-
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
 
@@ -78,13 +76,6 @@ public final class GameHudGui extends Gui {
         hintComponent = initializeHintComponent();
         initializeHotbarComponent();
         attributeComponent = initializeAttributeComponents();
-
-        final VisTable top = new VisTable();
-        top.bottom().padBottom(64);
-        healthBar = new VisProgressBar(0.0f, 100.0f, 1.0f, false);
-        healthBar.setValue(100);
-        top.add(healthBar).width(48 * 6 + 12);
-        guiManager.addGui(top);
 
         builder = new StringBuilder();
         this.updateInterval = 1000;
@@ -114,7 +105,6 @@ public final class GameHudGui extends Gui {
         }
 
         updatePlayerHintComponent(now);
-        healthBar.setValue(player.getHealth());
     }
 
     /**
@@ -342,6 +332,11 @@ public final class GameHudGui extends Gui {
         components.add(table);
     }
 
+    /**
+     * Initialize attribute components
+     *
+     * @return the root table
+     */
     private VisTable initializeAttributeComponents() {
         final VisTable attributeComponentTable = new VisTable();
 
@@ -355,6 +350,11 @@ public final class GameHudGui extends Gui {
         return attributeComponentTable;
     }
 
+    /**
+     * Creates an attribute container for the attribute icon
+     *
+     * @param parent parent table
+     */
     private void createAttributeContainer(VisTable parent) {
         final VisImage icon = new VisImage();
         icon.setVisible(false);

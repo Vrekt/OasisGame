@@ -1,9 +1,9 @@
 package me.vrekt.oasis.ai;
 
+import com.badlogic.gdx.ai.steer.SteerableAdapter;
 import com.badlogic.gdx.ai.utils.Location;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import me.vrekt.oasis.ai.utility.AbstractSteerable;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -12,7 +12,7 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
  * A steerable that represents the current player
  * No behaviour, obviously.
  */
-public final class PlayerSteerableTarget extends AbstractSteerable {
+public final class PlayerSteerableTarget extends SteerableAdapter<Vector2> {
 
     private final PlayerSP player;
     private final Body body;

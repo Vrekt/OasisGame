@@ -260,6 +260,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
                 return;
             }
 
+            System.err.println("YO");
+
             speakable.next();
             game.getGuiManager().getDialogComponent().showEntityDialog(speakable);
         }

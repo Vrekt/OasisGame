@@ -100,6 +100,10 @@ public final class DialogueEntry {
         this.condition = condition;
     }
 
+    public boolean hasCondition() {
+        return this.condition != null;
+    }
+
     /**
      * Sets this entries state to visited -> has seen by player
      */

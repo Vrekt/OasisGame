@@ -77,11 +77,12 @@ public final class AiArrivalComponent extends AiComponent {
      * @return {@code true} if so
      */
     public boolean isWithinArrivalTarget() {
-        return entity.getPosition().dst2(location.getPosition()) <= arrivalTolerance;
+        return isWalkingToPath && entity.getPosition().dst2(location.getPosition()) <= arrivalTolerance;
     }
 
     @Override
     public void update(float delta) {
+
         if (!isWalkingToPath && (lastPointTick == 0
                 || (GameManager.getTick() - lastPointTick) >= pathingInterval)) {
             isWalkingToPath = true;

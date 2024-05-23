@@ -103,6 +103,7 @@ public abstract class EntitySpeakable extends Entity {
     }
 
     public boolean advance() {
+        System.err.println("adadsa");
         return dialogue.advance();
     }
 
@@ -133,6 +134,7 @@ public abstract class EntitySpeakable extends Entity {
      * @return the result
      */
     public DialogueResult next(String key) {
+        System.err.println(key);
         final DialogueResult result = dialogue.getEntry(key);
         if (result.getEntry() != null) this.activeEntry = result.getEntry();
         return result;
@@ -144,6 +146,7 @@ public abstract class EntitySpeakable extends Entity {
      * @return the result
      */
     public DialogueResult next() {
+        System.err.println("1211");
         final DialogueResult result = dialogue.getEntry(activeEntry.getNextKey());
         if (result.getEntry() != null) this.activeEntry = result.getEntry();
         return result;
