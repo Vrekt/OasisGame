@@ -34,8 +34,7 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
     protected void updateInterval() {
         for (Entity entity : engine.getEntitiesFor(family)) {
             final EntityDialogComponent component = dialogMapper.get(entity);
-            if (component.isInView && component.drawDialogAnimationTile) {
-                // TODO: This is going to be changing
+            if (component.isInView) {
                 component.currentDialogFrame = component.currentDialogFrame >= 3 ? 1 : component.currentDialogFrame + 1;
             }
         }

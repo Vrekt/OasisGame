@@ -102,6 +102,10 @@ public final class AiArrivalComponent extends AiComponent {
      * Assign a random point to arrive to.
      */
     private void assignRandomPoint() {
+        if (points.size == 0) {
+            isWalkingToPath = false;
+            return;
+        }
         location.getPosition().set(points.get(ThreadLocalRandom.current().nextInt(points.size)));
         GameLogging.info(this, "%s is walking to a new point: %s", entity.getName(), location.getPosition());
     }

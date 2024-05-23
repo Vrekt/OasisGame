@@ -2,6 +2,7 @@ package me.vrekt.oasis.utility.tiled;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -84,6 +85,22 @@ public final class TiledMapLoader {
         }
 
         GameLogging.info("TiledMapLoader", "Loaded a total of %d collision objects.", loaded);
+    }
+
+    /**
+     * Load poly path
+     *
+     * @param layer      the layer
+     * @param worldScale scale
+     * @return the points or {@code null} if none
+     */
+    public static Vector2[] loadPolyPath(MapLayer layer, float worldScale) {
+        for (MapObject object : layer.getObjects()) {
+            if (object instanceof PolylineMapObject poly) {
+                return CollisionShapeCreator.createPathPoints(poly, worldScale);
+            }
+        }
+        return null;
     }
 
     public static boolean ofBoolean(MapObject object, String key) {

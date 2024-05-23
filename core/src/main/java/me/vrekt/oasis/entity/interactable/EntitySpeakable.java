@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.Dialogue;
@@ -67,7 +68,8 @@ public abstract class EntitySpeakable extends Entity {
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (drawDialogAnimationTile()) renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
+        if (drawDialogAnimationTile() && !isSpeakingTo())
+            renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
     }
 
     /**
@@ -77,7 +79,7 @@ public abstract class EntitySpeakable extends Entity {
      * @param region region
      */
     protected void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getX() + 0.2f, getY() + getScaledHeight() + 0.1f, getScaledWidth(), getScaledHeight());
+        batch.draw(region, getX() + 0.15f, getY() + getScaledHeight() + 0.1f, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
     public int getCurrentDialogFrame() {
@@ -103,7 +105,6 @@ public abstract class EntitySpeakable extends Entity {
     }
 
     public boolean advance() {
-        System.err.println("adadsa");
         return dialogue.advance();
     }
 
@@ -134,7 +135,6 @@ public abstract class EntitySpeakable extends Entity {
      * @return the result
      */
     public DialogueResult next(String key) {
-        System.err.println(key);
         final DialogueResult result = dialogue.getEntry(key);
         if (result.getEntry() != null) this.activeEntry = result.getEntry();
         return result;
@@ -146,7 +146,6 @@ public abstract class EntitySpeakable extends Entity {
      * @return the result
      */
     public DialogueResult next() {
-        System.err.println("1211");
         final DialogueResult result = dialogue.getEntry(activeEntry.getNextKey());
         if (result.getEntry() != null) this.activeEntry = result.getEntry();
         return result;

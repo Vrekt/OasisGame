@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -29,10 +30,12 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
     protected PlayerSP player;
     protected boolean isNearby, inView;
     protected NinePatch gradient;
+    protected boolean dynamicSize;
+    protected Rectangle bb;
 
     // the active texture this entity is using to draw itself
     protected TextureRegion activeEntityTexture;
-    protected EntityRotation rotation = EntityRotation.DOWN, previousRotation = EntityRotation.DOWN;
+    protected EntityRotation rotation = EntityRotation.DOWN, previousRotation = EntityRotation.LEFT;
 
     // the world this entity is in
     protected GameWorld worldIn;
@@ -44,6 +47,27 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
 
         entity.add(new EntityTextureComponent());
         setHealth(100.0f);
+    }
+
+    public Rectangle bb() {
+        return bb;
+    }
+
+    protected void createBB(float w, float h) {
+        bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
+        setSize(w, h, OasisGameSettings.SCALE);
+    }
+
+    /**
+     * Add a texture part
+     *
+     * @param rotation rotation key
+     * @param texture  the texture
+     */
+    protected TextureRegion addTexturePart(EntityRotation rotation, TextureRegion texture, boolean initial) {
+        entity.getComponent(EntityTextureComponent.class).textureRegions.put(rotation.name(), texture);
+        if (initial) activeEntityTexture = texture;
+        return texture;
     }
 
     /**
@@ -65,6 +89,16 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
      */
     protected TextureRegion getTexturePart(String name) {
         return entity.getComponent(EntityTextureComponent.class).textureRegions.get(name);
+    }
+
+    /**
+     * Get a texture part
+     *
+     * @param rotation rotation key
+     * @return the texture
+     */
+    protected TextureRegion getTexturePart(EntityRotation rotation) {
+        return entity.getComponent(EntityTextureComponent.class).textureRegions.get(rotation.name());
     }
 
     /**
@@ -149,7 +183,18 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
 
     }
 
+    /**
+     * Draw the current position
+     * If dynamic sizing is true, will automatically resize the bb.
+     *
+     * @param batch  batch
+     * @param region texture
+     */
     protected void drawCurrentPosition(SpriteBatch batch, TextureRegion region) {
+        if (dynamicSize && previousRotation != rotation) {
+            setSize(region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE, OasisGameSettings.SCALE);
+        }
+
         batch.draw(region, body.getPosition().x, body.getPosition().y, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 

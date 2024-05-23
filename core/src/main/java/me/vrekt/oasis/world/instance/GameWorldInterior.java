@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.instance;
 
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -132,6 +133,8 @@ public abstract class GameWorldInterior extends GameWorld {
     public void create(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
 
+        debugRenderer = new ShapeRenderer();
+
         if (isWorldLoaded) {
             // indicates this instance is already loaded into memory.
             updateRendererMap();
@@ -146,8 +149,8 @@ public abstract class GameWorldInterior extends GameWorld {
         TiledMapLoader.loadMapCollision(map, worldScale, world);
         TiledMapLoader.loadMapActions(map, worldScale, worldOrigin, exit);
         createWorldObjects(map, game.getAsset(), worldScale);
+        buildEntityPathing(map, worldScale);
         createEntities(game, game.getAsset(), map, worldScale);
-        findEntityPathing(map, worldScale);
 
         updateRendererMap();
         game.getMultiplexer().addProcessor(this);

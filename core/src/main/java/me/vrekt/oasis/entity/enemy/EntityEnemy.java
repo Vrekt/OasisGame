@@ -39,7 +39,7 @@ public abstract class EntityEnemy extends Entity {
         return type;
     }
 
-    public Rectangle getBounds() {
+    public Rectangle bb() {
         return bounds;
     }
 

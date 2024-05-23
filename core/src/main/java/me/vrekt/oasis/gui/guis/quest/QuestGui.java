@@ -1,18 +1,20 @@
 package me.vrekt.oasis.gui.guis.quest;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
+import me.vrekt.oasis.questing.quests.QuestType;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * The quest GUI
@@ -20,8 +22,11 @@ import java.util.LinkedList;
 public final class QuestGui extends Gui {
 
     private final LinkedList<VisLabel> questNameLabels = new LinkedList<>();
+    private final Map<QuestType, VisTable> questComponents = new HashMap<>();
     private final PlayerQuestManager manager;
     private int activeIndex = 0;
+
+    private final VisTable left;
 
     public QuestGui(GuiManager guiManager) {
         super(GuiType.QUEST, guiManager);
@@ -33,31 +38,34 @@ public final class QuestGui extends Gui {
         rootTable.setVisible(false);
 
         final VisLabel label = new VisLabel("Active Quests", guiManager.getStyle().getLargeBlack());
-
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest"));
 
         rootTable.setBackground(drawable);
-        final VisTable left = new VisTable(true), right = new VisTable(true);
-        right.top().padTop(36).padLeft(32).left();
+        left = new VisTable(true);
         left.top().padTop(52).padLeft(116).left();
 
         left.add(label).left();
         left.row();
-        populateQuestComponents(left);
 
         rootTable.add(left).fill().expand();
 
         guiManager.addGui(rootTable);
     }
 
-    private void populateQuestComponents(Table left) {
-        final Color color = new Color(0.132f, 0.220f, 0.198f, 1f);
+    private void populateActiveQuests() {
         for (Quest quest : manager.getActiveQuests().values()) {
+            if (questComponents.containsKey(quest.getType())) continue;
+
+            final VisTable parent = new VisTable();
             final VisLabel label = new VisLabel((activeIndex + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.getStyle().getMediumBlack());
             final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.getStyle().getSmallWhite());
             completeness.setColor(Color.LIGHT_GRAY);
-            left.add(label).left();
-            left.add(completeness);
+
+            parent.add(label).left();
+            parent.add(completeness);
+            questComponents.put(quest.getType(), parent);
+
+            left.add(parent);
             left.row();
             activeIndex++;
 
@@ -77,6 +85,7 @@ public final class QuestGui extends Gui {
     @Override
     public void show() {
         super.show();
+        populateActiveQuests();
         rootTable.setVisible(true);
         if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().pauseCurrentHint();
     }

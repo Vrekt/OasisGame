@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.interior.wrynn;
 
 import com.badlogic.gdx.math.Rectangle;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.GameWorld;
@@ -29,9 +28,7 @@ public final class WrynnHouseInterior extends GameWorldInterior {
     @Override
     public void enter() {
         super.enter();
-
-        wrynn = (WrynnEntity) getEntityByType(EntityNPCType.WRYNN);
-        paths.forEach(vector2 -> wrynn.getArrivalComponent().addArrivalPoint(vector2));
+        guiManager.getHudComponent().clearHints();
     }
 
 }

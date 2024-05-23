@@ -56,11 +56,14 @@ bounds:417,32,36,36
 container
 bounds:776,70,256,184
 dialog
-index:2
+index:3
 bounds:591,18,13,12
 dialog
-index:1
+index:2
 bounds:664,36,13,12
+dialog
+index:1
+bounds:1690,242,13,12
 dialog_end_picture
 bounds:271,10,24,24
 dialog_option
@@ -134,7 +137,7 @@ bounds:260,70,256,184
 quickstep_artifact
 bounds:469,6,24,24
 quickstep_artifact_effect_arrow
-bounds:1690,242,12,12
+bounds:857,56,12,12
 quickstep_artifact_icon
 bounds:303,32,36,36
 quickstep_artifact_item
@@ -160,7 +163,7 @@ slash
 index:1
 bounds:1672,238,16,16
 slider_knob
-bounds:857,60,8,8
+bounds:591,8,8,8
 slime_left
 index:3
 bounds:521,11,24,19

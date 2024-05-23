@@ -210,6 +210,13 @@ public final class GameHudGui extends Gui {
     }
 
     /**
+     * Clear hints
+     */
+    public void clearHints() {
+        hintComponent.setVisible(false);
+    }
+
+    /**
      * Show the artifact apply effect
      *
      * @param slot     the slot

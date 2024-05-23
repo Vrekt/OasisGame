@@ -16,6 +16,8 @@ public final class CollisionShapeCreator {
 
     public static final BodyDef STATIC_BODY = new BodyDef();
 
+    public static float[] vertices;
+
     static {
         STATIC_BODY.type = BodyDef.BodyType.StaticBody;
     }
@@ -89,6 +91,25 @@ public final class CollisionShapeCreator {
         body.createFixture(shape, 1.0f);
         shape.dispose();
         return body;
+    }
+
+    /**
+     * Create individual path points along a poly-line map object
+     *
+     * @param object object
+     * @param scale  scale
+     * @return the points
+     */
+    public static Vector2[] createPathPoints(PolylineMapObject object, float scale) {
+        final float[] vertices = object.getPolyline().getTransformedVertices();
+        final Vector2[] world = new Vector2[vertices.length / 2];
+
+        for (int i = 0; i < world.length; i++) {
+            final Vector2 vec = new Vector2(vertices[i * 2] * scale, vertices[i * 2 + 1] * scale);
+            world[i] = vec;
+        }
+
+        return world;
     }
 
     /**

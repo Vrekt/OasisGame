@@ -1,5 +1,6 @@
 package me.vrekt.oasis.gui.guis.quest;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -62,19 +63,12 @@ public final class QuestEntryGui extends Gui {
 
         final VisLabel itemsRequiredLabel = new VisLabel("Items Required", guiManager.getStyle().getLargeBlack());
         final VisLabel questRewardsLabel = new VisLabel("Rewards", guiManager.getStyle().getLargeBlack());
-        final Stack backStack = new Stack();
-
-        final VisImage background = new VisImage(guiManager.getAsset().get("back_button"));
-        // final VisLabel label = new VisLabel("<- Back");
-        //  backStack.add(background);
-        //   backStack.add(label);
 
         objectivesTable = new VisTable();
         itemsRequiredTable = new VisTable();
         questRewardsTable = new VisTable();
         itemsRequiredTable.left();
         questRewardsTable.left();
-
 
         final VisTable components = new VisTable();
         components.top().left().padLeft(116).padTop(40);
@@ -112,7 +106,12 @@ public final class QuestEntryGui extends Gui {
         completeness.setText(quest.getCompleteness() + "% complete");
         completeness.restart();
 
-        questDifficultyIcon.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(quest.getDifficulty().getAsset())));
+        // FIXME: When I figure out quest difficulty icons EM-23
+        final TextureRegion difficultyIconAsset = guiManager.getAsset().get(quest.getDifficulty().getAsset());
+        if (difficultyIconAsset != null) {
+            questDifficultyIcon.setDrawable(new TextureRegionDrawable(difficultyIconAsset));
+        }
+
         questDifficultyTooltip.setText(quest.getDifficulty().getPrettyName());
 
         // populate each individual quest objective

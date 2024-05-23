@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="27">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="28">
  <tileset firstgid="1" source="../asset/data/Interior2.tsx"/>
  <tileset firstgid="1025" source="../asset/data/Objects.tsx"/>
  <tileset firstgid="1685" source="../asset/data/Furniture.tsx"/>
@@ -40,8 +40,8 @@
 </data>
  </layer>
  <objectgroup id="8" name="Paths">
-  <object id="14" x="292" y="319">
-   <point/>
+  <object id="27" x="291.5" y="232.5">
+   <polyline points="0,0 0.5,68.5 -84.5,68 -84,114.5 4.5,114.5"/>
   </object>
  </objectgroup>
  <objectgroup id="7" name="Collision">
@@ -64,7 +64,7 @@
   <object id="24" name="Exit" x="241.5" y="375" width="30.5" height="18.5"/>
  </objectgroup>
  <objectgroup id="6" name="Entities">
-  <object id="3" name="Wrynn" x="291.333" y="232.333">
+  <object id="3" name="Wrynn" x="291.151" y="203.242">
    <properties>
     <property name="entity_type" value="WRYNN"/>
    </properties>

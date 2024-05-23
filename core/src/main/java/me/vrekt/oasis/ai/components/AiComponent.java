@@ -1,8 +1,8 @@
 package me.vrekt.oasis.ai.components;
 
 import me.vrekt.oasis.ai.EntitySteerable;
-import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
+import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 

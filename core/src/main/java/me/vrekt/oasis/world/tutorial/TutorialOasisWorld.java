@@ -52,6 +52,7 @@ public final class TutorialOasisWorld extends GameWorld {
         if (game.isNewGame()) {
             player.getInventory().addItem(Items.TEMPERED_BLADE, 1);
             player.getInventory().addItem(Items.PIG_HEART, 1);
+
             player.getQuestManager().addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
             guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
             game.setNewGame(false);

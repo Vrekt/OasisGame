@@ -35,6 +35,9 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private float maxSpeed, maxAcceleration, maxAngleSpeed, maxAngleAcceleration;
     private boolean isTagged;
 
+    // if the position should be offset when a behavior is grabbing it.
+    private boolean offsetPosition;
+
     private EntityRotation direction;
     private float last;
 
@@ -47,6 +50,10 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
     public void setBehavior(SteeringBehavior<Vector2> behavior) {
         this.behavior = behavior;
+    }
+
+    public void setOffsetPosition(boolean offsetPosition) {
+        this.offsetPosition = offsetPosition;
     }
 
     /**
@@ -114,6 +121,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
      */
     private void applyVelocityOnly() {
         body.setLinearVelocity(output.linear);
+        owner.setVelocity(output.linear);
 
         if (GameManager.hasTimeElapsed(last, 0.1f)) {
             direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
@@ -198,7 +206,8 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
     @Override
     public Vector2 getPosition() {
-        return body.getPosition();
+        // TODO: Avoid cpy() everytime
+        return offsetPosition ? body.getPosition().cpy().add(0.25f, 0.0f) : body.getPosition();
     }
 
     @Override

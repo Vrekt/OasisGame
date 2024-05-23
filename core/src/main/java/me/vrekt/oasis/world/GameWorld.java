@@ -3,10 +3,13 @@ package me.vrekt.oasis.world;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -96,6 +99,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     // the current tick of this world.
     protected long lastTick;
 
+    protected ShapeRenderer debugRenderer;
+
     public GameWorld(OasisGame game, PlayerSP player, World world) {
         super(world, new WorldConfiguration(), new PooledEngine());
 
@@ -166,15 +171,17 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     public void create(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
 
+        debugRenderer = new ShapeRenderer();
+
         preLoad();
 
         TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
+        buildEntityPathing(worldMap, worldScale);
         createEntities(game, game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
-        findEntityPathing(worldMap, worldScale);
 
         configuration.worldScale = worldScale;
 
@@ -437,8 +444,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
         if (object == null) return;
 
-        System.err.println("hey");
-
         object.destroyCollision();
         object.dispose();
 
@@ -552,11 +557,25 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void findEntityPathing(TiledMap worldMap, float worldScale) {
-        TiledMapLoader.loadMapObjects(worldMap, worldScale, "Paths", (object, rectangle) -> {
-            GameLogging.info(this, "Path point: " + rectangle);
-            paths.add(new Vector2(rectangle.x, rectangle.y));
-        });
+    protected void buildEntityPathing(TiledMap worldMap, float worldScale) {
+        final MapLayer layer = worldMap.getLayers().get("Paths");
+        if (layer == null) return;
+
+        final Vector2[] paths = TiledMapLoader.loadPolyPath(layer, worldScale);
+
+        if (paths == null) {
+            GameLogging.warn(this, "Failed to load paths!");
+        } else {
+            GameLogging.info(this, "Loaded %d paths", paths.length);
+            this.paths.addAll(paths);
+        }
+    }
+
+    /**
+     * @return map of pathing for entities
+     */
+    public Array<Vector2> getPaths() {
+        return paths;
     }
 
     public boolean isPaused() {
@@ -744,6 +763,19 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         guiManager.renderDamageAmountAnimations(renderer.getCamera(), batch, player);
         batch.end();
 
+
+        if (!paths.isEmpty()) {
+            debugRenderer.setProjectionMatrix(renderer.getCamera().combined);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            debugRenderer.setColor(Color.RED);
+
+            for (Vector2 path : paths) {
+                debugRenderer.rect(path.x, path.y, 2 * OasisGameSettings.SCALE, 2 * OasisGameSettings.SCALE);
+            }
+            debugRenderer.end();
+        }
+
+
         game.guiManager.updateAndDrawStage();
     }
 
@@ -808,7 +840,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     public EntityEnemy hasHitEntity(ItemWeapon item) {
         for (Entity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy) {
-                if (enemy.getBounds().overlaps(item.getBounds())) {
+                if (enemy.bb().overlaps(item.getBounds())) {
                     System.err.println("HIT");
                     return enemy;
                 }
