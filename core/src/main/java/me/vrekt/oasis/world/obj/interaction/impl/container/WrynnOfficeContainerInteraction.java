@@ -15,8 +15,8 @@ public final class WrynnOfficeContainerInteraction extends OpenableContainerInte
         super(KEY, new ContainerInventory(16));
         disable();
 
-        inventory.addItem(Items.TEMPERED_BLADE, 1);
-        inventory.addItem(Items.PIG_HEART, 3);
+        inventory.add(Items.TEMPERED_BLADE, 1);
+        inventory.add(Items.PIG_HEART, 3);
     }
 
 }

@@ -11,8 +11,4 @@ public final class ChestInventory extends ContainerInventory {
         super(inventorySize);
     }
 
-    @Override
-    public void update() {
-
-    }
 }

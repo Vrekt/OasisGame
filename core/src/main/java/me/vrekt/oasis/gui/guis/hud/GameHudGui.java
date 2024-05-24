@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.GameManager;
@@ -89,14 +90,15 @@ public final class GameHudGui extends Gui {
             if (artifact != null) artifactComponentSlots.get(i).update(artifact);
         }
 
-        player.getInventory().getSlots().forEach((slot, item) -> {
-            // only update if hotbar itemIcon and the slot has not been set with a drawable yet.
-            if (item.isHotbarItem()
-                    && hotbarIconComponents.get(slot).replaceItem(item.getItem())) {
-                // TODO: Double get
-                hotbarIconComponents.get(slot).setItemInSlot(item.getItem());
+        // TODO: Fix this nasty shit
+        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+            if (entry.value == null) continue;
+
+            if (player.getInventory().isHotbar(entry.key)
+                    && hotbarIconComponents.get(entry.key).replaceItem(entry.value)) {
+                hotbarIconComponents.get(entry.key).setItemInSlot(entry.value);
             }
-        });
+        }
 
         // update attribute states
         // cannot use forEach "iterator cannot be nested"

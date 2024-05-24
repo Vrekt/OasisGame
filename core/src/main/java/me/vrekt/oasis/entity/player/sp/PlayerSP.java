@@ -23,7 +23,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
-import me.vrekt.oasis.entity.inventory.Inventory;
+import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.entity.player.sp.attribute.AttributeType;
 import me.vrekt.oasis.entity.player.sp.attribute.Attributes;
@@ -123,7 +123,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
     }
 
-    public Inventory getInventory() {
+    public AbstractInventory getInventory() {
         return inventory;
     }
 
@@ -221,7 +221,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
      * @param artifact artifact
      */
     public void equipArtifactToArtifactInventory(ItemArtifact artifact) {
-        getInventory().removeItem(artifact);
+        getInventory().remove(artifact);
         artifacts.put(findEmptyArtifactSlot(), artifact.getArtifact());
     }
 

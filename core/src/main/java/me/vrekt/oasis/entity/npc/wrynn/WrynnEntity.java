@@ -104,6 +104,12 @@ public final class WrynnEntity extends EntityInteractable {
     @Override
     public void update(float delta) {
         super.update(delta);
+
+        if (isSpeakingTo()) {
+            if (isMoving()) setBodyVelocity(0.0f, 0.0f, true);
+            return;
+        }
+
         updateAi(delta);
 
         if (pathComponent.isWithinTarget()) {
@@ -124,13 +130,19 @@ public final class WrynnEntity extends EntityInteractable {
 
     @Override
     public void speak(boolean speakingTo) {
-        super.speak(speakingTo);
+        if (this.speakingTo && !speakingTo) {
+            // stopped talking, pause AI for awhile so they don't
+            // instantly walk away.
+            pauseFor(4f);
+        }
 
         if (speakingTo && !hintShown) {
             // show player hint about how to interact with the dialog system
             game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, GameManager.secondsToTicks(10));
             hintShown = true;
         }
+
+        super.speak(speakingTo);
     }
 
     /**
@@ -139,7 +151,7 @@ public final class WrynnEntity extends EntityInteractable {
      * @return the result
      */
     public boolean checkPlayerHasItems() {
-        return player.getInventory().hasItem(Items.PIG_HEART);
+        return player.getInventory().containsItem(Items.PIG_HEART);
     }
 
 }

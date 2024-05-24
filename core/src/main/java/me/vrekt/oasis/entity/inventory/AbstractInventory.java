@@ -1,312 +1,354 @@
 package me.vrekt.oasis.entity.inventory;
 
-import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.inventory.slot.InventorySlot;
+import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * Represents an inventory that an entity has.
+ * Represents an inventory
  */
-public abstract class AbstractInventory implements Inventory {
+public abstract class AbstractInventory implements Disposable {
 
-    // slots for this inventory.
-    protected final Map<Integer, InventorySlot> slots = new ConcurrentHashMap<>();
-    // default inventory size is 6.
-    protected int inventorySize;
-    protected InventoryType type;
+    protected final IntMap<Item> items;
+    protected final int inventorySize;
+    protected final InventoryType type;
 
     public AbstractInventory(int inventorySize, InventoryType type) {
+        this.items = new IntMap<>(inventorySize);
         this.inventorySize = inventorySize;
         this.type = type;
     }
 
-    @Override
-    public Item addItem(Items item, int amount) {
-        if (isInventoryFull()) return null;
+    /**
+     * @return items of this inventory
+     */
+    public IntMap<Item> getItems() {
+        return items;
+    }
 
-        final Item newItem = ItemRegistry.createItem(item, amount);
+    /**
+     * @return the size of this inventory
+     */
+    public int getSize() {
+        return inventorySize;
+    }
 
-        final int empty = getAnyEmptySlot();
-        final InventorySlot slot = new InventorySlot(newItem);
-        slots.put(empty, slot);
+    /**
+     * @return {@code true} if this inventory is full
+     */
+    public boolean isFull() {
+        return items.size >= inventorySize;
+    }
 
-        if (empty < 4) {
-            slot.setIsHotBarItem(true);
+    /**
+     * @return {@code true} if this inventory is empty
+     */
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+
+    /**
+     * @param slot the slot number
+     * @return {@code true} if the slot number is a hotbar slot.
+     */
+    public boolean isHotbar(int slot) {
+        return slot <= 5;
+    }
+
+    /**
+     * Find an empty slot.
+     *
+     * @return the slot number
+     */
+    protected int findEmptySlot() {
+        if (isEmpty()) return 0;
+        if (isFull()) throw new IllegalArgumentException("Inventory is full, this is a bug. FIND_EMPTY_SLOT");
+
+        for (int i = 0; i < inventorySize; i++) {
+            if (!items.containsKey(i)) return i;
         }
 
-        return newItem;
+        return 0;
     }
 
-    @Override
-    public int addItemToExistingStack(Item item) {
-        final int slot = getItemSlot(item.getItemType());
-        if (slot == -1) throw new IllegalArgumentException("Stack does not exist! (" + item.getItemType() + ")");
-
-        final Item stack = getItem(slot);
-        stack.add(item.getAmount());
-        return slot;
-    }
-
-    @Override
-    public Inventory addItems(Items items, int amount) {
-        addItem(items, amount);
-        return this;
-    }
-
-    @Override
-    public void addItemFromSave(int slot, String itemName, String itemKey, int amount) {
-        if (isInventoryFull()) return;
-        if (ItemRegistry.doesItemExist(itemKey)) {
-            final Item item = ItemRegistry.createItem(itemKey);
-            item.load(GameManager.getAssets());
-            item.setItemName(itemName);
-            item.setAmount(amount);
-            slots.put(slot, new InventorySlot(item));
-        } else {
-            GameLogging.error("Inventory", "Failed to find an item by key: " + itemKey);
+    /**
+     * Get the slot number for the provided item
+     *
+     * @param item the item
+     * @return the slot or -1 if not found.
+     */
+    protected int getItemSlot(Item item) {
+        for (IntMap.Entry<Item> entry : items) {
+            if (entry.value != null && entry.value.is(item)) return entry.key;
         }
+        return -1;
     }
 
-    @Override
-    public int addItem(Item item) {
-        if (isInventoryFull()) return -1;
-        final int slot = getAnyEmptySlot();
-        slots.put(slot, new InventorySlot(item));
-        return slot;
-    }
-
-    @Override
-    public void replaceItemInSlot(int slot, Item newItem) {
-        if (slots.containsKey(slot)) {
-            slots.get(slot).setItem(newItem);
-        } else {
-            slots.put(slot, new InventorySlot(newItem));
+    /**
+     * Get an item slot using the items type
+     *
+     * @param key the key
+     * @return the slot or -1 if not found
+     */
+    protected int getItemSlotByType(Items key) {
+        for (IntMap.Entry<Item> entry : items) {
+            if (entry.value != null && entry.value.type() == key) return entry.key;
         }
+        return -1;
     }
 
-    @Override
-    public Item getItemByKey(String key) {
-        for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
-            if (entry.getValue() != null
-                    && entry.getValue().isOccupied()
-                    && !entry.getValue().isDeleted()
-                    && entry.getValue().getItem().is(key)) {
-                return entry.getValue().getItem();
-            }
+    /**
+     * Get an item by key
+     *
+     * @param key the key
+     * @return the item or {@code null} if not found
+     */
+    protected Item getItemByKey(Items key) {
+        for (IntMap.Entry<Item> entry : items) {
+            if (entry.value != null && entry.value.type() == key) return entry.value;
         }
         return null;
     }
 
-    @Override
-    public Item getItem(Items item) {
-        return getItemByKey(item.getKey());
+    /**
+     * Merge an item into another stack
+     *
+     * @param item the item
+     * @return the slot merged into
+     */
+    protected int mergeItemStack(Item item) {
+        final Item i = getItemByKey(item.type());
+        i.merge(item);
+
+        // prefer by type since it may be faster comparing enums
+        // not that performance is a big deal right now.
+        return getItemSlotByType(i.type());
     }
 
-    @Override
-    public int getItemSlot(Item item) {
-        for (Integer slot : slots.keySet()) {
-            if (slots.get(slot).getItem().is(item)) {
-                return slot;
-            }
+    /**
+     * Swap two slots between inventories
+     * source -> target
+     * target -> source
+     *
+     * @param slotSource source slot within this inventory
+     * @param slotTarget target within the other inventory
+     * @param target     target inventory
+     */
+    public void swapOrMerge(int slotSource, int slotTarget, AbstractInventory target) {
+        final Item source = get(slotSource);
+        final Item targetItem = target.get(slotTarget);
+
+        if (source == null || targetItem == null) {
+            GameLogging.warn(this, "Swapping error s=%s t=%s ss=%b tt=%b", slotTarget, slotTarget, source == null, targetItem == null);
+            return;
         }
-        return -1;
-    }
 
-    @Override
-    public int getItemSlot(Items itemType) {
-        for (Integer slot : slots.keySet()) {
-            if (slots.get(slot).getItem().getItemType() == itemType) {
-                return slot;
-            }
+        if (source.type() == targetItem.type()
+                && source.isStackable()
+                && targetItem.isStackable()) {
+            // merge these stacks instead
+            target.mergeItemStack(source);
+            remove(source);
+            return;
         }
-        return -1;
+
+        target.replace(slotTarget, source);
+        replace(slotSource, targetItem);
     }
 
-    @Override
-    public Item getItem(int slot) {
-        if (!slots.containsKey(slot)) {
-            return null;
+    /**
+     * Swap two slots within this inventory
+     *
+     * @param from from
+     * @param to   to
+     */
+    public void swap(int from, int to) {
+        final Item fromItem = get(from);
+        final Item toItem = get(to);
+        items.put(to, fromItem);
+
+        // swapped to an empty slot
+        if (toItem != null) {
+            items.put(from, toItem);
+        } else {
+            items.remove(from);
+            this.removed(fromItem, from);
         }
-        return slots.get(slot).getItem();
     }
 
-    @Override
-    public void removeItem(int slot) {
-        slots.get(slot).delete();
+    /**
+     * Transfer a certain amount of an item from this inventory to the target
+     *
+     * @param slot   the slot
+     * @param amount the amount
+     * @param target the target
+     * @return the slot that the items were transferred into
+     */
+    public int transferAmount(int slot, int amount, AbstractInventory target) {
+        final Item item = get(slot);
+        if (item == null)
+            throw new IllegalArgumentException("No item in slot " + slot + ", this is a bug. TRANSFER_AMT");
+
+        // go ahead and just transfer all.
+        if (amount >= item.getAmount()) {
+            return transferAll(slot, target);
+        }
+
+        // item amount will be set correctly within item implementation
+        final Item newItem = item.split(amount);
+        if (target.containsItem(newItem.type()) && item.isStackable()) {
+            return target.mergeItemStack(newItem);
+        }
+
+        return target.add(newItem);
     }
 
-    @Override
-    public void removeItem(Item item) {
-        this.removeItem(getItemSlot(item));
+    /**
+     * Transfer all of an item into the target inventory
+     *
+     * @param slot   the slot
+     * @param target the slot
+     * @return the slot that the items were transferred into
+     */
+    public int transferAll(int slot, AbstractInventory target) {
+        final int newSlot = transferAll(get(slot), target);
+        remove(slot);
+        return newSlot;
     }
 
-    @Override
-    public void removeItemNow(int slot) {
-        slots.remove(slot);
+    /**
+     * Transfer all of an item into the target inventory
+     * (internal impl)
+     * This method does not remove the item
+     *
+     * @param item   the item
+     * @param target the slot
+     * @return the slot that the items were transferred into
+     */
+    protected int transferAll(Item item, AbstractInventory target) {
+        if (item == null)
+            throw new IllegalArgumentException("No item from public transfer_all");
+
+        int newSlot;
+
+        // transfer stackable items
+        // TODO: In the future stack sizes and more.
+        if (target.containsItem(item.type())
+                && item.isStackable()) {
+            newSlot = target.mergeItemStack(item);
+        } else {
+            newSlot = target.add(item);
+        }
+
+        return newSlot;
     }
 
-    @Override
-    public boolean hasItem(String key) {
-        for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
-            if (entry.getValue() != null
-                    && entry.getValue().isOccupied()
-                    && !entry.getValue().isDeleted()
-                    && entry.getValue().getItem().is(key)) {
-                return true;
-            }
+    /**
+     * Replace an item in the slot
+     *
+     * @param slot the slot
+     * @param item the item
+     */
+    protected void replace(int slot, Item item) {
+        items.put(slot, item);
+    }
+
+    /**
+     * Add an item
+     *
+     * @param key    the item
+     * @param amount the amount
+     * @return the slot added to.
+     */
+    public int add(Items key, int amount) {
+        if (isFull()) return -1;
+        final int slot = findEmptySlot();
+        items.put(slot, ItemRegistry.createItem(key, amount));
+        return slot;
+    }
+
+    /**
+     * Add an item
+     *
+     * @param item the item
+     * @return the slot added to
+     */
+    public int add(Item item) {
+        if (isFull()) return -1;
+        final int slot = findEmptySlot();
+        items.put(slot, item);
+        return slot;
+    }
+
+    /**
+     * Get an item from the slot
+     *
+     * @param slot the slot
+     * @return the item or {@code null} if not found.
+     */
+    public Item get(int slot) {
+        return items.get(slot, null);
+    }
+
+    /**
+     * Remove a known item instance
+     *
+     * @param item the item
+     */
+    public void remove(Item item) {
+        final int slot = getItemSlot(item);
+        this.removed(item, slot);
+
+        if (slot != -1) items.remove(slot);
+    }
+
+    /**
+     * Remove an item
+     *
+     * @param slot the slot
+     */
+    public void remove(int slot) {
+        this.removed(null, slot);
+        items.remove(slot);
+    }
+
+    /**
+     * @param slot slot number
+     * @return {@code true} if an item is in the slot
+     */
+    public boolean containsItemInSlot(int slot) {
+        return items.containsKey(slot);
+    }
+
+    /**
+     * @param key item type key
+     * @return {@code true} if this inventory contains the item type
+     */
+    public boolean containsItem(Items key) {
+        for (IntMap.Entry<Item> entry : items) {
+            if (entry.value.type() == key) return true;
         }
         return false;
     }
 
-    @Override
-    public boolean hasItem(Items item) {
-        return hasItem(item.getKey());
+    /**
+     * Internal watchdog function
+     *
+     * @param item item removed
+     * @param slot slot
+     */
+    protected void removed(Item item, int slot) {
+
     }
 
-    @Override
-    public boolean hasItemInSlot(int slot) {
-        final InventorySlot is = slots.get(slot);
-        return is != null && is.isOccupied() && !is.isDeleted();
-    }
-
-    @Override
-    public boolean isInventoryFull() {
-        return slots.size() >= inventorySize;
-    }
-
-    @Override
-    public int getAnyEmptySlot() {
-        if (slots.isEmpty()) return 0;
-        if (isInventoryFull()) return -1;
-        int lastSlot = 0;
-
-        for (Map.Entry<Integer, InventorySlot> entry : slots.entrySet()) {
-            if (entry.getValue() == null || !entry.getValue().isOccupied()) {
-                return entry.getKey();
-            } else {
-                lastSlot = entry.getKey();
-            }
-        }
-
-        return lastSlot + 1;
-    }
-
-    @Override
-    public Map<Integer, InventorySlot> getSlots() {
-        return slots;
-    }
-
-    @Override
-    public InventorySlot getSlot(int slot) {
-        return slots.get(slot);
-    }
-
-    @Override
-    public int getInventorySize() {
-        return inventorySize;
-    }
-
-    @Override
-    public InventoryType getType() {
-        return type;
-    }
-
-    @Override
-    public void setSize(int size) {
-        this.inventorySize = size;
-    }
-
-    @Override
-    public int transferItemsTo(int slot, Inventory other) {
-        if (!slots.containsKey(slot)) return -1;
-        final Item item = slots.get(slot).getItem();
-        int newSlot;
-
-        // only transfer items to other stacks if the item is stackable
-        if (other.hasItem(item.getItemType()) && item.isStackable()) {
-            // other inventory has this item, so ideally transfer into that stack if possible.
-            // TODO: Stack sizes
-            newSlot = other.addItemToExistingStack(item);
-        } else {
-            newSlot = other.addItem(item);
-        }
-
-        slots.remove(slot);
-        return newSlot;
-    }
-
-    @Override
-    public void swapInventorySlots(int slotSource, int targetSource, Inventory target) {
-        if (!slots.containsKey(slotSource)) return;
-
-        final Item sourceItem = slots.get(slotSource).getItem();
-        final Item targetItem = target.getItem(targetSource);
-
-        target.replaceItemInSlot(targetSource, sourceItem);
-        replaceItemInSlot(slotSource, targetItem);
-    }
-
-    @Override
-    public int transferItemTo(int slot, int amount, Inventory other) {
-        if (!slots.containsKey(slot)) return -1;
-
-        // should hopefully catch stackable items
-        // since their amount can only be 1
-        final Item item = slots.get(slot).getItem();
-        if (amount >= item.getAmount()) {
-            return transferItemsTo(slot, other);
-        }
-
-        // item amount is decreased in item implementation
-        final Item newItem = item.split(amount);
-
-        if (other.hasItem(newItem.getItemType())) {
-            return other.addItemToExistingStack(newItem);
-        }
-
-        return other.addItem(newItem);
-    }
-
-    @Override
-    public void transferItemsFrom(Inventory other) {
-        slots.putAll(other.getSlots());
-    }
-
-    @Override
-    public void swapSlot(int from, int to) {
-        final InventorySlot fromSlot = slots.get(from);
-        final InventorySlot toSlot = slots.get(to);
-        slots.put(to, fromSlot);
-
-        if (toSlot == null) {
-            // indicates dragging into an empty slot
-            final InventorySlot newSlot = new InventorySlot(fromSlot.getItem());
-            newSlot.setIsHotBarItem(to < 6);
-            slots.put(to, newSlot);
-
-            if (type == InventoryType.PLAYER) {
-                removeItem(from);
-            } else {
-                removeItemNow(from);
-            }
-        } else {
-            slots.put(from, toSlot);
-        }
-    }
-
-    @Override
-    public void clear() {
-        slots.clear();
+    public void update() {
     }
 
     @Override
     public void dispose() {
-        clear();
+        items.clear();
     }
 }

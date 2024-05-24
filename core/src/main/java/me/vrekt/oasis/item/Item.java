@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface Item extends ResourceLoader {
 
-    Items getItemType();
+    Items type();
 
     String getKey();
 
@@ -33,6 +33,8 @@ public interface Item extends ResourceLoader {
     void setAmount(int amount);
 
     void add(int amount);
+
+    void merge(Item other);
 
     void decrease(int amount);
 

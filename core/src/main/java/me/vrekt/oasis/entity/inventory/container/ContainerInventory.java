@@ -12,8 +12,4 @@ public class ContainerInventory extends AbstractInventory {
         super(inventorySize, InventoryType.CONTAINER);
     }
 
-    @Override
-    public void update() {
-
-    }
 }

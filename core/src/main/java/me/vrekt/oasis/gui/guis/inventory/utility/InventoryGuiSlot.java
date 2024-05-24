@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
-import me.vrekt.oasis.entity.inventory.Inventory;
+import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
@@ -102,8 +102,8 @@ public final class InventoryGuiSlot {
      * @param slot  the new slot
      * @return if the item was fully transferred and thus removed
      */
-    public boolean updateTransfer(Inventory owner, int slot) {
-        final Item item = owner.getItem(slot);
+    public boolean updateTransfer(AbstractInventory owner, int slot) {
+        final Item item = owner.get(slot);
         if (item == null || item.getAmount() <= 0) {
             resetSlot();
             return true;

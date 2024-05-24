@@ -7,9 +7,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.entity.inventory.Inventory;
+import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
@@ -17,6 +18,7 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
+import me.vrekt.oasis.item.Item;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -139,8 +141,8 @@ public final class ContainerInventoryGui extends InventoryGui {
      * @param slot        the slot to transfer
      * @param isContainer if the from inventory is a container
      */
-    private void doTransferAll(Inventory from, Inventory to, int slot, boolean isContainer) {
-        final int newSlot = from.transferItemsTo(slot, to);
+    private void doTransferAll(AbstractInventory from, AbstractInventory to, int slot, boolean isContainer) {
+        final int newSlot = from.transferAll(slot, to);
         if (isContainer) {
             updateContainerSlotTransfer(slot, newSlot);
         } else {
@@ -156,8 +158,8 @@ public final class ContainerInventoryGui extends InventoryGui {
      * @param slot        the slot to transfer
      * @param isContainer if the from inventory is a container
      */
-    private void doTransferSingle(Inventory from, Inventory to, int slot, boolean isContainer) {
-        final int newSlot = from.transferItemTo(slot, 1, to);
+    private void doTransferSingle(AbstractInventory from, AbstractInventory to, int slot, boolean isContainer) {
+        final int newSlot = from.transferAmount(slot, 1, to);
         if (isContainer) {
             updateSingleContainerSlotTransfer(slot, newSlot);
         } else {
@@ -227,7 +229,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      */
     public void updateSlotTransfer(int from, int to) {
         containerSlots.get(from).resetSlot();
-        containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
+        containerSlots.get(to).setOccupiedItem(activeContainerInventory.get(to));
     }
 
     @Override
@@ -241,10 +243,10 @@ public final class ContainerInventoryGui extends InventoryGui {
         super.itemTransferredBetweenInventories(isContainerTransfer, from, to);
         if (isContainerTransfer) {
             containerSlots.get(from).resetSlot();
-            playerSlots.get(to).setOccupiedItem(player.getInventory().getItem(to));
+            playerSlots.get(to).setOccupiedItem(player.getInventory().get(to));
         } else {
             playerSlots.get(from).resetSlot();
-            containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
+            containerSlots.get(to).setOccupiedItem(activeContainerInventory.get(to));
         }
     }
 
@@ -252,11 +254,11 @@ public final class ContainerInventoryGui extends InventoryGui {
     public void itemSwappedBetweenInventories(boolean isContainerTransfer, int from, int to) {
         super.itemSwappedBetweenInventories(isContainerTransfer, from, to);
         if (isContainerTransfer) {
-            containerSlots.get(from).setOccupiedItem(activeContainerInventory.getItem(from));
-            playerSlots.get(to).setOccupiedItem(player.getInventory().getItem(to));
+            containerSlots.get(from).setOccupiedItem(activeContainerInventory.get(from));
+            playerSlots.get(to).setOccupiedItem(player.getInventory().get(to));
         } else {
-            containerSlots.get(to).setOccupiedItem(activeContainerInventory.getItem(to));
-            playerSlots.get(from).setOccupiedItem(player.getInventory().getItem(from));
+            containerSlots.get(to).setOccupiedItem(activeContainerInventory.get(to));
+            playerSlots.get(from).setOccupiedItem(player.getInventory().get(from));
         }
     }
 
@@ -316,7 +318,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      */
     private void populatePlayerInventoryComponents(VisTable bottomTable, TextureRegionDrawable slotDrawable) {
         final AtomicInteger slotTracker = new AtomicInteger();
-        populateInventoryUiComponents(guiManager, player.getInventory().getInventorySize(), slotDrawable, true, component -> {
+        populateInventoryUiComponents(guiManager, player.getInventory().getSize(), slotDrawable, true, component -> {
             playerSlots.add(new InventoryGuiSlot(guiManager,
                     this,
                     component.overlay(),
@@ -335,10 +337,10 @@ public final class ContainerInventoryGui extends InventoryGui {
      * Populate the players inventory
      */
     private void populatePlayerInventoryItems() {
-        player.getInventory().getSlots().forEach((slotNumber, slot) -> {
-            final InventoryGuiSlot guiSlot = playerSlots.get(slotNumber);
-            guiSlot.setOccupiedItem(slot.getItem());
-        });
+        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+            final InventoryGuiSlot guiSlot = playerSlots.get(entry.key);
+            guiSlot.setOccupiedItem(entry.value);
+        }
     }
 
     /**
@@ -356,10 +358,10 @@ public final class ContainerInventoryGui extends InventoryGui {
         playerSlots.forEach(slot -> slot.getTarget().setSourceInventory(activeContainerInventory));
         playerSlots.forEach(slot -> slot.getTarget().setTargetInventory(player.getInventory()));
 
-        inventory.getSlots().forEach((slotNumber, slot) -> {
-            final InventoryGuiSlot guiSlot = containerSlots.get(slotNumber);
-            guiSlot.setOccupiedItem(slot.getItem());
-        });
+        for (IntMap.Entry<Item> entry : inventory.getItems()) {
+            final InventoryGuiSlot guiSlot = containerSlots.get(entry.key);
+            guiSlot.setOccupiedItem(entry.value);
+        }
         show();
     }
 

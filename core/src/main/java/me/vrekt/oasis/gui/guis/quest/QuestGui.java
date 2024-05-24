@@ -9,20 +9,13 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
-import me.vrekt.oasis.questing.quests.QuestType;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * The quest GUI
  */
 public final class QuestGui extends Gui {
 
-    private final LinkedList<VisLabel> questNameLabels = new LinkedList<>();
-    private final Map<QuestType, VisTable> questComponents = new HashMap<>();
     private final PlayerQuestManager manager;
     private int activeIndex = 0;
 
@@ -52,10 +45,15 @@ public final class QuestGui extends Gui {
         guiManager.addGui(rootTable);
     }
 
-    private void populateActiveQuests() {
-        for (Quest quest : manager.getActiveQuests().values()) {
-            if (questComponents.containsKey(quest.getType())) continue;
+    /**
+     * Reset entries and populate quest components
+     * TODO: Maybe instead of calculating content everytime we can store it
+     * TODO: But for now this is fine
+     */
+    private void updateAndPopulateQuestComponents() {
+        resetEntries();
 
+        for (Quest quest : manager.getActiveQuests().values()) {
             final VisTable parent = new VisTable();
             final VisLabel label = new VisLabel((activeIndex + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.getStyle().getMediumBlack());
             final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.getStyle().getSmallWhite());
@@ -63,7 +61,6 @@ public final class QuestGui extends Gui {
 
             parent.add(label).left();
             parent.add(completeness);
-            questComponents.put(quest.getType(), parent);
 
             left.add(parent);
             left.row();
@@ -71,6 +68,14 @@ public final class QuestGui extends Gui {
 
             addHoverComponents(label, Color.GRAY, Color.BLACK, () -> handleQuestComponentClicked(quest));
         }
+    }
+
+    /**
+     * Reset the table so we can populate them again
+     */
+    private void resetEntries() {
+        left.clearChildren();
+        left.invalidate();
     }
 
     /**
@@ -85,7 +90,8 @@ public final class QuestGui extends Gui {
     @Override
     public void show() {
         super.show();
-        populateActiveQuests();
+
+        updateAndPopulateQuestComponents();
         rootTable.setVisible(true);
         if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().pauseCurrentHint();
     }

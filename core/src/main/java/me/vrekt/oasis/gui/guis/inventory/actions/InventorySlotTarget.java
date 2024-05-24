@@ -2,7 +2,7 @@ package me.vrekt.oasis.gui.guis.inventory.actions;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import me.vrekt.oasis.entity.inventory.Inventory;
+import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
 
@@ -14,11 +14,10 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
     private final InventoryGui gui;
     private final InventoryGuiSlot slot;
 
-    //
-    private Inventory source, target;
+    private AbstractInventory source, target;
     private final Vector2 projection = new Vector2();
 
-    public InventorySlotTarget(InventoryGui gui, InventoryGuiSlot slot, Inventory inventory) {
+    public InventorySlotTarget(InventoryGui gui, InventoryGuiSlot slot, AbstractInventory inventory) {
         super(slot.getSlotIcon());
 
         this.gui = gui;
@@ -26,11 +25,11 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
         this.source = inventory;
     }
 
-    public void setSourceInventory(Inventory inventory) {
+    public void setSourceInventory(AbstractInventory inventory) {
         this.source = inventory;
     }
 
-    public void setTargetInventory(Inventory inventory) {
+    public void setTargetInventory(AbstractInventory inventory) {
         this.target = inventory;
     }
 
@@ -53,14 +52,14 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
         if (slotDragging.isContainerSlot()) {
             if (!this.slot.isContainerSlot()) {
                 // check if the slot already has an item, if so we are going to swap them between each-other
-                final boolean hasItemInNewSlot = target.hasItemInSlot(this.slot.getSlotNumber());
+                final boolean hasItemInNewSlot = target.containsItemInSlot(this.slot.getSlotNumber());
                 if (hasItemInNewSlot) {
-                    this.source.swapInventorySlots(slotDragging.getSlotNumber(), this.slot.getSlotNumber(), target);
+                    this.source.swapOrMerge(slotDragging.getSlotNumber(), this.slot.getSlotNumber(), target);
                     gui.itemSwappedBetweenInventories(true, slotDragging.getSlotNumber(), this.slot.getSlotNumber());
                     handleCrossInventorySlotTransfer(slotDragging);
                 } else {
                     // we are in the player inventory so transfer there
-                    final int toSlot = this.source.transferItemsTo(slotDragging.getSlotNumber(), target);
+                    final int toSlot = this.source.transferAll(slotDragging.getSlotNumber(), target);
                     gui.itemTransferredBetweenInventories(true, slotDragging.getSlotNumber(), toSlot);
                     handleCrossInventorySlotTransfer(slotDragging);
                 }
@@ -71,13 +70,13 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
         } else {
             // we dragged to an active container
             if (this.slot.isContainerSlot()) {
-                final boolean hasItemInNewSlot = this.target.hasItemInSlot(this.slot.getSlotNumber());
+                final boolean hasItemInNewSlot = this.target.containsItemInSlot(this.slot.getSlotNumber());
                 if (hasItemInNewSlot) {
-                    this.target.swapInventorySlots(slotDragging.getSlotNumber(), this.slot.getSlotNumber(), this.source);
+                    this.target.swapOrMerge(slotDragging.getSlotNumber(), this.slot.getSlotNumber(), this.source);
                     gui.itemSwappedBetweenInventories(false, slotDragging.getSlotNumber(), this.slot.getSlotNumber());
                     handleCrossInventorySlotTransfer(slotDragging);
                 } else {
-                    final int toSlot = this.source.transferItemsTo(slotDragging.getSlotNumber(), target);
+                    final int toSlot = this.source.transferAll(slotDragging.getSlotNumber(), target);
                     gui.itemTransferredBetweenInventories(false, slotDragging.getSlotNumber(), toSlot);
                     handleCrossInventorySlotTransfer(slotDragging);
                 }
@@ -104,7 +103,7 @@ public final class InventorySlotTarget extends DragAndDrop.Target {
      */
     private void handleRegularSlotTransfer(InventoryGuiSlot slotDragging) {
         slotDragging.getSlotIcon().setVisible(true);
-        source.swapSlot(slotDragging.getSlotNumber(), this.slot.getSlotNumber());
+        source.swap(slotDragging.getSlotNumber(), this.slot.getSlotNumber());
         gui.itemTransferred(slotDragging.getSlotNumber(), this.slot.getSlotNumber());
     }
 

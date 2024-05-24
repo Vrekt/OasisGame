@@ -34,7 +34,7 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public Items getItemType() {
+    public Items type() {
         return itemType;
     }
 
@@ -189,4 +189,8 @@ public abstract class AbstractItem implements Item {
         return is(other) && other.getAmount() == getAmount() && other.getItemRarity() == getItemRarity() && StringUtils.equals(other.getItemName(), getItemName());
     }
 
+    @Override
+    public void merge(Item other) {
+        add(other.getAmount());
+    }
 }

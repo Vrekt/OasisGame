@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -146,7 +147,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         final AtomicInteger slotTracker = new AtomicInteger();
         // Inventory: populate each individual UI component
-        populateInventoryUiComponents(guiManager, player.getInventory().getInventorySize(), slotDrawable, true, component -> {
+        populateInventoryUiComponents(guiManager, player.getInventory().getSize(), slotDrawable, true, component -> {
             // add to list of slots
             guiSlots.add(new InventoryGuiSlot(guiManager,
                     this,
@@ -188,12 +189,12 @@ public final class PlayerInventoryGui extends InventoryGui {
 
     @Override
     public void update() {
-        player.getInventory().getSlots().forEach((slot, item) -> {
-            final InventoryGuiSlot guiSlot = guiSlots.get(slot);
-            if (!item.getItem().is(guiSlot.getLastItemKey())) {
-                guiSlot.setOccupiedItem(item.getItem());
+        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+            final InventoryGuiSlot slot = guiSlots.get(entry.key);
+            if (!entry.value.is(slot.getLastItemKey())) {
+                slot.setOccupiedItem(entry.value);
             }
-        });
+        }
     }
 
     /**
