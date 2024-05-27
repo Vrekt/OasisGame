@@ -44,7 +44,7 @@ import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
@@ -83,7 +83,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected GuiManager guiManager;
     protected final WorldNetworkHandler networkHandler;
 
-    protected final ConcurrentHashMap<EntityInteractable, Float> nearbyEntities = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<Entity, Float> nearbyEntities = new ConcurrentHashMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
     // objects within this world
@@ -336,6 +336,17 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void removeEntity(EntityInteractable entity) {
+        entities.remove(entity.getEntityId());
+        engine.removeEntity(entity.getEntity());
+        nearbyEntities.remove(entity);
+    }
+
+    /**
+     * Remove a dead entity from this world
+     *
+     * @param entity the entity
+     */
+    public void removeDeadEntity(Entity entity) {
         entities.remove(entity.getEntityId());
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity);
@@ -660,7 +671,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
         boolean hasEntity = false;
-        for (EntityInteractable entityInteractable : nearbyEntities.keySet()) {
+        for (Entity entityInteractable : nearbyEntities.keySet()) {
             if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
                 // mouse is over this entity
                 if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(Cursor.DIALOG);
@@ -855,12 +866,14 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      */
     protected boolean didInteractWithEntity() {
         EntityInteractable entity = null;
-        for (Map.Entry<EntityInteractable, Float> entry : nearbyEntities.entrySet()) {
-            if (entry.getKey().isMouseInEntityBounds(cursorInWorld)
-                    && entry.getKey().isSpeakable()
-                    && !entry.getKey().isSpeakingTo()) {
-                entity = entry.getKey();
-                break;
+        for (Map.Entry<Entity, Float> entry : nearbyEntities.entrySet()) {
+            if (entry.getKey() instanceof EntityInteractable interactable) {
+                if (interactable.isSpeakable()
+                        && !interactable.isSpeakingTo()
+                        && interactable.isMouseInEntityBounds(cursorInWorld)) {
+                    entity = interactable;
+                    break;
+                }
             }
         }
 

@@ -4,7 +4,6 @@ import me.vrekt.oasis.questing.quests.QuestType;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Handles the player questing system
@@ -23,41 +22,12 @@ public final class PlayerQuestManager {
     }
 
     /**
-     * Get a quest of a class type
+     * Advance an active quest
      *
-     * @param type type
-     * @param <T>  of
-     * @return the quest or {@code  null}
+     * @param type the type
      */
-    public <T extends Quest> T getQuestOfType(Class<T> type) {
-        for (Quest quest : activeQuests.values()) {
-            if (quest.getClass().isAssignableFrom(type)) {
-                return (T) quest;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Update the current quest objective to completed.
-     *
-     * @param type type
-     * @param <T>  of
-     */
-    public <T extends Quest> void updateQuestObjectiveAndUnlockNext(Class<T> type) {
-        Objects.requireNonNull(getQuestOfType(type)).updateQuestObjectiveAndUnlockNext();
-    }
-
-    /**
-     * Update the current quest objective to completed.
-     *
-     * @param type type
-     * @param <T>  of
-     */
-    public <T extends Quest> void updateQuestObjectiveAndUnlockNext(Class<T> type, int times) {
-        for (int i = 0; i < times; i++) {
-            Objects.requireNonNull(getQuestOfType(type)).updateQuestObjectiveAndUnlockNext();
-        }
+    public void advanceQuest(QuestType type) {
+        activeQuests.get(type).updateQuestObjectiveAndUnlockNext();
     }
 
     public Map<QuestType, Quest> getActiveQuests() {

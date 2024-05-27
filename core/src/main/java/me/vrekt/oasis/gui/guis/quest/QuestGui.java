@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 public final class QuestGui extends Gui {
 
     private final PlayerQuestManager manager;
-    private int activeIndex = 0;
 
     private final VisTable left;
 
@@ -53,18 +52,19 @@ public final class QuestGui extends Gui {
     private void updateAndPopulateQuestComponents() {
         resetEntries();
 
+        int index = 0;
         for (Quest quest : manager.getActiveQuests().values()) {
             final VisTable parent = new VisTable();
-            final VisLabel label = new VisLabel((activeIndex + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.getStyle().getMediumBlack());
+            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.getStyle().getMediumBlack());
             final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.getStyle().getSmallWhite());
             completeness.setColor(Color.LIGHT_GRAY);
 
             parent.add(label).left();
-            parent.add(completeness);
+            parent.add(completeness).padLeft(8f);
 
             left.add(parent);
             left.row();
-            activeIndex++;
+            index++;
 
             addHoverComponents(label, Color.GRAY, Color.BLACK, () -> handleQuestComponentClicked(quest));
         }
@@ -84,7 +84,7 @@ public final class QuestGui extends Gui {
      * @param quest the active quest to set
      */
     private void handleQuestComponentClicked(Quest quest) {
-        ((QuestEntryGui) guiManager.showChildGui(this, GuiType.QUEST_ENTRY)).setActiveQuest(quest);
+        ((QuestEntryGui) guiManager.showChildGui(this, GuiType.QUEST_ENTRY)).populateQuestComponent(quest);
     }
 
     @Override

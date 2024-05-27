@@ -55,7 +55,7 @@ public final class PlayerConnection extends PlayerConnectionHandler {
         if (item == null) {
             sendImmediately(new C2SResetEquippedItem());
         } else {
-            sendImmediately(new C2SEquipItem(player.getEntityId(), item.getKey()));
+            sendImmediately(new C2SEquipItem(player.getEntityId(), item.key()));
         }
     }
 

@@ -17,7 +17,7 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
@@ -80,8 +80,8 @@ public final class WrynnEntity extends EntityInteractable {
         createBoxBody(worldIn.getEntityWorld());
 
         pathComponent = new AiFollowPathComponent(this, worldIn.getPaths());
-        pathComponent.setMaxLinearSpeed(2.0f);
-        pathComponent.setMaxLinearAcceleration(2.1f);
+        pathComponent.setMaxLinearSpeed(1.25f);
+        pathComponent.setMaxLinearAcceleration(1.25f);
         addAiComponent(pathComponent);
     }
 

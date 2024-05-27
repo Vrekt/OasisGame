@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
@@ -27,12 +28,17 @@ public final class QuestEntryGui extends Gui {
     private final PlayerQuestManager manager;
     private final TypingLabel completeness;
     private final VisLabel questNameLabel;
+    private final VisLabel itemsRequiredLabel;
+    private final VisLabel questRewardsLabel;
     private final VisTable objectivesTable;
     private final VisTable itemsRequiredTable;
     private final VisTable questRewardsTable;
     private final VisImage questDifficultyIcon;
     private final Tooltip questDifficultyTooltip;
+
     private final Map<Integer, TypingLabel> questObjectiveLabels = new HashMap<>();
+    private final Array<QuestObjective> populatedObjectives = new Array<>();
+
     private Quest activeQuest;
 
     public QuestEntryGui(GuiManager guiManager) {
@@ -61,8 +67,11 @@ public final class QuestEntryGui extends Gui {
                 .build();
         ((VisLabel) questDifficultyTooltip.getContent()).setStyle(guiManager.getStyle().getSmallWhite());
 
-        final VisLabel itemsRequiredLabel = new VisLabel("Items Required", guiManager.getStyle().getLargeBlack());
-        final VisLabel questRewardsLabel = new VisLabel("Rewards", guiManager.getStyle().getLargeBlack());
+        itemsRequiredLabel = new VisLabel("Items Required", guiManager.getStyle().getLargeBlack());
+        questRewardsLabel = new VisLabel("Rewards", guiManager.getStyle().getLargeBlack());
+
+        itemsRequiredLabel.setVisible(false);
+        questRewardsLabel.setVisible(false);
 
         objectivesTable = new VisTable();
         itemsRequiredTable = new VisTable();
@@ -95,11 +104,32 @@ public final class QuestEntryGui extends Gui {
         guiManager.addGui(rootTable);
     }
 
-    public void setActiveQuest(Quest quest) {
-        // prevent duplication
-        if (this.activeQuest != null
-                && (this.activeQuest.getName().equals(quest.getName()))) return;
-        this.activeQuest = quest;
+
+    private void updateExistingQuestComponents(Quest quest) {
+        for (int i = 0; i < quest.getObjectives().size(); i++) {
+            final QuestObjective objective = quest.getObjectives().get(i);
+            // we already populated this or its not unlocked.
+            if (!objective.isUnlocked()) continue;
+
+            // update existing components instead
+            if (populatedObjectives.contains(objective, true)) {
+                updateExistingObjectiveComponent(objective, i);
+                continue;
+            }
+
+            populateObjectiveComponent(quest, objective, i);
+        }
+    }
+
+    public void populateQuestComponent(Quest quest) {
+        if (activeQuest != null
+                && StringUtils.equals(quest.getName(), activeQuest.getName())) {
+            updateExistingQuestComponents(quest);
+            return;
+        }
+
+        populatedObjectives.clear();
+        activeQuest = quest;
 
         // text and icons
         questNameLabel.setText(quest.getName());
@@ -119,37 +149,49 @@ public final class QuestEntryGui extends Gui {
             final QuestObjective objective = quest.getObjectives().get(i);
             if (!objective.isUnlocked()) continue;
 
-            TypingLabel label;
-            boolean wasExistingLabel = false;
-
-            // check if we already have a label stored
-            if (questObjectiveLabels.containsKey(i)) {
-                label = questObjectiveLabels.get(i);
-                wasExistingLabel = true;
-            } else {
-                label = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
-                questObjectiveLabels.put(i, label);
-            }
-
-            // populate completeness text
-            if (objective.isCompleted()) {
-                label.setText("[#2c3d42][~]" + (i + 1) + ". " + objective.getDescription());
-            } else {
-                label.setText("[#2c3d42]" + (i + 1) + ". " + objective.getDescription() + "[%50][RED] (!)");
-            }
-            if (wasExistingLabel) label.restart();
-
-            if (!wasExistingLabel) {
-                label.setWrap(true);
-                label.setWidth(400);
-                objectivesTable.add(label).width(400).padTop(6);
-                objectivesTable.row();
-            }
+            populateObjectiveComponent(quest, objective, i);
+            populatedObjectives.add(objective);
         }
 
         // populate items required table
-        populateQuestItemComponents(itemsRequiredTable, quest.getItemsRequired());
-        populateQuestItemComponents(questRewardsTable, quest.getRewards());
+        if (quest.hasItemRequirements())
+            populateQuestItemComponents(itemsRequiredTable, quest.getItemsRequired(), itemsRequiredLabel);
+        if (quest.hasRewards()) populateQuestItemComponents(questRewardsTable, quest.getRewards(), questRewardsLabel);
+    }
+
+    private void updateExistingObjectiveComponent(QuestObjective objective, int i) {
+        if (objective.isCompleted()) {
+            questObjectiveLabels.get(i).setText("[#2c3d42][~]" + (i + 1) + ". " + objective.getDescription());
+        }
+    }
+
+    private void populateObjectiveComponent(Quest quest, QuestObjective objective, int i) {
+        TypingLabel label;
+        boolean wasExistingLabel = false;
+
+        // check if we already have a label stored
+        if (questObjectiveLabels.containsKey(i)) {
+            label = questObjectiveLabels.get(i);
+            wasExistingLabel = true;
+        } else {
+            label = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
+            questObjectiveLabels.put(i, label);
+        }
+
+        // populate completeness text
+        if (objective.isCompleted()) {
+            label.setText("[#2c3d42][~]" + (i + 1) + ". " + objective.getDescription());
+        } else {
+            label.setText("[#2c3d42]" + (i + 1) + ". " + objective.getDescription() + "[%50][RED] (!)");
+        }
+
+        if (wasExistingLabel) label.restart();
+        if (!wasExistingLabel) {
+            label.setWrap(true);
+            label.setWidth(400);
+            objectivesTable.add(label).width(400).padTop(6);
+            objectivesTable.row();
+        }
     }
 
     /**
@@ -158,15 +200,15 @@ public final class QuestEntryGui extends Gui {
      * @param owner       the table owner
      * @param descriptors the list of items
      */
-    private void populateQuestItemComponents(Table owner, LinkedList<ItemDescriptor> descriptors) {
+    private void populateQuestItemComponents(Table owner, LinkedList<ItemDescriptor> descriptors, VisLabel labelOwner) {
         for (ItemDescriptor itemDescriptor : descriptors) {
             final Stack stack = new Stack();
             final VisImage background = new VisImage(guiManager.getStyle().getTheme());
-            final VisImage icon = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(itemDescriptor.itemTexture)));
+            final VisImage icon = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(itemDescriptor.texture())));
             stack.add(background);
             stack.add(icon);
 
-            new Tooltip.Builder(itemDescriptor.itemName)
+            new Tooltip.Builder(itemDescriptor.name())
                     .target(stack)
                     .style(guiManager.getStyle().getTooltipStyle())
                     .build()
@@ -174,6 +216,8 @@ public final class QuestEntryGui extends Gui {
 
             owner.add(stack).padRight(6);
         }
+
+        labelOwner.setVisible(true);
     }
 
     @Override

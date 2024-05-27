@@ -53,6 +53,22 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
         return bb;
     }
 
+    public EntityRotation getRotation() {
+        return rotation;
+    }
+
+    public GameWorld getWorldState() {
+        throw new UnsupportedOperationException("Implement this ha");
+    }
+
+    public GameWorld getWorldIn() {
+        return worldIn;
+    }
+
+    public boolean isDead() {
+        return getHealth() <= 0;
+    }
+
     protected void createBB(float w, float h) {
         bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
         setSize(w, h, OasisGameSettings.SCALE);
@@ -159,18 +175,6 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
         return entity.getComponent(EntityDialogComponent.class).distanceFromPlayer;
     }
 
-    public EntityRotation getRotation() {
-        return rotation;
-    }
-
-    public GameWorld getWorldState() {
-        throw new UnsupportedOperationException("Implement this ha");
-    }
-
-    public GameWorld getWorldIn() {
-        return worldIn;
-    }
-
     /**
      * Damage this entity
      *
@@ -190,7 +194,7 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
      * @param batch  batch
      * @param region texture
      */
-    protected void drawCurrentPosition(SpriteBatch batch, TextureRegion region) {
+    public void drawCurrentPosition(SpriteBatch batch, TextureRegion region) {
         if (dynamicSize && previousRotation != rotation) {
             setSize(region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE, OasisGameSettings.SCALE);
         }

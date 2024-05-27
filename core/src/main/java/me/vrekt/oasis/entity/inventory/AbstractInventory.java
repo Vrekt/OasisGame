@@ -82,7 +82,7 @@ public abstract class AbstractInventory implements Disposable {
      */
     protected int getItemSlot(Item item) {
         for (IntMap.Entry<Item> entry : items) {
-            if (entry.value != null && entry.value.is(item)) return entry.key;
+            if (entry.value != null && entry.value.compare(item)) return entry.key;
         }
         return -1;
     }
@@ -193,7 +193,7 @@ public abstract class AbstractInventory implements Disposable {
             throw new IllegalArgumentException("No item in slot " + slot + ", this is a bug. TRANSFER_AMT");
 
         // go ahead and just transfer all.
-        if (amount >= item.getAmount()) {
+        if (amount >= item.amount()) {
             return transferAll(slot, target);
         }
 

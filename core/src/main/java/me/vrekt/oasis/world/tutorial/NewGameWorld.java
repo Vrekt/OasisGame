@@ -9,19 +9,19 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
-import me.vrekt.oasis.questing.quests.tutorial.TutorialIslandQuest;
+import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.sign.WrynnBasementWarningSign;
 
 /**
- * This world acts as a debug/tutorial level for now.
+ * The new game world, intended to teach players the game
  */
-public final class TutorialOasisWorld extends GameWorld {
+public final class NewGameWorld extends GameWorld {
 
-    public TutorialOasisWorld(OasisGame game, PlayerSP player) {
+    public NewGameWorld(OasisGame game, PlayerSP player) {
         super(game, player, new World(Vector2.Zero, true));
 
         getConfiguration().worldScale = OasisGameSettings.SCALE;
@@ -53,7 +53,7 @@ public final class TutorialOasisWorld extends GameWorld {
             player.getInventory().add(Items.TEMPERED_BLADE, 1);
             player.getInventory().add(Items.PIG_HEART, 1);
 
-            player.getQuestManager().addActiveQuest(QuestType.TUTORIAL_ISLAND, new TutorialIslandQuest());
+            player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
             guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
             game.setNewGame(false);
         }

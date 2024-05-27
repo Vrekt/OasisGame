@@ -20,6 +20,7 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public final class GameHudGui extends Gui {
         attributeComponent = initializeAttributeComponents();
 
         builder = new StringBuilder();
-        this.updateInterval = 1000;
+        this.updateInterval = 1f;
     }
 
     @Override
@@ -120,6 +121,12 @@ public final class GameHudGui extends Gui {
         // update selected slot
         selectedSlot = hotbarIconComponents.get(slot);
         selectedSlot.setSelected();
+
+        // TODO: Mechanics still being decided
+        if (selectedSlot.item instanceof ItemWeapon weapon) {
+            player.equipItem(weapon);
+        }
+
     }
 
     /**
@@ -405,7 +412,7 @@ public final class GameHudGui extends Gui {
     }
 
     @Override
-    public void timedUpdate(long currentTime) {
+    public void timedUpdate(float tick) {
         builder.setLength(0);
         builder.append(FPS)
                 .append(Gdx.graphics.getFramesPerSecond())
@@ -464,7 +471,7 @@ public final class GameHudGui extends Gui {
          */
         public boolean replaceItem(Item other) {
             if (this.item == null) return true;
-            return !this.item.is(other);
+            return !this.item.compare(other);
         }
 
         public void setSelected() {
@@ -476,9 +483,7 @@ public final class GameHudGui extends Gui {
         }
 
         public void setItemInSlot(Item item) {
-            itemIcon.setDrawable(new TextureRegionDrawable(item.getSprite()));
-            // TODO: Incorrect scaling, items too big
-            itemIcon.setScale(1.0f, 1.0f);
+            itemIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
             this.item = item;
         }
 

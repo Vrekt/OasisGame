@@ -3,7 +3,7 @@ package me.vrekt.oasis.world.interior.wrynn;
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**

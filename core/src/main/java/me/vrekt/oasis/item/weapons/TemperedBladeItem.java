@@ -1,14 +1,15 @@
 package me.vrekt.oasis.item.weapons;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.item.draw.AnimationRendererConfig;
+import me.vrekt.oasis.item.draw.ItemAnimationRenderer;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class TemperedBladeItem extends ItemWeapon {
@@ -36,10 +37,13 @@ public final class TemperedBladeItem extends ItemWeapon {
 
     @Override
     public void load(Asset asset) {
-        this.sprite = new Sprite(asset.get(TEXTURE));
-        this.sprite.setScale(2.0f);
-        this.sprite.setSize(sprite.getRegionWidth() * OasisGameSettings.SCALE, sprite.getRegionHeight() * OasisGameSettings.SCALE);
-        //this.swipe = new Sprite(asset.get("swipetest", 2));
+        final AnimationRendererConfig config = new AnimationRendererConfig()
+                .rotation(EntityRotation.UP, 0.55f, 0.45f)
+                .rotation(EntityRotation.DOWN, 0.45f, 0.45f)
+                .rotation(EntityRotation.LEFT, 0.45f, 0.45f)
+                .rotation(EntityRotation.RIGHT, 0.0f, 0.0f);
+
+        this.renderer = new ItemAnimationRenderer(asset.get(TEXTURE), this, config);
 
         this.swingEffect = new ParticleEffect();
         this.swingEffect.load(Gdx.files.internal("world/asset/particles/swordparticle"), asset.getAtlasAssets());
@@ -47,12 +51,12 @@ public final class TemperedBladeItem extends ItemWeapon {
 
         this.bounds = new Rectangle();
 
-        this.animator = new ItemWeaponAnimator(this, 0.05f);
-        this.animator.initializeAnimation(Animation.PlayMode.LOOP,
-                asset.get("slash", 1),
-                asset.get("slash", 2),
-                asset.get("slash", 3),
-                asset.get("slash", 4));
+        //   this.animator = new TemperedBladeWeaponAnimation(this, 1.0f);
+        //  this.animator.initializeAnimation(Animation.PlayMode.LOOP,
+        //          asset.get("slash", 1),
+        //          asset.get("slash", 2),
+        //          asset.get("slash", 3),
+        //          asset.get("slash", 4));
     }
 
     @Override
@@ -60,25 +64,4 @@ public final class TemperedBladeItem extends ItemWeapon {
         super.update(delta, rotation);
         if (!isSwinging) swingEffect.reset();
     }
-
-    @Override
-    public void draw(SpriteBatch batch) {
-        if (sprite != null) {
-            this.draw(batch, sprite.getWidth(), sprite.getHeight(), sprite.getRotation());
-        }
-
-        if (animator.isAnimating()) {
-            final TextureRegion region = animator.getFrame();
-            if (region != null) {
-                batch.draw(region,
-                        animator.getPosition().x, animator.getPosition().y,
-                        0.0f, 0.0f,
-                        region.getRegionWidth(), region.getRegionHeight(),
-                        OasisGameSettings.SCALE, OasisGameSettings.SCALE,
-                        animator.getAnimationAngle());
-            }
-        }
-    }
-
-
 }

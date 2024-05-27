@@ -110,8 +110,7 @@
   <object id="5" x="144" y="208">
    <properties>
     <property name="enemy" type="bool" value="true"/>
-    <property name="entity_type" value="BEETLE"/>
-    <property name="variety" value="BLUE"/>
+    <property name="entity_type" value="ROACH"/>
    </properties>
    <point/>
   </object>

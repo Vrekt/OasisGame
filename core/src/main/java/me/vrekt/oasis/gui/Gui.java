@@ -20,7 +20,7 @@ public abstract class Gui {
 
     protected final GuiManager guiManager;
     protected boolean isShowing;
-    protected long updateInterval, lastUpdate;
+    protected float updateInterval, lastUpdate;
 
     protected final VisTable rootTable;
     protected final GuiType type;
@@ -46,7 +46,7 @@ public abstract class Gui {
 
     }
 
-    public void timedUpdate(long currentTime) {
+    public void timedUpdate(float tick) {
 
     }
 

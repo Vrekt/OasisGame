@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
+import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
 import me.vrekt.oasis.entity.Entity;
@@ -25,10 +26,12 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private final SteeringAcceleration<Vector2> output = new SteeringAcceleration<>(new Vector2());
     // whatever behavior the entity needs
     private SteeringBehavior<Vector2> behavior;
+    private final Vector2 offsetPositionVector = new Vector2();
 
     // box2d body of the entity
     private final Entity owner;
     private final Body body;
+    private final AiComponent parent;
     private final ApplyBehavior applyBehavior;
 
     // various configuration options
@@ -41,9 +44,10 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private EntityRotation direction;
     private float last;
 
-    public EntitySteerable(Entity owner, Body body, ApplyBehavior applyBehavior) {
+    public EntitySteerable(Entity owner, Body body, AiComponent parent, ApplyBehavior applyBehavior) {
         this.owner = owner;
         this.body = body;
+        this.parent = parent;
         this.applyBehavior = applyBehavior;
         direction = owner.getRotation();
     }
@@ -65,6 +69,10 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
     public EntityRotation getDirectionMoving() {
         return direction;
+    }
+
+    public void setDirectionMoving(EntityRotation direction) {
+        this.direction = direction;
     }
 
     public void update(float delta) {
@@ -120,12 +128,16 @@ public final class EntitySteerable implements Steerable<Vector2> {
      * Only apply linear velocity and nothing else.
      */
     private void applyVelocityOnly() {
-        body.setLinearVelocity(output.linear);
-        owner.setVelocity(output.linear);
+        if (parent.applySelf()) {
+            parent.applyResult(output.linear);
+        } else {
+            body.setLinearVelocity(output.linear);
+            owner.setVelocity(output.linear);
 
-        if (GameManager.hasTimeElapsed(last, 0.1f)) {
-            direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
-            last = GameManager.getTick();
+            if (GameManager.hasTimeElapsed(last, 0.1f)) {
+                direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
+                last = GameManager.getTick();
+            }
         }
     }
 
@@ -206,8 +218,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
     @Override
     public Vector2 getPosition() {
-        // TODO: Avoid cpy() everytime
-        return offsetPosition ? body.getPosition().cpy().add(0.25f, 0.0f) : body.getPosition();
+        return offsetPosition ? offsetPositionVector.set(body.getPosition()).add(0.25f, 0.0f) : body.getPosition();
     }
 
     @Override

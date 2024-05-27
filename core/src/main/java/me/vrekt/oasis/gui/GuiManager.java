@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
@@ -193,13 +194,12 @@ public class GuiManager {
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 60));
 
-        final long now = System.currentTimeMillis();
         for (Gui value : guis.values()) {
             value.update();
             if (value.updateInterval != 0
-                    && (now - value.lastUpdate >= value.updateInterval)) {
-                value.lastUpdate = now;
-                value.timedUpdate(now);
+                    && GameManager.hasTimeElapsed(value.lastUpdate, value.updateInterval)) {
+                value.lastUpdate = GameManager.getTick();
+                value.timedUpdate(value.lastUpdate);
             }
         }
 

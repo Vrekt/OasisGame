@@ -191,7 +191,7 @@ public final class PlayerInventoryGui extends InventoryGui {
     public void update() {
         for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
             final InventoryGuiSlot slot = guiSlots.get(entry.key);
-            if (!entry.value.is(slot.getLastItemKey())) {
+            if (!entry.value.compare(slot.getLastItemKey())) {
                 slot.setOccupiedItem(entry.value);
             }
         }
@@ -227,9 +227,9 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemActionButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (selectedItem instanceof ItemConsumable) {
-                    selectedItem.useItem(player);
-                    if (selectedItem.getAmount() <= 0)
+                if (selectedItem instanceof ItemConsumable consumable) {
+                    consumable.useItem(player);
+                    if (selectedItem.amount() <= 0)
                         itemActionButton.setVisible(false);
                 } else if (selectedItem instanceof ItemEquippable equippable) {
                     if (equippable.canEquip(player)) {
@@ -255,18 +255,18 @@ public final class PlayerInventoryGui extends InventoryGui {
         hideItemOptionals();
         selectedItem = slot.getItem();
 
-        itemNameHeader.setText(selectedItem.getItemRarity().getColorName() + selectedItem.getItemName());
+        itemNameHeader.setText(selectedItem.rarity().getColorName() + selectedItem.name());
         itemNameHeader.setVisible(true);
         itemNameHeader.restart();
 
-        itemDescriptionHeader.setText(selectedItem.getDescription());
+        itemDescriptionHeader.setText(selectedItem.description());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.restart();
         enableItemActionButton(selectedItem);
         populateWeaponOrArtifactStats(selectedItem);
 
         itemRarityIcon.setDrawable((Drawable) null);
-        final ItemRarity rarity = selectedItem.getItemRarity();
+        final ItemRarity rarity = selectedItem.rarity();
         if (rarityIcons.containsKey(rarity)) {
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
         }

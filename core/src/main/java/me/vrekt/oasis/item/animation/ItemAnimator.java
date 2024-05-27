@@ -1,8 +1,10 @@
 package me.vrekt.oasis.item.animation;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.Item;
 
 /**
@@ -11,7 +13,6 @@ import me.vrekt.oasis.item.Item;
 public abstract class ItemAnimator {
 
     protected final Item item;
-    protected String[] frames;
     protected float time, animationAngle;
 
     protected Animation<TextureRegion> animation;
@@ -28,6 +29,18 @@ public abstract class ItemAnimator {
         this.item = item;
         this.time = time;
     }
+
+    public abstract void update(float delta);
+
+    public abstract void draw(SpriteBatch batch);
+
+    /**
+     * Update the angle at which this item will draw
+     *
+     * @param position position
+     * @param rotation rotation
+     */
+    public abstract void updateItemAngle(Vector2 position, EntityRotation rotation);
 
     public TextureRegion getFrame() {
         return animation.getKeyFrame(animationTime);

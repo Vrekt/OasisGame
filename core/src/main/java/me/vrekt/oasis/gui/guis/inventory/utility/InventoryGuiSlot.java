@@ -104,17 +104,17 @@ public final class InventoryGuiSlot {
      */
     public boolean updateTransfer(AbstractInventory owner, int slot) {
         final Item item = owner.get(slot);
-        if (item == null || item.getAmount() <= 0) {
+        if (item == null || item.amount() <= 0) {
             resetSlot();
             return true;
-        } else if (this.item == null || !item.is(this.item)) {
+        } else if (this.item == null || !item.compare(this.item)) {
             // this item is new, so just reset entirely.
             // not sure if this will ever happen but maybe.
             setOccupiedItem(item);
             return false;
         }
 
-        amountText.setText(item.getAmount());
+        amountText.setText(item.amount());
         return false;
     }
 
@@ -130,20 +130,20 @@ public final class InventoryGuiSlot {
         }
 
         this.item = item;
-        this.lastItemKey = item.getKey();
+        this.lastItemKey = item.key();
 
         // TODO: Cache drawables?
-        slotIcon.setDrawable(new TextureRegionDrawable(item.getSprite()));
+        slotIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
         slotIcon.setScale(item.getScaleSize());
 
         if (item.isStackable()) {
             amountText.setVisible(true);
-            amountText.setText(item.getAmount());
+            amountText.setText(item.amount());
         } else {
             amountText.setVisible(false);
         }
 
-        tooltip.setText(item.getItemName());
+        tooltip.setText(item.name());
         occupied = true;
     }
 

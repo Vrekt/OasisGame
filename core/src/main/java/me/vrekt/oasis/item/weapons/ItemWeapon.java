@@ -1,8 +1,6 @@
 package me.vrekt.oasis.item.weapons;
 
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.ItemEquippable;
@@ -17,8 +15,6 @@ public abstract class ItemWeapon extends ItemEquippable {
     protected boolean isSwinging, isResettingSwing;
 
     protected Rectangle bounds;
-    protected ItemWeaponAnimator animator;
-
     protected float targetAngle;
     protected float swingTick;
 
@@ -34,61 +30,6 @@ public abstract class ItemWeapon extends ItemEquippable {
     @Override
     public void equip(PlayerSP player) {
         player.equipItem(this);
-    }
-
-    /**
-     * Calculate the offset for the players item based on where they face.;
-     *
-     * @param position the position of the player
-     * @param rotation the players rotation
-     */
-    @Override
-    public void calculateItemPositionAndRotation(Vector2 position, EntityRotation rotation) {
-        switch (rotation) {
-            case UP:
-                sprite.setPosition(position.x + .7f, position.y + .4f);
-                animator.setAnimationAngle(90);
-                animator.setAnimationPosition(sprite.getX() + .5f, sprite.getY() + .2f);
-                itemPositionAngle = 25.0f;
-                break;
-            case DOWN:
-                sprite.setPosition(position.x + 0.7f, position.y + .35f);
-                animator.setAnimationAngle(180);
-                animator.setAnimationPosition(sprite.getX() + .5f, sprite.getY() + .2f);
-                itemPositionAngle = 20.0f;
-                break;
-            case LEFT:
-                sprite.setPosition(position.x + .5f, position.y + .65f);
-                animator.setAnimationAngle(90.0f);
-                animator.setAnimationPosition(sprite.getX() - .5f, sprite.getY() + .25f);
-                itemPositionAngle = 90.0f;
-                break;
-            case RIGHT:
-                sprite.setPosition(position.x + .25f, position.y + .5f);
-                animator.setAnimationAngle(0.0f);
-                animator.setAnimationPosition(sprite.getX() + .5f, sprite.getY() + .25f);
-                itemPositionAngle = 0.0f;
-                break;
-        }
-        calculateTargetAngle(rotation);
-    }
-
-    private void calculateTargetAngle(EntityRotation rotation) {
-        switch (rotation) {
-            case UP:
-                targetAngle = 45.0f;
-                break;
-            case DOWN:
-                targetAngle = -90.0f;
-                break;
-            case LEFT:
-                targetAngle = 120.0f;
-                break;
-            case RIGHT:
-                targetAngle = -25.0f;
-                break;
-        }
-        animator.setAnimationAngle(targetAngle);
     }
 
     public boolean isOnSwingCooldown(float tick) {
@@ -125,7 +66,7 @@ public abstract class ItemWeapon extends ItemEquippable {
             // we can reset IF delay passed
             if (swingTick > (swingTime / 2f)) {
                 isResettingSwing = false;
-                sprite.setRotation(itemPositionAngle);
+             //   sprite.setRotation(itemPositionAngle);
             }
         }
     }
@@ -149,7 +90,7 @@ public abstract class ItemWeapon extends ItemEquippable {
     @Override
     public void update(float delta, EntityRotation rotation) {
 
-        // TODO: Fix this, bounding box is correct position wise but does not actually extend correctly
+      /*  // TODO: Fix this, bounding box is correct position wise but does not actually extend correctly
         final float posX = rotation == EntityRotation.LEFT ?
                 sprite.getX() - (sprite.getWidth() + range) : sprite.getX();
         final float posY = rotation == EntityRotation.DOWN ?
@@ -191,7 +132,7 @@ public abstract class ItemWeapon extends ItemEquippable {
 
             sprite.setRotation(finalAngle);
         } else {
-            sprite.setRotation(itemPositionAngle);
+          //  sprite.setRotation(itemPositionAngle);
         }
 
         animator.setAnimate(isSwinging || isResettingSwing);
@@ -204,7 +145,7 @@ public abstract class ItemWeapon extends ItemEquippable {
             animator.updateAnimationTime(delta);
         } else {
             animator.resetAnimationTime();
-        }
+        }*/
     }
 
     public float getBaseDamage() {

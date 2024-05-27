@@ -1,79 +1,194 @@
 package me.vrekt.oasis.item;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
+import me.vrekt.oasis.item.draw.ItemRenderer;
 import me.vrekt.oasis.utility.ResourceLoader;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents an item within the game
  */
-public interface Item extends ResourceLoader {
+public abstract class Item implements ResourceLoader {
 
-    Items type();
+    protected final Items itemType;
+    protected ItemRenderer renderer;
 
-    String getKey();
+    protected String key, name, description;
+    protected ItemRarity rarity;
+    protected int amount;
+    protected boolean isStackable;
 
-    String getItemName();
+    // map of all attributes on this item
+    protected Map<String, Attribute> attributes = new HashMap<>();
+    protected float scaleSize = 1.0f;
 
-    void setItemName(String name);
+    public Item(Items itemType, String key, String name, String description) {
+        this.itemType = itemType;
+        this.key = key;
+        this.name = name;
+        this.description = description;
+    }
 
-    String getDescription();
+    /**
+     * @return the item type
+     */
+    public Items type() {
+        return itemType;
+    }
 
-    Sprite getSprite();
+    /**
+     * @return key
+     */
+    public String key() {
+        return key;
+    }
 
-    ItemRarity getItemRarity();
+    /**
+     * @return name
+     */
+    public String name() {
+        return name;
+    }
 
-    int getAmount();
+    /**
+     * @return description
+     */
+    public String description() {
+        return description;
+    }
 
-    void setAmount(int amount);
+    /**
+     * @return renderer
+     */
+    public ItemRenderer renderer() {
+        return renderer;
+    }
 
-    void add(int amount);
+    /**
+     * @return texture
+     */
+    public TextureRegion sprite() {
+        return renderer.region();
+    }
 
-    void merge(Item other);
+    /**
+     * @return rarity
+     */
+    public ItemRarity rarity() {
+        return rarity;
+    }
 
-    void decrease(int amount);
+    public int amount() {
+        return amount;
+    }
 
-    void decreaseItemAmount();
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
 
-    boolean isStackable();
+    public void add(int amount) {
+        this.amount += amount;
+    }
 
-    void setStackable(boolean stackable);
+    public void decrease(int amount) {
+        this.amount -= amount;
+    }
 
-    void useItem(PlayerSP player);
+    public void decreaseItemAmount() {
+        this.amount -= 1;
+    }
 
-    void addAttribute(Attribute attribute);
+    public boolean isStackable() {
+        return isStackable;
+    }
 
-    void removeAttribute(String attribute);
+    public void addAttribute(Attribute attribute) {
+        this.attributes.put(attribute.getKey(), attribute);
+    }
 
-    boolean hasAttribute(String attribute);
+    public void removeAttribute(String attribute) {
+        attributes.remove(attribute);
+    }
 
-    Attribute getAttribute(String attribute);
+    public boolean hasAttribute(String attribute) {
+        return attributes.containsKey(attribute);
+    }
 
-    Map<String, Attribute> getItemAttributes();
+    public Attribute getAttribute(String attribute) {
+        return attributes.get(attribute);
+    }
 
-    void applyAttributes(PlayerSP player);
+    public Map<String, Attribute> getItemAttributes() {
+        return attributes;
+    }
 
-    void applyAttribute(String attribute, PlayerSP player);
+    public void applyAttributes(PlayerSP player) {
+        for (Attribute attribute : attributes.values()) {
+            player.applyAttribute(attribute);
+        }
+    }
 
-    void update(float delta, EntityRotation rotation);
+    public void update(float delta, EntityRotation rotation) {
 
-    void draw(SpriteBatch batch);
+    }
 
-    void draw(SpriteBatch batch, float width, float height, float rotation);
+    public void draw(SpriteBatch batch) {
+        if (renderer != null) renderer.render(batch, Gdx.graphics.getDeltaTime());
+    }
 
-    float getScaleSize();
+    public float getScaleSize() {
+        return scaleSize;
+    }
 
-    Item split(int amount);
+    public Item split(int amount) {
+        decrease(amount);
+        return ItemRegistry.createItem(itemType, amount);
+    }
 
-    boolean is(Item other);
+    /**
+     * Merge the other item into this
+     *
+     * @param other the other item
+     */
+    public void merge(Item other) {
+        add(other.amount());
+    }
 
-    boolean is(String key);
+    /**
+     * Compares key and item amounts
+     *
+     * @param other other item
+     * @return {@code true} if the other item is this item
+     */
+    public boolean compare(Item other) {
+        return StringUtils.equals(key(), other.key()) && other.amount() == amount();
+    }
 
-    boolean isComplex(Item other);
+    /**
+     * Compares only keys
+     *
+     * @param key other item key
+     * @return {@code true} if the other item is this item
+     */
+    public boolean compare(String key) {
+        return StringUtils.equals(key(), key);
+    }
 
+    /**
+     * Compares most fields.
+     *
+     * @param other other item
+     * @return {@code true} if the other item is this item
+     */
+    public boolean compareEverything(Item other) {
+        return compare(other) && other.amount() == amount() && other.rarity() == rarity() && StringUtils.equals(other.name(), name());
+    }
 }

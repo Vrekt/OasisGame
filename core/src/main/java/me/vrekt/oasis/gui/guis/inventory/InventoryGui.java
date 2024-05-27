@@ -196,7 +196,7 @@ public abstract class InventoryGui extends Gui {
     @Override
     public void draw(Batch batch) {
         if (draggingItem != null) {
-            draggingItem.draw(batch, dragX, dragY, 0, 0, dragWidth, dragHeight, 2.0f, 2.0f, 1f);
+            draggingItem.draw(batch, dragX, dragY, 0, 0, dragWidth, dragHeight, 1.0f, 1.0f, 1f);
         }
     }
 

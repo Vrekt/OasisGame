@@ -10,10 +10,10 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
-import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -142,8 +142,8 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     }
 
     private void drawEquippedItem(SpriteBatch batch) {
-        if (ItemRegistry.isWeapon(equippedItem)) {
-            equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
+        if (equippedItem instanceof ItemWeapon) {
+           // equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
             equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
             equippedItem.draw(batch);
         }

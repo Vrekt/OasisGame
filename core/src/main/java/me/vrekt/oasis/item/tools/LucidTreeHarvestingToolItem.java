@@ -1,8 +1,7 @@
 package me.vrekt.oasis.item.tools;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.item.AbstractItem;
+import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
@@ -10,7 +9,7 @@ import me.vrekt.oasis.item.utility.ItemDescriptor;
 /**
  * Allows the player to harvest fruit from a Lucid tree.
  */
-public final class LucidTreeHarvestingToolItem extends AbstractItem {
+public final class LucidTreeHarvestingToolItem extends Item {
 
     public static final String KEY = "oasis:lucid_tree_harvesting_tool";
     public static final String NAME = "Lucid Harvester";
@@ -25,7 +24,7 @@ public final class LucidTreeHarvestingToolItem extends AbstractItem {
 
     @Override
     public void load(Asset asset) {
-        this.sprite = new Sprite(asset.get(TEXTURE));
+      //  this.sprite = new Sprite(asset.get(TEXTURE));
     }
 
 }

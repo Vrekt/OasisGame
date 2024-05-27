@@ -41,7 +41,7 @@ public class InventorySaveProperties implements HasInventory {
           //  src.inventory.getSlots().forEach((index, slot) -> {
         //        final JsonObject object = new JsonObject();
          //       object.addProperty("slotNumber", index);
-        //        object.addProperty("itemName", slot.getItem().getItemName());
+        //        object.addProperty("name", slot.getItem().getItemName());
         //        object.addProperty("key", slot.getItem().getKey());
         //        object.addProperty("amount", slot.getItem().getAmount());
 
@@ -91,10 +91,10 @@ public class InventorySaveProperties implements HasInventory {
                 for (JsonElement element : itemsArray) {
                     final JsonObject base = element.getAsJsonObject();
                     final int slot = base.get("slotNumber").getAsInt();
-                    final String itemName = base.get("itemName").getAsString();
+                    final String itemName = base.get("name").getAsString();
                     final String itemKey = base.get("key").getAsString();
                     final int amount = base.get("amount").getAsInt();
-                //    inventory.addItemFromSave(slot, itemName, itemKey, amount);
+                //    inventory.addItemFromSave(slot, name, itemKey, amount);
                 }
             }
 

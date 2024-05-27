@@ -1,6 +1,5 @@
 package me.vrekt.oasis.item.artifact.items;
 
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.ItemRarity;
@@ -25,8 +24,8 @@ public final class QuickStepItemArtifact extends ItemArtifact {
 
     @Override
     public void load(Asset asset) {
-        this.sprite = new Sprite(asset.get(TEXTURE));
-        this.sprite.setScale(2.0f);
+       // this//.sprite = new Sprite(asset.get(TEXTURE));
+      //  this.sprite.setScale(2.0f);
         this.artifact = new QuickStepArtifact();
         this.artifact.load(asset);
         this.icon = asset.get("quickstep_artifact_icon");

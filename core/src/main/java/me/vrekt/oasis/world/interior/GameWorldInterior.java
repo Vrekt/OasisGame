@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.instance;
+package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -12,7 +12,6 @@ import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
  * Represents an interior within the parent world;

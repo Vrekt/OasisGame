@@ -2,6 +2,7 @@ package me.vrekt.oasis.entity.enemy;
 
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.enemy.easy.GrungyRoachEnemy;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -9,10 +10,10 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public enum EntityEnemyType {
 
-    BEETLE {
+    ROACH {
         @Override
         public EntityEnemy create(Vector2 position, OasisGame game, GameWorld world, String variety) {
-            return new BlueBasementBeetle(position, game, world, BasementBeetleEnemy.BeetleVariety.valueOf(variety));
+            return new GrungyRoachEnemy(position, world, game);
         }
     };
 

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
@@ -38,7 +39,7 @@ import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.instance.GameWorldInterior;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -96,10 +97,10 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
      */
     private void create() {
         setName("Player" + OasisGame.GAME_VERSION);
-        setMoveSpeed(6.0f);
+        setMoveSpeed(5.25f);
         setHealth(100);
 
-        setSize(15, 25, OasisGameSettings.SCALE);
+        setSize(24, 32, OasisGameSettings.SCALE);
         setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
@@ -110,17 +111,17 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        getTextureComponent().add("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        getTextureComponent().add("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        getTextureComponent().add("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        getTextureComponent().add("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        activeTexture = getTextureComponent().get("healer_walking_up_idle");
+        getTextureComponent().add("character_a_walking_up_idle", asset.get("character_a_walking_up_idle"));
+        getTextureComponent().add("character_a_walking_down_idle", asset.get("character_a_walking_down_idle"));
+        getTextureComponent().add("character_a_walking_left_idle", asset.get("character_a_walking_left_idle"));
+        getTextureComponent().add("character_a_walking_right_idle", asset.get("character_a_walking_right_idle"));
+        activeTexture = getTextureComponent().get("character_a_walking_up_idle");
 
         // up, down, left, right
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
+        animationComponent.createMoveAnimation(EntityRotation.UP, 0.35f, asset.get("character_a_walking_up", 1), asset.get("character_a_walking_up", 2));
+        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
+        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
     }
 
     public AbstractInventory getInventory() {
@@ -358,16 +359,16 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     public void setIdleRegionState() {
         switch (rotation) {
             case UP:
-                activeTexture = getTextureComponent().get("healer_walking_up_idle");
+                activeTexture = getTextureComponent().get("character_a_walking_up_idle");
                 break;
             case DOWN:
-                activeTexture = getTextureComponent().get("healer_walking_down_idle");
+                activeTexture = getTextureComponent().get("character_a_walking_down_idle");
                 break;
             case LEFT:
-                activeTexture = getTextureComponent().get("healer_walking_left_idle");
+                activeTexture = getTextureComponent().get("character_a_walking_left_idle");
                 break;
             case RIGHT:
-                activeTexture = getTextureComponent().get("healer_walking_right_idle");
+                activeTexture = getTextureComponent().get("character_a_walking_right_idle");
                 break;
         }
     }
@@ -475,7 +476,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
             //   connection.sendImmediately(new ClientPacketSwingItem(getEntityId(), equippedItem.getKey()));
         }
 
-        equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), rotation);
+        equippedItem.renderer().updateItemRotation(getInterpolatedPosition(), rotation);
         equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
         equippedItem.draw(batch);
 
@@ -524,6 +525,11 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     public void spawnInWorld(LunarWorld world, Vector2 position) {
         this.defineEntity(world.getEntityWorld(), position.x, position.y);
         setBodyPosition(position, true);
+    }
+
+    @Override
+    public Body getBody() {
+        return super.getBody();
     }
 
     @Override

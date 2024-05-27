@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.ai.PlayerSteerableTarget;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.entity.Entity;
-import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
@@ -48,7 +47,7 @@ public final class AiHostilePursueComponent extends AiComponent {
      * @return if we are within the players bounds
      */
     public boolean isWithinPlayer() {
-        return ((EntityEnemy) entity).bb().contains(player.getPosition()) || entity.getPosition().dst2(player.getPosition()) <= 0.5f;
+        return entity.bb().contains(player.getPosition()) || entity.getPosition().dst2(player.getPosition()) <= 0.5f;
     }
 
 }

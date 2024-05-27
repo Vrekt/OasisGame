@@ -47,9 +47,12 @@ public abstract class Quest {
     public void updateQuestObjectiveAndUnlockNext() {
         if (currentObjectiveStep >= objectives.size()) {
             GameLogging.error(this, currentObjectiveStep + " > " + objectives.size());
+            return;
         }
+
         objectives.get(currentObjectiveStep).setCompleted(true);
         currentObjectiveStep++;
+
         if (currentObjectiveStep >= objectives.size()) return;
         objectives.get(currentObjectiveStep).setUnlocked(true);
     }
@@ -79,8 +82,16 @@ public abstract class Quest {
         return difficulty;
     }
 
+    public boolean hasItemRequirements() {
+        return !itemsRequired.isEmpty();
+    }
+
+    public boolean hasRewards() {
+        return !rewards.isEmpty();
+    }
+
     public int getCompleteness() {
-        return (int) ((currentObjectiveStep + 1) * 100.0f) / objectives.size();
+        return currentObjectiveStep == 0 ? 0 : (int) ((currentObjectiveStep + 1) * 100.0f) / objectives.size();
     }
 
 }
