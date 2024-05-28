@@ -1,8 +1,10 @@
 package me.vrekt.oasis.entity.enemy.easy.roach;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
@@ -14,9 +16,9 @@ import me.vrekt.oasis.entity.enemy.AttackDirection;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeadAnimation;
+import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.enemy.fsm.states.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
-import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.world.GameWorld;
 
@@ -30,6 +32,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
     private final EntityStateMachine stateMachine;
 
+    private Animation<TextureRegion> projectileAnimation;
     private ParticleEffect poisonEffect;
 
     private boolean isAttacking;
@@ -43,8 +46,8 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         setBodyPosition(position, true);
         setName("Grungy Roach");
 
-        hostileRange = 10.0f;
-        attackSpeed = 1;
+        hostileRange = 16.0f;
+        attackSpeed = 0.8f;
         animationComponent = new EntityAnimationComponent();
         stateMachine = new EntityStateMachine(this);
     }
@@ -83,6 +86,17 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         animation = new FadeAlphaDeadAnimation(this);
         poisonEffect = new ParticleEffect();
+
+        projectileAnimation = new Animation<>(0.25f,
+                asset.get("acid_projectile_pop", 1),
+                asset.get("acid_projectile_pop", 2),
+                asset.get("acid_projectile_pop", 3),
+                asset.get("acid_projectile_pop", 4),
+                asset.get("acid_projectile_pop", 5),
+                asset.get("acid_projectile_pop", 6),
+                asset.get("acid_projectile_pop", 7),
+                asset.get("acid_projectile_pop", 8));
+        projectileAnimation.setPlayMode(Animation.PlayMode.NORMAL);
 
         poisonEffect.load(Gdx.files.internal("world/asset/particles/poison_cloud2.p"), asset.getAtlasAssets());
         poisonEffect.start();
@@ -123,7 +137,11 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         lastAttack = GameManager.getTick();
         isAttacking = true;
 
-        worldIn.spawnProjectile(ProjectileType.ROACH_ACID, body.getPosition(), player.getPosition(), this::handleProjectileAttackHit);
+        worldIn.spawnAnimatedProjectile(ProjectileType.ROACH_ACID,
+                projectileAnimation,
+                body.getPosition(),
+                player.getPosition(),
+                this::handleProjectileAttackHit);
 
         player.attack(attackStrength, this);
     }

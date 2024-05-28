@@ -1,5 +1,9 @@
 # Attempting to document all my sources and most of my art credits
 
+Rapid fire
+
+Acid pop animation modified from https://opengameart.org/content/2d-bubble-animation
+
 # References, sources, tutorials
 TBA
 

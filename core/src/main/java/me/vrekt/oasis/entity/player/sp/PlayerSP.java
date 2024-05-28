@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -78,6 +79,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
 
     private final Vector3 worldPosition = new Vector3();
     private final Vector3 screenPosition = new Vector3();
+    private final Rectangle bounds = new Rectangle();
 
     // disable movement listening while in dialogs
     private boolean disableMovement;
@@ -106,6 +108,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         setHealth(100);
 
         setSize(24, 32, OasisGameSettings.SCALE);
+        bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 32 * OasisGameSettings.SCALE);
+
         setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
@@ -144,6 +148,10 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     @Override
     public PlayerConnection getConnection() {
         return connectionHandler;
+    }
+
+    public boolean isProjectileInBounds(Rectangle projectile) {
+        return this.bounds.contains(projectile);
     }
 
     /**
@@ -399,7 +407,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     public void update(float delta) {
         pollInput();
 
-        if (this.body != null) this.body.setLinearVelocity(this.getVelocity());
+        this.body.setLinearVelocity(this.getVelocity());
+        bounds.setPosition(body.getPosition());
 
         // handle all attributes currently applied
         // TODO: Only needs to update every second.

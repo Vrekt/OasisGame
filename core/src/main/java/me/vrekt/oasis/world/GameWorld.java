@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -277,6 +278,23 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
                                 Vector2 target,
                                 ProjectileResult result) {
         projectileManager.spawnProjectile(type, origin, target, result);
+    }
+
+    /**
+     * Spawn a projectile that has a 'death' animation
+     *
+     * @param type      type
+     * @param animation animation
+     * @param origin    origin
+     * @param target    target
+     * @param result    result
+     */
+    public void spawnAnimatedProjectile(ProjectileType type,
+                                        Animation<TextureRegion> animation,
+                                        Vector2 origin,
+                                        Vector2 target,
+                                        ProjectileResult result) {
+        projectileManager.spawnAnimatedProjectile(type, animation, origin, target, result);
     }
 
     /**

@@ -1,5 +1,8 @@
 package me.vrekt.oasis.entity.enemy.projectile;
 
+/**
+ * All projectile types within the game
+ */
 public enum ProjectileType {
 
     ROACH_ACID(new ProjectileData("acid_projectile", 5.0f, 7.5f));

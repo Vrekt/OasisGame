@@ -1,6 +1,8 @@
 package me.vrekt.oasis.entity.enemy.projectile;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
@@ -39,6 +41,28 @@ public final class ProjectileManager {
     }
 
     /**
+     * Spawn a projectile that has a 'death' animation
+     *
+     * @param type      type
+     * @param animation animation
+     * @param origin    origin
+     * @param target    target
+     * @param result    result
+     */
+    public void spawnAnimatedProjectile(ProjectileType type,
+                                        Animation<TextureRegion> animation,
+                                        Vector2 origin,
+                                        Vector2 target,
+                                        ProjectileResult result) {
+        final Projectile obtained = pool.obtain();
+        obtained.load(type.data(), result);
+        obtained.animate(animation);
+
+        obtained.shoot(origin, target);
+        activeProjectiles.add(obtained);
+    }
+
+    /**
      * Update all activate projectiles
      *
      * @param delta delta
@@ -48,8 +72,6 @@ public final class ProjectileManager {
         for (int i = activeProjectiles.size; --i >= 0; ) {
             projectile = activeProjectiles.get(i);
             if (projectile.isExpired()) {
-                projectile.pop();
-
                 activeProjectiles.removeIndex(i);
                 pool.free(projectile);
             } else {
