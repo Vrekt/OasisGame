@@ -1,6 +1,9 @@
 OasisAssets.png
 size:2048,256
 repeat:none
+acid_projectile
+bounds:724,53,15,15
+offsets:0,1,15,19
 back_button
 bounds:1101,218,39,36
 offsets:0,0,39,37
@@ -59,13 +62,13 @@ container
 bounds:776,70,256,184
 dialog
 index:3
-bounds:796,56,13,12
+bounds:813,56,13,12
 dialog
 index:2
-bounds:811,56,13,12
+bounds:828,56,13,12
 dialog
 index:1
-bounds:826,56,13,12
+bounds:843,56,13,12
 dialog_end_picture
 bounds:186,44,24,24
 dialog_option
@@ -75,7 +78,7 @@ bounds:524,44,24,24
 dialog_start_empty
 bounds:498,44,24,24
 enchanted_violet
-bounds:742,55,16,13
+bounds:759,55,16,13
 offsets:0,1,16,16
 fkey
 bounds:1494,227,32,27
@@ -113,7 +116,7 @@ quickstep_artifact
 bounds:87,23,24,21
 offsets:0,2,24,24
 quickstep_artifact_effect_arrow
-bounds:841,56,12,12
+bounds:858,56,12,12
 quickstep_artifact_icon
 bounds:1101,180,36,36
 quickstep_artifact_item
@@ -197,7 +200,7 @@ index:1
 bounds:646,52,16,16
 slash
 index:4
-bounds:778,58,16,10
+bounds:795,58,16,10
 offsets:0,1,16,16
 slash_test
 index:2
@@ -208,11 +211,11 @@ index:1
 bounds:131,2,16,14
 slash_test
 index:3
-bounds:724,55,16,13
+bounds:741,55,16,13
 offsets:0,1,16,14
 slash_test
 index:4
-bounds:760,55,16,13
+bounds:777,55,16,13
 offsets:0,0,16,14
 slider_knob
 bounds:1101,170,8,8

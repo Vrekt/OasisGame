@@ -27,6 +27,9 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
+import me.vrekt.oasis.entity.enemy.projectile.ProjectileManager;
+import me.vrekt.oasis.entity.enemy.projectile.ProjectileResult;
+import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
@@ -99,6 +102,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     // the current tick of this world.
     protected long lastTick;
 
+    protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
 
     public GameWorld(OasisGame game, PlayerSP player, World world) {
@@ -111,6 +115,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         this.guiManager = game.guiManager;
         this.interactionManager = new InteractionManager();
         this.networkHandler = new WorldNetworkHandler(game, this);
+        this.projectileManager = new ProjectileManager();
 
         configuration.stepTime = 1 / 240f;
     }
@@ -257,6 +262,21 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             if (game.getScreen() != this) game.setScreen(this);
         }
         guiManager.resetCursor();
+    }
+
+    /**
+     * Spawn a projectile in this world
+     *
+     * @param type   type
+     * @param origin origin
+     * @param target target
+     * @param result the result callback
+     */
+    public void spawnProjectile(ProjectileType type,
+                                Vector2 origin,
+                                Vector2 target,
+                                ProjectileResult result) {
+        projectileManager.spawnProjectile(type, origin, target, result);
     }
 
     /**
@@ -649,6 +669,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
         delta = update(delta);
 
+        projectileManager.update(delta);
+
         // added back since it was removed from lunar
         // may be added back
         // but ideally, user should implement updating player
@@ -752,6 +774,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             effect.update(delta);
             effect.draw(batch);
         }
+
+        projectileManager.render(batch, delta);
 
         // render local player next
         player.render(batch, delta);

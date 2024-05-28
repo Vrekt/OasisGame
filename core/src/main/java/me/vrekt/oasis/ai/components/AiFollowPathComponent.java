@@ -32,7 +32,7 @@ public final class AiFollowPathComponent extends AiComponent {
     private boolean rotationLocked;
 
     public AiFollowPathComponent(Entity entity, Array<Vector2> waypoints) {
-        super(entity, ApplyBehavior.VELOCITY_ONLY);
+        super(entity, AiComponentType.FOLLOW_PATH, ApplyBehavior.VELOCITY_ONLY);
 
         linePath = new LinePath<>(waypoints);
         followPath = new FollowPath<>(steering, linePath, 1);

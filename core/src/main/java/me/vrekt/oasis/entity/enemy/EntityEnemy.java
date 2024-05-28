@@ -25,6 +25,8 @@ public abstract class EntityEnemy extends Entity {
     protected final CombatDamageAnimator animator;
     protected EnemyAnimation animation;
 
+    protected boolean isDying;
+
     public EntityEnemy(EntityEnemyType type, GameWorld world, OasisGame game) {
         super(true);
 
@@ -43,8 +45,8 @@ public abstract class EntityEnemy extends Entity {
     }
 
     @Override
-    public void update(float v) {
-        animator.update(v);
+    public void update(float delta) {
+        animator.update(delta);
     }
 
     @Override

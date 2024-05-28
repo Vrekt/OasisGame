@@ -19,7 +19,7 @@ public final class AiHostilePursueComponent extends AiComponent {
     private float hostileAttackRange;
 
     public AiHostilePursueComponent(Entity entity, PlayerSP player) {
-        super(entity, ApplyBehavior.VELOCITY_ONLY);
+        super(entity, AiComponentType.PURSUE, ApplyBehavior.VELOCITY_ONLY);
         this.player = player;
 
         playerTarget = new PlayerSteerableTarget(player);

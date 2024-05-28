@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.sp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -82,6 +83,10 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     private boolean disableMovement;
     // if the player has moved since some class requested it to be set.
     private boolean hasMoved = true;
+
+    private float areaEffectApplied, areaEffectDuration;
+    private boolean isAreaEffectActive;
+    private ParticleEffect areaEffect;
 
     public PlayerSP(OasisGame game) {
         super(true);
@@ -267,6 +272,23 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     }
 
     /**
+     * Add an area effect to this player
+     * Poison clouds for example
+     *
+     * @param effect   the effect
+     * @param duration the duration
+     */
+    public void addAreaEffect(ParticleEffect effect, float duration) {
+        areaEffectApplied = GameManager.getTick();
+        areaEffectDuration = duration;
+        isAreaEffectActive = true;
+
+        this.areaEffect = effect;
+        effect.reset(false);
+        effect.setPosition(centerX(), centerY());
+    }
+
+    /**
      * @return list of all enemies attacking us
      */
     public Array<EntityEnemy> getEnemiesAttacking() {
@@ -391,6 +413,12 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
 
         if (game.isLocalMultiplayer() || game.isMultiplayer()) updateNetworkComponents();
         artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
+        updateAreaEffects(delta);
+    }
+
+    private void updateAreaEffects(float delta) {
+        isAreaEffectActive = areaEffect != null && !GameManager.hasTimeElapsed(areaEffectApplied, areaEffectDuration);
+        if (isAreaEffectActive) areaEffect.update(delta);
     }
 
     /**
@@ -460,6 +488,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
             if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, GameManager.getTick());
             if (artifact.isApplied()) artifact.drawParticleEffect(batch);
         }
+
+        if (isAreaEffectActive) areaEffect.draw(batch, delta);
     }
 
     /**
@@ -519,6 +549,20 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         screenPosition.set(guiCamera.project(worldPosition));
 
         animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
+    }
+
+    /**
+     * @return origin center of the player x
+     */
+    public float centerX() {
+        return getPosition().x + (getScaledWidth() / 2f);
+    }
+
+    /**
+     * @return origin center of the player y
+     */
+    public float centerY() {
+        return getPosition().y + (getScaledHeight() / 2f);
     }
 
     @Override

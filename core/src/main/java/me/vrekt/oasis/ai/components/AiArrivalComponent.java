@@ -27,7 +27,7 @@ public final class AiArrivalComponent extends AiComponent {
     private float lastPointTick, pathingInterval, arrivalTolerance;
 
     public AiArrivalComponent(EntityInteractable entity) {
-        super(entity, ApplyBehavior.DEFAULT);
+        super(entity, AiComponentType.ARRIVE, ApplyBehavior.DEFAULT);
 
         arrive = new Arrive<>(steering, location);
         arrive.setTimeToTarget(TIME_TO_TARGET);

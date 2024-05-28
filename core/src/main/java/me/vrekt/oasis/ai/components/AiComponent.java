@@ -15,11 +15,14 @@ public abstract class AiComponent {
     protected final Entity entity;
     protected final EntitySteerable steering;
     protected final SimpleVectorLocation location;
+    protected final AiComponentType type;
 
     protected boolean applySelf;
+    protected boolean paused;
 
-    public AiComponent(Entity entity, ApplyBehavior behavior) {
+    public AiComponent(Entity entity, AiComponentType type, ApplyBehavior behavior) {
         this.entity = entity;
+        this.type = type;
 
         steering = new EntitySteerable(entity, entity.getBody(), this, behavior);
         location = new SimpleVectorLocation().set(entity.getPosition());
@@ -37,8 +40,16 @@ public abstract class AiComponent {
         return steering.getDirectionMoving();
     }
 
+    public AiComponentType type() {
+        return type;
+    }
+
     public boolean applySelf() {
         return applySelf;
+    }
+
+    public void setPauseState(boolean state) {
+        this.paused = state;
     }
 
     /**
@@ -47,7 +58,7 @@ public abstract class AiComponent {
      * @param delta the delta
      */
     public void update(float delta) {
-        steering.update(delta);
+        if (!paused) steering.update(delta);
     }
 
     public void applyResult(Vector2 linear) {

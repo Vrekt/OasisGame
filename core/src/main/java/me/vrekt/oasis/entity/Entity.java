@@ -1,5 +1,6 @@
 package me.vrekt.oasis.entity;
 
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,8 +11,11 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import lunar.shared.components.drawing.EntityTextureComponent;
 import lunar.shared.entity.AbstractLunarEntity;
+import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
@@ -42,6 +46,10 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
     // if entity is in interior
     protected GameWorld parentWorld;
 
+    protected Array<AiComponent> aiComponents = new Array<>();
+    protected boolean isPaused;
+    protected float pauseTime, pauseForTime;
+
     public Entity(boolean initializeComponents) {
         super(initializeComponents);
 
@@ -63,6 +71,40 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
 
     public GameWorld getWorldIn() {
         return worldIn;
+    }
+
+    /**
+     * Add an AI component
+     */
+    protected void addAiComponent(AiComponent component) {
+        aiComponents.add(component);
+    }
+
+    /**
+     * Update AI components if it is not paused
+     *
+     * @param delta the graphics** delta time
+     */
+    protected void updateAi(float delta) {
+        if (!isPaused) {
+            GdxAI.getTimepiece().update(delta);
+            for (AiComponent component : aiComponents) {
+                component.update(GdxAI.getTimepiece().getDeltaTime());
+            }
+        } else {
+            isPaused = !GameManager.hasTimeElapsed(pauseTime, pauseForTime);
+        }
+    }
+
+    /**
+     * Pause AI for X seconds
+     *
+     * @param seconds seconds
+     */
+    protected void pauseFor(float seconds) {
+        isPaused = true;
+        pauseTime = GameManager.getTick();
+        pauseForTime = seconds;
     }
 
     public boolean isDead() {
