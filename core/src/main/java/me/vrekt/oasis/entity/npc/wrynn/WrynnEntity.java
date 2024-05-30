@@ -106,17 +106,17 @@ public final class WrynnEntity extends EntityInteractable {
         super.update(delta);
 
         if (isSpeakingTo()) {
-            if (isMoving()) setBodyVelocity(0.0f, 0.0f, true);
+            if (isMoving()) setVelocity(0.0f, 0.0f, true);
             return;
         }
 
         updateAi(delta);
 
         if (pathComponent.isWithinTarget()) {
-            setBodyVelocity(0, 0, true);
+            setVelocity(0, 0, true);
             pauseFor(MathUtils.random(4.0f, 10.0f));
         } else if (isPaused) {
-            setBodyVelocity(0, 0, true);
+            setVelocity(0, 0, true);
         }
 
         // only update rotation if we are moving
@@ -124,7 +124,6 @@ public final class WrynnEntity extends EntityInteractable {
 
         updateRotationTextureState();
 
-        setMoving(!getVelocity().isZero());
         dialogue.update();
     }
 

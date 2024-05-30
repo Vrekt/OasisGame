@@ -33,7 +33,7 @@ public final class TiledMapLoader {
 
         for (MapObject object : layer.getObjects()) {
             if (object instanceof RectangleMapObject) {
-                final Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+                final Rectangle rectangle = new Rectangle(((RectangleMapObject) object).getRectangle());
                 rectangle.x = rectangle.x * worldScale;
                 rectangle.y = rectangle.y * worldScale;
                 rectangle.width = rectangle.width * worldScale;

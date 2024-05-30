@@ -11,6 +11,7 @@ public class Lwjgl3Launcher {
     public static void main(String[] args) {
         System.setProperty("ip", args[0]);
         System.setProperty("port", args[1]);
+        System.setProperty("mp", args[2]);
         createApplication();
     }
 

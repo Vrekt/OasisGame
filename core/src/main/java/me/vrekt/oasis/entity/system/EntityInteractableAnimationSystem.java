@@ -1,12 +1,10 @@
-package me.vrekt.oasis.entity.npc.system;
+package me.vrekt.oasis.entity.system;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IntervalSystem;
-import lunar.shared.components.position.EntityPositionComponent;
-import lunar.shared.components.prop.EntityPropertiesComponent;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 
 /**
@@ -23,10 +21,7 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
         super(.7f);
         this.engine = engine;
 
-        this.family = Family.all(
-                EntityDialogComponent.class,
-                EntityPositionComponent.class,
-                EntityPropertiesComponent.class).get();
+        this.family = Family.one(EntityDialogComponent.class).get();
         this.dialogMapper = ComponentMapper.getFor(EntityDialogComponent.class);
     }
 

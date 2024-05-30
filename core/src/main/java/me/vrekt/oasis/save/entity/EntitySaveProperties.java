@@ -3,6 +3,7 @@ package me.vrekt.oasis.save.entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.google.gson.annotations.Expose;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.Entity;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
@@ -34,7 +35,7 @@ public class EntitySaveProperties {
 
     private void createState(Entity entity) {
         this.position = entity.getPosition();
-        this.size = new Vector3(entity.getWidth(), entity.getHealth(), entity.getWorldScale());
+        this.size = new Vector3(entity.getWidth(), entity.getHealth(), OasisGameSettings.SCALE);
         this.name = entity.getName();
         this.entityId = entity.getEntityId();
         this.health = entity.getHealth();

@@ -19,8 +19,8 @@ public final class CombatDamageAnimator {
         this.damage.add(new EntityStoredDamage(damage, rotation, isCritical));
     }
 
-    public boolean hasDamage() {
-        return !damage.isEmpty();
+    public void accumulateDamage(float damage, DamageType type) {
+        this.damage.add(new EntityStoredDamage(damage, type));
     }
 
     /**
@@ -33,11 +33,7 @@ public final class CombatDamageAnimator {
      */
     public void drawAccumulatedDamage(SpriteBatch batch, BitmapFont font, float x, float y, float width) {
         for (EntityStoredDamage esd : damage) {
-            if (esd.isCritical) {
-                font.setColor(255, 0, 0, esd.fade);
-            } else {
-                font.setColor(255, 77, 56, esd.fade);
-            }
+            font.setColor(esd.type.color.r, esd.type.color.g, esd.type.color.b, esd.fade);
 
             switch (esd.rotation) {
                 case UP:
@@ -84,13 +80,25 @@ public final class CombatDamageAnimator {
         float offsetX, offsetY, fade;
         final boolean isCritical;
         final EntityRotation rotation;
+        final DamageType type;
 
-        public EntityStoredDamage(float damage, EntityRotation rotation, boolean isCritical) {
+        EntityStoredDamage(float damage, EntityRotation rotation, boolean isCritical) {
             this.damage = damage;
             this.rotation = rotation;
             this.fade = 1.0f;
             this.isCritical = isCritical;
+            this.type = isCritical ? DamageType.CRITICAL_HIT : DamageType.NORMAL;
         }
+
+        EntityStoredDamage(float damage, DamageType type) {
+            this.damage = damage;
+            this.type = type;
+
+            this.rotation = EntityRotation.DOWN;
+            this.fade = 1.0f;
+            this.isCritical = false;
+        }
+
     }
 
 }

@@ -19,10 +19,10 @@ public abstract class ItemRenderer implements Drawable {
     protected final TextureRegion region;
     protected final Item item;
 
-    protected final Vector2 position
-            = new Vector2();
+    protected final Vector2 position = new Vector2();
+    protected float idleItemRotation, activeItemRotation;
 
-    protected float rotation;
+    protected boolean isSwinging, isResettingSwing;
 
     public ItemRenderer(TextureRegion region, Item item) {
         this.region = region;
@@ -33,17 +33,21 @@ public abstract class ItemRenderer implements Drawable {
         return region;
     }
 
+    public void swing() {
+        isSwinging = true;
+    }
+
     /**
      * Update the item rotation based on player rotation
      */
     public abstract void updateItemRotation(Vector2 position, EntityRotation rotation);
 
-    protected void applyStaticRotation(EntityRotation rotation) {
+    protected void applyIdleRotation(EntityRotation rotation) {
         switch (rotation) {
-            case UP -> this.rotation = ANGLE_UP_ROTATION;
-            case DOWN -> this.rotation = ANGLE_DOWN_ROTATION;
-            case LEFT -> this.rotation = ANGLE_LEFT_ROTATION;
-            case RIGHT -> this.rotation = ANGLE_RIGHT_ROTATION;
+            case UP -> this.idleItemRotation = ANGLE_UP_ROTATION;
+            case DOWN -> this.idleItemRotation = ANGLE_DOWN_ROTATION;
+            case LEFT -> this.idleItemRotation = ANGLE_LEFT_ROTATION;
+            case RIGHT -> this.idleItemRotation = ANGLE_RIGHT_ROTATION;
         }
     }
 

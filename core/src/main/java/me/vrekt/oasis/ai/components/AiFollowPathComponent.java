@@ -38,7 +38,7 @@ public final class AiFollowPathComponent extends AiComponent {
         followPath = new FollowPath<>(steering, linePath, 1);
 
 
-        entity.setBodyPosition(waypoints.first().x, waypoints.first().y, true);
+        entity.setPosition(waypoints.first().x, waypoints.first().y, true);
         steering.setBehavior(followPath);
         this.applySelf = true;
 
@@ -81,7 +81,7 @@ public final class AiFollowPathComponent extends AiComponent {
         if (isZeroY) linear.y = 0.0f;
         if (isZeroX) linear.x = 0.0f;
 
-        entity.setBodyVelocity(linear, true);
+        entity.setVelocity(linear, true);
 
         // only update rotation if we acquired a new target
         if (!rotationLocked) steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));

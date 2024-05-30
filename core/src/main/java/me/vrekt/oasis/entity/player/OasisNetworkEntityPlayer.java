@@ -6,14 +6,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.mp.AbstractLunarEntityNetworkPlayer;
+import lunar.shared.entity.player.LunarEntityNetworkPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 
 /**
  * A multiplayer player entity
  */
-public abstract class OasisNetworkEntityPlayer extends AbstractLunarEntityNetworkPlayer implements Viewable, Drawable {
+public abstract class OasisNetworkEntityPlayer extends LunarEntityNetworkPlayer implements Viewable, Drawable {
 
     private static final float INTERACTION_DISTANCE = 4.0f;
 

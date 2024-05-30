@@ -3,7 +3,7 @@ package me.vrekt.oasis.world;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.AbstractGameWorld;
 import gdx.lunar.world.WorldConfiguration;
 import me.vrekt.oasis.GameManager;
@@ -33,10 +34,10 @@ import me.vrekt.oasis.entity.enemy.projectile.ProjectileResult;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.npc.system.EntityInteractableAnimationSystem;
-import me.vrekt.oasis.entity.npc.system.EntityUpdateSystem;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.entity.system.EntityInteractableAnimationSystem;
+import me.vrekt.oasis.entity.system.EntityUpdateSystem;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -48,6 +49,7 @@ import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
+import me.vrekt.oasis.world.effects.AreaEffectCloud;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
@@ -56,6 +58,8 @@ import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
+import me.vrekt.oasis.world.systems.SystemManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,13 +94,16 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected final ConcurrentHashMap<Entity, Float> nearbyEntities = new ConcurrentHashMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
+    // systems
+    protected final SystemManager systemManager;
+    protected AreaEffectUpdateSystem effectUpdateSystem;
+
     // objects within this world
     protected final Map<String, WorldObject> worldObjects = new HashMap<>();
     protected final List<InteractableWorldObject> interactableWorldObjects = new ArrayList<>();
     protected final Array<Vector2> paths = new Array<>();
 
     protected final Map<InteriorWorldType, GameWorldInterior> interiorWorlds = new HashMap<>();
-    protected boolean refreshTiles;
 
     // TODO: Maybe global? Or just per world.
     protected final InteractionManager interactionManager;
@@ -117,6 +124,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         this.interactionManager = new InteractionManager();
         this.networkHandler = new WorldNetworkHandler(game, this);
         this.projectileManager = new ProjectileManager();
+        this.systemManager = new SystemManager();
 
         configuration.stepTime = 1 / 240f;
     }
@@ -201,7 +209,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             player.defineEntity(world, player.getX(), player.getY());
         } else {
             player.defineEntity(world, worldOrigin.x, worldOrigin.y);
-            player.setBodyPosition(worldOrigin, true);
+            player.setPosition(worldOrigin, true);
         }
 
         player.updateWorldState(this);
@@ -218,22 +226,15 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected void addDefaultWorldSystems() {
         engine.addSystem(new EntityInteractableAnimationSystem(engine));
         engine.addSystem(new EntityUpdateSystem(game, this));
+
+        systemManager.add(effectUpdateSystem = new AreaEffectUpdateSystem());
     }
 
     /**
      * Update the tiled map renderer
      */
-    protected void updateRendererMap() {
+    public void updateRendererMap() {
         renderer.setTiledMap(map, worldOrigin.x, worldOrigin.y);
-    }
-
-    /**
-     * Fade in to this world
-     *
-     * @param from the world coming from
-     */
-    public void fadeInThenEnter(GameWorld from) {
-        GameManager.transitionScreen(from, this, this::enter);
     }
 
     /**
@@ -242,26 +243,13 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param interior the interior
      */
     protected void enterInterior(GameWorldInterior interior) {
-        enteredInteriorPosition.set(player.getBody().getPosition());
-        GameManager.transitionScreen(this, interior, interior::enter);
+        GameManager.getWorldManager().transfer(player, this, interior);
     }
 
     /**
      * Enter this world
      */
     public void enter() {
-        if (player.isInInteriorWorld()) {
-            player.removeFromInteriorWorld();
-
-            player.defineEntity(world, enteredInteriorPosition.x, enteredInteriorPosition.y);
-            player.spawnInWorld(this, enteredInteriorPosition);
-            player.updateWorldState(this);
-
-            game.getMultiplexer().addProcessor(this);
-
-            updateRendererMap();
-            if (game.getScreen() != this) game.setScreen(this);
-        }
         guiManager.resetCursor();
     }
 
@@ -298,6 +286,25 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     }
 
     /**
+     * Spawn an effect cloud
+     * TODO: Better system manager I guess
+     *
+     * @param effectCloud effect cloud
+     */
+    public void spawnEffectCloud(AreaEffectCloud effectCloud) {
+        effectUpdateSystem.create(effectCloud);
+    }
+
+    /**
+     * Check the entities status within an area effect
+     *
+     * @param entity the entity
+     */
+    public void checkAreaEffects(Entity entity) {
+        effectUpdateSystem.process(entity);
+    }
+
+    /**
      * Unload the collision within this world
      */
     public void unloadBox2dWorld() {
@@ -308,6 +315,9 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             if (!world.isLocked())
                 world.destroyBody(bodies.get(i));
         }
+
+        world.dispose();
+        world = null;
     }
 
     /**
@@ -687,18 +697,23 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
         delta = update(delta);
 
+
+        GdxAI.getTimepiece().update(delta);
+        systemManager.update(delta);
         projectileManager.update(delta);
 
         // added back since it was removed from lunar
         // may be added back
         // but ideally, user should implement updating player
         // not the library
-        player.setPosition(player.getBody().getPosition());
+        player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);
-
         updateCursorState();
         renderWorld(delta);
+
+        // always last
+        GameManager.getTaskManager().update();
     }
 
     /**
@@ -815,19 +830,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         // render damage amount animations for the player and enemies attacking
         guiManager.renderDamageAmountAnimations(renderer.getCamera(), batch, player);
         batch.end();
-
-
-        if (!paths.isEmpty()) {
-            debugRenderer.setProjectionMatrix(renderer.getCamera().combined);
-            debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            debugRenderer.setColor(Color.RED);
-
-            for (Vector2 path : paths) {
-                debugRenderer.rect(path.x, path.y, 2 * OasisGameSettings.SCALE, 2 * OasisGameSettings.SCALE);
-            }
-            debugRenderer.end();
-        }
-
 
         game.guiManager.updateAndDrawStage();
     }
@@ -981,6 +983,19 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     @Override
     public void dispose() {
         unloadBox2dWorld();
-        super.dispose();
+
+        entities.forEach(entity -> entity.value.dispose());
+        worldObjects.values().forEach(Disposable::dispose);
+        interactableWorldObjects.forEach(Disposable::dispose);
+
+        nearbyEntities.clear();
+        entities.clear();
+        worldObjects.clear();
+        interactableWorldObjects.clear();
+        effects.clear();
+        paths.clear();
+
+        systemManager.dispose();
+        engine.removeAllSystems();
     }
 }

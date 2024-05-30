@@ -35,7 +35,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240528-0331-3113";
+    public static final String GAME_VERSION = "20240530-0137-3225";
 
     private Asset asset;
 
@@ -154,6 +154,14 @@ public final class OasisGame extends Game {
 
         isNewGame = true;
         world.enter();
+    }
+
+    public void hostNewGame() {
+        final OasisLoadingScreen loadingScreen = new OasisLoadingScreen(this, asset, true);
+        setScreen(loadingScreen);
+        loadGameStructure();
+        
+        joinRemoteServer();
     }
 
     /**
@@ -357,7 +365,7 @@ public final class OasisGame extends Game {
      * @return if this game is multiplayer regardless of local or remote
      */
     public boolean isAnyMultiplayer() {
-        return isLocalMultiplayer || isMultiplayer;
+        return  isMultiplayer;
     }
 
     public Styles getStyle() {

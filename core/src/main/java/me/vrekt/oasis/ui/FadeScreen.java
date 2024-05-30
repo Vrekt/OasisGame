@@ -55,10 +55,10 @@ public final class FadeScreen extends ScreenAdapter {
             elapsed += delta;
             if (elapsed >= 1.1f) {
                 if (secondaryFader != null) {
-                    GameManager.getOasis().setScreen(secondaryFader);
+                    GameManager.game().setScreen(secondaryFader);
                     if (completed != null) Gdx.app.postRunnable(completed);
                 } else {
-                    GameManager.getOasis().setScreen(primary);
+                    GameManager.game().setScreen(primary);
                 }
             }
         }

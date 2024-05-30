@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.sp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -14,13 +15,14 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.AbstractLunarEntityPlayer;
+import lunar.shared.entity.player.LunarEntityPlayer;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.combat.CombatDamageAnimator;
+import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -41,6 +43,7 @@ import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.effects.Effect;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 import java.util.HashMap;
@@ -49,7 +52,7 @@ import java.util.Map;
 /**
  * Represents the local player SP
  */
-public final class PlayerSP extends AbstractLunarEntityPlayer implements ResourceLoader, Drawable {
+public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader, Drawable {
 
     private final OasisGame game;
 
@@ -86,9 +89,13 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     // if the player has moved since some class requested it to be set.
     private boolean hasMoved = true;
 
-    private float areaEffectApplied, areaEffectDuration;
-    private boolean isAreaEffectActive;
-    private ParticleEffect areaEffect;
+    private ParticleEffect particleEffect;
+    private float lastEffectApplied, effectStarted;
+    private Effect activeEffect;
+
+    private Animation<TextureRegion> attack;
+    private boolean a;
+    private float af;
 
     public PlayerSP(OasisGame game) {
         super(true);
@@ -107,12 +114,17 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         setMoveSpeed(5.25f);
         setHealth(100);
 
-        setSize(24, 32, OasisGameSettings.SCALE);
-        bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 32 * OasisGameSettings.SCALE);
+        setSize(24, 28, OasisGameSettings.SCALE);
+        bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 28 * OasisGameSettings.SCALE);
 
         setNetworkSendRateInMs(25, 25);
         getBodyHandler().setHasFixedRotation(true);
         disablePlayerCollision(true);
+    }
+
+    @Override
+    public LunarWorld getWorld() {
+        return gameWorldIn;
     }
 
     @Override
@@ -131,6 +143,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
         animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
         animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
+        attack = new Animation<>(0.1f, asset.get("attack", 1), asset.get("attack", 2), asset.get("attack", 3), asset.get("attack", 4));
+        attack.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     public AbstractInventory getInventory() {
@@ -142,6 +156,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     }
 
     public void connection(PlayerConnection connectionHandler) {
+        this.connection = connectionHandler;
         this.connectionHandler = connectionHandler;
     }
 
@@ -152,6 +167,10 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
 
     public boolean isProjectileInBounds(Rectangle projectile) {
         return this.bounds.contains(projectile);
+    }
+
+    public Rectangle getBounds() {
+        return bounds;
     }
 
     /**
@@ -283,17 +302,16 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
      * Add an area effect to this player
      * Poison clouds for example
      *
-     * @param effect   the effect
-     * @param duration the duration
+     * @param particleEffect the particle effect
+     * @param effect         the effect
      */
-    public void addAreaEffect(ParticleEffect effect, float duration) {
-        areaEffectApplied = GameManager.getTick();
-        areaEffectDuration = duration;
-        isAreaEffectActive = true;
+    public void givePlayerEffect(ParticleEffect particleEffect, Effect effect) {
+        effectStarted = GameManager.getTick();
+        this.particleEffect = particleEffect;
 
-        this.areaEffect = effect;
-        effect.reset(false);
-        effect.setPosition(centerX(), centerY());
+        activeEffect = effect;
+        particleEffect.reset(false);
+        particleEffect.setPosition(centerX(), centerY());
     }
 
     /**
@@ -310,8 +328,11 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         return inInteriorWorld;
     }
 
-    public void setInInteriorWorld(boolean inInteriorWorld) {
-        this.inInteriorWorld = inInteriorWorld;
+    /**
+     * @return removed after an interior is disposed
+     */
+    public GameWorldInterior getInteriorWorldIn() {
+        return interiorWorldIn;
     }
 
     /**
@@ -326,7 +347,6 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         } else {
             this.gameWorldIn = world;
             this.setInWorld(true);
-            this.setWorld(gameWorldIn);
         }
     }
 
@@ -379,8 +399,8 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         interiorWorldIn.getEntityWorld().destroyBody(body);
 
         this.body = null;
-        this.inInteriorWorld = false;
         this.interiorWorldIn = null;
+        this.inInteriorWorld = false;
     }
 
     /**
@@ -422,19 +442,33 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
 
         if (game.isLocalMultiplayer() || game.isMultiplayer()) updateNetworkComponents();
         artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
-        updateAreaEffects(delta);
+
+        updateActiveEffect();
     }
 
-    private void updateAreaEffects(float delta) {
-        isAreaEffectActive = areaEffect != null && !GameManager.hasTimeElapsed(areaEffectApplied, areaEffectDuration);
-        if (isAreaEffectActive) areaEffect.update(delta);
+    /**
+     * Update the active player effect if any
+     */
+    private void updateActiveEffect() {
+        if (activeEffect != null) {
+            final boolean expired = GameManager.hasTimeElapsed(effectStarted, activeEffect.duration());
+            if (!expired) {
+                if (activeEffect.ready(lastEffectApplied)) {
+                    activeEffect.apply(this);
+                    lastEffectApplied = GameManager.getTick();
+                }
+            } else {
+                activeEffect = null;
+                particleEffect = null;
+            }
+        }
     }
 
     /**
      * Poll input of the user input
      */
     private void pollInput() {
-        setVelocity(0.0f, 0.0f);
+        setVelocity(0.0f, 0.0f, false);
         if (disableMovement) {
             return;
         }
@@ -443,7 +477,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         final float velX = getVelocityX();
 
         // TODO: Normalize, but fix slow movement
-        setVelocity(velX, velY);
+        setVelocity(velX, velY, false);
         if (velX != 0.0 || velY != 0.0) hasMoved = true;
 
         rotationChanged = getAngle() != rotation.ordinal();
@@ -484,11 +518,16 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     public void render(SpriteBatch batch, float delta) {
         updateAndRenderEquippedItem(batch);
 
-        if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.animate(rotation, delta));
+        if (a) {
+            af += delta;
+            draw(batch, attack.getKeyFrame(af));
         } else {
-            if (activeTexture != null) {
-                draw(batch, activeTexture);
+            if (!getVelocity().isZero()) {
+                draw(batch, animationComponent.animate(rotation, delta));
+            } else {
+                if (activeTexture != null) {
+                    draw(batch, activeTexture);
+                }
             }
         }
 
@@ -498,7 +537,10 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
             if (artifact.isApplied()) artifact.drawParticleEffect(batch);
         }
 
-        if (isAreaEffectActive) areaEffect.draw(batch, delta);
+        if (particleEffect != null) {
+            particleEffect.update(delta);
+            particleEffect.draw(batch, delta);
+        }
     }
 
     /**
@@ -510,14 +552,14 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
         if (equippedItem == null) return;
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            equippedItem.swingItem();
-            // TODO
-            //   connection.sendImmediately(new ClientPacketSwingItem(getEntityId(), equippedItem.getKey()));
+            //   equippedItem.swingItem();
+            a = true;
+            af = 0.0f;
         }
 
         equippedItem.renderer().updateItemRotation(getInterpolatedPosition(), rotation);
         equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
-        equippedItem.draw(batch);
+        //     equippedItem.draw(batch);
 
         if (equippedItem.isSwinging()) {
             final float tick = GameManager.getTick();
@@ -541,16 +583,24 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
 
     }
 
-    public void attack(float amount, EntityEnemy by) {
-        super.damage(amount);
-
-        animator.accumulateDamage(amount, EntityRotation.DOWN, false);
+    /**
+     * Hurt/damage this player
+     *
+     * @param amount the amount
+     * @param type   the type of damage
+     */
+    public void hurt(float amount, DamageType type) {
+        animator.accumulateDamage(amount, type);
     }
 
     private void draw(SpriteBatch batch, TextureRegion region) {
         animator.update(Gdx.graphics.getDeltaTime());
 
-        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, region.getRegionWidth() * getWorldScale(), region.getRegionHeight() * getWorldScale());
+        batch.draw(region,
+                getInterpolatedPosition().x,
+                getInterpolatedPosition().y,
+                region.getRegionWidth() * OasisGameSettings.SCALE,
+                region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
     public void drawDamage(SpriteBatch batch, Camera worldCamera, Camera guiCamera) {
@@ -577,7 +627,7 @@ public final class PlayerSP extends AbstractLunarEntityPlayer implements Resourc
     @Override
     public void spawnInWorld(LunarWorld world, Vector2 position) {
         this.defineEntity(world.getEntityWorld(), position.x, position.y);
-        setBodyPosition(position, true);
+        setPosition(position, true);
     }
 
     @Override

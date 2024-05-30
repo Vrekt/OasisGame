@@ -237,7 +237,7 @@ public class GuiManager {
      * @param player local player
      */
     public void renderDamageAmountAnimations(Camera camera, SpriteBatch batch, PlayerSP player) {
-        //player.drawDamage(batch, camera, getCamera());
+        player.drawDamage(batch, camera, getCamera());
         player.getEnemiesAttacking().forEach(enemy -> enemy.renderDamageAmountAnimation(batch, asset.getBoxy(), camera, getCamera()));
     }
 

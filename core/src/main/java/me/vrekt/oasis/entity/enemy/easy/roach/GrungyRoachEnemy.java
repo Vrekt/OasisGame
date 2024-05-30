@@ -21,6 +21,8 @@ import me.vrekt.oasis.entity.enemy.fsm.states.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.effects.Effect;
+import me.vrekt.oasis.world.effects.EffectType;
 
 /**
  * A roach commonly found in dungeons and dark places
@@ -43,7 +45,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     public GrungyRoachEnemy(Vector2 position, GameWorld world, OasisGame game) {
         super(EntityEnemyType.ROACH, world, game);
 
-        setBodyPosition(position, true);
+        setPosition(position, true);
         setName("Grungy Roach");
 
         hostileRange = 16.0f;
@@ -59,7 +61,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
      */
     private void handleProjectileAttackHit(boolean result) {
         if (!result) return;
-        player.addAreaEffect(poisonEffect, 4.0f);
+        player.givePlayerEffect(poisonEffect, Effect.create(EffectType.POISON, 1.0f, 1.0f, 3.0f));
     }
 
     @Override
@@ -115,8 +117,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         final AiProcessingState state = new AiProcessingState()
                 .populateComponents(hostilePursueComponent)
-                .using(this::updateAi)
-                .requires(this::isPursuingPlayer);
+                .using(this::updateAi);
 
         stateMachine.initial(state);
     }
@@ -143,7 +144,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
                 player.getPosition(),
                 this::handleProjectileAttackHit);
 
-        player.attack(attackStrength, this);
+        // player.attack(attackStrength, this);
     }
 
     @Override

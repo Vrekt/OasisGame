@@ -24,26 +24,44 @@ public final class ItemAnimationRenderer extends ItemRenderer {
     @Override
     public void updateItemRotation(Vector2 position, EntityRotation rotation) {
         this.position.set(position);
-        applyStaticRotation(rotation);
+
+        if (!isSwinging && !isResettingSwing) {
+            applyIdleRotation(rotation);
+        } else {
+            if (!isResettingSwing) {
+                activeItemRotation += 3.0f;
+                System.err.println(activeItemRotation);
+                if (activeItemRotation >= 120) {
+                    isSwinging = false;
+                    isResettingSwing = true;
+                }
+            } else {
+                activeItemRotation -= 3.0f;
+                if (activeItemRotation <= 0.0f) {
+                    isResettingSwing = false;
+                    activeItemRotation = 0.0f;
+                }
+            }
+        }
     }
 
     @Override
-    protected void applyStaticRotation(EntityRotation rotation) {
-        super.applyStaticRotation(rotation);
+    protected void applyIdleRotation(EntityRotation rotation) {
+        super.applyIdleRotation(rotation);
         config.manipulate(rotation, position);
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         batch.draw(region,
-                position.x,
-                position.y,
+                position.x + 1.0f,
+                position.y + 0.5f,
                 0.0f,
                 0.0f,
                 region.getRegionWidth(),
                 region.getRegionHeight(),
                 OasisGameSettings.SCALE,
                 OasisGameSettings.SCALE,
-                rotation);
+                activeItemRotation);
     }
 }

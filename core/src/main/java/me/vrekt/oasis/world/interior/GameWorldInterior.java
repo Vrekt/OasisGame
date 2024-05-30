@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
@@ -19,6 +20,8 @@ import me.vrekt.oasis.world.GameWorld;
 public abstract class GameWorldInterior extends GameWorld {
 
     private static final float ENTERING_DISTANCE = 3.5f;
+    // unload interiors after 30 seconds
+    public static final float UNLOAD_AFTER = 30.0f;
 
     protected final GameWorld parentWorld;
     protected final String interiorMap;
@@ -39,6 +42,12 @@ public abstract class GameWorldInterior extends GameWorld {
         this.entrance = entranceBounds;
         this.exit = new Rectangle();
         this.worldName = type.name();
+
+        getConfiguration().worldScale = OasisGameSettings.SCALE;
+        getConfiguration().handlePhysics = true;
+        getConfiguration().updateEntityEngine = true;
+        getConfiguration().updateEntities = false;
+        getConfiguration().updateNetworkPlayers = true;
     }
 
     /**
@@ -90,6 +99,7 @@ public abstract class GameWorldInterior extends GameWorld {
 
     @Override
     public float update(float delta) {
+
         // check if the player entered the exit bounds
         if (!isExiting && exit.contains(player.getPosition())) {
             isExiting = true;
@@ -107,6 +117,7 @@ public abstract class GameWorldInterior extends GameWorld {
     public void enter() {
         GameLogging.info(this, "Entering interior %s", worldName);
 
+        isExiting = false;
         create(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
         game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
@@ -118,7 +129,7 @@ public abstract class GameWorldInterior extends GameWorld {
      */
     protected void exit() {
         GameLogging.info(this, "Exiting interior");
-        parentWorld.fadeInThenEnter(this);
+        GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transfer(player, this, parentWorld));
     }
 
     /**
@@ -132,7 +143,7 @@ public abstract class GameWorldInterior extends GameWorld {
     public void create(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
 
-        debugRenderer = new ShapeRenderer();
+        if (debugRenderer == null) debugRenderer = new ShapeRenderer();
 
         if (isWorldLoaded) {
             // indicates this instance is already loaded into memory.
@@ -141,6 +152,10 @@ public abstract class GameWorldInterior extends GameWorld {
             player.removeFromWorld();
             setPlayerState();
             return;
+        }
+
+        if (world == null) {
+            world = new World(Vector2.Zero, true);
         }
 
         preLoad();
@@ -173,6 +188,8 @@ public abstract class GameWorldInterior extends GameWorld {
 
     @Override
     public void dispose() {
+        GameLogging.info(this, "Unloading interior: " + type);
+        isWorldLoaded = false;
         super.dispose();
     }
 }

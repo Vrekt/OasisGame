@@ -62,13 +62,15 @@ public abstract class ItemWeapon extends ItemEquippable {
 
     public void swingItem() {
         isSwinging = true;
-        if (isResettingSwing) {
-            // we can reset IF delay passed
-            if (swingTick > (swingTime / 2f)) {
-                isResettingSwing = false;
-             //   sprite.setRotation(itemPositionAngle);
-            }
-        }
+
+        //  isSwinging = true;
+        //   if (isResettingSwing) {
+        // we can reset IF delay passed
+        //       if (swingTick > (swingTime / 2f)) {
+        //           isResettingSwing = false;
+        //   sprite.setRotation(itemPositionAngle);
+
+
     }
 
     public float getRange() {
@@ -87,8 +89,10 @@ public abstract class ItemWeapon extends ItemEquippable {
         return isSwinging || isResettingSwing;
     }
 
+
     @Override
     public void update(float delta, EntityRotation rotation) {
+
 
       /*  // TODO: Fix this, bounding box is correct position wise but does not actually extend correctly
         final float posX = rotation == EntityRotation.LEFT ?

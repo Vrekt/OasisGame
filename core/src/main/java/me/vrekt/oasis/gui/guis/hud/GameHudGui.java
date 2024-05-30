@@ -418,7 +418,7 @@ public final class GameHudGui extends Gui {
                 .append(Gdx.graphics.getFramesPerSecond())
                 .append(StringUtils.SPACE);
 
-        if (GameManager.getOasis().isMultiplayer()) {
+        if (GameManager.game().isMultiplayer()) {
             builder.append(PING)
                     .append(guiManager.getGame().getConnectionHandler().getPingMs())
                     .append(StringUtils.SPACE);

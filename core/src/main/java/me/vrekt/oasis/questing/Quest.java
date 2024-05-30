@@ -2,7 +2,6 @@ package me.vrekt.oasis.questing;
 
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.questing.quests.QuestType;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.LinkedList;
 
@@ -46,7 +45,6 @@ public abstract class Quest {
      */
     public void updateQuestObjectiveAndUnlockNext() {
         if (currentObjectiveStep >= objectives.size()) {
-            GameLogging.error(this, currentObjectiveStep + " > " + objectives.size());
             return;
         }
 

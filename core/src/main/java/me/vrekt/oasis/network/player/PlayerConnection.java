@@ -1,6 +1,6 @@
 package me.vrekt.oasis.network.player;
 
-import gdx.lunar.network.types.PlayerConnectionHandler;
+import gdx.lunar.network.PlayerConnectionHandler;
 import gdx.lunar.protocol.GdxProtocol;
 import gdx.lunar.protocol.packet.client.C2SPacketPing;
 import gdx.lunar.protocol.packet.server.S2CPacketJoinWorld;
@@ -36,6 +36,11 @@ public final class PlayerConnection extends PlayerConnectionHandler {
      */
     public float getPingMs() {
         return pingMs;
+    }
+
+    @Override
+    protected boolean isLocalPlayer(int id) {
+        return id == player.getEntityId();
     }
 
     @Override

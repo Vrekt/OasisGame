@@ -20,7 +20,7 @@ public abstract class EntityInteractable extends EntitySpeakable {
 
         setName(name);
         setAngle(EntityRotation.DOWN.ordinal());
-        setBodyPosition(position, getAngle(), true);
+        setPosition(position, true);
         setNearby(false);
 
         this.worldIn = worldIn;

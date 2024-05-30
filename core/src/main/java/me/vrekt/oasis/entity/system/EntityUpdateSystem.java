@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.npc.system;
+package me.vrekt.oasis.entity.system;
 
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,7 +17,7 @@ public final class EntityUpdateSystem extends EntitySystem {
     private final OrthographicCamera gameCamera;
 
     public EntityUpdateSystem(OasisGame game, GameWorld world) {
-        super();
+        super(0);
         this.game = game;
         this.world = world;
         this.gameCamera = game.getRenderer().getCamera();
@@ -32,7 +32,9 @@ public final class EntityUpdateSystem extends EntitySystem {
 
             if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE
                     || entity.isInView(gameCamera)) {
+
                 entity.update(deltaTime);
+                entity.checkAreaEffects();
 
                 if (entity.isInteractable() && !entity.isNearby()) {
                     entity.setNearby(true);

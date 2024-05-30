@@ -9,6 +9,7 @@ import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.ui.FadeScreen;
+import me.vrekt.oasis.utility.TaskManager;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
@@ -27,8 +28,9 @@ public class GameManager {
 
     // tick
     public static float tick;
+    private static final TaskManager TASK_MANAGER = new TaskManager();
 
-    public static OasisGame getOasis() {
+    public static OasisGame game() {
         return oasis;
     }
 
@@ -108,7 +110,7 @@ public class GameManager {
      * @param runWhenCompleted the task to complete afterwards
      */
     public static void transitionScreen(Screen current, Screen next, Runnable runWhenCompleted) {
-        GameManager.getOasis().setScreen(new FadeScreen(current, new FadeScreen(next, null, null, true), runWhenCompleted, false));
+        GameManager.game().setScreen(new FadeScreen(current, new FadeScreen(next, null, null, true), runWhenCompleted, false));
     }
 
     public static void resumeGame() {
@@ -122,6 +124,10 @@ public class GameManager {
      */
     public static void executeOnMainThread(Runnable action) {
         oasis.executeMain(action);
+    }
+
+    public static void schedule(Runnable action, float delay) {
+
     }
 
     /**
@@ -175,4 +181,7 @@ public class GameManager {
         return oasis.getWorldManager();
     }
 
+    public static TaskManager getTaskManager() {
+        return TASK_MANAGER;
+    }
 }

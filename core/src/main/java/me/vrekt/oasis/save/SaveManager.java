@@ -50,7 +50,7 @@ public class SaveManager {
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
-                final Save save = new Save(name, GameManager.getGameProgress(), GameManager.getOasis().isLocalMultiplayer(), slot);
+                final Save save = new Save(name, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer(), slot);
 
                 writeGameSaveProperties(slot, save);
                 SAVE_GAME_GSON.toJson(save, writer);

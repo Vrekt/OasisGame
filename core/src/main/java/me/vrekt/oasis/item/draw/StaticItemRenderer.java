@@ -18,7 +18,7 @@ public final class StaticItemRenderer extends ItemRenderer {
 
     @Override
     public void updateItemRotation(Vector2 position, EntityRotation rotation) {
-        applyStaticRotation(rotation);
+        applyIdleRotation(rotation);
     }
 
     @Override
@@ -32,6 +32,6 @@ public final class StaticItemRenderer extends ItemRenderer {
                 region.getRegionHeight(),
                 OasisGameSettings.SCALE,
                 OasisGameSettings.SCALE,
-                rotation);
+                idleItemRotation);
     }
 }

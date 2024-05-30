@@ -36,6 +36,11 @@ public final class TemperedBladeItem extends ItemWeapon {
     }
 
     @Override
+    public void swingItem() {
+        renderer.swing();
+    }
+
+    @Override
     public void load(Asset asset) {
         final AnimationRendererConfig config = new AnimationRendererConfig()
                 .rotation(EntityRotation.UP, 0.55f, 0.45f)
@@ -50,18 +55,11 @@ public final class TemperedBladeItem extends ItemWeapon {
         this.swingEffect.start();
 
         this.bounds = new Rectangle();
-
-        //   this.animator = new TemperedBladeWeaponAnimation(this, 1.0f);
-        //  this.animator.initializeAnimation(Animation.PlayMode.LOOP,
-        //          asset.get("slash", 1),
-        //          asset.get("slash", 2),
-        //          asset.get("slash", 3),
-        //          asset.get("slash", 4));
     }
 
     @Override
     public void update(float delta, EntityRotation rotation) {
         super.update(delta, rotation);
-        if (!isSwinging) swingEffect.reset();
+        //  if (!isSwinging) swingEffect.reset();
     }
 }

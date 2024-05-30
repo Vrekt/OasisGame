@@ -80,7 +80,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
             behavior.calculateSteering(output);
             apply(delta);
 
-            owner.setPosition(body.getPosition());
+            owner.setPosition(body.getPosition(), false);
         }
     }
 
@@ -115,9 +115,9 @@ public final class EntitySteerable implements Steerable<Vector2> {
             float max = getMaxLinearSpeed();
             if (len > (max * max)) {
                 // magic
-                owner.setBodyVelocity(current.scl(max / (float) Math.sqrt(len)), true);
+                owner.setVelocity(current.scl(max / (float) Math.sqrt(len)), true);
             } else {
-                owner.setVelocity(body.getLinearVelocity());
+                owner.setVelocity(body.getLinearVelocity(), false);
             }
         }
 
@@ -131,8 +131,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
         if (parent.applySelf()) {
             parent.applyResult(output.linear);
         } else {
-            body.setLinearVelocity(output.linear);
-            owner.setVelocity(output.linear);
+            owner.setVelocity(output.linear, true);
 
             if (GameManager.hasTimeElapsed(last, 0.1f)) {
                 direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());

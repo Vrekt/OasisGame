@@ -12,8 +12,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import lunar.shared.components.drawing.EntityTextureComponent;
-import lunar.shared.entity.AbstractLunarEntity;
+import gdx.lunar.world.LunarWorld;
+import lunar.shared.components.EntityTextureComponent;
+import lunar.shared.entity.LunarEntity;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -29,7 +30,7 @@ import me.vrekt.oasis.world.GameWorld;
 /**
  * Represents a basic entity within Oasis
  */
-public abstract class Entity extends AbstractLunarEntity implements Viewable, Drawable, ResourceLoader {
+public abstract class Entity extends LunarEntity implements Viewable, Drawable, ResourceLoader {
 
     protected PlayerSP player;
     protected boolean isNearby, inView;
@@ -69,7 +70,12 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
         throw new UnsupportedOperationException("Implement this ha");
     }
 
-    public GameWorld getWorldIn() {
+    protected boolean isMoving() {
+        return !getVelocity().isZero(0.01f);
+    }
+
+    @Override
+    public LunarWorld getWorld() {
         return worldIn;
     }
 
@@ -87,7 +93,6 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
      */
     protected void updateAi(float delta) {
         if (!isPaused) {
-            GdxAI.getTimepiece().update(delta);
             for (AiComponent component : aiComponents) {
                 component.update(GdxAI.getTimepiece().getDeltaTime());
             }
@@ -218,6 +223,13 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
     }
 
     /**
+     * Check if we are inside an {@link me.vrekt.oasis.world.effects.AreaEffectCloud}
+     */
+    public void checkAreaEffects() {
+        worldIn.checkAreaEffects(this);
+    }
+
+    /**
      * Damage this entity
      *
      * @param tick       the current world tick
@@ -269,4 +281,26 @@ public abstract class Entity extends AbstractLunarEntity implements Viewable, Dr
     public boolean isInView(Camera camera) {
         return inView = camera.frustum.pointInFrustum(getX(), getY(), 0.0f);
     }
+
+    @Override
+    public void dispose() {
+        activeEntityTexture = null;
+        worldIn = null;
+        parentWorld = null;
+        player = null;
+        gradient = null;
+        bb = null;
+        aiComponents.clear();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj instanceof Entity e) {
+            return getEntityId() == e.getEntityId();
+        } else {
+            return false;
+        }
+    }
+
 }

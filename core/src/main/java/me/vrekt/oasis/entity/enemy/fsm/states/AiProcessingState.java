@@ -56,7 +56,7 @@ public final class AiProcessingState extends ProcessingState implements Pool.Poo
 
     @Override
     public void update(float delta) {
-        if (!requirement.shouldProcess()) return;
+        if (requirement != null && !requirement.shouldProcess()) return;
         if (processor != null) processor.update(delta);
 
         for (AiComponent component : components) {

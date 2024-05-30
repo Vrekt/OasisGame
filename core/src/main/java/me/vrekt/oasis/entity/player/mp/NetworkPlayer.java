@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
+import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -45,6 +46,11 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
         setDesyncDistanceToInterpolate(2.5f);
         setInterpolationAlpha(1.0f);
         disablePlayerCollision(true);
+    }
+
+    @Override
+    public LunarWorld getWorld() {
+        return gameWorldIn;
     }
 
     public void setRenderNametag(boolean renderNametag) {
@@ -92,17 +98,19 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        getTextureComponent().add("healer_walking_up_idle", asset.get("healer_walking_up_idle"));
-        getTextureComponent().add("healer_walking_down_idle", asset.get("healer_walking_down_idle"));
-        getTextureComponent().add("healer_walking_left_idle", asset.get("healer_walking_left_idle"));
-        getTextureComponent().add("healer_walking_right_idle", asset.get("healer_walking_right_idle"));
-        activeTexture = getTextureComponent().get("healer_walking_up_idle");
+        setSize(24, 32, OasisGameSettings.SCALE);
+
+        getTextureComponent().add("character_a_walking_up_idle", asset.get("character_a_walking_up_idle"));
+        getTextureComponent().add("character_a_walking_down_idle", asset.get("character_a_walking_down_idle"));
+        getTextureComponent().add("character_a_walking_left_idle", asset.get("character_a_walking_left_idle"));
+        getTextureComponent().add("character_a_walking_right_idle", asset.get("character_a_walking_right_idle"));
+        activeTexture = getTextureComponent().get("character_a_walking_up_idle");
 
         // up, down, left, right
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.25f, asset.get("healer_walking_up", 1), asset.get("healer_walking_up", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.25f, asset.get("healer_walking_down", 1), asset.get("healer_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.25f, asset.get("healer_walking_left", 1), asset.get("healer_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f, asset.get("healer_walking_right", 1), asset.get("healer_walking_right", 2));
+        animationComponent.createMoveAnimation(EntityRotation.UP, 0.35f, asset.get("character_a_walking_up", 1), asset.get("character_a_walking_up", 2));
+        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
+        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
+        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
     }
 
     @Override
@@ -117,14 +125,14 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     }
 
     @Override
-    public void updatePosition(float x, float y, float angle) {
-        super.updatePosition(x, y, angle);
+    public void updatePositionFromNetwork(float x, float y, float angle) {
+        super.updatePositionFromNetwork(x, y, angle);
         entityRotation = EntityRotation.values()[(int) angle];
     }
 
     @Override
-    public void updateVelocity(float x, float y, float angle) {
-        super.updateVelocity(x, y, angle);
+    public void updateVelocityFromNetwork(float x, float y, float angle) {
+        super.updateVelocityFromNetwork(x, y, angle);
         entityRotation = EntityRotation.values()[(int) angle];
     }
 
@@ -143,7 +151,7 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
 
     private void drawEquippedItem(SpriteBatch batch) {
         if (equippedItem instanceof ItemWeapon) {
-           // equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
+            // equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
             equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
             equippedItem.draw(batch);
         }
@@ -166,20 +174,16 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     private void setIdleRegionState() {
         switch (entityRotation) {
             case UP:
-                activeTexture = getTextureComponent().get("healer_walking_up_idle");
-                entityRotation = EntityRotation.UP;
+                activeTexture = getTextureComponent().get("character_a_walking_up_idle");
                 break;
             case DOWN:
-                activeTexture = getTextureComponent().get("healer_walking_down_idle");
-                entityRotation = EntityRotation.DOWN;
+                activeTexture = getTextureComponent().get("character_a_walking_down_idle");
                 break;
             case LEFT:
-                activeTexture = getTextureComponent().get("healer_walking_left_idle");
-                entityRotation = EntityRotation.LEFT;
+                activeTexture = getTextureComponent().get("character_a_walking_left_idle");
                 break;
             case RIGHT:
-                activeTexture = getTextureComponent().get("healer_walking_right_idle");
-                entityRotation = EntityRotation.RIGHT;
+                activeTexture = getTextureComponent().get("character_a_walking_right_idle");
                 break;
         }
     }

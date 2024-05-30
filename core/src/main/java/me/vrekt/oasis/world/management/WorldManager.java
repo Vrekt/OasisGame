@@ -1,8 +1,12 @@
 package me.vrekt.oasis.world.management;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import gdx.lunar.world.LunarWorld;
+import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,17 +17,63 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class WorldManager implements Disposable {
 
     private final Map<String, GameWorld> worldMap = new ConcurrentHashMap<>();
+    private final Vector2 parentWorldPosition = new Vector2();
 
     public void addWorld(String worldName, GameWorld world) {
         worldMap.put(worldName, world);
     }
 
-    public <T extends GameWorld> T getWorld(String name) {
-        return (T) worldMap.get(name);
+    public GameWorld getWorld(String name) {
+        return worldMap.get(name);
     }
 
     public boolean doesWorldExist(String name) {
         return worldMap.containsKey(name);
+    }
+
+    /**
+     * Transfer the player to an interior
+     *
+     * @param player   local player
+     * @param parent   the parent world
+     * @param interior the interior world
+     */
+    public void transfer(PlayerSP player, GameWorld parent, GameWorldInterior interior) {
+        parentWorldPosition.set(player.getBody().getPosition());
+        GameManager.transitionScreen(parent, interior, interior::enter);
+    }
+
+    /**
+     * Transfer the player out of an interior
+     *
+     * @param player local player
+     * @param from   the from interior
+     * @param parent the parent world
+     */
+    public void transfer(PlayerSP player, GameWorldInterior from, GameWorld parent) {
+        player.removeFromInteriorWorld();
+        manageInteriorMemoryState(from);
+
+        player.defineEntity(parent.getEntityWorld(), parentWorldPosition.x, parentWorldPosition.y);
+        player.spawnInWorld(parent, parentWorldPosition);
+        player.updateWorldState(parent);
+
+        GameManager.game().getMultiplexer().removeProcessor(from);
+        GameManager.game().getMultiplexer().addProcessor(parent);
+
+        parent.updateRendererMap();
+        GameManager.game().setScreen(parent);
+
+        parent.enter();
+    }
+
+    /**
+     * Handles unloading the interior
+     *
+     * @param interior interior
+     */
+    private void manageInteriorMemoryState(GameWorldInterior interior) {
+        GameManager.getTaskManager().schedule(interior::dispose, GameWorldInterior.UNLOAD_AFTER);
     }
 
     @Override
