@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntMap;
 import gdx.lunar.world.AbstractGameWorld;
 import gdx.lunar.world.WorldConfiguration;
 import me.vrekt.oasis.GameManager;
@@ -61,11 +62,9 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
 
-import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -83,7 +82,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected final SpriteBatch batch;
     protected final MapRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
-    protected final Vector2 enteredInteriorPosition = new Vector2();
     protected boolean isWorldLoaded, isGameSave;
 
     protected boolean paused;
@@ -91,7 +89,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected GuiManager guiManager;
     protected final WorldNetworkHandler networkHandler;
 
-    protected final ConcurrentHashMap<Entity, Float> nearbyEntities = new ConcurrentHashMap<>();
+    protected final IntMap<Entity> nearbyEntities = new IntMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
     // systems
@@ -100,10 +98,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
     // objects within this world
     protected final Map<String, WorldObject> worldObjects = new HashMap<>();
-    protected final List<InteractableWorldObject> interactableWorldObjects = new ArrayList<>();
+    protected final Array<InteractableWorldObject> interactableWorldObjects = new Array<>();
     protected final Array<Vector2> paths = new Array<>();
 
-    protected final Map<InteriorWorldType, GameWorldInterior> interiorWorlds = new HashMap<>();
+    protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
 
     // TODO: Maybe global? Or just per world.
     protected final InteractionManager interactionManager;
@@ -147,6 +145,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
     public boolean isWorldLoaded() {
         return isWorldLoaded;
+    }
+
+    public Vector3 getCursorInWorld() {
+        return cursorInWorld;
     }
 
     /**
@@ -375,6 +377,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         entity.setEntityId(entities.size + 1);
         entities.put(entity.getEntityId(), entity);
         engine.addEntity(entity.getEntity());
+
+        entity.attachMouseListener(this::handleEntityMouseOver);
     }
 
     /**
@@ -386,7 +390,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     public void removeEntity(EntityInteractable entity) {
         entities.remove(entity.getEntityId());
         engine.removeEntity(entity.getEntity());
-        nearbyEntities.remove(entity);
+        nearbyEntities.remove(entity.getEntityId());
     }
 
     /**
@@ -397,7 +401,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     public void removeDeadEntity(Entity entity) {
         entities.remove(entity.getEntityId());
         engine.removeEntity(entity.getEntity());
-        nearbyEntities.remove(entity);
+        nearbyEntities.remove(entity.getEntityId());
     }
 
     /**
@@ -442,6 +446,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
                     worldObject.setPosition(rectangle.x, rectangle.y);
                     worldObject.setSize(rectangle.width, rectangle.height);
                     worldObject.setInteractionRange(range);
+                    worldObject.attachMouseHandler(this::handleInteractionMouseOver);
                     worldObject.load(asset);
 
                     createObjectParticles(worldObject, object, asset);
@@ -490,7 +495,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             }
         });
 
-        GameLogging.info(this, "Loaded %d interactable objects.", interactableWorldObjects.size());
+        GameLogging.info(this, "Loaded %d interactable objects.", interactableWorldObjects.size);
         GameLogging.info(this, "Loaded %d world objects.", worldObjects.size());
     }
 
@@ -589,8 +594,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             if (asset != null) {
                 final String cursorType = object.getProperties().get("cursor", "default", String.class).toUpperCase();
                 final Cursor cursor = Cursor.valueOf(cursorType);
+
                 final GameWorldInterior interior = type.createInterior(this, asset, cursor, bounds);
                 interior.setEnterable(enterable);
+                interior.attachMouseHandler(this::handleInteriorMouseOver);
 
                 interiorWorlds.put(type, interior);
                 GameLogging.info(this, "Loaded interior: %s", type);
@@ -642,33 +649,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     }
 
     @Override
-    public void show() {
-        GameLogging.info(this, "Showing world.");
-    }
-
-    @Override
-    public void hide() {
-        GameLogging.info(this, "Hiding world.");
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        renderer.resize(width, height);
-    }
-
-    @Override
-    public void pause() {
-        GameLogging.info(this, "Pausing game.");
-        paused = true;
-    }
-
-    @Override
-    public void resume() {
-        GameLogging.info(this, "Resuming game.");
-        paused = false;
-    }
-
-    @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -697,7 +677,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
         delta = update(delta);
 
-
         GdxAI.getTimepiece().update(delta);
         systemManager.update(delta);
         projectileManager.update(delta);
@@ -709,7 +688,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);
-        updateCursorState();
+        //updateCursorState();
         renderWorld(delta);
 
         // always last
@@ -717,54 +696,55 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     }
 
     /**
-     * Update cursor state
+     * Handle when the mouse is over an entity
+     * TODO: Enemies, other types, etc, not always dialog.
+     *
+     * @param entity the entity
+     * @param exit   if it was exited
      */
-    protected void updateCursorState() {
-        if (guiManager.isAnyGuiVisible(GuiType.HUD)) return;
-
-        // update world cursor
-        renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-
-        boolean hasEntity = false;
-        for (Entity entityInteractable : nearbyEntities.keySet()) {
-            if (entityInteractable.isMouseInEntityBounds(cursorInWorld)) {
-                // mouse is over this entity
-                if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(Cursor.DIALOG);
-                hasEntity = true;
-                break;
-            }
-        }
-
-        boolean hasInterior = false;
-        for (GameWorldInterior interior : interiorWorlds.values()) {
-            if (interior.isEnterable() && interior.isMouseWithinBounds(cursorInWorld)) {
-                if (!guiManager.wasCursorChanged()) guiManager.setCursorInGame(interior.getCursor());
-                hasInterior = true;
-                break;
-            }
-        }
-
-        // check for environment objects
-        boolean hasObj = false;
-        if (!hasEntity) {
-            for (InteractableWorldObject worldObject : interactableWorldObjects) {
-                if (worldObject.isMouseOver(cursorInWorld)
-                        && worldObject.getCursor() != null
-                        && worldObject.isEnabled()) {
-                    guiManager.setCursorInGame(worldObject.getCursor());
-                    hasObj = true;
-                    break;
-                }
-            }
-        }
-
-        // only reset cursor to default state if not currently active
-        // and no interactions are being made
-        if (!guiManager.isDefaultCursorState()
-                && !(hasEntity || hasObj || hasInterior)
-                && guiManager.wasCursorChanged()) {
+    protected void handleEntityMouseOver(Entity entity, boolean exit) {
+        if (exit && guiManager.wasCursorChanged()) {
             guiManager.resetCursor();
+        } else if (!guiManager.wasCursorChanged() && entity instanceof EntityInteractable) {
+            guiManager.setCursorInGame(Cursor.DIALOG);
         }
+    }
+
+    /**
+     * Handle when the mouse is over an interaction
+     *
+     * @param interaction interaction
+     * @param exit        if it was exited
+     */
+    protected void handleInteractionMouseOver(InteractableWorldObject interaction, boolean exit) {
+        if (exit && guiManager.wasCursorChanged()) {
+            guiManager.resetCursor();
+        } else if (!guiManager.wasCursorChanged()) {
+            guiManager.setCursorInGame(interaction.getCursor());
+        }
+    }
+
+    /**
+     * Handle when the mouse is over an interior
+     *
+     * @param interior interior
+     * @param exit     if it was exited
+     */
+    protected void handleInteriorMouseOver(GameWorldInterior interior, boolean exit) {
+        if (exit && guiManager.wasCursorChanged()) {
+            guiManager.resetCursor();
+        } else if (!guiManager.wasCursorChanged()) {
+            guiManager.setCursorInGame(interior.getCursor());
+        }
+    }
+
+    /**
+     * Check if the mouse state should be updated within entities and interactions
+     *
+     * @return {@code true} if so
+     */
+    public boolean shouldUpdateMouseState() {
+        return !guiManager.isAnyGuiVisible(GuiType.HUD);
     }
 
     /**
@@ -798,7 +778,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
         // interactions
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
+            worldObject.updateMouseState();
+
+            if (worldObject.isUpdatable()
+                    && worldObject.wasInteractedWith()) worldObject.update();
             worldObject.render(batch, delta);
         }
 
@@ -853,11 +836,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     /**
      * Add a nearby entity
      *
-     * @param entity   the entity
-     * @param distance the distance
+     * @param entity the entity
      */
-    public void addNearbyEntity(EntityInteractable entity, float distance) {
-        nearbyEntities.put(entity, distance);
+    public void addNearbyEntity(EntityInteractable entity) {
+        nearbyEntities.put(entity.getEntityId(), entity);
     }
 
     /**
@@ -866,7 +848,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void removeNearbyEntity(EntityInteractable entity) {
-        nearbyEntities.remove(entity);
+        nearbyEntities.remove(entity.getEntityId());
     }
 
     /**
@@ -910,8 +892,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      */
     protected boolean didInteractWithEntity() {
         EntityInteractable entity = null;
-        for (Map.Entry<Entity, Float> entry : nearbyEntities.entrySet()) {
-            if (entry.getKey() instanceof EntityInteractable interactable) {
+        for (IntMap.Entry<Entity> entry : nearbyEntities) {
+            if (entry.value instanceof EntityInteractable interactable) {
                 if (interactable.isSpeakable()
                         && !interactable.isSpeakingTo()
                         && interactable.isMouseInEntityBounds(cursorInWorld)) {
@@ -971,6 +953,33 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     }
 
     @Override
+    public void show() {
+        GameLogging.info(this, "Showing world.");
+    }
+
+    @Override
+    public void hide() {
+        GameLogging.info(this, "Hiding world.");
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        renderer.resize(width, height);
+    }
+
+    @Override
+    public void pause() {
+        GameLogging.info(this, "Pausing game.");
+        paused = true;
+    }
+
+    @Override
+    public void resume() {
+        GameLogging.info(this, "Resuming game.");
+        paused = false;
+    }
+
+    @Override
     public boolean keyDown(int keycode) {
         return GameManager.handleWorldKeyPress(this, keycode);
     }
@@ -978,6 +987,16 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         return didInteractWithEntity() || didInteractWithWorldObject();
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        // do not update cursor state if any GUI is visible besides the HUD
+        if (guiManager.isAnyGuiVisible(GuiType.HUD)) return false;
+
+        renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+
+        return true;
     }
 
     @Override

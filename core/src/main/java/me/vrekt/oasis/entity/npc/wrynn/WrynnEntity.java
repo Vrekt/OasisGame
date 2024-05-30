@@ -39,6 +39,7 @@ public final class WrynnEntity extends EntityInteractable {
         super.load(asset);
 
         this.parentWorld = ((GameWorldInterior) worldIn).getParentWorld();
+        this.isInParentWorld = true;
 
         addTexturePart("face", asset.get("wrynn_face"));
         addTexturePart(EntityRotation.UP, asset.get("wrynn_facing_up"), true);

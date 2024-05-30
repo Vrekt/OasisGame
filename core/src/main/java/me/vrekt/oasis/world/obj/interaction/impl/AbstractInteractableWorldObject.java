@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.obj.interaction.impl;
 
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -18,6 +19,9 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     protected boolean wasInteractedWith, isEnabled = true, updatable = true;
     protected float interactionRange = 4.5f;
+
+    protected InteractionMouseHandler mouseHandler;
+    protected boolean mouseOver;
 
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
         this.type = type;
@@ -72,6 +76,25 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
                 || (wasInteractedWith && interactionPoint.dst2(world.getLocalPlayer().getPosition())
                 >= INTERACTION_EXIT_DISTANCE)) {
             reset();
+        }
+    }
+
+    @Override
+    public void attachMouseHandler(InteractionMouseHandler handler) {
+        this.mouseHandler = handler;
+    }
+
+    @Override
+    public void updateMouseState() {
+        if (!world.shouldUpdateMouseState() || wasInteractedWith || !isEnabled) return;
+
+        final boolean result = isMouseOver(world.getCursorInWorld());
+        if (result) {
+            mouseOver = true;
+            mouseHandler.handle(this, false);
+        } else if (mouseOver) {
+            mouseOver = false;
+            mouseHandler.handle(this, true);
         }
     }
 

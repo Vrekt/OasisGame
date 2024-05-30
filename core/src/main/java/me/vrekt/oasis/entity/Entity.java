@@ -24,6 +24,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
+import me.vrekt.oasis.utility.input.EntityMouseHandler;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 
@@ -46,10 +47,14 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable, 
     protected GameWorld worldIn;
     // if entity is in interior
     protected GameWorld parentWorld;
+    protected boolean isInParentWorld;
 
     protected Array<AiComponent> aiComponents = new Array<>();
     protected boolean isPaused;
     protected float pauseTime, pauseForTime;
+
+    protected EntityMouseHandler mouseHandler;
+    protected boolean mouseOver;
 
     public Entity(boolean initializeComponents) {
         super(initializeComponents);
@@ -67,7 +72,8 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable, 
     }
 
     public GameWorld getWorldState() {
-        throw new UnsupportedOperationException("Implement this ha");
+        // reversed intentionally
+        return isInParentWorld ? worldIn : parentWorld;
     }
 
     protected boolean isMoving() {
@@ -77,6 +83,20 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable, 
     @Override
     public LunarWorld getWorld() {
         return worldIn;
+    }
+
+    @Override
+    public void update(float delta) {
+        if (mouseHandler != null && getWorldState().shouldUpdateMouseState()) {
+            boolean result = isMouseInEntityBounds(getWorldState().getCursorInWorld());
+            if (result) {
+                mouseOver = true;
+                mouseHandler.handle(this, false);
+            } else if (mouseOver) {
+                mouseOver = false;
+                mouseHandler.handle(this, true);
+            }
+        }
     }
 
     /**
@@ -175,6 +195,10 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable, 
 
         final float width = (getHealth() / 100.0f * getWidth()) * OasisGameSettings.SCALE;
         gradient.draw(batch, getX(), getY() + (getScaledHeight() + 0.1f), width, 3.0f * OasisGameSettings.SCALE);
+    }
+
+    public void attachMouseListener(EntityMouseHandler handler) {
+        this.mouseHandler = handler;
     }
 
     /**
@@ -290,6 +314,7 @@ public abstract class Entity extends LunarEntity implements Viewable, Drawable, 
         player = null;
         gradient = null;
         bb = null;
+        mouseHandler = null;
         aiComponents.clear();
     }
 

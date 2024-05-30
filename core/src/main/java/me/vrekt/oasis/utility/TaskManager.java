@@ -1,6 +1,6 @@
 package me.vrekt.oasis.utility;
 
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
 
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import java.util.Iterator;
  */
 public final class TaskManager {
 
-    private final Array<Task> tasks = new Array<>();
+    private final IntMap<Task> tasks = new IntMap<>();
 
     /**
      * Schedule a task
@@ -18,8 +18,19 @@ public final class TaskManager {
      * @param task  the task
      * @param delay the delay
      */
-    public void schedule(Runnable task, float delay) {
-        tasks.add(new Task(task, delay));
+    public int schedule(Runnable task, float delay) {
+        final int id = tasks.size + 1;
+        tasks.put(id, new Task(task, delay));
+        return id;
+    }
+
+    /**
+     * Cancel a task
+     *
+     * @param id the id
+     */
+    public void cancel(int id) {
+        tasks.remove(id);
     }
 
     /**
@@ -27,10 +38,10 @@ public final class TaskManager {
      * Ideally invoke after all world update tasks are finished
      */
     public void update() {
-        for (Iterator<Task> it = tasks.iterator(); it.hasNext(); ) {
-            final Task task = it.next();
-            if (GameManager.hasTimeElapsed(task.timeScheduled, task.delay)) {
-                GameManager.executeOnMainThread(task.runnable);
+        for (Iterator<IntMap.Entry<Task>> it = tasks.iterator(); it.hasNext(); ) {
+            final IntMap.Entry<Task> task = it.next();
+            if (GameManager.hasTimeElapsed(task.value.timeScheduled, task.value.delay)) {
+                GameManager.executeOnMainThread(task.value.runnable);
                 it.remove();
             }
         }

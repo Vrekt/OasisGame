@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.utility.input.InteriorMouseHandler;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -32,6 +33,10 @@ public abstract class GameWorldInterior extends GameWorld {
     protected final Rectangle entrance, exit;
     protected boolean isExiting;
 
+    protected InteriorMouseHandler mouseHandler;
+    protected boolean mouseOver;
+    protected boolean isWorldActive;
+
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.getLocalPlayer(), new World(Vector2.Zero, true));
 
@@ -48,6 +53,8 @@ public abstract class GameWorldInterior extends GameWorld {
         getConfiguration().updateEntityEngine = true;
         getConfiguration().updateEntities = false;
         getConfiguration().updateNetworkPlayers = true;
+
+        parentWorld.getGame().getMultiplexer().addProcessor(this);
     }
 
     /**
@@ -55,6 +62,10 @@ public abstract class GameWorldInterior extends GameWorld {
      */
     public GameWorld getParentWorld() {
         return parentWorld;
+    }
+
+    public void attachMouseHandler(InteriorMouseHandler mouseHandler) {
+        this.mouseHandler = mouseHandler;
     }
 
     /**
@@ -118,6 +129,7 @@ public abstract class GameWorldInterior extends GameWorld {
         GameLogging.info(this, "Entering interior %s", worldName);
 
         isExiting = false;
+        isWorldActive = true;
         create(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
         game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
@@ -128,6 +140,8 @@ public abstract class GameWorldInterior extends GameWorld {
      * Exit
      */
     protected void exit() {
+        isWorldActive = false;
+
         GameLogging.info(this, "Exiting interior");
         GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transfer(player, this, parentWorld));
     }
@@ -148,7 +162,6 @@ public abstract class GameWorldInterior extends GameWorld {
         if (isWorldLoaded) {
             // indicates this instance is already loaded into memory.
             updateRendererMap();
-            game.getMultiplexer().addProcessor(this);
             player.removeFromWorld();
             setPlayerState();
             return;
@@ -167,7 +180,6 @@ public abstract class GameWorldInterior extends GameWorld {
         createEntities(game, game.getAsset(), map, worldScale);
 
         updateRendererMap();
-        game.getMultiplexer().addProcessor(this);
 
         // remove player from parent world
         player.removeFromWorld();
@@ -191,5 +203,30 @@ public abstract class GameWorldInterior extends GameWorld {
         GameLogging.info(this, "Unloading interior: " + type);
         isWorldLoaded = false;
         super.dispose();
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (isWorldActive) return super.touchDown(screenX, screenY, pointer, button);
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        if (isWorldActive) {
+            return super.mouseMoved(screenX, screenY);
+        } else {
+            if (mouseHandler != null && parentWorld.shouldUpdateMouseState()) {
+                final boolean result = isEnterable() && isMouseWithinBounds(parentWorld.getCursorInWorld());
+                if (result) {
+                    mouseOver = true;
+                    mouseHandler.handle(this, false);
+                } else if (mouseOver) {
+                    mouseOver = false;
+                    mouseHandler.handle(this, true);
+                }
+            }
+        }
+        return false;
     }
 }

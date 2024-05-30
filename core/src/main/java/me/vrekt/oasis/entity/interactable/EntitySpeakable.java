@@ -47,6 +47,8 @@ public abstract class EntitySpeakable extends Entity {
 
     @Override
     public void update(float v) {
+        super.update(v);
+
         this.speakable = getDistanceFromPlayer() <= speakableDistance;
         entity.getComponent(EntityDialogComponent.class).isInView = inView;
 

@@ -38,7 +38,7 @@ public final class EntityUpdateSystem extends EntitySystem {
 
                 if (entity.isInteractable() && !entity.isNearby()) {
                     entity.setNearby(true);
-                    world.addNearbyEntity(entity.asInteractable(), distance);
+                    world.addNearbyEntity(entity.asInteractable());
                 }
             } else {
                 if (entity.isInteractable() && entity.isNearby()) {

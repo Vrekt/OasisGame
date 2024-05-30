@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.obj.interaction;
 
+import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.WorldObject;
 
 /**
@@ -24,6 +25,7 @@ public interface InteractableWorldObject extends WorldObject {
 
     /**
      * Set the interaction range
+     *
      * @param range the range
      */
     void setInteractionRange(float range);
@@ -52,6 +54,18 @@ public interface InteractableWorldObject extends WorldObject {
      * Update this object
      */
     void update();
+
+    /**
+     * Attach a handler
+     *
+     * @param handler the handler
+     */
+    void attachMouseHandler(InteractionMouseHandler handler);
+
+    /**
+     * Update the mouse state
+     */
+    void updateMouseState();
 
     /**
      * Interact with this object

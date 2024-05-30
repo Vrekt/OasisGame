@@ -550,7 +550,7 @@ public final class GameHudGui extends Gui {
 
             icon.getColor().a = 0.0f;
             icon.addAction(Actions.fadeIn(1.0f));
-            icon.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.texture())));
+            icon.setDrawable(activeAttribute.subType().get(guiManager));
             icon.setVisible(true);
             isActive = true;
         }

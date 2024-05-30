@@ -19,6 +19,8 @@ public final class WorldManager implements Disposable {
     private final Map<String, GameWorld> worldMap = new ConcurrentHashMap<>();
     private final Vector2 parentWorldPosition = new Vector2();
 
+    private int memoryManagerTaskId;
+
     public void addWorld(String worldName, GameWorld world) {
         worldMap.put(worldName, world);
     }
@@ -58,7 +60,6 @@ public final class WorldManager implements Disposable {
         player.spawnInWorld(parent, parentWorldPosition);
         player.updateWorldState(parent);
 
-        GameManager.game().getMultiplexer().removeProcessor(from);
         GameManager.game().getMultiplexer().addProcessor(parent);
 
         parent.updateRendererMap();
@@ -73,7 +74,11 @@ public final class WorldManager implements Disposable {
      * @param interior interior
      */
     private void manageInteriorMemoryState(GameWorldInterior interior) {
-        GameManager.getTaskManager().schedule(interior::dispose, GameWorldInterior.UNLOAD_AFTER);
+        if (memoryManagerTaskId != 0) {
+            // cancel this task to reset the timer
+            GameManager.getTaskManager().cancel(memoryManagerTaskId);
+        }
+        memoryManagerTaskId = GameManager.getTaskManager().schedule(interior::dispose, GameWorldInterior.UNLOAD_AFTER);
     }
 
     @Override
