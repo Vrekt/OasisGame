@@ -111,7 +111,7 @@ public abstract class Item implements ResourceLoader {
     }
 
     public void addAttribute(Attribute attribute) {
-        this.attributes.put(attribute.getKey(), attribute);
+        this.attributes.put(attribute.key(), attribute);
     }
 
     public void removeAttribute(String attribute) {

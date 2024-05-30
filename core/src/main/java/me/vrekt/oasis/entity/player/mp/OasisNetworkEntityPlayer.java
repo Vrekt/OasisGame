@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.player;
+package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

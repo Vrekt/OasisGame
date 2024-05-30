@@ -25,7 +25,7 @@ public class Attributes {
     public float getAttributeStrength() {
         float strength = 1.0f;
         for (Attribute attribute : attributes) {
-            strength += attribute.getStrength();
+            strength += attribute.strength();
         }
         return strength;
     }

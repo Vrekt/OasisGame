@@ -61,6 +61,13 @@ public final class Effect implements Pool.Poolable {
         return duration;
     }
 
+    /**
+     * Free
+     */
+    public void free() {
+        POOL.free(this);
+    }
+
     @Override
     public void reset() {
         type = null;

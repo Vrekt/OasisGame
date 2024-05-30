@@ -11,7 +11,6 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.player.OasisNetworkEntityPlayer;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.utility.ResourceLoader;

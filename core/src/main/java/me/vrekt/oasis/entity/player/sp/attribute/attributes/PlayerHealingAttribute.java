@@ -20,6 +20,7 @@ public final class PlayerHealingAttribute extends Attribute {
         this.amount = amount;
         this.texture = TEXTURE;
         this.instant = true;
+        this.subType = AttributeSubType.HEALING;
     }
 
     @Override

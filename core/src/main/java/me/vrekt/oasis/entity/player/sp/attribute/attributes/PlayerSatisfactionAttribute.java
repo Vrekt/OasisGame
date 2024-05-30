@@ -16,6 +16,7 @@ public final class PlayerSatisfactionAttribute extends Attribute {
     public PlayerSatisfactionAttribute(float duration, float strength) {
         super(KEY, NAME, DESCRIPTION, AttributeType.BASE_DAMAGE_MULTIPLIER, duration, strength);
         this.texture = TEXTURE;
+        this.subType = AttributeSubType.SATISFACTION;
     }
 
 }

@@ -33,6 +33,9 @@ public class Styles {
     private final VisCheckBox.VisCheckBoxStyle checkBoxStyle;
     private final TextureRegionDrawable themeDownSelected;
 
+    private final TextureRegionDrawable weaponDamageIcon, weaponRangeIcon, weaponCriticalIcon;
+    private final TextureRegionDrawable satisfactionAttributeIcon, healingAttributeIcon;
+
     public Styles(Asset asset) {
         final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
         final NinePatch themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
@@ -84,6 +87,13 @@ public class Styles {
         imageTextButtonStyle.over = themeOver;
         imageTextButtonStyle.up = themePadded;
         imageTextButtonStyle.font = asset.getMedium();
+
+        weaponRangeIcon = new TextureRegionDrawable(asset.get("weapon_range_icon"));
+        weaponDamageIcon = new TextureRegionDrawable(asset.get("weapon_damage_icon"));
+        weaponCriticalIcon = new TextureRegionDrawable(asset.get("weapon_crit_icon"));
+
+        satisfactionAttributeIcon = new TextureRegionDrawable(asset.get("satisfaction_attribute3"));
+        healingAttributeIcon = new TextureRegionDrawable(asset.get("healing_attribute2"));
     }
 
     public NinePatchDrawable getTheme() {
@@ -144,5 +154,25 @@ public class Styles {
 
     public VisImageTextButton.VisImageTextButtonStyle getImageTextButtonStyle() {
         return imageTextButtonStyle;
+    }
+
+    public TextureRegionDrawable getWeaponRangeIcon() {
+        return weaponRangeIcon;
+    }
+
+    public TextureRegionDrawable getWeaponDamageIcon() {
+        return weaponDamageIcon;
+    }
+
+    public TextureRegionDrawable getWeaponCriticalIcon() {
+        return weaponCriticalIcon;
+    }
+
+    public TextureRegionDrawable getSatisfactionAttributeIcon() {
+        return satisfactionAttributeIcon;
+    }
+
+    public TextureRegionDrawable getHealingAttributeIcon() {
+        return healingAttributeIcon;
     }
 }

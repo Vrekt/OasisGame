@@ -197,8 +197,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
             attribute.apply(this);
 
             game.getGuiManager().getHudComponent().showAttribute(attribute);
-            attributes.computeIfAbsent(attribute.getType(), a -> new Attributes())
-                    .add(attribute);
+            attributes.computeIfAbsent(attribute.type(), a -> new Attributes()).add(attribute);
         }
     }
 
@@ -458,6 +457,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
                     lastEffectApplied = GameManager.getTick();
                 }
             } else {
+                activeEffect.free();
                 activeEffect = null;
                 particleEffect = null;
             }

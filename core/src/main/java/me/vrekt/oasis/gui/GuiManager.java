@@ -263,7 +263,9 @@ public class GuiManager {
     }
 
     public void hideGui(GuiType type) {
-        guis.get(type).hide();
+        if (guis.get(type).isGuiVisible()) {
+            guis.get(type).hide();
+        }
     }
 
     public boolean isGuiVisible(GuiType type) {

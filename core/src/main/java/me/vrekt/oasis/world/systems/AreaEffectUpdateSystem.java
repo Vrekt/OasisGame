@@ -33,7 +33,7 @@ public final class AreaEffectUpdateSystem extends WorldSystem {
      *
      * @param entity the entity
      */
-    public void process(Entity entity) {
+    public void processEntity(Entity entity) {
         for (int i = 0; i < areaEffects.size(); i++) {
             final AreaEffectCloud effect = areaEffects.get(i);
             effect.process(entity);
@@ -45,7 +45,7 @@ public final class AreaEffectUpdateSystem extends WorldSystem {
         for (int i = 0; i < areaEffects.size(); i++) {
             final AreaEffectCloud effect = areaEffects.get(i);
             if (effect.update()) {
-                areaEffects.remove(i);
+                areaEffects.remove(i).dispose();
             }
         }
     }

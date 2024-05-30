@@ -2,6 +2,7 @@ package me.vrekt.oasis.entity.player.sp.attribute;
 
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.entity.player.sp.attribute.attributes.AttributeSubType;
 
 /**
  * Base implementation of an attribute that is applied from an item to the player.
@@ -12,6 +13,7 @@ public abstract class Attribute {
     protected String texture;
 
     protected final AttributeType type;
+    protected AttributeSubType subType;
 
     protected final float duration;
     protected final float strength;
@@ -40,36 +42,43 @@ public abstract class Attribute {
     /**
      * @return the key of this attribute
      */
-    public String getKey() {
+    public String key() {
         return key;
     }
 
     /**
      * @return the name of this attribute
      */
-    public String getName() {
+    public String name() {
         return name;
     }
 
     /**
      * @return description
      */
-    public String getDescription() {
+    public String description() {
         return description;
     }
 
     /**
      * @return the texture of this attribute for the inventory GUI
      */
-    public String getTexture() {
+    public String texture() {
         return texture;
     }
 
     /**
      * @return type this attribute will modify
      */
-    public AttributeType getType() {
+    public AttributeType type() {
         return type;
+    }
+
+    /**
+     * @return actual type applier
+     */
+    public AttributeSubType subType() {
+        return subType;
     }
 
     /**
@@ -89,7 +98,7 @@ public abstract class Attribute {
     /**
      * @return the strength of this attribute
      */
-    public float getStrength() {
+    public float strength() {
         return strength;
     }
 

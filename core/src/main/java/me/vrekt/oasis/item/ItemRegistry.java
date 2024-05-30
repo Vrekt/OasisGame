@@ -7,8 +7,7 @@ import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 
 /**
  * Has all instances of an items name and texture
@@ -16,20 +15,30 @@ import java.util.Map;
 public final class ItemRegistry {
 
     // stores all item creators
-    private static final Map<String, InstanceFactory<Item>> registry = new HashMap<>();
+    private static final EnumMap<Items, InstanceFactory<Item>> registry = new EnumMap<>(Items.class);
 
     /**
      * Register all items within the game
      */
     public static void registerItems() {
-        registry.put(LucidTreeFruitItem.KEY, LucidTreeFruitItem::new);
-        registry.put(TemperedBladeItem.KEY, TemperedBladeItem::new);
-        registry.put(QuickStepItemArtifact.KEY, QuickStepItemArtifact::new);
-        registry.put(PigHeartConsumable.KEY, PigHeartConsumable::new);
+        registry.put(Items.LUCID_FRUIT_TREE_ITEM, LucidTreeFruitItem::new);
+        registry.put(Items.TEMPERED_BLADE, TemperedBladeItem::new);
+        registry.put(Items.QUICKSTEP_ARTIFACT, QuickStepItemArtifact::new);
+        registry.put(Items.PIG_HEART, PigHeartConsumable::new);
+        registry.put(Items.NO_ITEM, () -> {
+            throw new UnsupportedOperationException("NO ITEM");
+        });
     }
 
+    /**
+     * Create a new item
+     *
+     * @param item   the item type
+     * @param amount the amount
+     * @return the new item
+     */
     public static Item createItem(Items item, int amount) {
-        final Item newItem = registry.get(item.getKey()).newItem();
+        final Item newItem = registry.get(item).newItem();
         newItem.setAmount(amount);
         newItem.load(GameManager.getAssets());
         return newItem;

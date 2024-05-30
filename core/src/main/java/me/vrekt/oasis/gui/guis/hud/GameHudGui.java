@@ -436,7 +436,9 @@ public final class GameHudGui extends Gui {
     public void show() {
         super.show();
         rootTable.setVisible(true);
-        components.forEach(table -> table.setVisible(true));
+        components.forEach(table -> {
+            if (table != hintComponent) table.setVisible(true);
+        });
     }
 
     @Override
@@ -548,7 +550,7 @@ public final class GameHudGui extends Gui {
 
             icon.getColor().a = 0.0f;
             icon.addAction(Actions.fadeIn(1.0f));
-            icon.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.getTexture())));
+            icon.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.texture())));
             icon.setVisible(true);
             isActive = true;
         }

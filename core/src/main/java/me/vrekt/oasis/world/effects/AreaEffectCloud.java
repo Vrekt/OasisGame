@@ -22,6 +22,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
 
     private Effect effect;
     private float tickApplied;
+    private float duration;
     private final Rectangle bounds = new Rectangle();
     private final IntMap<EntityAreaTracker> affected = new IntMap<>();
 
@@ -42,9 +43,9 @@ public final class AreaEffectCloud implements Pool.Poolable {
                                          float strength,
                                          float duration) {
         final AreaEffectCloud effectCloud = POOL.obtain();
-        final Effect effect = Effect.create(type, interval, strength, duration);
+        final Effect effect = Effect.create(type, interval, strength, 0.0f);
 
-        effectCloud.load(effect, position, null);
+        effectCloud.load(effect, position, duration, null);
         return effectCloud;
     }
 
@@ -65,14 +66,15 @@ public final class AreaEffectCloud implements Pool.Poolable {
                                          float duration,
                                          Entity immune) {
         final AreaEffectCloud effectCloud = POOL.obtain();
-        final Effect effect = Effect.create(type, interval, strength, duration);
+        final Effect effect = Effect.create(type, interval, strength, 0.0f);
 
-        effectCloud.load(effect, position, immune);
+        effectCloud.load(effect, position, duration, immune);
         return effectCloud;
     }
 
-    void load(Effect effect, Vector2 position, Entity immune) {
+    void load(Effect effect, Vector2 position, float duration, Entity immune) {
         this.effect = effect;
+        this.duration = duration;
         this.bounds.set(position.x, position.y, 6, 6);
         this.tickApplied = GameManager.getTick();
         this.immune = immune;
@@ -119,13 +121,14 @@ public final class AreaEffectCloud implements Pool.Poolable {
             }
         }
 
-        return GameManager.hasTimeElapsed(tickApplied, effect.duration());
+        return GameManager.hasTimeElapsed(tickApplied, duration);
     }
 
     /**
      * dispose
      */
     public void dispose() {
+        effect.free();
         POOL.free(this);
     }
 

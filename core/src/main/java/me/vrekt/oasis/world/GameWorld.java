@@ -301,7 +301,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void checkAreaEffects(Entity entity) {
-        effectUpdateSystem.process(entity);
+        effectUpdateSystem.processEntity(entity);
     }
 
     /**

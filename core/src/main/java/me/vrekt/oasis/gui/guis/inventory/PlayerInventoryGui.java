@@ -67,7 +67,8 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
         itemNameHeader.setVisible(true);
         itemNameHeader.setWrap(true);
-        itemNameHeader.setWidth(50);
+        itemNameHeader.setWidth(150);
+
         itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumBlack());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
@@ -76,9 +77,11 @@ public final class PlayerInventoryGui extends InventoryGui {
         // Headers: item name and rarity icons
         final VisTable headerTable = new VisTable();
         headerTable.left();
-        headerTable.add(itemNameHeader).width(50).left();
+        headerTable.add(itemNameHeader).width(150).left();
+        headerTable.row();
         headerTable.add(itemRarityIcon = new VisImage())
                 .size(36, 36)
+                .bottom()
                 .left()
                 .padTop(10);
 
@@ -262,6 +265,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemDescriptionHeader.setText(selectedItem.description());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.restart();
+
         enableItemActionButton(selectedItem);
         populateWeaponOrArtifactStats(selectedItem);
 
@@ -305,7 +309,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         } else if (item instanceof ItemConsumable) {
             int index = 0;
             for (Attribute attribute : item.getItemAttributes().values()) {
-                if (attribute.getTexture() == null) continue;
+                if (attribute.texture() == null) continue;
                 populateAttributeInformation(attribute, index);
                 index++;
             }
@@ -319,11 +323,14 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param index     current index, should not exceed 2
      */
     private void populateAttributeInformation(Attribute attribute, int index) {
-        itemInformationComponents.get(index).setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(attribute.getTexture())));
+
+        itemInformationComponents.get(index).setDrawable(attribute.subType().get(guiManager));
         itemInformationComponents.get(index).setVisible(true);
 
-        itemInformationTooltipComponents.get(index).setText(attribute.getName() + StringUtils.LF + attribute.getDescription());
+        itemInformationTooltipComponents.get(index).setText(attribute.name() + StringUtils.LF + attribute.description());
         itemInformationTooltipComponents.get(index).setVisible(true);
+
+        fadeIn(itemInformationComponents.get(index), 1.5f);
     }
 
     /**
@@ -333,6 +340,10 @@ public final class PlayerInventoryGui extends InventoryGui {
      */
     private void populateItemStats(ItemWeapon item) {
         for (Tooltip tooltip : itemInformationTooltipComponents) tooltip.setVisible(true);
+
+        itemInformationComponents.get(0).setDrawable(guiManager.getStyle().getWeaponRangeIcon());
+        itemInformationComponents.get(1).setDrawable(guiManager.getStyle().getWeaponDamageIcon());
+        itemInformationComponents.get(2).setDrawable(guiManager.getStyle().getWeaponCriticalIcon());
 
         itemInformationTooltipComponents.get(0).setText("Range ~=~ " + item.getRange());
         itemInformationTooltipComponents.get(1).setText("Damage ~=~ " + item.getBaseDamage());
