@@ -1,8 +1,8 @@
-package me.vrekt.shared.network;
+package me.vrekt.shared.packet.client.abilities;
 
-import gdx.lunar.protocol.packet.GamePacket;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.shared.packet.GamePacket;
 
 /**
  * The player activated an artifact

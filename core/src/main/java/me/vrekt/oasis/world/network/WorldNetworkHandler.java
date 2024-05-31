@@ -1,15 +1,16 @@
 package me.vrekt.oasis.world.network;
 
-import gdx.lunar.protocol.packet.server.S2CPacketCreatePlayer;
-import gdx.lunar.protocol.packet.server.S2CPacketPlayerPosition;
-import gdx.lunar.protocol.packet.server.S2CPacketPlayerVelocity;
-import gdx.lunar.protocol.packet.server.S2CPacketStartGame;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.shared.packet.server.S2CPacketStartGame;
+import me.vrekt.shared.packet.server.player.S2CPacketCreatePlayer;
+import me.vrekt.shared.packet.server.player.S2CPacketPlayerPosition;
+import me.vrekt.shared.packet.server.player.S2CPacketPlayerVelocity;
+import me.vrekt.shared.packet.server.player.S2CPacketRemovePlayer;
 
 /**
  * Handles world networking.
@@ -30,16 +31,24 @@ public final class WorldNetworkHandler {
      * The world allows for a start game packet to be handled.
      */
     public void registerStartGameHandler() {
-        player.getConnection().registerHandlerSync(S2CPacketStartGame.PACKET_ID, packet -> handleNetworkStartGame((S2CPacketStartGame) packet));
+        player.getConnection().attach(S2CPacketStartGame.PACKET_ID, packet -> handleNetworkStartGame((S2CPacketStartGame) packet));
     }
 
     /**
      * The world will handle creating players
      */
     public void registerPlayerHandlers() {
-        player.getConnection().registerHandlerSync(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
-        player.getConnection().registerHandlerSync(S2CPacketPlayerPosition.PACKET_ID, packet -> handlePlayerPosition((S2CPacketPlayerPosition) packet));
-        player.getConnection().registerHandlerSync(S2CPacketPlayerVelocity.PACKET_ID, packet -> handlePlayerVelocity((S2CPacketPlayerVelocity) packet));
+        player.getConnection().attach(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
+        player.getConnection().attach(S2CPacketPlayerPosition.PACKET_ID, packet -> handlePlayerPosition((S2CPacketPlayerPosition) packet));
+        player.getConnection().attach(S2CPacketPlayerVelocity.PACKET_ID, packet -> handlePlayerVelocity((S2CPacketPlayerVelocity) packet));
+        player.getConnection().attach(S2CPacketRemovePlayer.PACKET_ID, packet -> handleRemovePlayer((S2CPacketRemovePlayer) packet));
+    }
+
+    /**
+     * Register interior related network packets
+     */
+    public void registerInteriorHandlers() {
+
     }
 
     /**
@@ -64,7 +73,7 @@ public final class WorldNetworkHandler {
      * @param packet the packet
      */
     private void handleNetworkCreatePlayer(S2CPacketCreatePlayer packet) {
-        if (packet.getEntityId() == player.getEntityId()) {
+        if (packet.getEntityId() == player.entityId()) {
             GameLogging.warn(this, "Server sent the same entity ID as us!");
             return;
         }
@@ -80,27 +89,41 @@ public final class WorldNetworkHandler {
      * @param entityId their ID
      */
     private void createPlayer(String username, int entityId) {
-        if (!player.isInWorld()) return;
-
         GameLogging.info(this, "Spawning new network player with ID %d and username %s", entityId, username);
-        final NetworkPlayer networkPlayer = new NetworkPlayer(true);
+        final NetworkPlayer networkPlayer = new NetworkPlayer();
         networkPlayer.load(game.getAsset());
 
         networkPlayer.setProperties(username, entityId);
         networkPlayer.setSize(15, 25, OasisGameSettings.SCALE);
-        networkPlayer.spawnPlayerAndSetWorldState(world);
-        networkPlayer.setPosition(world.getWorldOrigin(), true);
+        networkPlayer.createBoxBody(player.getWorldState().boxWorld());
+
+        player.getWorldState().spawnPlayerInWorld(networkPlayer);
     }
 
-    private void handlePlayerPosition(S2CPacketPlayerPosition packet) {
-        if (!player.isInWorld()) return;
+    /**
+     * Remove a player from the world
+     *
+     * @param packet packet
+     */
+    private void handleRemovePlayer(S2CPacketRemovePlayer packet) {
+        world.removePlayerInWorld(packet.getEntityId(), true);
+    }
 
+    /**
+     * Updates the network players position
+     *
+     * @param packet packet
+     */
+    private void handlePlayerPosition(S2CPacketPlayerPosition packet) {
         player.getWorldState().updatePlayerPositionInWorld(packet.getEntityId(), packet.getX(), packet.getY(), packet.getRotation());
     }
 
+    /**
+     * Updates the network players velocity
+     *
+     * @param packet packet
+     */
     private void handlePlayerVelocity(S2CPacketPlayerVelocity packet) {
-        if (!player.isInWorld()) return;
-
         player.getWorldState().updatePlayerVelocityInWorld(packet.getEntityId(), packet.getX(), packet.getY(), packet.getRotation());
     }
 

@@ -38,7 +38,7 @@ public abstract class EntityInteractable extends EntitySpeakable {
      */
     protected void updateRotationTextureState() {
         if (previousRotation != rotation) {
-            activeEntityTexture = getTexturePart(rotation.name());
+            if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation.name());
             previousRotation = rotation;
         }
     }

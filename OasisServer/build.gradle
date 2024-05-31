@@ -25,18 +25,6 @@ dependencies {
     api "com.google.flogger:flogger-system-backend:0.7.4"
 
     api project(":shared")
-
-    api files('../Core.jar')
-    api files('../Protocol.jar')
-    api files('../Server.jar')
-    api files('../Entity.jar')
-
-    //  gdxVersion = '1.11.0'
-    //        roboVMVersion = '2.3.16'
-    //        box2DLightsVersion = '1.5'
-    //        ashleyVersion = '1.7.4'
-    //        aiVersion = '1.8.2'
-    //        gdxControllersVersion = '2.2.2'
 }
 
 test {

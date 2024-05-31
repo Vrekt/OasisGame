@@ -2,7 +2,6 @@ package me.vrekt.oasis.world.management;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
-import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.world.GameWorld;
@@ -56,8 +55,8 @@ public final class WorldManager implements Disposable {
         player.removeFromInteriorWorld();
         manageInteriorMemoryState(from);
 
-        player.defineEntity(parent.getEntityWorld(), parentWorldPosition.x, parentWorldPosition.y);
-        player.spawnInWorld(parent, parentWorldPosition);
+        player.createBoxBody(parent.boxWorld());
+        player.setPosition(parentWorldPosition, true);
         player.updateWorldState(parent);
 
         GameManager.game().getMultiplexer().addProcessor(parent);
@@ -83,7 +82,7 @@ public final class WorldManager implements Disposable {
 
     @Override
     public void dispose() {
-        worldMap.values().forEach(LunarWorld::dispose);
+        worldMap.values().forEach(GameWorld::dispose);
         worldMap.clear();
     }
 }

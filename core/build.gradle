@@ -22,10 +22,4 @@ dependencies {
 	implementation "com.cyphercove.gdxtween:gdxtween:0.1.8"
 
 	api project(":shared")
-
-	// Lunar networking
-	api files('../Core.jar')
-	api files('../Protocol.jar')
-	api files('../Server.jar')
-	api files('../Entity.jar')
 }

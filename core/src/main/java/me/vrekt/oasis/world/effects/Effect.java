@@ -2,7 +2,7 @@ package me.vrekt.oasis.world.effects;
 
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
@@ -39,7 +39,7 @@ public final class Effect implements Pool.Poolable {
         return effect;
     }
 
-    public void apply(Entity entity) {
+    public void apply(GameEntity entity) {
         type.applyEffect(entity, strength);
     }
 

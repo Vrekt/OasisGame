@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 
@@ -33,11 +33,11 @@ public class EntitySaveProperties {
     @Expose
     private boolean isEnemy;
 
-    private void createState(Entity entity) {
+    private void createState(GameEntity entity) {
         this.position = entity.getPosition();
         this.size = new Vector3(entity.getWidth(), entity.getHealth(), OasisGameSettings.SCALE);
-        this.name = entity.getName();
-        this.entityId = entity.getEntityId();
+        this.name = entity.name();
+        this.entityId = entity.entityId();
         this.health = entity.getHealth();
         this.interactable = entity.isInteractable();
 
@@ -80,7 +80,7 @@ public class EntitySaveProperties {
         return isEnemy;
     }
 
-    public void reset(Entity entity) {
+    public void reset(GameEntity entity) {
         position = null;
         size = null;
         name = null;

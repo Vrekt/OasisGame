@@ -1,7 +1,7 @@
 package me.vrekt.oasis.world.systems;
 
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Represents a world system that updates something
@@ -40,7 +40,7 @@ public abstract class WorldSystem {
      *
      * @param entity the entity
      */
-    protected void receive(Entity entity) {
+    protected void receive(GameEntity entity) {
 
     }
 

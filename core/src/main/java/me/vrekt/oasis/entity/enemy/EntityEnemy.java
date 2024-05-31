@@ -6,14 +6,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.combat.CombatDamageAnimator;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.enemy.animation.EnemyAnimation;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
  * An enemy entity
  */
-public abstract class EntityEnemy extends Entity {
+public abstract class EntityEnemy extends GameEntity {
 
     protected final EntityEnemyType type;
     protected float inaccuracy, hostileRange, attackSpeed;
@@ -28,7 +28,6 @@ public abstract class EntityEnemy extends Entity {
     protected boolean isDying;
 
     public EntityEnemy(EntityEnemyType type, GameWorld world, OasisGame game) {
-        super(true);
 
         this.worldIn = world;
         this.player = game.getPlayer();

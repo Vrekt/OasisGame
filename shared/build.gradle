@@ -4,7 +4,4 @@ dependencies {
     api group: 'io.netty', name: 'netty-all', version: '4.1.100.Final'
     api "com.badlogicgames.gdx:gdx:1.12.1"
     api project(":core")
-
-    api files('../Protocol.jar')
-    api files('../Entity.jar')
 }

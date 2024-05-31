@@ -3,7 +3,7 @@ package me.vrekt.oasis.entity.enemy.animation;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Fades out the enemy when they die
@@ -12,7 +12,7 @@ public final class FadeAlphaDeadAnimation extends EnemyAnimation {
 
     private float alpha = 1.0f;
 
-    public FadeAlphaDeadAnimation(Entity entity) {
+    public FadeAlphaDeadAnimation(GameEntity entity) {
         super(entity);
     }
 

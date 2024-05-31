@@ -1,14 +1,14 @@
 package me.vrekt.oasis;
 
 import com.google.common.flogger.FluentLogger;
-import gdx.lunar.protocol.GdxProtocol;
 import gdx.lunar.server.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;
 import me.vrekt.oasis.world.CrimsonWorldManager;
 import me.vrekt.oasis.world.tutorial.ServerGameTutorialWorld;
-import me.vrekt.shared.network.ProtocolDefaults;
+import me.vrekt.shared.protocol.ProtocolDefaults;
+import me.vrekt.shared.protocol.GameProtocol;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +24,7 @@ public final class Crimson {
     public static String GAME_VERSION = "0.1-32023a";
     public static String CRIMSON_VERSION = "0.1a";
 
-    private final GdxProtocol protocol;
+    private final GameProtocol protocol;
     private final CrimsonGameServer gameServer;
     private final NettyServer server;
 
@@ -49,7 +49,7 @@ public final class Crimson {
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
 
-        protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
+        protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
         gameServer = new CrimsonGameServer(protocol);
         worldManager = new CrimsonWorldManager();
 

@@ -12,4 +12,5 @@ public abstract class CrimsonServerWorld extends AbstractServerWorld {
         super(configuration, worldName);
     }
 
+
 }

@@ -1,7 +1,7 @@
-package me.vrekt.shared.network;
+package me.vrekt.shared.packet.client.item;
 
-import gdx.lunar.protocol.packet.GamePacket;
 import io.netty.buffer.ByteBuf;
+import me.vrekt.shared.packet.GamePacket;
 
 /**
  * Player is not equipping an item anymore.

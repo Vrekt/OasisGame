@@ -107,7 +107,7 @@ public final class AiArrivalComponent extends AiComponent {
             return;
         }
         location.getPosition().set(points.get(ThreadLocalRandom.current().nextInt(points.size)));
-        GameLogging.info(this, "%s is walking to a new point: %s", entity.getName(), location.getPosition());
+        GameLogging.info(this, "%s is walking to a new point: %s", entity.name(), location.getPosition());
     }
 
 }

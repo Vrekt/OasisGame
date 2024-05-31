@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Follows a predefined path within the Tiled map.
@@ -31,12 +31,11 @@ public final class AiFollowPathComponent extends AiComponent {
     private int lastPathRotationSegment;
     private boolean rotationLocked;
 
-    public AiFollowPathComponent(Entity entity, Array<Vector2> waypoints) {
+    public AiFollowPathComponent(GameEntity entity, Array<Vector2> waypoints) {
         super(entity, AiComponentType.FOLLOW_PATH, ApplyBehavior.VELOCITY_ONLY);
 
         linePath = new LinePath<>(waypoints);
         followPath = new FollowPath<>(steering, linePath, 1);
-
 
         entity.setPosition(waypoints.first().x, waypoints.first().y, true);
         steering.setBehavior(followPath);
@@ -85,6 +84,10 @@ public final class AiFollowPathComponent extends AiComponent {
 
         // only update rotation if we acquired a new target
         if (!rotationLocked) steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));
+    }
+
+    public void pickRandomPoint() {
+
     }
 
     /**

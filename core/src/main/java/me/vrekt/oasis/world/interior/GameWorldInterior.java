@@ -48,13 +48,12 @@ public abstract class GameWorldInterior extends GameWorld {
         this.exit = new Rectangle();
         this.worldName = type.name();
 
-        getConfiguration().worldScale = OasisGameSettings.SCALE;
-        getConfiguration().handlePhysics = true;
-        getConfiguration().updateEntityEngine = true;
-        getConfiguration().updateEntities = false;
-        getConfiguration().updateNetworkPlayers = true;
-
         parentWorld.getGame().getMultiplexer().addProcessor(this);
+    }
+
+    @Override
+    protected void loadNetworkComponents() {
+        networkHandler.registerInteriorHandlers();
     }
 
     /**
@@ -194,7 +193,8 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     private void setPlayerState() {
-        player.spawnInWorld(this, worldOrigin);
+        player.createBoxBody(world);
+        player.setPosition(worldOrigin, true);
         player.updateWorldState(this);
     }
 

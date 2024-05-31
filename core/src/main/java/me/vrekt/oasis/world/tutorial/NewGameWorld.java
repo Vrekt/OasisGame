@@ -22,11 +22,6 @@ public final class NewGameWorld extends GameWorld {
     public NewGameWorld(OasisGame game, PlayerSP player) {
         super(game, player, new World(Vector2.Zero, true));
 
-        getConfiguration().worldScale = OasisGameSettings.SCALE;
-        getConfiguration().handlePhysics = true;
-        getConfiguration().updateEntityEngine = true;
-        getConfiguration().updateEntities = false;
-        getConfiguration().updateNetworkPlayers = true;
         this.worldName = "TutorialWorld";
     }
 
@@ -56,6 +51,8 @@ public final class NewGameWorld extends GameWorld {
             //  guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
             game.setNewGame(false);
         }
+
+        game.setGameReady(true);
     }
 
     @Override

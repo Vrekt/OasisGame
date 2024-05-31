@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Represents an area effect cloud.
@@ -26,7 +26,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
     private final Rectangle bounds = new Rectangle();
     private final IntMap<EntityAreaTracker> affected = new IntMap<>();
 
-    private Entity immune;
+    private GameEntity immune;
 
     /**
      * Create a new area effect cloud
@@ -64,7 +64,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
                                          float interval,
                                          float strength,
                                          float duration,
-                                         Entity immune) {
+                                         GameEntity immune) {
         final AreaEffectCloud effectCloud = POOL.obtain();
         final Effect effect = Effect.create(type, interval, strength, 0.0f);
 
@@ -72,7 +72,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
         return effectCloud;
     }
 
-    void load(Effect effect, Vector2 position, float duration, Entity immune) {
+    void load(Effect effect, Vector2 position, float duration, GameEntity immune) {
         this.effect = effect;
         this.duration = duration;
         this.bounds.set(position.x, position.y, 6, 6);
@@ -85,25 +85,29 @@ public final class AreaEffectCloud implements Pool.Poolable {
      *
      * @param entity the entity
      */
-    public void process(Entity entity) {
-        if (immune != null && immune.getEntityId() == entity.getEntityId()) return;
+    public void process(GameEntity entity) {
+        if (immune != null && immune.entityId() == entity.entityId()) return;
 
-        if (affected.containsKey(entity.getEntityId())) {
-            if (!isEntityInside(entity)) {
-                affected.remove(entity.getEntityId());
-            }
-        } else {
-            if (isEntityInside(entity)) {
-                affected.put(entity.getEntityId(), new EntityAreaTracker(entity));
-            }
+        if (isEntityInside(entity)) {
+            affected.put(entity.entityId(), new EntityAreaTracker(entity));
+            entity.setCloudApartOf(this);
         }
+    }
+
+    /**
+     * Remove entity inside this cloud
+     *
+     * @param entity entity
+     */
+    public void removeEntityInside(GameEntity entity) {
+        affected.remove(entity.entityId());
     }
 
     /**
      * @param entity entity test
      * @return {@code true} if the entity is inside this effect cloud
      */
-    public boolean isEntityInside(Entity entity) {
+    public boolean isEntityInside(GameEntity entity) {
         return entity.bb().overlaps(bounds);
     }
 
@@ -143,10 +147,10 @@ public final class AreaEffectCloud implements Pool.Poolable {
     }
 
     private static final class EntityAreaTracker {
-        final Entity entity;
+        final GameEntity entity;
         float lastApplied;
 
-        EntityAreaTracker(Entity entity) {
+        EntityAreaTracker(GameEntity entity) {
             this.entity = entity;
         }
     }

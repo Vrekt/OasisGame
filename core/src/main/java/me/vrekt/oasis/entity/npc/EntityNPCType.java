@@ -6,7 +6,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.shared.entities.EntityType;
 
 /**
  * All NPC entities within the game
@@ -29,14 +28,6 @@ public enum EntityNPCType {
     };
 
     public abstract <T extends EntityInteractable> T create(Vector2 position, OasisGame game, GameWorld world);
-
-    public static EntityNPCType typeOfServer(EntityType type) {
-        switch (type) {
-            case INVALID:
-                return INVALID;
-        }
-        return INVALID;
-    }
 
     /**
      * Find the type of map object

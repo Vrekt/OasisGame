@@ -2,17 +2,17 @@ package me.vrekt.oasis.entity.enemy.animation;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * A basic enemy animation
  */
 public abstract class EnemyAnimation {
 
-    protected final Entity entity;
+    protected final GameEntity entity;
     protected boolean isAnimating, isFinished;
 
-    public EnemyAnimation(Entity entity) {
+    public EnemyAnimation(GameEntity entity) {
         this.entity = entity;
     }
 

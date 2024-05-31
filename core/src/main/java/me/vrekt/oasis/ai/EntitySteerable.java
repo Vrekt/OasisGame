@@ -11,7 +11,7 @@ import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
 /**
@@ -29,7 +29,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private final Vector2 offsetPositionVector = new Vector2();
 
     // box2d body of the entity
-    private final Entity owner;
+    private final GameEntity owner;
     private final Body body;
     private final AiComponent parent;
     private final ApplyBehavior applyBehavior;
@@ -44,12 +44,12 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private EntityRotation direction;
     private float last;
 
-    public EntitySteerable(Entity owner, Body body, AiComponent parent, ApplyBehavior applyBehavior) {
+    public EntitySteerable(GameEntity owner, Body body, AiComponent parent, ApplyBehavior applyBehavior) {
         this.owner = owner;
         this.body = body;
         this.parent = parent;
         this.applyBehavior = applyBehavior;
-        direction = owner.getRotation();
+        direction = owner.rotation();
     }
 
     public void setBehavior(SteeringBehavior<Vector2> behavior) {

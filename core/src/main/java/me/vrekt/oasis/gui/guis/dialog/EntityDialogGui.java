@@ -149,7 +149,7 @@ public final class EntityDialogGui extends Gui {
     public void showEntityDialog(EntitySpeakable entity) {
         this.entity = entity;
 
-        entityNameLabel.setText(entity.getName());
+        entityNameLabel.setText(entity.name());
         entityPreview.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
 
         if (!entity.getEntry().isCompleted()) {

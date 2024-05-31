@@ -1,14 +1,14 @@
 package me.vrekt.oasis.entity.enemy.fsm;
 
 import com.badlogic.gdx.utils.Pools;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 
 public final class EntityStateMachine {
 
-    private final Entity owner;
+    private final GameEntity owner;
     private ProcessingState state;
 
-    public EntityStateMachine(Entity owner) {
+    public EntityStateMachine(GameEntity owner) {
         this.owner = owner;
     }
 

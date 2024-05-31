@@ -1,25 +1,20 @@
 package me.vrekt.oasis.entity.player.mp;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import gdx.lunar.world.LunarWorld;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.item.ItemEquippable;
-import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.utility.ResourceLoader;
-import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents any player over the network
  */
-public final class NetworkPlayer extends OasisNetworkEntityPlayer implements ResourceLoader {
+public final class NetworkPlayer extends AbstractNetworkPlayer implements ResourceLoader {
 
     private EntityAnimationComponent animationComponent;
     private TextureRegion activeTexture;
@@ -30,26 +25,14 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
 
     private boolean renderNametag;
 
-    private ItemEquippable equippedItem;
-
     private EntityRotation lastRotation = EntityRotation.UP;
     private EntityRotation entityRotation = EntityRotation.UP;
 
-    private GameWorld gameWorldIn;
-
-    public NetworkPlayer(boolean initializeComponents) {
-        super(initializeComponents);
-
+    public NetworkPlayer() {
         setInterpolatePosition(true);
         setSnapToPositionIfDesynced(true);
         setDesyncDistanceToInterpolate(2.5f);
-        setInterpolationAlpha(1.0f);
-        disablePlayerCollision(true);
-    }
-
-    @Override
-    public LunarWorld getWorld() {
-        return gameWorldIn;
+        disableCollision();
     }
 
     public void setRenderNametag(boolean renderNametag) {
@@ -60,34 +43,11 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
         return renderNametag;
     }
 
-    public void setEquippingItem(int itemId) {
-        if (itemId == -1) {
-            // player has stopped equipping an item
-            this.equippedItem = null;
-        } else {
-            // TODO
-            // this.equippedItem = (ItemEquippable) ItemRegistry.createItemFromId(itemId);
-            // this.equippedItem.load(GameManager.getAssets());
-        }
-    }
-
-    public void setSwingingItem(int id) {
-        // TODO
-        // if (equippedItem == null || equippedItem.getItemId() != id) return;
-        // ((ItemWeapon) equippedItem).swingItem();
-    }
-
-    public void spawnPlayerAndSetWorldState(GameWorld world) {
-        spawnInWorld(world);
-        this.gameWorldIn = world;
-    }
-
-
     @Override
     public void setName(String name) {
         super.setName(name);
 
-        final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGuiManager().getSmallFont(), getName());
+        final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGuiManager().getSmallFont(), name);
         this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
         fontLayout.reset();
     }
@@ -149,11 +109,11 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     }
 
     private void drawEquippedItem(SpriteBatch batch) {
-        if (equippedItem instanceof ItemWeapon) {
+       /* if (equippedItem instanceof ItemWeapon) {
             // equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
             equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
             equippedItem.draw(batch);
-        }
+        }*/
     }
 
     /**
@@ -167,7 +127,7 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     public void renderNametag(BitmapFont font, Batch batch, Camera worldCamera, Camera guiCamera) {
         worldPosition.set(worldCamera.project(worldPosition.set(getInterpolatedPosition().x - nametagRenderWidth, getInterpolatedPosition().y + 2.25f, 0.0f)));
         screenPosition.set(guiCamera.project(worldPosition));
-        font.draw(batch, getName(), screenPosition.x, screenPosition.y);
+        font.draw(batch, name(), screenPosition.x, screenPosition.y);
     }
 
     private void setIdleRegionState() {
@@ -188,8 +148,8 @@ public final class NetworkPlayer extends OasisNetworkEntityPlayer implements Res
     }
 
     @Override
-    public void defineEntity(World world, float x, float y) {
-        super.defineEntity(world, x, y);
-        this.body.setUserData(this);
+    public void createBoxBody(World world) {
+        super.createBoxBody(world);
+        body.setUserData(this);
     }
 }

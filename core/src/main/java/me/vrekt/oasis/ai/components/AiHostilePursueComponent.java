@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.steer.behaviors.Pursue;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.ai.PlayerSteerableTarget;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
@@ -18,7 +18,7 @@ public final class AiHostilePursueComponent extends AiComponent {
 
     private float hostileAttackRange;
 
-    public AiHostilePursueComponent(Entity entity, PlayerSP player) {
+    public AiHostilePursueComponent(GameEntity entity, PlayerSP player) {
         super(entity, AiComponentType.PURSUE, ApplyBehavior.VELOCITY_ONLY);
         this.player = player;
 

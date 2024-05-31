@@ -42,8 +42,8 @@ public final class WrynnEntity extends EntityInteractable {
         this.isInParentWorld = true;
 
         addTexturePart("face", asset.get("wrynn_face"));
-        addTexturePart(EntityRotation.UP, asset.get("wrynn_facing_up"), true);
-        addTexturePart(EntityRotation.DOWN, asset.get("wrynn_facing_down"), false);
+        addTexturePart(EntityRotation.UP, asset.get("wrynn_facing_up"), false);
+        addTexturePart(EntityRotation.DOWN, asset.get("wrynn_facing_down"), true);
         addTexturePart(EntityRotation.LEFT, asset.get("wrynn_facing_left"), false);
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
 
@@ -78,7 +78,7 @@ public final class WrynnEntity extends EntityInteractable {
             parentWorld.removeSimpleObject("oasis:basement_gate");
         });
 
-        createBoxBody(worldIn.getEntityWorld());
+        createBoxBody(worldIn.boxWorld());
 
         pathComponent = new AiFollowPathComponent(this, worldIn.getPaths());
         pathComponent.setMaxLinearSpeed(1.25f);
@@ -116,6 +116,7 @@ public final class WrynnEntity extends EntityInteractable {
         if (pathComponent.isWithinTarget()) {
             setVelocity(0, 0, true);
             pauseFor(MathUtils.random(4.0f, 10.0f));
+            pathComponent.pickRandomPoint();
         } else if (isPaused) {
             setVelocity(0, 0, true);
         }

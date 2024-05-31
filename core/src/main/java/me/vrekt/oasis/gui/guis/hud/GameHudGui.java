@@ -425,9 +425,9 @@ public final class GameHudGui extends Gui {
         }
 
         if (guiManager.getGame().isLocalMultiplayer()) {
-            builder.append(MSPT)
+           /* builder.append(MSPT)
                     .append(guiManager.getGame().getServer().getGameServer().getWorldTickTime())
-                    .append(MS);
+                    .append(MS);*/
         }
         debugComponentText.setText(builder.toString());
     }

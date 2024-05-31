@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -17,7 +17,7 @@ import me.vrekt.oasis.gui.GuiType;
 /**
  * Represents an entity that can be spoken to.
  */
-public abstract class EntitySpeakable extends Entity {
+public abstract class EntitySpeakable extends GameEntity {
 
     protected Dialogue dialogue;
     protected DialogueEntry activeEntry;
@@ -30,7 +30,6 @@ public abstract class EntitySpeakable extends Entity {
     protected float lastDialogUpdate;
 
     public EntitySpeakable(PlayerSP player) {
-        super(true);
         this.player = player;
 
         entity.add(new EntityDialogComponent());

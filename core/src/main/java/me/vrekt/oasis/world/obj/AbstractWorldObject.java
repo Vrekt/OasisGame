@@ -68,7 +68,7 @@ public abstract class AbstractWorldObject implements WorldObject {
 
     @Override
     public void destroyCollision() {
-        world.getEntityWorld().destroyBody(body);
+        world.boxWorld().destroyBody(body);
         body = null;
     }
 
@@ -106,7 +106,7 @@ public abstract class AbstractWorldObject implements WorldObject {
         effects.clear();
         texture = null;
         key = null;
-        if (body != null) world.getEntityWorld().destroyBody(body);
+        if (body != null) world.boxWorld().destroyBody(body);
         body = null;
     }
 

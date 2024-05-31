@@ -1,21 +1,12 @@
 package me.vrekt.oasis.network.server;
 
-import com.badlogic.gdx.utils.Disposable;
-import gdx.lunar.protocol.GdxProtocol;
-import gdx.lunar.server.game.GameServer;
-import gdx.lunar.server.netty.NettyServer;
-import gdx.lunar.server.world.config.ServerWorldConfiguration;
-import gdx.lunar.server.world.impl.WorldAdapter;
-import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.utility.logging.GameLogging;
-
 /**
  * Integrated single player server (that can be multiplayer enabled)
  */
-public final class IntegratedServer implements Disposable {
+public final class IntegratedServer {
 
-    private final OasisGame game;
-    private final GdxProtocol protocol;
+    /*private final OasisGame game;
+    private final GameProtocol protocol;
     private final NettyServer server;
     private final GameServer gameServer;
     private boolean isStarted;
@@ -27,9 +18,9 @@ public final class IntegratedServer implements Disposable {
         this.server = new NettyServer("localhost", 6969, protocol, gameServer);
     }
 
-    /**
+    *//**
      * Start local game server async
-     */
+     *//*
     public void start() {
         server.bind();
 
@@ -67,5 +58,5 @@ public final class IntegratedServer implements Disposable {
         server.shutdown();
         gameServer.stop();
         gameServer.dispose();
-    }
+    }*/
 }

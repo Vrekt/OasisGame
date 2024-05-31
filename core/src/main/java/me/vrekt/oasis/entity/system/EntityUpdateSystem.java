@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -25,7 +25,7 @@ public final class EntityUpdateSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
-        for (Entity entity : world.getEntities().values()) {
+        for (GameEntity entity : world.entities().values()) {
             // update entities we can see, or are within update distance
             final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
             entity.setDistanceToPlayer(distance);
@@ -36,12 +36,12 @@ public final class EntityUpdateSystem extends EntitySystem {
                 entity.update(deltaTime);
                 entity.checkAreaEffects();
 
-                if (entity.isInteractable() && !entity.isNearby()) {
+                if (entity.isInteractable() && !entity.nearby()) {
                     entity.setNearby(true);
                     world.addNearbyEntity(entity.asInteractable());
                 }
             } else {
-                if (entity.isInteractable() && entity.isNearby()) {
+                if (entity.isInteractable() && entity.nearby()) {
                     entity.setNearby(false);
                     world.removeNearbyEntity(entity.asInteractable());
                 }

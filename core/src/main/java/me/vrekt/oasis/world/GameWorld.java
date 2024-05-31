@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.GdxAI;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -21,13 +22,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
-import gdx.lunar.world.AbstractGameWorld;
-import gdx.lunar.world.WorldConfiguration;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileManager;
@@ -59,6 +58,7 @@ import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
 
@@ -70,8 +70,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a base world within the game
  */
-public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
-        implements WorldInputAdapter, SaveStateLoader<WorldSaveProperties>, Screen {
+public abstract class GameWorld extends
+        Box2dGameWorld implements
+        WorldInputAdapter,
+        SaveStateLoader<WorldSaveProperties>,
+        Screen {
 
     protected final OasisGame game;
     protected final PlayerSP player;
@@ -89,12 +92,14 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected GuiManager guiManager;
     protected final WorldNetworkHandler networkHandler;
 
-    protected final IntMap<Entity> nearbyEntities = new IntMap<>();
+    protected final IntMap<GameEntity> nearbyEntities = new IntMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
     // systems
     protected final SystemManager systemManager;
+
     protected AreaEffectUpdateSystem effectUpdateSystem;
+    protected AreaEffectCloudManager effectCloudManager;
 
     // objects within this world
     protected final Map<String, WorldObject> worldObjects = new HashMap<>();
@@ -103,7 +108,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
 
-    // TODO: Maybe global? Or just per world.
     protected final InteractionManager interactionManager;
     // the current tick of this world.
     protected long lastTick;
@@ -112,7 +116,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
     protected ShapeRenderer debugRenderer;
 
     public GameWorld(OasisGame game, PlayerSP player, World world) {
-        super(world, new WorldConfiguration(), new PooledEngine());
+        super(world, new PooledEngine());
 
         this.player = player;
         this.game = game;
@@ -123,8 +127,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         this.networkHandler = new WorldNetworkHandler(game, this);
         this.projectileManager = new ProjectileManager();
         this.systemManager = new SystemManager();
-
-        configuration.stepTime = 1 / 240f;
     }
 
     public String getWorldName() {
@@ -199,8 +201,6 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
 
-        configuration.worldScale = worldScale;
-
         updateRendererMap();
         game.getMultiplexer().addProcessor(this);
 
@@ -208,9 +208,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         world.setContactListener(new BasicEntityCollisionHandler());
 
         if (isGameSave) {
-            player.defineEntity(world, player.getX(), player.getY());
+            player.createBoxBody(world);
+            player.setPosition(player.getX(), player.getY(), true);
         } else {
-            player.defineEntity(world, worldOrigin.x, worldOrigin.y);
+            player.createBoxBody(world);
             player.setPosition(worldOrigin, true);
         }
 
@@ -229,7 +230,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         engine.addSystem(new EntityInteractableAnimationSystem(engine));
         engine.addSystem(new EntityUpdateSystem(game, this));
 
-        systemManager.add(effectUpdateSystem = new AreaEffectUpdateSystem());
+        effectCloudManager = new AreaEffectCloudManager();
+        systemManager.add(effectUpdateSystem = new AreaEffectUpdateSystem(effectCloudManager));
     }
 
     /**
@@ -294,7 +296,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param effectCloud effect cloud
      */
     public void spawnEffectCloud(AreaEffectCloud effectCloud) {
-        effectUpdateSystem.create(effectCloud);
+        effectCloudManager.create(effectCloud);
     }
 
     /**
@@ -302,8 +304,8 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      *
      * @param entity the entity
      */
-    public void checkAreaEffects(Entity entity) {
-        effectUpdateSystem.processEntity(entity);
+    public void checkAreaEffects(GameEntity entity) {
+        effectCloudManager.processEntity(entity);
     }
 
     /**
@@ -373,9 +375,9 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      *
      * @param entity the entity
      */
-    protected void populateEntity(Entity entity) {
+    protected void populateEntity(GameEntity entity) {
         entity.setEntityId(entities.size + 1);
-        entities.put(entity.getEntityId(), entity);
+        entities.put(entity.entityId(), entity);
         engine.addEntity(entity.getEntity());
 
         entity.attachMouseListener(this::handleEntityMouseOver);
@@ -388,9 +390,9 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void removeEntity(EntityInteractable entity) {
-        entities.remove(entity.getEntityId());
+        entities.remove(entity.entityId());
         engine.removeEntity(entity.getEntity());
-        nearbyEntities.remove(entity.getEntityId());
+        nearbyEntities.remove(entity.entityId());
     }
 
     /**
@@ -398,10 +400,10 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      *
      * @param entity the entity
      */
-    public void removeDeadEntity(Entity entity) {
-        entities.remove(entity.getEntityId());
+    public void removeDeadEntity(GameEntity entity) {
+        entities.remove(entity.entityId());
         engine.removeEntity(entity.getEntity());
-        nearbyEntities.remove(entity.getEntityId());
+        nearbyEntities.remove(entity.entityId());
     }
 
     /**
@@ -702,7 +704,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      * @param exit   if it was exited
      */
-    protected void handleEntityMouseOver(Entity entity, boolean exit) {
+    protected void handleEntityMouseOver(GameEntity entity, boolean exit) {
         if (exit && guiManager.wasCursorChanged()) {
             guiManager.resetCursor();
         } else if (!guiManager.wasCursorChanged() && entity instanceof EntityInteractable) {
@@ -766,7 +768,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
             }
         }
 
-        for (Entity entity : entities.values()) {
+        for (GameEntity entity : entities.values()) {
             if (entity.isInView(renderer.getCamera())) {
                 entity.render(batch, delta);
                 entity.renderHealthBar(batch);
@@ -814,6 +816,17 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
         guiManager.renderDamageAmountAnimations(renderer.getCamera(), batch, player);
         batch.end();
 
+        if (!paths.isEmpty()) {
+            debugRenderer.setProjectionMatrix(renderer.getCamera().combined);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            debugRenderer.setColor(Color.RED);
+
+            for (Vector2 path : paths) {
+                debugRenderer.rect(path.x, path.y, 2 * OasisGameSettings.SCALE, 2 * OasisGameSettings.SCALE);
+            }
+            debugRenderer.end();
+        }
+
         game.guiManager.updateAndDrawStage();
     }
 
@@ -824,7 +837,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @return the {@link EntityInteractable} or {@code  null} if not found
      */
     public EntityInteractable getEntityByType(EntityNPCType type) {
-        for (Entity entity : entities.values()) {
+        for (GameEntity entity : entities.values()) {
             if (entity.isInteractable()
                     && entity.asInteractable().getType() == type) {
                 return entity.asInteractable();
@@ -839,7 +852,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void addNearbyEntity(EntityInteractable entity) {
-        nearbyEntities.put(entity.getEntityId(), entity);
+        nearbyEntities.put(entity.entityId(), entity);
     }
 
     /**
@@ -848,7 +861,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @param entity the entity
      */
     public void removeNearbyEntity(EntityInteractable entity) {
-        nearbyEntities.remove(entity.getEntityId());
+        nearbyEntities.remove(entity.entityId());
     }
 
     /**
@@ -875,7 +888,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      * @return the entity if hit
      */
     public EntityEnemy hasHitEntity(ItemWeapon item) {
-        for (Entity entity : entities.values()) {
+        for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy) {
                 if (enemy.bb().overlaps(item.getBounds())) {
                     System.err.println("HIT");
@@ -892,7 +905,7 @@ public abstract class GameWorld extends AbstractGameWorld<NetworkPlayer, Entity>
      */
     protected boolean didInteractWithEntity() {
         EntityInteractable entity = null;
-        for (IntMap.Entry<Entity> entry : nearbyEntities) {
+        for (IntMap.Entry<GameEntity> entry : nearbyEntities) {
             if (entry.value instanceof EntityInteractable interactable) {
                 if (interactable.isSpeakable()
                         && !interactable.isSpeakingTo()

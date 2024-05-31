@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.ai.EntitySteerable;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
-import me.vrekt.oasis.entity.Entity;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
 /**
@@ -12,7 +12,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
  */
 public abstract class AiComponent {
 
-    protected final Entity entity;
+    protected final GameEntity entity;
     protected final EntitySteerable steering;
     protected final SimpleVectorLocation location;
     protected final AiComponentType type;
@@ -20,7 +20,7 @@ public abstract class AiComponent {
     protected boolean applySelf;
     protected boolean paused;
 
-    public AiComponent(Entity entity, AiComponentType type, ApplyBehavior behavior) {
+    public AiComponent(GameEntity entity, AiComponentType type, ApplyBehavior behavior) {
         this.entity = entity;
         this.type = type;
 

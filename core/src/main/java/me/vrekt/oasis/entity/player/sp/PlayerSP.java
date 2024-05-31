@@ -8,14 +8,10 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
-import gdx.lunar.world.LunarWorld;
-import lunar.shared.entity.player.LunarEntityPlayer;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
@@ -29,6 +25,7 @@ import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
+import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.entity.player.sp.attribute.AttributeType;
 import me.vrekt.oasis.entity.player.sp.attribute.Attributes;
@@ -52,7 +49,10 @@ import java.util.Map;
 /**
  * Represents the local player SP
  */
-public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader, Drawable {
+public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Drawable {
+
+    private static final float VELOCITY_NETWORK_SEND_RATE = 0.1f;
+    private static final float POSITION_NETWORK_SEND_RATE = 0.35f;
 
     private final OasisGame game;
 
@@ -60,9 +60,9 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
     private boolean rotationChanged;
     private TextureRegion activeTexture;
 
-    private GameWorld gameWorldIn;
+    private PlayerConnection connection;
+    private float lastPosition, lastVelocity;
 
-    private PlayerConnection connectionHandler;
     private final PlayerInventory inventory;
 
     private boolean inInteriorWorld;
@@ -98,12 +98,16 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
     private float af;
 
     public PlayerSP(OasisGame game) {
-        super(true);
         this.game = game;
         create();
 
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
+    }
+
+    @Override
+    public boolean isInWorld() {
+        return worldIn != null || interiorWorldIn != null;
     }
 
     /**
@@ -117,14 +121,8 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
         setSize(24, 28, OasisGameSettings.SCALE);
         bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 28 * OasisGameSettings.SCALE);
 
-        setNetworkSendRateInMs(25, 25);
-        getBodyHandler().setHasFixedRotation(true);
-        disablePlayerCollision(true);
-    }
-
-    @Override
-    public LunarWorld getWorld() {
-        return gameWorldIn;
+        setHasFixedRotation(true);
+        disableCollision();
     }
 
     @Override
@@ -155,14 +153,20 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
         return questManager;
     }
 
-    public void connection(PlayerConnection connectionHandler) {
-        this.connection = connectionHandler;
-        this.connectionHandler = connectionHandler;
+    /**
+     * Set the local connection of this player
+     *
+     * @param connection handler
+     */
+    public void connection(PlayerConnection connection) {
+        this.connection = connection;
     }
 
-    @Override
+    /**
+     * @return network connection
+     */
     public PlayerConnection getConnection() {
-        return connectionHandler;
+        return connection;
     }
 
     public boolean isProjectileInBounds(Rectangle projectile) {
@@ -242,7 +246,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
             return;
         }
 
-        if (game.isAnyMultiplayer()) connectionHandler.updateArtifactActivated(artifact);
+        if (game.isAnyMultiplayer()) connection.updateArtifactActivated(artifact);
         artifact.apply(this, GameManager.getTick());
         game.getGuiManager().getHudComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
@@ -344,8 +348,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
             interiorWorldIn = interior;
             inInteriorWorld = true;
         } else {
-            this.gameWorldIn = world;
-            this.setInWorld(true);
+            this.worldIn = world;
         }
     }
 
@@ -353,7 +356,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
      * @return the world state of this player
      */
     public GameWorld getWorldState() {
-        return inInteriorWorld ? interiorWorldIn : gameWorldIn;
+        return inInteriorWorld ? interiorWorldIn : worldIn;
     }
 
     /**
@@ -368,7 +371,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
      */
     public void removeEquippedItem() {
         this.equippedItem = null;
-        if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(null);
+        if (game.isAnyMultiplayer()) connection.updateItemEquipped(null);
     }
 
     /**
@@ -378,7 +381,7 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
      */
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
-        if (game.isAnyMultiplayer()) connectionHandler.updateItemEquipped(item);
+        if (game.isAnyMultiplayer()) connection.updateItemEquipped(item);
     }
 
     public boolean canEquipItem() {
@@ -388,14 +391,14 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
     @Override
     public void removeFromWorld() {
         super.removeFromWorld();
-        this.gameWorldIn = null;
+        this.worldIn = null;
     }
 
     /**
      * Remove this player from their interior world.
      */
     public void removeFromInteriorWorld() {
-        interiorWorldIn.getEntityWorld().destroyBody(body);
+        interiorWorldIn.boxWorld().destroyBody(body);
 
         this.body = null;
         this.interiorWorldIn = null;
@@ -511,7 +514,24 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
      */
     private void updateNetworkComponents() {
         updateNetworkPositionAndVelocity();
-        connectionHandler.update();
+        connection.updateSync();
+    }
+
+    /**
+     * Send updated position and velocity
+     */
+    private void updateNetworkPositionAndVelocity() {
+        final float now = GameManager.getTick();
+
+        if (GameManager.hasTimeElapsed(lastPosition, POSITION_NETWORK_SEND_RATE)) {
+            getConnection().updatePosition(getPosition(), getAngle());
+            lastPosition = now;
+        }
+
+        if (GameManager.hasTimeElapsed(lastVelocity, VELOCITY_NETWORK_SEND_RATE)) {
+            getConnection().updateVelocity(getVelocity(), getAngle());
+            lastVelocity = now;
+        }
     }
 
     @Override
@@ -625,19 +645,8 @@ public final class PlayerSP extends LunarEntityPlayer implements ResourceLoader,
     }
 
     @Override
-    public void spawnInWorld(LunarWorld world, Vector2 position) {
-        this.defineEntity(world.getEntityWorld(), position.x, position.y);
-        setPosition(position, true);
-    }
-
-    @Override
-    public Body getBody() {
-        return super.getBody();
-    }
-
-    @Override
-    public void defineEntity(World world, float x, float y) {
-        super.defineEntity(world, x, y);
+    public void createBoxBody(World world) {
+        super.createBoxBody(world);
         this.body.setUserData(this);
     }
 }
