@@ -1014,11 +1014,11 @@ public abstract class GameWorld extends
 
     @Override
     public void dispose() {
-        unloadBox2dWorld();
-
         entities.forEach(entity -> entity.value.dispose());
         worldObjects.values().forEach(Disposable::dispose);
         interactableWorldObjects.forEach(Disposable::dispose);
+
+        unloadBox2dWorld();
 
         nearbyEntities.clear();
         entities.clear();

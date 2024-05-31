@@ -1,7 +1,7 @@
 package me.vrekt.oasis;
 
 import com.google.common.flogger.FluentLogger;
-import gdx.lunar.server.netty.NettyServer;
+import me.vrekt.crimson.netty.NettyServer;
 import gdx.lunar.server.world.config.ServerWorldConfiguration;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.network.CrimsonPlayerConnection;

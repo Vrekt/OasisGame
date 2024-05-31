@@ -1,14 +1,14 @@
 package me.vrekt.oasis.entity;
 
-import gdx.lunar.server.entity.impl.LunarServerPlayerEntity;
+import me.vrekt.crimson.game.entity.ServerPlayerEntity;
 import gdx.lunar.server.game.LunarServer;
-import gdx.lunar.server.network.connection.ServerAbstractConnection;
+import me.vrekt.crimson.game.network.ServerAbstractConnection;
 import me.vrekt.oasis.world.CrimsonServerWorld;
 
 /**
  * Represents a network player in this world
  */
-public final class CrimsonPlayer extends LunarServerPlayerEntity {
+public final class CrimsonPlayer extends ServerPlayerEntity {
 
     private CrimsonServerWorld worldIn;
 

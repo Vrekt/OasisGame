@@ -15,7 +15,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.AttackDirection;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
-import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeadAnimation;
+import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeathAnimation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.enemy.fsm.states.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
@@ -86,7 +86,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
                 asset.get("roach_attack_up", 1),
                 asset.get("roach_attack_up", 2));
 
-        animation = new FadeAlphaDeadAnimation(this);
+        animation = new FadeAlphaDeathAnimation(this);
         poisonEffect = new ParticleEffect();
 
         projectileAnimation = new Animation<>(0.25f,

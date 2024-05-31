@@ -11,7 +11,7 @@ import me.vrekt.shared.codec.C2SPacketHandler;
 public final class C2SPacketPing extends GamePacket {
 
     public static final int PACKET_ID = 2223;
-    private long currentTime;
+    private float gameTick;
 
     public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
         handler.handle(new C2SPacketPing(buffer));
@@ -21,12 +21,12 @@ public final class C2SPacketPing extends GamePacket {
         super(buffer);
     }
 
-    public C2SPacketPing(long time) {
-        this.currentTime = time;
+    public C2SPacketPing(float gameTick) {
+        this.gameTick = gameTick;
     }
 
-    public long time() {
-        return currentTime;
+    public float tick() {
+        return gameTick;
     }
 
     @Override
@@ -37,11 +37,11 @@ public final class C2SPacketPing extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        buffer.writeLong(currentTime);
+        buffer.writeFloat(gameTick);
     }
 
     @Override
     public void decode() {
-        currentTime = buffer.readLong();
+        gameTick = buffer.readFloat();
     }
 }

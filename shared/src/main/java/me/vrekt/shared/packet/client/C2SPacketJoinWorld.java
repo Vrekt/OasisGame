@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.C2SPacketHandler;
+import me.vrekt.shared.packet.server.S2CPacketJoinWorld;
 
 /**
  * Request to join a world.
@@ -44,6 +45,11 @@ public final class C2SPacketJoinWorld extends GamePacket {
 
     public long time() {
         return clientTime;
+    }
+
+    @Override
+    public int response() {
+        return S2CPacketJoinWorld.PACKET_ID;
     }
 
     @Override

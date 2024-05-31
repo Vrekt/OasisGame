@@ -13,6 +13,7 @@ public final class S2CPacketPing extends GamePacket {
 
     // current client time in ms, current server time in ms.
     private long clientTime, serverTime;
+    private float gameTick;
 
     public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
         handler.handle(new S2CPacketPing(buffer));
@@ -23,8 +24,16 @@ public final class S2CPacketPing extends GamePacket {
         this.serverTime = serverTime;
     }
 
+    public S2CPacketPing(float gameTick) {
+        this.gameTick = gameTick;
+    }
+
     public S2CPacketPing(ByteBuf buffer) {
         super(buffer);
+    }
+
+    public float tick() {
+        return gameTick;
     }
 
     public long getClientTime() {
@@ -43,13 +52,11 @@ public final class S2CPacketPing extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        buffer.writeLong(clientTime);
-        buffer.writeLong(serverTime);
+        buffer.writeFloat(gameTick);
     }
 
     @Override
     public void decode() {
-        clientTime = buffer.readLong();
-        serverTime = buffer.readLong();
+        gameTick = buffer.readFloat();
     }
 }

@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.network;
 
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -94,7 +93,6 @@ public final class WorldNetworkHandler {
         networkPlayer.load(game.getAsset());
 
         networkPlayer.setProperties(username, entityId);
-        networkPlayer.setSize(15, 25, OasisGameSettings.SCALE);
         networkPlayer.createBoxBody(player.getWorldState().boxWorld());
 
         player.getWorldState().spawnPlayerInWorld(networkPlayer);
@@ -106,6 +104,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handleRemovePlayer(S2CPacketRemovePlayer packet) {
+        GameLogging.info(this, "Removing player %d %s", packet.getEntityId(), packet.getUsername());
         world.removePlayerInWorld(packet.getEntityId(), true);
     }
 

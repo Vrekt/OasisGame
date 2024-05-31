@@ -90,6 +90,7 @@ public final class GameProtocol {
         server.put(S2CPacketSetEntityProperties.PACKET_ID, (buf, handler) -> S2CPacketSetEntityProperties.handle(handler, buf));
         server.put(S2CPacketStartGame.PACKET_ID, (buf, handler) -> S2CPacketStartGame.handle(handler, buf));
         server.put(S2CPacketWorldInvalid.PACKET_ID, (buf, handler) -> S2CPacketWorldInvalid.handle(handler, buf));
+        server.put(S2CKeepAlive.PACKET_ID, (buf, handler) -> S2CKeepAlive.handle(handler, buf));
     }
 
     private void initializeClientHandlers() {
@@ -100,6 +101,7 @@ public final class GameProtocol {
         client.put(C2SPacketPlayerPosition.PACKET_ID, (buf, handler) -> C2SPacketPlayerPosition.handle(handler, buf));
         client.put(C2SPacketPlayerVelocity.PACKET_ID, (buf, handler) -> C2SPacketPlayerVelocity.handle(handler, buf));
         client.put(C2SPacketWorldLoaded.PACKET_ID, (buf, handler) -> C2SPacketWorldLoaded.handle(handler, buf));
+        client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> C2SKeepAlive.handle(handler, buf));
     }
 
     /**

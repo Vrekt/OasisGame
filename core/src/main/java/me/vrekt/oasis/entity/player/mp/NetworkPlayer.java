@@ -33,6 +33,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         setSnapToPositionIfDesynced(true);
         setDesyncDistanceToInterpolate(2.5f);
         disableCollision();
+        dynamicSize = false;
     }
 
     public void setRenderNametag(boolean renderNametag) {
@@ -57,8 +58,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        setSize(24, 32, OasisGameSettings.SCALE);
-
+        setSize(24, 28, OasisGameSettings.SCALE);
         getTextureComponent().add("character_a_walking_up_idle", asset.get("character_a_walking_up_idle"));
         getTextureComponent().add("character_a_walking_down_idle", asset.get("character_a_walking_down_idle"));
         getTextureComponent().add("character_a_walking_left_idle", asset.get("character_a_walking_left_idle"));
@@ -97,8 +97,6 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        // drawEquippedItem(batch);
-
         if (!getVelocity().isZero()) {
             draw(batch, animationComponent.animate(entityRotation, delta), getScaledWidth(), getScaledHeight());
         } else {
@@ -106,14 +104,6 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
                 draw(batch, activeTexture, getScaledWidth(), getScaledHeight());
             }
         }
-    }
-
-    private void drawEquippedItem(SpriteBatch batch) {
-       /* if (equippedItem instanceof ItemWeapon) {
-            // equippedItem.calculateItemPositionAndRotation(getInterpolatedPosition(), entityRotation);
-            equippedItem.update(Gdx.graphics.getDeltaTime(), entityRotation);
-            equippedItem.draw(batch);
-        }*/
     }
 
     /**

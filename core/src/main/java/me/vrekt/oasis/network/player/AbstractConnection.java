@@ -4,17 +4,20 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Queue;
+import com.google.common.util.concurrent.Runnables;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.client.*;
+import me.vrekt.shared.packet.client.C2SPacketDisconnected;
+import me.vrekt.shared.packet.client.C2SPacketPing;
+import me.vrekt.shared.packet.client.C2SPacketWorldLoaded;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.protocol.GameProtocol;
-import me.vrekt.shared.codec.S2CPacketHandler;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -98,13 +101,18 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
         boolean wasHandled = false;
         for (Iterator<IntMap.Entry<NetworkResponseCallback<?>>> it = entries.iterator(); it.hasNext(); ) {
             final IntMap.Entry<NetworkResponseCallback<?>> entry = it.next();
+
             if (entry.value.waitResponsePacketId() == packetId) {
-                entry.value.callback().handleResponse(packet);
+                entry.value.run(packet);
                 it.remove();
 
                 wasHandled = true;
                 break;
+            } else if (entry.value.isTimedOut()) {
+                entry.value.timeOut();
+                it.remove();
             }
+
         }
 
         if (wasHandled) return;
@@ -120,6 +128,8 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      * Reload entries if more was added.
      */
     private void loadCallbackEntries() {
+        if (entries != null) entries.reset();
+
         if (!entriesValid.get()) {
             entries = new IntMap.Entries<>(callbacks);
             entriesValid.set(true);
@@ -129,15 +139,55 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
     /**
      * Send a packet immediately but wait for a response
      *
-     * @param packet   packet
-     * @param callback callback
-     * @param <T>      type
+     * @param packet         packet
+     * @param callback       callback
+     * @param timeoutHandler timeout handler
+     * @param timeout        timeout duration
+     * @param <T>            type
      */
-    public <T extends GamePacket> void sendImmediatelyWithCallback(GamePacket packet, NetworkCallback<T> callback) {
+    public <T extends GamePacket> void sendImmediatelyWithCallback(GamePacket packet,
+                                                                   long timeout,
+                                                                   boolean synchronize,
+                                                                   Runnable timeoutHandler,
+                                                                   NetworkCallback<T> callback) {
         final int callbackId = ThreadLocalRandom.current().nextInt(1024, 9999) + callbacks.size + 1;
         sendImmediately(packet);
 
-        callbacks.put(callbackId, new NetworkResponseCallback<>(callback, packet.response()));
+        callbacks.put(callbackId,
+                new NetworkResponseCallback<>(callback,
+                        timeoutHandler,
+                        packet.response(),
+                        timeout,
+                        synchronize,
+                        System.currentTimeMillis()));
+
+        entriesValid.set(false);
+    }
+
+    /**
+     * Send a packet immediately but wait for a response
+     *
+     * @param packet   packet
+     * @param callback callback
+     * @param timeout  timeout duration
+     * @param <T>      type
+     */
+    public <T extends GamePacket> void sendImmediatelyWithCallback(GamePacket packet,
+                                                                   long timeout,
+                                                                   boolean synchronize,
+                                                                   NetworkCallback<T> callback) {
+        final int callbackId = ThreadLocalRandom.current().nextInt(1024, 9999) + callbacks.size + 1;
+        sendImmediately(packet);
+
+        callbacks.put(callbackId,
+                new NetworkResponseCallback<>(callback,
+                        Runnables.doNothing(),
+                        packet.response(),
+                        timeout,
+                        synchronize,
+                        System.currentTimeMillis()));
+
+
         entriesValid.set(false);
     }
 
@@ -198,28 +248,6 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      */
     public void updateWorldHasLoaded() {
         this.sendImmediately(new C2SPacketWorldLoaded());
-    }
-
-    /**
-     * Attempt to join a world
-     *
-     * @param world    the world
-     * @param username the username of this player
-     * @param time     current client tick and or time
-     */
-    public void joinWorld(String world, String username, long time) {
-        this.sendImmediately(new C2SPacketJoinWorld(world, username, time));
-    }
-
-    /**
-     * Attempt to join a world.
-     * unlike {@code joinWorld(world, username, time)} this method substitutes time for {@code System.currentTimeMillis}
-     *
-     * @param world    the world
-     * @param username the username of this player
-     */
-    public void joinWorld(String world, String username) {
-        this.sendImmediately(new C2SPacketJoinWorld(world, username, System.currentTimeMillis()));
     }
 
     /**
@@ -284,7 +312,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      */
     private void updatePing() {
         if (GameManager.hasTimeElapsed(lastPingTime, 2.0f)) {
-            sendToQueue(new C2SPacketPing(System.currentTimeMillis()));
+            sendToQueue(new C2SPacketPing(GameManager.getTick()));
             lastPingTime = GameManager.getTick();
         }
     }
@@ -347,6 +375,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      * @param packet
      */
     protected record AttachmentHandleResult(Consumer<GamePacket> handler, GamePacket packet) {
+
     }
 
 }

@@ -8,11 +8,11 @@ import me.vrekt.oasis.entity.GameEntity;
 /**
  * Fades out the enemy when they die
  */
-public final class FadeAlphaDeadAnimation extends EnemyAnimation {
+public final class FadeAlphaDeathAnimation extends EnemyAnimation {
 
     private float alpha = 1.0f;
 
-    public FadeAlphaDeadAnimation(GameEntity entity) {
+    public FadeAlphaDeathAnimation(GameEntity entity) {
         super(entity);
     }
 

@@ -1,18 +1,18 @@
 package me.vrekt.oasis.network.player;
 
 import io.netty.channel.Channel;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.shared.packet.client.C2SKeepAlive;
+import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
 import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;
 import me.vrekt.shared.packet.client.item.C2SEquipItem;
 import me.vrekt.shared.packet.client.item.C2SResetEquippedItem;
-import me.vrekt.shared.packet.server.S2CPacketAuthenticate;
-import me.vrekt.shared.packet.server.S2CPacketDisconnected;
-import me.vrekt.shared.packet.server.S2CPacketJoinWorld;
-import me.vrekt.shared.packet.server.S2CPacketPing;
+import me.vrekt.shared.packet.server.*;
 import me.vrekt.shared.protocol.GameProtocol;
 
 /**
@@ -20,16 +20,20 @@ import me.vrekt.shared.protocol.GameProtocol;
  */
 public final class PlayerConnection extends AbstractConnection {
 
+    private static final C2SKeepAlive KEEP_ALIVE = new C2SKeepAlive();
+
     private final OasisGame game;
     private final PlayerSP player;
 
-    private float lastPingSent, pingMs;
+    // technically not MS
+    private float pingMs;
 
     public PlayerConnection(Channel channel, GameProtocol protocol, OasisGame game, PlayerSP player) {
         super(channel, protocol, player);
         this.game = game;
         this.player = player;
 
+        attach(S2CKeepAlive.PACKET_ID, packet -> sendImmediately(KEEP_ALIVE));
         attach(S2CPacketPing.PACKET_ID, packet -> updatePingMs((S2CPacketPing) packet));
         attach(S2CPacketAuthenticate.PACKET_ID, packet -> handleAuthenticationResult((S2CPacketAuthenticate) packet));
         attach(S2CPacketJoinWorld.PACKET_ID, packet -> handleJoinWorld((S2CPacketJoinWorld) packet));
@@ -49,7 +53,7 @@ public final class PlayerConnection extends AbstractConnection {
      * @param packet packet
      */
     private void updatePingMs(S2CPacketPing packet) {
-        pingMs = System.currentTimeMillis() - packet.getClientTime();
+        pingMs = (GameManager.getTick() - packet.tick()) / 20;
     }
 
     /**
@@ -82,6 +86,27 @@ public final class PlayerConnection extends AbstractConnection {
     private void handleServerDisconnect(S2CPacketDisconnected packet) {
         GameLogging.warn(this, "Disconnected from remote server for %s", packet.getDisconnectReason());
         game.exitNetworkWorld(packet.getDisconnectReason());
+    }
+
+    /**
+     * Attempt to join a world.
+     * unlike {@code joinWorld(world, username, time)} this method substitutes time for {@code System.currentTimeMillis}
+     *
+     * @param world    the world
+     * @param username the username of this player
+     */
+    public void joinWorld(String world, String username) {
+        final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(world, username, 0L);
+        sendImmediatelyWithCallback(packet, 5000, true, this::joinWorldTimedOut, callback -> {
+            GameManager.game().loadIntoNetworkWorld(world);
+        });
+    }
+
+    /**
+     * Invoked if the join world timed out.
+     */
+    private void joinWorldTimedOut() {
+        GameLogging.error(this, "Join world timed out!");
     }
 
     /**

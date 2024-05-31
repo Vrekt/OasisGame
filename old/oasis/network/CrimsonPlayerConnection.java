@@ -1,15 +1,13 @@
 package me.vrekt.oasis.network;
 
 import gdx.lunar.server.game.LunarServer;
-import gdx.lunar.server.network.connection.ServerPlayerConnection;
-import gdx.lunar.server.world.World;
+import me.vrekt.crimson.game.network.ServerPlayerConnection;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.entity.CrimsonPlayer;
 import me.vrekt.oasis.logging.Logging;
 import me.vrekt.oasis.world.CrimsonWorld;
 import me.vrekt.shared.packet.client.C2SPacketAuthenticate;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
-import me.vrekt.shared.packet.server.S2CPacketWorldInvalid;
 
 /**
  * Handles the players connection
@@ -31,27 +29,34 @@ public final class CrimsonPlayerConnection extends ServerPlayerConnection {
 
     @Override
     public void handleJoinWorld(C2SPacketJoinWorld packet) {
-        Logging.info(this, "New player requesting to join world: " + packet.worldName() + " with username " + packet.username());
+        super.handleJoinWorld(packet);
+
+      /*  Logging.info(this, "New player requesting to join world: " + packet.worldName() + " with username " + packet.username());
 
         if (packet.username() == null || packet.username().isEmpty()) {
+            System.err.println("ss1");
             this.sendImmediately(new S2CPacketWorldInvalid(packet.worldName(), "Invalid username."));
             return;
         } else if ((packet.worldName() == null || packet.worldName().isEmpty()) || !server.getWorldManager().worldExists(packet.worldName())) {
+            System.err.println("ss3");
             this.sendImmediately(new S2CPacketWorldInvalid(packet.worldName(), "World does not exist."));
             return;
         }
 
         final World world = server.getWorldManager().getWorld(packet.worldName());
         if (world.isFull()) {
+            System.err.println("rr3");
             this.sendImmediately(new S2CPacketWorldInvalid(packet.worldName(), "World is full."));
             return;
         }
+
+        System.err.println("good to go");
 
         this.worldIn = (CrimsonWorld) world;
         this.localPlayer = new CrimsonPlayer(server, this);
         this.localPlayer.setName(packet.username());
         this.localPlayer.setWorldIn(world);
-        this.localPlayer.setEntityId(world.assignEntityIdFor(true));
+        this.localPlayer.setEntityId(world.assignEntityIdFor(true));*/
     }
 
 }
