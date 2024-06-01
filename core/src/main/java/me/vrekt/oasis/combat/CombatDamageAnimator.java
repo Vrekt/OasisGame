@@ -2,6 +2,7 @@ package me.vrekt.oasis.combat;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -11,7 +12,7 @@ import java.util.LinkedList;
 /**
  * Animates damage numbers
  */
-public final class CombatDamageAnimator {
+public final class CombatDamageAnimator implements Disposable {
 
     private final LinkedList<EntityStoredDamage> damage = new LinkedList<>();
 
@@ -41,7 +42,7 @@ public final class CombatDamageAnimator {
                     font.draw(batch, "-" + esd.damage, x + esd.offsetX, y + esd.offsetY);
                     break;
                 case LEFT:
-                    font.draw(batch, "-" + esd.damage, x - ((width * 4f) + esd.offsetX), y + esd.offsetY);
+                    font.draw(batch, "-" + esd.damage, x - ((width * 2f)), y + esd.offsetY);
                     break;
                 case RIGHT:
                     font.draw(batch, "-" + esd.damage, (x + esd.offsetX) + width, y + esd.offsetY);
@@ -66,13 +67,17 @@ public final class CombatDamageAnimator {
                         break;
                     case LEFT:
                     case RIGHT:
-                        esd.offsetX += 0.5f;
                         esd.offsetY += RandomUtils.nextFloat(0.25f, 0.5f);
                         break;
                 }
                 esd.fade -= delta;
             }
         }
+    }
+
+    @Override
+    public void dispose() {
+        damage.clear();
     }
 
     public static final class EntityStoredDamage {

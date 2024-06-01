@@ -752,6 +752,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
 
     @Override
     public void dispose() {
+
         activeEntityTexture = null;
         worldIn = null;
         parentWorld = null;

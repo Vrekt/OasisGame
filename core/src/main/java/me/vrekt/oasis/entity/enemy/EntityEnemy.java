@@ -74,7 +74,7 @@ public abstract class EntityEnemy extends GameEntity {
      * @param guiCamera   gui cam
      */
     public void renderDamageAmountAnimation(SpriteBatch batch, BitmapFont font, Camera worldCamera, Camera guiCamera) {
-        worldPosition.set(worldCamera.project(worldPosition.set(body.getPosition().x + 0.1f, body.getPosition().y + 0.25f, 0.0f)));
+        worldPosition.set(worldCamera.project(worldPosition.set(body.getPosition().x, body.getPosition().y + 0.25f, 0.0f)));
         screenPosition.set(guiCamera.project(worldPosition));
         animator.drawAccumulatedDamage(batch, font, screenPosition.x, screenPosition.y, getWidth());
     }

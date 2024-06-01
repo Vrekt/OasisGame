@@ -3,7 +3,6 @@ package me.vrekt.oasis.entity.player.sp;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -26,6 +25,7 @@ import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
+import me.vrekt.oasis.entity.player.sp.animation.PlayerCombatAnimator;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.entity.player.sp.attribute.AttributeType;
 import me.vrekt.oasis.entity.player.sp.attribute.Attributes;
@@ -93,9 +93,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private float lastEffectApplied, effectStarted;
     private Effect activeEffect;
 
-    private Animation<TextureRegion> attack;
-    private boolean a;
-    private float af;
+    private boolean swinged;
+
+    private final PlayerCombatAnimator combatAnimator;
+    private final Rectangle itemBounds = new Rectangle();
 
     public PlayerSP(OasisGame game) {
         this.game = game;
@@ -103,6 +104,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
+        this.combatAnimator = new PlayerCombatAnimator();
     }
 
     @Override
@@ -121,6 +123,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         setSize(24, 28, OasisGameSettings.SCALE);
         bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 28 * OasisGameSettings.SCALE);
 
+        itemBounds.set(bounds);
+        itemBounds.x += 3.0f;
+        itemBounds.y += 3.0f;
+
         setHasFixedRotation(true);
         disableCollision();
     }
@@ -129,6 +135,9 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     public void load(Asset asset) {
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
+
+        dynamicSize = true;
+        combatAnimator.load(asset);
 
         getTextureComponent().add("character_a_walking_up_idle", asset.get("character_a_walking_up_idle"));
         getTextureComponent().add("character_a_walking_down_idle", asset.get("character_a_walking_down_idle"));
@@ -141,8 +150,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
         animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
         animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
-        attack = new Animation<>(0.1f, asset.get("attack", 1), asset.get("attack", 2), asset.get("attack", 3), asset.get("attack", 4));
-        attack.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     public AbstractInventory getInventory() {
@@ -538,9 +545,12 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     public void render(SpriteBatch batch, float delta) {
         updateAndRenderEquippedItem(batch);
 
-        if (a) {
-            af += delta;
-            draw(batch, attack.getKeyFrame(af));
+        if (swinged) {
+            final boolean finished = combatAnimator.renderActiveAnimationAt(batch, rotation, getInterpolatedPosition().x, getInterpolatedPosition().y, delta);
+
+            if (finished) {
+                swinged = false;
+            }
         } else {
             if (!getVelocity().isZero()) {
                 draw(batch, animationComponent.animate(rotation, delta));
@@ -572,25 +582,12 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         if (equippedItem == null) return;
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            //   equippedItem.swingItem();
-            a = true;
-            af = 0.0f;
-        }
+            swinged = true;
 
-        equippedItem.renderer().updateItemRotation(getInterpolatedPosition(), rotation);
-        equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
-        //     equippedItem.draw(batch);
-
-        if (equippedItem.isSwinging()) {
             final float tick = GameManager.getTick();
-            if (!equippedItem.isOnSwingCooldown(tick)) {
-                equippedItem.setLastSwing(tick);
-            } else {
-                return;
-            }
 
             final boolean isCritical = equippedItem.isCriticalHit();
-            final EntityEnemy hit = getWorldState().hasHitEntity(equippedItem);
+            final EntityEnemy hit = getWorldState().hasHitEntity(equippedItem, itemBounds);
 
             if (hit != null && !enemiesAttacking.contains(hit, true)) enemiesAttacking.add(hit);
 
@@ -598,9 +595,14 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
                 final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
 
                 hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
+                if (hit.isDead()) {
+                    enemiesAttacking.removeValue(hit, true);
+                }
             }
+
         }
 
+        equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
     }
 
     /**

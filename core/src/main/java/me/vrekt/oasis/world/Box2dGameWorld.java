@@ -6,7 +6,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 
 /**
  * Box2d base world
@@ -42,22 +41,11 @@ public abstract class Box2dGameWorld {
         return world;
     }
 
-    public void origin(Vector2 position) {
-        worldOrigin.set(position);
-    }
-
     /**
      * @return world origin (spawn)
      */
     public Vector2 origin() {
         return worldOrigin;
-    }
-
-    /**
-     * By default ignores all collision
-     */
-    public void addDefaultPlayerCollisionListener() {
-        if (world != null) world.setContactListener(new BasicEntityCollisionHandler());
     }
 
     public String worldName() {
@@ -211,7 +199,7 @@ public abstract class Box2dGameWorld {
     }
 
     /**
-     * Uodate player position
+     * Update player position
      *
      * @param entityId id
      * @param x        x

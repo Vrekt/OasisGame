@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Color;
  */
 public enum DamageType {
 
-    NORMAL(new Color(32 / 255f, 127 / 255f, 10 / 25f, 1.0f)),
+    NORMAL(new Color(255, 255, 64, 1.0f)),
     CRITICAL_HIT(new Color(255, 0, 0, 1.0f)),
     POISON(new Color(32 / 255f, 127 / 255f, 10 / 255f, 1.0f));
 

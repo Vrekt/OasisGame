@@ -404,6 +404,8 @@ public abstract class GameWorld extends
         entities.remove(entity.entityId());
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
+
+        entity.dispose();
     }
 
     /**
@@ -690,7 +692,6 @@ public abstract class GameWorld extends
         player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);
-        //updateCursorState();
         renderWorld(delta);
 
         // always last
@@ -846,6 +847,15 @@ public abstract class GameWorld extends
         return null;
     }
 
+    public EntityEnemy getEnemyByType(EntityEnemyType type) {
+        for (GameEntity entity : entities.values()) {
+            if (entity instanceof EntityEnemy enemy) {
+                return enemy;
+            }
+        }
+        return null;
+    }
+
     /**
      * Add a nearby entity
      *
@@ -887,16 +897,16 @@ public abstract class GameWorld extends
      * @param item the item
      * @return the entity if hit
      */
-    public EntityEnemy hasHitEntity(ItemWeapon item) {
-        for (GameEntity entity : entities.values()) {
+    public EntityEnemy hasHitEntity(ItemWeapon item, Rectangle bounds) {
+       /* for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy) {
-                if (enemy.bb().overlaps(item.getBounds())) {
+                if (enemy.bb().overlaps(bounds)) {
                     System.err.println("HIT");
                     return enemy;
                 }
             }
-        }
-        return null;
+        }*/
+        return getEnemyByType(EntityEnemyType.ROACH);
     }
 
     /**

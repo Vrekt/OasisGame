@@ -47,6 +47,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         setPosition(position, true);
         setName("Grungy Roach");
+        setHealth(2000);
 
         hostileRange = 16.0f;
         attackSpeed = 0.8f;
@@ -143,8 +144,6 @@ public final class GrungyRoachEnemy extends EntityEnemy {
                 body.getPosition(),
                 player.getPosition(),
                 this::handleProjectileAttackHit);
-
-        // player.attack(attackStrength, this);
     }
 
     @Override
@@ -173,6 +172,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     @Override
     public void update(float delta) {
         stateMachine.update(delta);
+        animator.update(delta);
 
         if (isDead() && !stateMachine.isInSameState(AnimationProcessingState.STATE_ID)) {
             // enter dead animation state
@@ -198,4 +198,14 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         drawCurrentPosition(batch, animationComponent.animate(rotation, delta));
     }
 
+    @Override
+    public void damage(float tick, float amount, float knockback, boolean isCritical) {
+        super.damage(tick, amount, knockback, isCritical);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        animator.dispose();
+    }
 }
