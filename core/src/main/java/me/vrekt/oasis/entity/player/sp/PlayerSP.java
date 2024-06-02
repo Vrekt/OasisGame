@@ -1,7 +1,6 @@
 package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,7 +15,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.combat.CombatDamageAnimator;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.entity.component.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
@@ -71,10 +69,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
     private ItemWeapon equippedItem;
     private final IntMap<Artifact> artifacts = new IntMap<>(3);
-
-    private EntityRotation rotation = EntityRotation.UP;
     private final Map<AttributeType, Attributes> attributes = new HashMap<>();
-    private final CombatDamageAnimator animator = new CombatDamageAnimator();
     // list of enemies attacking us.
     private final Array<EntityEnemy> enemiesAttacking = new Array<>();
 
@@ -445,6 +440,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
         inventory.update();
         if (rotationChanged) {
+            // TODO: Animation plays again if rotated while one is playing
+            // TODO: Doesn't look half bad so keep it for now.
+            combatAnimator.resetAnimation(previousRotation);
+
             setIdleRegionState();
             rotationChanged = false;
         }
@@ -483,6 +482,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             return;
         }
 
+        previousRotation = rotation;
         final float velY = getVelocityY();
         final float velX = getVelocityX();
 
@@ -543,15 +543,26 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        updateAndRenderEquippedItem(batch);
-
-        if (swinged) {
-            final boolean finished = combatAnimator.renderActiveAnimationAt(batch, rotation, getInterpolatedPosition().x, getInterpolatedPosition().y, delta);
+        if (equippedItem != null
+                && equippedItem.isSwinging()) {
+            equippedItem.updateItemBoundingSize(rotation);
+            final boolean finished = combatAnimator.renderActiveAnimationAt(batch,
+                    rotation,
+                    getInterpolatedPosition().x,
+                    getInterpolatedPosition().y,
+                    delta,
+                    equippedItem);
 
             if (finished) {
-                swinged = false;
+                equippedItem.resetSwing();
             }
         } else {
+            // if not swinging just set item position to where we are.
+            if (equippedItem != null) {
+                equippedItem.updateItemPosition(getInterpolatedPosition().x, getInterpolatedPosition().y);
+                equippedItem.resetBoundingSize();
+            }
+
             if (!getVelocity().isZero()) {
                 draw(batch, animationComponent.animate(rotation, delta));
             } else {
@@ -574,35 +585,20 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     }
 
     /**
-     * Render the current item the player hss equipped
-     *
-     * @param batch drawing
+     * Left mouse was pressed, ensured that there was no other interaction
      */
-    private void updateAndRenderEquippedItem(SpriteBatch batch) {
-        if (equippedItem == null) return;
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            swinged = true;
-
-            final float tick = GameManager.getTick();
-
-            final boolean isCritical = equippedItem.isCriticalHit();
-            final EntityEnemy hit = getWorldState().hasHitEntity(equippedItem, itemBounds);
-
-            if (hit != null && !enemiesAttacking.contains(hit, true)) enemiesAttacking.add(hit);
-
-            if (hit != null) {
-                final float damage = equippedItem.getBaseDamage() + (isCritical ? equippedItem.getCriticalHitDamage() : 0.0f);
-
-                hit.damage(tick, Math.round(damage), equippedItem.getKnockbackMultiplier(), isCritical);
-                if (hit.isDead()) {
-                    enemiesAttacking.removeValue(hit, true);
-                }
-            }
-
+    public void swingItem() {
+        if (equippedItem.canSwing()) {
+            equippedItem.swingItem();
         }
 
-        equippedItem.update(Gdx.graphics.getDeltaTime(), rotation);
+        final boolean critical = equippedItem.isCriticalHit();
+        final EntityEnemy hit = getWorldState().hasHitEntity(equippedItem);
+        if (hit != null && !hit.isDead()) {
+            hit.knockback(rotation, equippedItem.getKnockbackMultiplier());
+            final float damage = equippedItem.getBaseDamage() + (critical ? equippedItem.getCriticalHitDamage() : 0.0f);
+            hit.damage(damage, critical ? DamageType.CRITICAL_HIT : DamageType.NORMAL);
+        }
     }
 
     /**
@@ -612,11 +608,11 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @param type   the type of damage
      */
     public void hurt(float amount, DamageType type) {
-        animator.accumulateDamage(amount, type);
+        // TODO animator.accumulateDamage(amount, type);
     }
 
     private void draw(SpriteBatch batch, TextureRegion region) {
-        animator.update(Gdx.graphics.getDeltaTime());
+        //    animator.update(Gdx.graphics.getDeltaTime());
 
         batch.draw(region,
                 getInterpolatedPosition().x,
@@ -629,7 +625,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         worldPosition.set(worldCamera.project(worldPosition.set(getPosition().x + 1.0f, getInterpolatedPosition().y + 2.5f, 0.0f)));
         screenPosition.set(guiCamera.project(worldPosition));
 
-        animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
+        // animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
     }
 
     /**

@@ -207,7 +207,13 @@ public abstract class GameWorldInterior extends GameWorld {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (isWorldActive) return super.touchDown(screenX, screenY, pointer, button);
+        if (isWorldActive) {
+            final boolean anyAction = super.touchDown(screenX, screenY, pointer, button);
+            if (!anyAction) {
+                player.swingItem();
+            }
+            return anyAction;
+        }
         return false;
     }
 

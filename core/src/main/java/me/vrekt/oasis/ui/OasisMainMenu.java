@@ -90,7 +90,7 @@ public final class OasisMainMenu extends ScreenAdapter {
      */
     private void initializeMainComponents(VisImageTextButton.VisImageTextButtonStyle style) {
         final VisImageTextButton newGameButton = new VisImageTextButton("New Game", style);
-        final VisImageTextButton createMultiplayerGameButton = new VisImageTextButton("Host Game", style);
+        final VisImageTextButton joinServerButton = new VisImageTextButton("Join Server", style);
         final VisImageTextButton loadGameButton = new VisImageTextButton("Load Game", style);
         final VisImageTextButton quitGameButton = new VisImageTextButton("Quit Game", style);
 
@@ -98,12 +98,12 @@ public final class OasisMainMenu extends ScreenAdapter {
         rootTable.row();
         rootTable.add(loadGameButton).width(150).padBottom(4f);
         rootTable.row();
-        rootTable.add(createMultiplayerGameButton).width(150).padBottom(4f);
+        rootTable.add(joinServerButton).width(150).padBottom(4f);
         rootTable.row();
         rootTable.add(quitGameButton).width(150);
 
         assignClickAction(newGameButton, game::loadNewGame);
-        assignClickAction(createMultiplayerGameButton, game::hostNewGame);
+        assignClickAction(joinServerButton, game::hostNewGame);
 
         // show load game UI
         assignClickAction(loadGameButton, () -> {

@@ -1,9 +1,8 @@
-package me.vrekt.oasis.entity.enemy.fsm.states;
+package me.vrekt.oasis.entity.enemy.fsm.states.ai;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.ai.components.AiComponent;
-import me.vrekt.oasis.ai.components.AiComponentType;
 import me.vrekt.oasis.entity.enemy.fsm.ProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.processing.ProcessingRequirement;
 import me.vrekt.oasis.entity.enemy.fsm.processing.Processor;
@@ -18,6 +17,7 @@ public final class AiProcessingState extends ProcessingState implements Pool.Poo
     private final Array<AiComponent> components = new Array<>();
     private Processor processor;
     private ProcessingRequirement requirement;
+    private Runnable otherwiseAction;
 
     public AiProcessingState() {
         super(STATE_ID);
@@ -28,7 +28,7 @@ public final class AiProcessingState extends ProcessingState implements Pool.Poo
         return this;
     }
 
-    public AiProcessingState using(Processor processor) {
+    public AiProcessingState processor(Processor processor) {
         this.processor = processor;
         return this;
     }
@@ -38,27 +38,39 @@ public final class AiProcessingState extends ProcessingState implements Pool.Poo
         return this;
     }
 
+    public AiProcessingState otherwise(Runnable action) {
+        this.otherwiseAction = action;
+        return this;
+    }
+
     /**
-     * Get a component
-     * TODO: Maybe return array[]?
+     * Allow outside velocity to influence
      *
-     * @param type type
-     * @return the component or {@code null} if none
+     * @param emptyVelocity if velocity should be set to 0
      */
-    private AiComponent get(AiComponentType type) {
+    public void handleOutsideVelocityInfluence(boolean emptyVelocity) {
         for (AiComponent component : components) {
-            if (component.type() == type) {
-                return component;
-            }
+            component.pause(emptyVelocity);
         }
-        return null;
+    }
+
+    /**
+     * Resume
+     */
+    public void resumeNormalVelocityInfluence() {
+        for (AiComponent component : components) {
+            component.resume();
+        }
     }
 
     @Override
     public void update(float delta) {
-        if (requirement != null && !requirement.shouldProcess()) return;
-        if (processor != null) processor.update(delta);
+        if (requirement != null && !requirement.shouldProcess()) {
+            if (otherwiseAction != null) otherwiseAction.run();
+            return;
+        }
 
+        if (processor != null) processor.update(delta);
         for (AiComponent component : components) {
             component.update(delta);
         }

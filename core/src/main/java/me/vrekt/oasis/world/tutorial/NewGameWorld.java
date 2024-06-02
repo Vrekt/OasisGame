@@ -68,6 +68,8 @@ public final class NewGameWorld extends GameWorld {
             return true;
         }
 
+        player.swingItem();
+
         return false;
     }
 

@@ -12,7 +12,7 @@ public enum EffectType {
     POISON {
         @Override
         public void applyEffect(GameEntity entity, float strength) {
-            entity.damage(1.6f * strength);
+            entity.damage(1.6f * strength, DamageType.POISON);
         }
 
         @Override

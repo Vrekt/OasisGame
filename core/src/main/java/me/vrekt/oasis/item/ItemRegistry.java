@@ -40,7 +40,7 @@ public final class ItemRegistry {
     public static Item createItem(Items item, int amount) {
         final Item newItem = registry.get(item).newItem();
         newItem.setAmount(amount);
-        newItem.load(GameManager.getAssets());
+        newItem.load(GameManager.asset());
         return newItem;
     }
 

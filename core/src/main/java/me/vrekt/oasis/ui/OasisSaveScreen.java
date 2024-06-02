@@ -38,7 +38,7 @@ public final class OasisSaveScreen extends ScreenAdapter {
     public void show() {
         final Table table = new Table();
         table.setFillParent(true);
-        table.add(new Label("Saving game...", new Label.LabelStyle(GameManager.getAssets().getMedium(), Color.BLACK)));
+        table.add(new Label("Saving game...", new Label.LabelStyle(GameManager.asset().getMedium(), Color.BLACK)));
         table.row();
         table.add(progressBar);
         stage.addActor(table);

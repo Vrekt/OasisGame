@@ -26,6 +26,8 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.combat.DamageType;
+import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
@@ -112,6 +114,8 @@ public abstract class GameWorld extends
     // the current tick of this world.
     protected long lastTick;
 
+    protected final EntityDamageAnimator worldDamageAnimator;
+
     protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
 
@@ -127,6 +131,7 @@ public abstract class GameWorld extends
         this.networkHandler = new WorldNetworkHandler(game, this);
         this.projectileManager = new ProjectileManager();
         this.systemManager = new SystemManager();
+        this.worldDamageAnimator = new EntityDamageAnimator();
     }
 
     public String getWorldName() {
@@ -306,6 +311,17 @@ public abstract class GameWorld extends
      */
     public void checkAreaEffects(GameEntity entity) {
         effectCloudManager.processEntity(entity);
+    }
+
+    /**
+     * Register damage to be animated
+     *
+     * @param entity entity
+     * @param amount amount
+     * @param type   type
+     */
+    public void registerEntityDamage(GameEntity entity, float amount, DamageType type) {
+        worldDamageAnimator.store(entity, amount, type);
     }
 
     /**
@@ -684,6 +700,7 @@ public abstract class GameWorld extends
         GdxAI.getTimepiece().update(delta);
         systemManager.update(delta);
         projectileManager.update(delta);
+        worldDamageAnimator.update(delta);
 
         // added back since it was removed from lunar
         // may be added back
@@ -813,18 +830,26 @@ public abstract class GameWorld extends
             }
         }
 
-        // render damage amount animations for the player and enemies attacking
-        guiManager.renderDamageAmountAnimations(renderer.getCamera(), batch, player);
+        // render entity UI elements
+        for (GameEntity entity : entities.values()) {
+            entity.renderDamageAnimation(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
+        }
+
         batch.end();
 
-        if (!paths.isEmpty()) {
+        if (player.getEquippedItem() != null) {
+            final Rectangle bounds = player.getEquippedItem().getBounds();
             debugRenderer.setProjectionMatrix(renderer.getCamera().combined);
-            debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.RED);
+            debugRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-            for (Vector2 path : paths) {
-                debugRenderer.rect(path.x, path.y, 2 * OasisGameSettings.SCALE, 2 * OasisGameSettings.SCALE);
+            for (GameEntity entity : entities.values()) {
+                if (entity.bb() != null) {
+                    debugRenderer.rect(entity.bb().x, entity.bb().y, entity.bb().width, entity.bb().height);
+                }
             }
+
             debugRenderer.end();
         }
 
@@ -892,21 +917,20 @@ public abstract class GameWorld extends
 
     /**
      * Check if the provided item hit an entity when swung
-     * TODO: Implement this!
      *
      * @param item the item
      * @return the entity if hit
      */
-    public EntityEnemy hasHitEntity(ItemWeapon item, Rectangle bounds) {
-       /* for (GameEntity entity : entities.values()) {
+    public EntityEnemy hasHitEntity(ItemWeapon item) {
+        for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy) {
-                if (enemy.bb().overlaps(bounds)) {
-                    System.err.println("HIT");
+                if (enemy.bb().overlaps(item.getBounds())) {
+                    GameLogging.info(this, "Hit entity " + enemy.type());
                     return enemy;
                 }
             }
-        }*/
-        return getEnemyByType(EntityEnemyType.ROACH);
+        }
+        return null;
     }
 
     /**

@@ -39,7 +39,7 @@ public class Projectile implements Drawable, Pool.Poolable {
      * @param result result
      */
     public void load(ProjectileData data, ProjectileResult result) {
-        projectile = GameManager.getAssets().get(data.texture());
+        projectile = GameManager.asset().get(data.texture());
         this.bounds.setSize(projectile.getRegionWidth() * OasisGameSettings.SCALE, projectile.getRegionHeight() * OasisGameSettings.SCALE);
 
         this.moveSpeed = data.moveSpeed();

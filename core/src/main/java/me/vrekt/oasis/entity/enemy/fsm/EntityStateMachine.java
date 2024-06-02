@@ -1,8 +1,10 @@
 package me.vrekt.oasis.entity.enemy.fsm;
 
-import com.badlogic.gdx.utils.Pools;
 import me.vrekt.oasis.entity.GameEntity;
 
+/**
+ * Basic state machine
+ */
 public final class EntityStateMachine {
 
     private final GameEntity owner;
@@ -12,15 +14,21 @@ public final class EntityStateMachine {
         this.owner = owner;
     }
 
+    /**
+     * Set the initial state
+     *
+     * @param state state
+     */
     public void initial(ProcessingState state) {
         this.state = state;
         this.state.enter();
     }
 
-    public void enterObtained(Class<ProcessingState> obtainable) {
-        enter(Pools.obtain(obtainable));
-    }
-
+    /**
+     * Enter a new state
+     *
+     * @param state the state
+     */
     public void enter(ProcessingState state) {
         if (this.state != null) this.state.exit();
 
@@ -28,12 +36,27 @@ public final class EntityStateMachine {
         this.state = state;
     }
 
+    /**
+     * Update current state
+     *
+     * @param delta delta
+     */
     public void update(float delta) {
         if (state != null) state.update(delta);
     }
 
+    /**
+     * Check if other is this state
+     *
+     * @param other state ID
+     * @return {@code true} if so
+     */
     public boolean isInSameState(int other) {
         return state.processingStateId == other;
+    }
+
+    public ProcessingState state() {
+        return state;
     }
 
     public void stop() {

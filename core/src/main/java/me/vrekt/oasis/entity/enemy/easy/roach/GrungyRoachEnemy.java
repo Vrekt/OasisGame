@@ -16,8 +16,7 @@ import me.vrekt.oasis.entity.enemy.AttackDirection;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeathAnimation;
-import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
-import me.vrekt.oasis.entity.enemy.fsm.states.AiProcessingState;
+import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.world.GameWorld;
@@ -32,8 +31,6 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     private final EntityAnimationComponent animationComponent;
     private AiHostilePursueComponent hostilePursueComponent;
 
-    private final EntityStateMachine stateMachine;
-
     private Animation<TextureRegion> projectileAnimation;
     private ParticleEffect poisonEffect;
 
@@ -41,6 +38,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     private float lastAttack;
 
     private AnimationProcessingState dyingState;
+    private boolean velocityPaused;
 
     public GrungyRoachEnemy(Vector2 position, GameWorld world, OasisGame game) {
         super(EntityEnemyType.ROACH, world, game);
@@ -52,7 +50,6 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         hostileRange = 16.0f;
         attackSpeed = 0.8f;
         animationComponent = new EntityAnimationComponent();
-        stateMachine = new EntityStateMachine(this);
     }
 
     /**
@@ -118,7 +115,9 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         final AiProcessingState state = new AiProcessingState()
                 .populateComponents(hostilePursueComponent)
-                .using(this::updateAi);
+                .processor(this::updateAi)
+                .requires(this::shouldUpdateAiState)
+                .otherwise(this::handlePauseState);
 
         stateMachine.initial(state);
     }
@@ -128,8 +127,15 @@ public final class GrungyRoachEnemy extends EntityEnemy {
                 && GameManager.hasTimeElapsed(lastAttack, attackSpeed);
     }
 
-    private boolean isPursuingPlayer() {
+    private boolean shouldUpdateAiState() {
         return !hostilePursueComponent.isWithinPlayer();
+    }
+
+    private void handlePauseState() {
+        if (!velocityPaused) {
+            body.setLinearVelocity(0, 0);
+            velocityPaused = true;
+        }
     }
 
     /**
@@ -148,7 +154,9 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
     @Override
     protected void updateAi(float delta) {
-        if (isPursuingPlayer()) {
+        velocityPaused = false;
+
+        if (shouldUpdateAiState()) {
             previousRotation = rotation;
             rotation = hostilePursueComponent.getFacingDirection();
 
@@ -157,8 +165,6 @@ public final class GrungyRoachEnemy extends EntityEnemy {
             } else if (isAttacking) {
                 updateAttackPhase();
             }
-        } else {
-            body.setLinearVelocity(0, 0);
         }
     }
 
@@ -171,8 +177,8 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         stateMachine.update(delta);
-        animator.update(delta);
 
         if (isDead() && !stateMachine.isInSameState(AnimationProcessingState.STATE_ID)) {
             // enter dead animation state
@@ -199,13 +205,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     }
 
     @Override
-    public void damage(float tick, float amount, float knockback, boolean isCritical) {
-        super.damage(tick, amount, knockback, isCritical);
-    }
-
-    @Override
     public void dispose() {
         super.dispose();
-        animator.dispose();
     }
 }

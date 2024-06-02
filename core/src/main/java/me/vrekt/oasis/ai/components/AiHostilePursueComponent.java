@@ -47,7 +47,7 @@ public final class AiHostilePursueComponent extends AiComponent {
      * @return if we are within the players bounds
      */
     public boolean isWithinPlayer() {
-        return entity.bb().contains(player.getPosition()) || entity.getPosition().dst2(player.getPosition()) <= 0.5f;
+        return entity.bb().contains(player.getPosition()) || entity.getBody().getPosition().dst2(player.getPosition()) <= 0.5f;
     }
 
 }

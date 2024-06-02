@@ -3,7 +3,6 @@ package me.vrekt.oasis.item;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.item.draw.ItemRenderer;
@@ -136,7 +135,7 @@ public abstract class Item implements ResourceLoader {
         }
     }
 
-    public void update(float delta, EntityRotation rotation) {
+    public void update(float tick) {
 
     }
 

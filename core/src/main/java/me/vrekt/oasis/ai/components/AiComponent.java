@@ -48,8 +48,16 @@ public abstract class AiComponent {
         return applySelf;
     }
 
-    public void setPauseState(boolean state) {
-        this.paused = state;
+    public void pause(boolean emptyVelocity) {
+        this.paused = true;
+
+        if (emptyVelocity) {
+            entity.getBody().setLinearVelocity(0, 0);
+        }
+    }
+
+    public void resume() {
+        this.paused = false;
     }
 
     /**

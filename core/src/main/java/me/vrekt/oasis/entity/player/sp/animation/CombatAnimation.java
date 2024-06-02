@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 
 public final class CombatAnimation extends Animation<CombatAnimation.SingleAnimationFrame> {
 
@@ -70,8 +71,11 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
         animationTime += delta;
     }
 
-    public void draw(SpriteBatch batch, float x, float y) {
-        getKeyFrame(animationTime).draw(batch, x, y);
+    public void draw(SpriteBatch batch,
+                              float x,
+                              float y,
+                              ItemWeapon item) {
+        getKeyFrame(animationTime).draw(batch, x, y, item);
     }
 
     public boolean isFinished() {
@@ -99,7 +103,24 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
             this.yOffset = yOffset;
         }
 
-        void draw(SpriteBatch batch, float x, float y) {
+        void updateItemPosition(ItemWeapon weapon,
+                                float x,
+                                float y) {
+
+            final float newX = offsetX
+                    ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f)
+                    : x;
+
+            final float newY = offsetY ?
+                    y - ((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) + yOffset
+                    : y;
+
+            weapon.updateItemPosition(newX, newY);
+        }
+
+        void draw(SpriteBatch batch, float x, float y, ItemWeapon item) {
+            updateItemPosition(item, x, y);
+
             final float newX = offsetX
                     ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f)
                     : x;

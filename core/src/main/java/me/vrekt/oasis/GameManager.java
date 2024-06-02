@@ -169,7 +169,7 @@ public class GameManager {
         return guiManager;
     }
 
-    public static Asset getAssets() {
+    public static Asset asset() {
         return oasis.getAsset();
     }
 

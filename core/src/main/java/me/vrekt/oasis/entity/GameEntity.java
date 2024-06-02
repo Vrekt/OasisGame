@@ -16,6 +16,8 @@ import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.combat.DamageType;
+import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.component.*;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
@@ -240,6 +242,30 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      */
     public float damage(float amount) {
         return getPropertiesComponent().health -= amount;
+    }
+
+    /**
+     * Damage this entity and log it
+     *
+     * @param amount amount
+     * @param type   type
+     */
+    public void damage(float amount, DamageType type) {
+        damage(amount);
+
+        getWorldState().registerEntityDamage(this, amount, type);
+    }
+
+    /**
+     * Render damage animations for this entity
+     *
+     * @param worldCamera camera
+     * @param guiCamera   stage camera
+     * @param batch       batch
+     * @param animator    animator
+     */
+    public void renderDamageAnimation(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
+
     }
 
     /**
@@ -681,18 +707,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
-     * Damage this entity
-     *
-     * @param tick       the current world tick
-     * @param amount     the amount of damage
-     * @param knockback  the knockback multiplier
-     * @param isCritical if this damage was a critical
-     */
-    public void damage(float tick, float amount, float knockback, boolean isCritical) {
-
-    }
-
-    /**
      * Draw the current position
      * If dynamic sizing is true, will automatically resize the bb.
      *
@@ -726,7 +740,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         shape = new PolygonShape();
         shape.setAsBox(getScaledWidth() / 2.0F, getScaledHeight() / 2.0F);
         fixture.shape = shape;
-        fixture.density = 1.0f;
+        fixture.density = 0.1f;
 
         body.createFixture(fixture);
         body.setUserData(this);

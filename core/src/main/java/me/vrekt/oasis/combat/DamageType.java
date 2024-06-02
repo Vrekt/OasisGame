@@ -1,6 +1,7 @@
 package me.vrekt.oasis.combat;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * All damage types
@@ -20,4 +21,9 @@ public enum DamageType {
     public Color color() {
         return color;
     }
+
+    public void useWith(BitmapFont font, float alpha) {
+        font.setColor(color.r, color.g, color.b, alpha);
+    }
+
 }

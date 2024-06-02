@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -17,7 +16,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
@@ -227,18 +225,6 @@ public class GuiManager {
      */
     public void renderPlayerNametag(NetworkPlayer player, Camera camera, Batch batch) {
         player.renderNametag(asset.getSmall(), batch, camera, stage.getCamera());
-    }
-
-    /**
-     * Render damage animations for the player and enemies the player is attacking
-     *
-     * @param camera the world camera
-     * @param batch  the batch
-     * @param player local player
-     */
-    public void renderDamageAmountAnimations(Camera camera, SpriteBatch batch, PlayerSP player) {
-        player.drawDamage(batch, camera, getCamera());
-        player.getEnemiesAttacking().forEach(enemy -> enemy.renderDamageAmountAnimation(batch, asset.getBoxy(), camera, getCamera()));
     }
 
     /**

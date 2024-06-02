@@ -3,6 +3,7 @@ package me.vrekt.oasis.entity.player.sp.animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.utility.ResourceLoader;
 
 /**
@@ -78,16 +79,21 @@ public final class PlayerCombatAnimator implements ResourceLoader {
                                            EntityRotation rotation,
                                            float x,
                                            float y,
-                                           float delta) {
+                                           float delta,
+                                           ItemWeapon item) {
         final CombatAnimation animation = animations[rotation.ordinal()];
         animation.update(delta);
-        animation.draw(batch, x, y);
+        animation.draw(batch, x, y, item);
         final boolean fin = animation.isFinished();
         if (fin) {
             animation.reset();
         }
 
         return fin;
+    }
+
+    public void resetAnimation(EntityRotation rotation) {
+        animations[rotation.ordinal()].reset();
     }
 
 }
