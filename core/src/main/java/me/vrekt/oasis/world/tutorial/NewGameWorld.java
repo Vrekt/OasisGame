@@ -6,7 +6,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
 import me.vrekt.oasis.world.GameWorld;
@@ -43,8 +42,6 @@ public final class NewGameWorld extends GameWorld {
         if (!isWorldLoaded) create(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
         if (game.isNewGame()) {
-            player.getInventory().add(Items.TEMPERED_BLADE, 1);
-            player.getInventory().add(Items.PIG_HEART, 1);
 
             player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
             // TODO: Better start hint
@@ -68,7 +65,7 @@ public final class NewGameWorld extends GameWorld {
             return true;
         }
 
-        player.swingItem();
+        if (shouldUpdateMouseState()) player.swingItem();
 
         return false;
     }

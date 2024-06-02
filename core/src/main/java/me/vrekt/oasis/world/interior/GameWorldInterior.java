@@ -126,6 +126,7 @@ public abstract class GameWorldInterior extends GameWorld {
     @Override
     public void enter() {
         GameLogging.info(this, "Entering interior %s", worldName);
+        guiManager.resetCursor();
 
         isExiting = false;
         isWorldActive = true;

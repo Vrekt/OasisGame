@@ -236,6 +236,16 @@ public class GuiManager {
         guis.get(type).show();
     }
 
+    /**
+     * Show a gui
+     *
+     * @param type the type
+     */
+    public void showGui(GuiType type, boolean resetCursor) {
+        guis.get(type).show();
+        if (resetCursor) resetCursor();
+    }
+
     public Gui showChildGui(Gui parent, GuiType child) {
         final Gui c = guis.get(child);
         if (c.inheritParentBehaviour) {

@@ -594,6 +594,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Left mouse was pressed, ensured that there was no other interaction
      */
     public void swingItem() {
+        if (equippedItem == null) return;
+
         if (equippedItem.canSwing()) {
             equippedItem.swingItem();
         }

@@ -64,6 +64,7 @@ public final class GameHudGui extends Gui {
         super(GuiType.HUD, guiManager);
 
         this.player = guiManager.getGame().getPlayer();
+        this.isShowing = true;
 
         debugComponentText = new VisLabel();
         debugComponentText.setStyle(guiManager.getStyle().getMediumWhite());

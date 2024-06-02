@@ -17,5 +17,8 @@ public final class ANewHorizonQuest extends Quest {
 
         objectives.add(new QuestObjective("Explore the island village and see who's around.", true));
         objectives.add(new QuestObjective("Speak to Wrynn.", false));
+        objectives.add(new QuestObjective("Check the container for some weapons", false));
+        objectives.add(new QuestObjective("Go outside and enter the basement.", false));
+        objectives.add(new QuestObjective("Find the cookbook.", false));
     }
 }

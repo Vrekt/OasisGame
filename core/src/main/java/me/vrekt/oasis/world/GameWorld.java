@@ -952,7 +952,7 @@ public abstract class GameWorld extends
 
         if (entity != null) {
             entity.speak(true);
-            guiManager.showGui(GuiType.DIALOG);
+            guiManager.showGui(GuiType.DIALOG, true);
             guiManager.getDialogComponent().showEntityDialog(entity);
             return true;
         }

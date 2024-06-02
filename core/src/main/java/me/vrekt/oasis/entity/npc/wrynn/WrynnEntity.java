@@ -16,6 +16,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
@@ -70,10 +71,17 @@ public final class WrynnEntity extends EntityInteractable {
 
         // dialog will be set to complete once the player has the items
         dialogue.addEntryCondition("wrynn:dialog_stage_4", this::checkPlayerHasItems);
-        dialogue.addTaskHandler("wrynn:unlock_container", () -> worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container"));
+
+        dialogue.addTaskHandler("wrynn:unlock_container", () -> {
+            worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
+            player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
+        });
+
         dialogue.addTaskHandler("wrynn:unlock_basement", () -> {
             parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
             parentWorld.removeSimpleObject("oasis:basement_gate");
+
+            player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         });
 
         createBoxBody(worldIn.boxWorld());
