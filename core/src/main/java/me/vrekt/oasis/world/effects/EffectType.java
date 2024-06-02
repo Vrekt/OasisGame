@@ -17,7 +17,7 @@ public enum EffectType {
 
         @Override
         public void applyToPlayer(PlayerSP player, float strength) {
-            player.hurt(1.6f * strength, DamageType.POISON);
+            // FIXME: player.hurt(1.6f * strength, DamageType.POISON);
         }
     };
 

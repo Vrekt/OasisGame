@@ -7,7 +7,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.utility.ResourceLoader;
 
@@ -65,11 +66,16 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         getTextureComponent().add("character_a_walking_right_idle", asset.get("character_a_walking_right_idle"));
         activeTexture = getTextureComponent().get("character_a_walking_up_idle");
 
-        // up, down, left, right
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.35f, asset.get("character_a_walking_up", 1), asset.get("character_a_walking_up", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
+        final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
+                .moving(EntityRotation.UP, 0.35f, "character_a_walking_up", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.DOWN, 0.35f, "character_a_walking_down", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.LEFT, 0.35f, "character_a_walking_left", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.RIGHT, 0.35f, "character_a_walking_right", 2)
+                .add(animationComponent);
+        builder.dispose();
     }
 
     @Override
@@ -98,7 +104,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.animate(entityRotation, delta), getScaledWidth(), getScaledHeight());
+            draw(batch, animationComponent.animateMoving(entityRotation, delta), getScaledWidth(), getScaledHeight());
         } else {
             if (activeTexture != null) {
                 draw(batch, activeTexture, getScaledWidth(), getScaledHeight());

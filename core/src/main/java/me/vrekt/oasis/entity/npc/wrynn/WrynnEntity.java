@@ -8,7 +8,8 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiFollowPathComponent;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
@@ -50,20 +51,17 @@ public final class WrynnEntity extends EntityInteractable {
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.4f,
-                asset.get("wrynn_walking_left", 1),
-                asset.get("wrynn_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.4f,
-                asset.get("wrynn_walking_down", 1),
-                asset.get("wrynn_walking_down", 2));
-
         // FIXME, add other walking animations
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.4f,
-                asset.get("wrynn_walking_down", 1),
-                asset.get("wrynn_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.4f,
-                asset.get("wrynn_walking_down", 1),
-                asset.get("wrynn_walking_down", 2));
+        final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
+                .moving(EntityRotation.LEFT, 0.4f, "wrynn_walking_left", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.DOWN, 0.4f, "wrynn_walking_down", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.RIGHT, 0.4f, "wrynn_walking_down", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.UP, 0.4f, "wrynn_walking_down", 2)
+                .add(animationComponent);
+        builder.dispose();
 
         dialogue = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
         dialogue.setOwner(this);
@@ -98,7 +96,7 @@ public final class WrynnEntity extends EntityInteractable {
         if (!isMoving()) {
             drawCurrentPosition(batch, activeEntityTexture);
         } else {
-            drawCurrentPosition(batch, animationComponent.animate(rotation, delta));
+            drawCurrentPosition(batch, animationComponent.animateMoving(rotation, delta));
         }
     }
 

@@ -10,14 +10,14 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiHostilePursueComponent;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.enemy.AttackDirection;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeathAnimation;
-import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
+import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.Effect;
@@ -66,23 +66,21 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     public void load(Asset asset) {
         entity.add(animationComponent);
 
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.25f,
-                asset.get("roach_walking_right", 1),
-                asset.get("roach_walking_right", 2),
-                asset.get("roach_walking_right", 3));
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.25f,
-                asset.get("roach_walking_left", 1),
-                asset.get("roach_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.25f,
-                asset.get("roach_walking_down", 1),
-                asset.get("roach_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.25f,
-                asset.get("roach_walking_up", 1),
-                asset.get("roach_walking_up", 2));
+        final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
+                .moving(EntityRotation.RIGHT, 0.25f, "roach_walking_right", 3)
+                .hurting("roach_walking_right_hit", 3)
+                .add(animationComponent)
+                .moving(EntityRotation.LEFT, 0.25f, "roach_walking_left", 2)
+                .hurting("roach_walking_left_hit", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.DOWN, 0.25f, "roach_walking_down", 2)
+                .hurting("roach_walking_down_hit", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.UP, 0.25f, "roach_walking_left", 2)
+                .hurting("roach_walking_up_hit", 2)
+                .add(animationComponent);
 
-        animationComponent.createAttackAnimation(AttackDirection.UP, 0.25f,
-                asset.get("roach_attack_up", 1),
-                asset.get("roach_attack_up", 2));
+        builder.dispose();
 
         animation = new FadeAlphaDeathAnimation(this);
         poisonEffect = new ParticleEffect();
@@ -201,7 +199,11 @@ public final class GrungyRoachEnemy extends EntityEnemy {
             return;
         }
 
-        drawCurrentPosition(batch, animationComponent.animate(rotation, delta));
+        if (hurt) {
+            drawCurrentPosition(batch, animationComponent.animateHurting(rotation));
+        } else {
+            drawCurrentPosition(batch, animationComponent.animateMoving(rotation, delta));
+        }
     }
 
     @Override

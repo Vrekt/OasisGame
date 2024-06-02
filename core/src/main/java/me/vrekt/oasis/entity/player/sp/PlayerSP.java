@@ -16,7 +16,8 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.combat.DamageType;
-import me.vrekt.oasis.entity.component.EntityAnimationComponent;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
+import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
@@ -140,11 +141,16 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         getTextureComponent().add("character_a_walking_right_idle", asset.get("character_a_walking_right_idle"));
         activeTexture = getTextureComponent().get("character_a_walking_up_idle");
 
-        // up, down, left, right
-        animationComponent.createMoveAnimation(EntityRotation.UP, 0.35f, asset.get("character_a_walking_up", 1), asset.get("character_a_walking_up", 2));
-        animationComponent.createMoveAnimation(EntityRotation.DOWN, 0.35f, asset.get("character_a_walking_down", 1), asset.get("character_a_walking_down", 2));
-        animationComponent.createMoveAnimation(EntityRotation.LEFT, 0.35f, asset.get("character_a_walking_left", 1), asset.get("character_a_walking_left", 2));
-        animationComponent.createMoveAnimation(EntityRotation.RIGHT, 0.35f, asset.get("character_a_walking_right", 1), asset.get("character_a_walking_right", 2));
+        final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
+                .moving(EntityRotation.UP, 0.35f, "character_a_walking_up", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.DOWN, 0.35f, "character_a_walking_down", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.LEFT, 0.35f, "character_a_walking_left", 2)
+                .add(animationComponent)
+                .moving(EntityRotation.RIGHT, 0.35f, "character_a_walking_right", 2)
+                .add(animationComponent);
+        builder.dispose();
     }
 
     public AbstractInventory getInventory() {
@@ -564,7 +570,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             }
 
             if (!getVelocity().isZero()) {
-                draw(batch, animationComponent.animate(rotation, delta));
+                draw(batch, animationComponent.animateMoving(rotation, delta));
             } else {
                 if (activeTexture != null) {
                     draw(batch, activeTexture);
@@ -601,19 +607,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         }
     }
 
-    /**
-     * Hurt/damage this player
-     *
-     * @param amount the amount
-     * @param type   the type of damage
-     */
-    public void hurt(float amount, DamageType type) {
-        // TODO animator.accumulateDamage(amount, type);
-    }
-
     private void draw(SpriteBatch batch, TextureRegion region) {
-        //    animator.update(Gdx.graphics.getDeltaTime());
-
         batch.draw(region,
                 getInterpolatedPosition().x,
                 getInterpolatedPosition().y,

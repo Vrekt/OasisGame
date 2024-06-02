@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.ui.FadeScreen;
@@ -126,10 +125,6 @@ public class GameManager {
         oasis.executeMain(action);
     }
 
-    public static void schedule(Runnable action, float delay) {
-
-    }
-
     /**
      * Execute a task later
      *
@@ -159,10 +154,6 @@ public class GameManager {
 
     public static String getGameProgress() {
         return gameProgress;
-    }
-
-    public static MapRenderer getRenderer() {
-        return oasis.getRenderer();
     }
 
     public static GuiManager getGuiManager() {

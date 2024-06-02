@@ -1,7 +1,5 @@
 package me.vrekt.oasis.item.weapons;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -18,8 +16,6 @@ public final class TemperedBladeItem extends ItemWeapon {
     public static final String NAME = "Tempered Blade";
     public static final String TEXTURE = "enchanted_violet";
     public static final ItemDescriptor DESCRIPTOR = new ItemDescriptor(TEXTURE, NAME);
-
-    private ParticleEffect swingEffect;
 
     public TemperedBladeItem() {
         super(Items.TEMPERED_BLADE, KEY, NAME, "A blade with a razor sharp edge.");
@@ -44,13 +40,9 @@ public final class TemperedBladeItem extends ItemWeapon {
 
         final TextureRegion region = asset.get(TEXTURE);
         this.renderer = new ItemAnimationRenderer(asset.get(TEXTURE), this, config);
+
         this.width = region.getRegionWidth() * OasisGameSettings.SCALE;
         this.height = region.getRegionHeight() * OasisGameSettings.SCALE;
-
-        this.swingEffect = new ParticleEffect();
-        this.swingEffect.load(Gdx.files.internal("world/asset/particles/swordparticle"), asset.getAtlasAssets());
-        this.swingEffect.start();
-
-        bounds.setSize(region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
+        bounds.setSize(width, height);
     }
 }

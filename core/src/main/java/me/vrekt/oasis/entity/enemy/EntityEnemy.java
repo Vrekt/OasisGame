@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
@@ -33,6 +35,9 @@ public abstract class EntityEnemy extends GameEntity {
     protected boolean isProcessingImpulse;
 
     protected final EntityStateMachine stateMachine;
+
+    protected boolean hurt;
+    protected float hurtTime;
 
     public EntityEnemy(EntityEnemyType type, GameWorld world, OasisGame game) {
         this.worldIn = world;
@@ -77,11 +82,10 @@ public abstract class EntityEnemy extends GameEntity {
                 if (isInState(EntityState.AI)) getAiState().resumeNormalVelocityInfluence();
             }
         }
-    }
 
-    @Override
-    public void render(SpriteBatch batch, float delta) {
-
+        if (hurt) {
+            hurt = !GameManager.hasTimeElapsed(hurtTime, 0.2f);
+        }
     }
 
     /**
@@ -102,6 +106,14 @@ public abstract class EntityEnemy extends GameEntity {
 
         body.setLinearDamping(8.0f);
         body.applyLinearImpulse(knockback, body.getWorldCenter(), true);
+    }
+
+    @Override
+    public void damage(float amount, DamageType type) {
+        super.damage(amount, type);
+
+        this.hurt = true;
+        this.hurtTime = GameManager.getTick();
     }
 
     @Override
