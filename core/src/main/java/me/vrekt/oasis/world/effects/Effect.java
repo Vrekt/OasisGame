@@ -19,7 +19,7 @@ public final class Effect implements Pool.Poolable {
     };
 
     private EffectType type;
-    private float strength, duration, interval;
+    private float strength, duration, interval, applied;
 
     /**
      * Create a new effect
@@ -39,12 +39,30 @@ public final class Effect implements Pool.Poolable {
         return effect;
     }
 
-    public void apply(GameEntity entity) {
+    public void apply(GameEntity entity, float tick) {
         type.applyEffect(entity, strength);
+        this.applied = tick;
     }
 
-    public void apply(PlayerSP player) {
+    public void apply(PlayerSP player, float tick) {
         type.applyToPlayer(player, strength);
+        this.applied = tick;
+    }
+
+    public EffectType type() {
+        return type;
+    }
+
+    public float strength() {
+        return strength;
+    }
+
+    public float interval() {
+        return interval;
+    }
+
+    public float applied() {
+        return applied;
     }
 
     /**

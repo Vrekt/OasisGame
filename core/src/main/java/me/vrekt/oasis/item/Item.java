@@ -200,4 +200,12 @@ public abstract class Item implements ResourceLoader {
     public boolean compareEverything(Item other) {
         return compare(other) && other.amount() == amount() && other.rarity() == rarity() && StringUtils.equals(other.name(), name());
     }
+
+    /**
+     * Create a new instance of this item
+     */
+    public Item make() {
+        return ItemRegistry.createItem(itemType, amount);
+    }
+
 }

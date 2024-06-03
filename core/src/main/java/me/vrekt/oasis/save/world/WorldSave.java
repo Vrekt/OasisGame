@@ -6,8 +6,12 @@ import me.vrekt.oasis.save.world.container.WorldContainerSave;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.GameEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.WorldObjectSave;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
@@ -17,8 +21,6 @@ import java.util.List;
 
 /**
  * The data of a generic world or interior
- *
- * TODO: World objects
  */
 public abstract class WorldSave {
 
@@ -35,6 +37,9 @@ public abstract class WorldSave {
     @Expose
     List<WorldContainerSave> containers;
 
+    @Expose
+    List<WorldObjectSave> objects;
+
     public WorldSave() {
     }
 
@@ -46,6 +51,7 @@ public abstract class WorldSave {
         writeEntities(world);
         writeInteriors(world);
         writeContainers(world);
+        writeObjects(world);
     }
 
     /**
@@ -94,6 +100,25 @@ public abstract class WorldSave {
                 final WorldContainerSave save = new WorldContainerSave((OpenableContainerInteraction) object);
                 containers.add(save);
             }
+        }
+    }
+
+    /**
+     * Write objects
+     *
+     * @param world world
+     */
+    protected void writeObjects(GameWorld world) {
+        this.objects = new ArrayList<>();
+
+        for (WorldObject object : world.worldObjects()) {
+            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(object);
+            objects.add(save);
+        }
+
+        for (InteractableWorldObject object : world.interactableWorldObjects()) {
+            final InteractableWorldObjectSave save = new InteractableWorldObjectSave(object);
+            objects.add(save);
         }
     }
 

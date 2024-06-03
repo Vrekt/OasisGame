@@ -29,5 +29,6 @@ public final class InteriorSave extends WorldSave {
 
         writeEntities(world);
         writeContainers(world);
+        writeObjects(world);
     }
 }

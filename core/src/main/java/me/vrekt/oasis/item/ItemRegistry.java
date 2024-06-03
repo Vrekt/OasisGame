@@ -44,4 +44,17 @@ public final class ItemRegistry {
         return newItem;
     }
 
+    /**
+     * Create a new item
+     *
+     * @param item   the item type
+     * @return the new item
+     */
+    public static Item createItem(Items item) {
+        final Item newItem = registry.get(item).newItem();
+        newItem.setAmount(1);
+        newItem.load(GameManager.asset());
+        return newItem;
+    }
+
 }

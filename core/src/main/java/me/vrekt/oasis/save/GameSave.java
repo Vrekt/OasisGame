@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.save.world.DefaultWorldSave;
 import me.vrekt.oasis.save.world.WorldSave;
+import me.vrekt.oasis.save.world.player.PlayerSave;
+import me.vrekt.oasis.save.world.settings.GameSettingsSave;
 import me.vrekt.oasis.world.GameWorld;
 
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.List;
 
 /**
  * Contains all data within a players game save state
+ * TODO: Possible future saving items
  */
 public final class GameSave {
 
@@ -28,6 +31,12 @@ public final class GameSave {
     private final boolean isMultiplayer;
     @Expose
     private final int slot;
+
+    @Expose
+    private GameSettingsSave settings;
+
+    @Expose
+    private PlayerSave player;
 
     @Expose
     private List<WorldSave> worlds = new ArrayList<>();
@@ -48,6 +57,8 @@ public final class GameSave {
 
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm a");
         this.date = LocalDateTime.now().format(formatter);
+        this.settings = new GameSettingsSave();
+        this.player = new PlayerSave(GameManager.getPlayer());
 
         for (GameWorld world : GameManager.getWorldManager().worlds().values()) {
             final WorldSave save = new DefaultWorldSave(world);

@@ -7,7 +7,6 @@ import me.vrekt.oasis.entity.inventory.InventoryType;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.Items;
 
 import java.lang.reflect.Type;
 
@@ -29,14 +28,7 @@ public final class InventorySaveTypeCodec {
             base.addProperty("size", src.inventory.getSize());
 
             for (IntMap.Entry<Item> entry : src.inventory.items()) {
-                final JsonObject object = new JsonObject();
-                final Item item = entry.value;
-
-                object.addProperty("slot", entry.key);
-                object.addProperty("name", item.name());
-                object.addProperty("type", item.type().name());
-                object.addProperty("amount", item.amount());
-                items.add(object);
+                items.add(context.serialize(new ItemSave(entry.key, entry.value)));
             }
 
             base.add("contents", items);
@@ -61,12 +53,8 @@ public final class InventorySaveTypeCodec {
 
             final JsonArray contents = src.getAsJsonArray("contents");
             for (JsonElement element : contents) {
-                final JsonObject base = element.getAsJsonObject();
-                final int slot = base.get("slot").getAsInt();
-                final String name = base.get("name").getAsString();
-                final Items itemType = Items.valueOf(base.get("type").getAsString());
-                final int amount = base.get("amount").getAsInt();
-                inventory.putSavedItem(itemType, name, slot, amount);
+                final ItemSave item = context.deserialize(element, ItemSave.class);
+                inventory.putSavedItem(item.type, item.name, item.slot, item.amount);
             }
 
             return save;

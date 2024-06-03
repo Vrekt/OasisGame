@@ -162,6 +162,11 @@ public class GameManager {
         return last == 0 || tick - last >= secondsToTicks(seconds);
     }
 
+    public static boolean hasTimeElapsed(float last, float seconds, boolean handleZero) {
+        if (handleZero && last == 0.0) return false;
+        return last == 0 || tick - last >= secondsToTicks(seconds);
+    }
+
     public static float getGameProgress() {
         return 0.0f;
     }

@@ -29,7 +29,7 @@ public class SaveManager {
         try {
             Files.createDirectories(Paths.get("saves"));
         } catch (IOException exception) {
-            GameLogging.info("SaveManager", "Failed to create new directory for saves", exception);
+            GameLogging.exceptionThrown("SaveManager", "Failed to create new directory for saves", exception);
         }
     }
 

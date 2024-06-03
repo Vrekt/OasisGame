@@ -292,7 +292,7 @@ public final class PlayerInventoryGui extends InventoryGui {
             itemActionButton.setText("Equip");
         } else if (item instanceof ItemArtifact) {
             itemActionButton.setVisible(true);
-            itemActionButton.setText("Activate Artifact");
+            itemActionButton.setText("Activate");
         }
     }
 

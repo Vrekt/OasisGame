@@ -6,6 +6,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
 import me.vrekt.oasis.world.GameWorld;
@@ -45,6 +46,8 @@ public final class NewGameWorld extends GameWorld {
 
         player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
         if (game.isNewGame()) {
+
+            player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
 
             // TODO: Better start hint
             //  guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));

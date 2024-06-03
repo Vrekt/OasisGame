@@ -121,7 +121,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
         for (EntityAreaTracker entity : affected.values()) {
             if (effect.ready(entity.lastApplied)) {
                 entity.lastApplied = now;
-                effect.apply(entity.entity);
+                effect.apply(entity.entity, now);
             }
         }
 

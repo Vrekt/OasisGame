@@ -40,6 +40,10 @@ public abstract class Quest {
         return type;
     }
 
+    public int currentObjectiveStep() {
+        return currentObjectiveStep;
+    }
+
     /**
      * Update the current quest objective and then unlock the next steps
      */

@@ -287,8 +287,24 @@ public abstract class AbstractInventory implements Disposable {
      */
     public int add(Items key, int amount) {
         if (isFull()) return -1;
-        final int slot = findEmptySlot();
-        items.put(slot, ItemRegistry.createItem(key, amount));
+        int slot = findEmptySlot();
+
+        final Item item = ItemRegistry.createItem(key);
+        if (!item.isStackable() && amount > 1) {
+            for (int i = 0; i < amount; i++) {
+                items.put(slot, item.make());
+                if (isFull()) {
+                    GameLogging.warn(this, "Inventory is full when adding non-stackable items.");
+                    break;
+                } else {
+                    slot = findEmptySlot();
+                }
+            }
+        } else {
+            item.setAmount(amount);
+            items.put(slot, item);
+        }
+
         return slot;
     }
 

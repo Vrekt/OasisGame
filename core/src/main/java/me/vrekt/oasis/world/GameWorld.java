@@ -62,6 +62,7 @@ import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -919,6 +920,13 @@ public abstract class GameWorld extends
      */
     public Array<InteractableWorldObject> interactableWorldObjects() {
         return interactableWorldObjects;
+    }
+
+    /**
+     * @return all (non) interactable world obejects
+     */
+    public Collection<WorldObject> worldObjects() {
+        return worldObjects.values();
     }
 
     /**

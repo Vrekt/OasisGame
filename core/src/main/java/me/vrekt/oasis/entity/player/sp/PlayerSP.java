@@ -266,8 +266,30 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @param artifact artifact
      */
     public void equipArtifactToArtifactInventory(ItemArtifact artifact) {
-        getInventory().remove(artifact);
-        artifacts.put(findEmptyArtifactSlot(), artifact.getArtifact());
+        if (getInventory().containsItem(artifact.type())) {
+            getInventory().remove(artifact);
+
+            final int slot = findEmptyArtifactSlot();
+            if (slot == -1) {
+                // full, swap something out
+                // TODO: Player chooses next time
+                final int replaceSlot = 0;
+                final Artifact old = artifacts.get(replaceSlot);
+                artifacts.put(replaceSlot, artifact.getArtifact());
+
+                if (!getInventory().isFull()) {
+                    getInventory().add(old.asItem());
+                } else {
+                    // TODO: Item deletion!
+                    GameLogging.warn(this, "Item deletion, we should drop the item when implemented.");
+                }
+            } else {
+                artifacts.put(slot, artifact.getArtifact());
+            }
+
+        } else {
+            GameLogging.warn(this, "Attempted to equip an artifact without having it.");
+        }
     }
 
     /**
@@ -324,6 +346,15 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         activeEffect = effect;
         particleEffect.reset(false);
         particleEffect.setPosition(centerX(), centerY());
+    }
+
+    /**
+     * TODO: Multiple effects
+     *
+     * @return active effect
+     */
+    public Effect activeEffect() {
+        return activeEffect;
     }
 
     /**
@@ -466,10 +497,11 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     private void updateActiveEffect() {
         if (activeEffect != null) {
-            final boolean expired = GameManager.hasTimeElapsed(effectStarted, activeEffect.duration());
+            final boolean expired = GameManager.hasTimeElapsed(effectStarted, activeEffect.duration(), true);
+
             if (!expired) {
                 if (activeEffect.ready(lastEffectApplied)) {
-                    activeEffect.apply(this);
+                    activeEffect.apply(this, GameManager.getTick());
                     lastEffectApplied = GameManager.getTick();
                 }
             } else {

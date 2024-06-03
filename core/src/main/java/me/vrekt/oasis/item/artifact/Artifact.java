@@ -26,6 +26,7 @@ public abstract class Artifact implements ResourceLoader {
     protected float effectTickActivated, effectAlpha;
 
     protected Sprite artifactParticle;
+    protected ItemArtifact item;
 
     public Artifact(String key, String name, String description) {
         this.key = key;
@@ -52,6 +53,17 @@ public abstract class Artifact implements ResourceLoader {
 
     public float getArtifactDuration() {
         return artifactDuration;
+    }
+
+    /**
+     * @return this artifact as a new item
+     */
+    public ItemArtifact asItem() {
+        return item;
+    }
+
+    public void item(ItemArtifact item) {
+        this.item = item;
     }
 
     /**
