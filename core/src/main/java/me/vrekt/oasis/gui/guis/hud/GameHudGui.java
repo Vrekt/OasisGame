@@ -11,7 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
-import com.kotcrab.vis.ui.widget.*;
+import com.kotcrab.vis.ui.widget.Tooltip;
+import com.kotcrab.vis.ui.widget.VisImage;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
@@ -23,6 +26,9 @@ import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,14 +68,18 @@ public final class GameHudGui extends Gui {
     private boolean hintVisibilityOverridden, hintPaused;
     private HotbarComponentSlot selectedSlot;
 
+    private final MathContext performanceMetricsContext;
+
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
 
         this.player = guiManager.getGame().getPlayer();
         this.isShowing = true;
 
+        performanceMetricsContext = new MathContext(2, RoundingMode.FLOOR);
+
         debugComponentText = new VisLabel();
-        debugComponentText.setStyle(guiManager.getStyle().getMediumWhite());
+        debugComponentText.setStyle(guiManager.getStyle().getSmallBlack());
 
         hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
 
@@ -92,7 +102,7 @@ public final class GameHudGui extends Gui {
         }
 
         // TODO: Fix this nasty shit
-        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+        for (IntMap.Entry<Item> entry : player.getInventory().items()) {
             if (entry.value == null) continue;
 
             if (player.getInventory().isHotbar(entry.key)
@@ -419,7 +429,9 @@ public final class GameHudGui extends Gui {
         builder.setLength(0);
         builder.append(FPS)
                 .append(Gdx.graphics.getFramesPerSecond())
-                .append(StringUtils.SPACE);
+                .append(StringUtils.LF)
+                .append(MSPT)
+                .append(BigDecimal.valueOf(player.getWorldState().getPerformanceCounter().time.average).round(performanceMetricsContext));
 
         if (GameManager.game().isMultiplayer()) {
             builder.append(PING)

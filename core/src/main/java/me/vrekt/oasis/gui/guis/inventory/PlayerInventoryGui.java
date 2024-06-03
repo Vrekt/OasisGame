@@ -192,7 +192,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
     @Override
     public void update() {
-        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+        for (IntMap.Entry<Item> entry : player.getInventory().items()) {
             final InventoryGuiSlot slot = guiSlots.get(entry.key);
             if (!entry.value.compare(slot.getLastItemKey())) {
                 slot.setOccupiedItem(entry.value);

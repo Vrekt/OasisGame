@@ -35,6 +35,22 @@ public abstract class EntitySpeakable extends GameEntity {
         entity.add(new EntityDialogComponent());
     }
 
+    /**
+     * @return dialogue
+     */
+    public Dialogue dialogue() {
+        return dialogue;
+    }
+
+    /**
+     * Only to be used for game saving
+     *
+     * @param entry entry
+     */
+    public void setActiveEntry(DialogueEntry entry) {
+        this.activeEntry = entry;
+    }
+
     public abstract TextureRegion getDialogFace();
 
     @Override

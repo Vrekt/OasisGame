@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.interior.wrynn;
 
 import com.badlogic.gdx.math.Rectangle;
+import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.questing.quests.QuestType;
@@ -19,6 +20,8 @@ public final class WrynnHouseInterior extends GameWorldInterior {
 
     public WrynnHouseInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
+
+        this.worldMap = Asset.WRYNN_OFFICE;
     }
 
     @Override

@@ -58,7 +58,6 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
-
     }
 
     private static void registerGlobalKeyActions() {
@@ -163,8 +162,8 @@ public class GameManager {
         return last == 0 || tick - last >= secondsToTicks(seconds);
     }
 
-    public static String getGameProgress() {
-        return gameProgress;
+    public static float getGameProgress() {
+        return 0.0f;
     }
 
     public static GuiManager getGuiManager() {

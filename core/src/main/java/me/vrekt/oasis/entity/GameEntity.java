@@ -20,6 +20,7 @@ import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.component.*;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
@@ -194,6 +195,15 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      */
     public void setSize(float width, float height, float scale) {
         getPropertiesComponent().setEntitySize(width, height, scale);
+    }
+
+    /**
+     * TODO: Cache instead of new object?
+     *
+     * @return size as vector
+     */
+    public Vector3 getSizeVector() {
+        return new Vector3(getPropertiesComponent().width, getPropertiesComponent().height, getPropertiesComponent().scaling);
     }
 
     /**
@@ -655,10 +665,18 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         return false;
     }
 
+    public boolean isEnemy() {
+        return false;
+    }
+
     /**
      * @return the interactable entity
      */
     public EntityInteractable asInteractable() {
+        return null;
+    }
+
+    public EntityEnemy asEnemy() {
         return null;
     }
 

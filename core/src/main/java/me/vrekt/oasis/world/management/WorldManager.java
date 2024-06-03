@@ -32,6 +32,10 @@ public final class WorldManager implements Disposable {
         return worldMap.containsKey(name);
     }
 
+    public Map<String, GameWorld> worlds() {
+        return worldMap;
+    }
+
     /**
      * Transfer the player to an interior
      *

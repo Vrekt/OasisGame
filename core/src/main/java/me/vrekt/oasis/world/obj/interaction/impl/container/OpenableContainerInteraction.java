@@ -18,6 +18,10 @@ public abstract class OpenableContainerInteraction extends AbstractInteractableW
         this.inventory = inventory;
     }
 
+    public ContainerInventory inventory() {
+        return inventory;
+    }
+
     @Override
     public void update() {
         super.update();

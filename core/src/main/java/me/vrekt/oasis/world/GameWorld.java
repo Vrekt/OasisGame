@@ -45,8 +45,6 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.save.loading.SaveStateLoader;
-import me.vrekt.oasis.save.world.WorldSaveProperties;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -75,20 +73,18 @@ import java.util.concurrent.TimeUnit;
 public abstract class GameWorld extends
         Box2dGameWorld implements
         WorldInputAdapter,
-        SaveStateLoader<WorldSaveProperties>,
         Screen {
 
     protected final OasisGame game;
     protected final PlayerSP player;
 
     protected TiledMap map;
-    protected String worldName;
+    protected String worldName, worldMap;
 
     protected final SpriteBatch batch;
     protected final MapRenderer renderer;
     protected final Vector3 cursorInWorld = new Vector3();
     protected boolean isWorldLoaded, isGameSave;
-
     protected boolean paused;
 
     protected GuiManager guiManager;
@@ -97,9 +93,7 @@ public abstract class GameWorld extends
     protected final IntMap<GameEntity> nearbyEntities = new IntMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
 
-    // systems
     protected final SystemManager systemManager;
-
     protected AreaEffectUpdateSystem effectUpdateSystem;
     protected AreaEffectCloudManager effectCloudManager;
 
@@ -111,9 +105,8 @@ public abstract class GameWorld extends
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
 
     protected final InteractionManager interactionManager;
-    // the current tick of this world.
+    // last tick update, 50ms = 1 tick
     protected long lastTick;
-    protected float lastProfilerPrint;
 
     protected final EntityDamageAnimator worldDamageAnimator;
     protected final PerformanceCounter performanceCounter;
@@ -141,6 +134,10 @@ public abstract class GameWorld extends
         return worldName;
     }
 
+    public String getWorldMap() {
+        return worldMap;
+    }
+
     public PlayerSP getLocalPlayer() {
         return player;
     }
@@ -157,8 +154,16 @@ public abstract class GameWorld extends
         return isWorldLoaded;
     }
 
+    public boolean isInterior() {
+        return false;
+    }
+
     public Vector3 getCursorInWorld() {
         return cursorInWorld;
+    }
+
+    public PerformanceCounter getPerformanceCounter() {
+        return performanceCounter;
     }
 
     /**
@@ -180,11 +185,6 @@ public abstract class GameWorld extends
      * Load network components if the world supports it.
      */
     protected void loadNetworkComponents() {
-
-    }
-
-    @Override
-    public void loadFromSave(WorldSaveProperties state) {
 
     }
 
@@ -642,6 +642,13 @@ public abstract class GameWorld extends
     }
 
     /**
+     * @return map of all interior worlds
+     */
+    public EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds() {
+        return interiorWorlds;
+    }
+
+    /**
      * Find and create the entity paths for their AI
      *
      * @param worldMap   map
@@ -718,12 +725,6 @@ public abstract class GameWorld extends
 
         performanceCounter.stop();
         performanceCounter.tick(delta);
-
-        if (GameManager.hasTimeElapsed(lastProfilerPrint, 3.0f)) {
-            lastProfilerPrint = GameManager.getTick();
-            GameLogging.info(performanceCounter.name, "time-max=%f, time-min=%f, time-avg=%f, load-avg is %f",
-                    performanceCounter.time.max, performanceCounter.time.min, performanceCounter.time.average, performanceCounter.load.average);
-        }
 
         // always last
         GameManager.getTaskManager().update();
@@ -911,6 +912,13 @@ public abstract class GameWorld extends
                 break;
             }
         }
+    }
+
+    /**
+     * @return all interactable objects
+     */
+    public Array<InteractableWorldObject> interactableWorldObjects() {
+        return interactableWorldObjects;
     }
 
     /**

@@ -11,7 +11,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.dialog.EntityDialogLoader;
+import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -64,7 +64,7 @@ public final class WrynnEntity extends EntityInteractable {
                 .add(animationComponent);
         builder.dispose();
 
-        dialogue = EntityDialogLoader.load("assets/dialog/wrynn_dialog.json");
+        dialogue = EntityDialogueLoader.load("assets/dialog/wrynn_dialog.json");
         dialogue.setOwner(this);
 
         activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();

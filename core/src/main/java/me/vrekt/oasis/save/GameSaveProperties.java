@@ -27,22 +27,22 @@ public class GameSaveProperties {
     public void setSlotProperty(int slot, GameSave save) {
         switch (slot) {
             case 1:
-                slot1 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
+                slot1 = new GameSaveSlotProperty(save.name(), save.progress(), save.date(), save.isMultiplayer(), slot);
                 break;
             case 2:
-                slot2 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
+                slot2 = new GameSaveSlotProperty(save.name(), save.progress(), save.date(), save.isMultiplayer(), slot);
                 break;
             case 3:
-                slot3 = new GameSaveSlotProperty(save.getName(), save.getProgress(), save.getDate(), save.isMultiplayer(), slot);
+                slot3 = new GameSaveSlotProperty(save.name(), save.progress(), save.date(), save.isMultiplayer(), slot);
                 break;
         }
     }
 
     public String getSlotName(int slot) {
         return switch (slot) {
-            case 1 -> slot1.getName();
-            case 2 -> slot2.getName();
-            case 3 -> slot3.getName();
+            case 1 -> slot1.name();
+            case 2 -> slot2.name();
+            case 3 -> slot3.name();
             default -> StringUtils.EMPTY;
         };
     }

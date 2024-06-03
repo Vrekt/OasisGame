@@ -58,6 +58,16 @@ public abstract class Item implements ResourceLoader {
     }
 
     /**
+     * Set name
+     * TODO: Renaming items
+     *
+     * @param name name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * @return description
      */
     public String description() {

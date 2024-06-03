@@ -111,7 +111,7 @@ public final class OasisMainMenu extends ScreenAdapter {
             stage.addActor(loadGameTable);
         });
 
-        // FIXME: Temporary multiplayer testing
+        // FIXME: Temporary testing
         assignClickAction(quitGameButton, () -> game.setScreen(new DialogCreator(game)));
     }
 
@@ -157,9 +157,9 @@ public final class OasisMainMenu extends ScreenAdapter {
     private void addSlotTableComponent(GameSaveSlotProperty properties, NinePatchDrawable theme, Label.LabelStyle style) {
         final VisTable root = new VisTable();
         final VisImage saveImage = new VisImage(game.getAsset().get("secondwind_artifact"));
-        final VisLabel saveName = new VisLabel(properties.getName(), style);
-        final VisLabel progress = new VisLabel(properties.getProgress(), style);
-        final VisLabel dateSaved = new VisLabel(properties.getDate(), style);
+        final VisLabel saveName = new VisLabel(properties.name(), style);
+        final VisLabel progress = new VisLabel(properties.progress() + "", style);
+        final VisLabel dateSaved = new VisLabel(properties.date(), style);
 
         root.setBackground(theme);
         root.add(saveImage);
@@ -178,7 +178,7 @@ public final class OasisMainMenu extends ScreenAdapter {
         root.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.loadSaveGame(properties.getSlot());
+                game.loadSaveGame(properties.slot());
             }
 
             @Override

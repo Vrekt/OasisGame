@@ -31,6 +31,13 @@ public final class Dialogue implements Disposable {
     }
 
     /**
+     * @return current index
+     */
+    public int index() {
+        return index;
+    }
+
+    /**
      * Get an entry within this dialogue.
      * This method should only be called from the entity.
      *

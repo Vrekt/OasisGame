@@ -56,6 +56,11 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     @Override
+    public boolean isInterior() {
+        return true;
+    }
+
+    @Override
     protected void loadNetworkComponents() {
 
     }

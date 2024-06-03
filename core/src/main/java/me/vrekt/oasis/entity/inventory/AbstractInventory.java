@@ -23,9 +23,31 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Put a saved item back into this inventory
+     *
+     * @param type   type
+     * @param name   name
+     * @param slot   slot
+     * @param amount amount
+     */
+    public void putSavedItem(Items type, String name, int slot, int amount) {
+        final Item item = ItemRegistry.createItem(type, amount);
+        item.setName(name);
+
+        items.put(slot, item);
+    }
+
+    /**
+     * @return type of
+     */
+    public InventoryType type() {
+        return type;
+    }
+
+    /**
      * @return items of this inventory
      */
-    public IntMap<Item> getItems() {
+    public IntMap<Item> items() {
         return items;
     }
 

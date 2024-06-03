@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Loads entity dialog from the provided JSON file
  */
-public final class EntityDialogLoader {
+public final class EntityDialogueLoader {
 
     private static final Gson GSON = new Gson();
 

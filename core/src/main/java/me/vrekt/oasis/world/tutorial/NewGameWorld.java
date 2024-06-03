@@ -22,6 +22,7 @@ public final class NewGameWorld extends GameWorld {
         super(game, player, new World(Vector2.Zero, true));
 
         this.worldName = "TutorialWorld";
+        this.worldMap = Asset.TUTORIAL_WORLD;
     }
 
     @Override

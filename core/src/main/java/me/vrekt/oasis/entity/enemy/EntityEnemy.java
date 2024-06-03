@@ -73,6 +73,16 @@ public abstract class EntityEnemy extends GameEntity {
     }
 
     @Override
+    public boolean isEnemy() {
+        return true;
+    }
+
+    @Override
+    public EntityEnemy asEnemy() {
+        return this;
+    }
+
+    @Override
     public void update(float delta) {
         bb.setPosition(body.getPosition());
         if (isProcessingImpulse) {

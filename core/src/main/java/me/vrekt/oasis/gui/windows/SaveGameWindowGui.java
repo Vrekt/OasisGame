@@ -195,9 +195,9 @@ public final class SaveGameWindowGui extends Gui {
             }
 
             hasData = true;
-            saveNameLabel.setText(properties.getName());
-            gameProgress.setText("Completion: " + properties.getProgress());
-            saveDate.setText("Date: " + properties.getDate());
+            saveNameLabel.setText(properties.name());
+            gameProgress.setText("Completion: " + properties.progress());
+            saveDate.setText("Date: " + properties.date());
 
             // add components afterward to ensure no weird big empty box.
             if (!tableUpdated) {

@@ -1,25 +1,26 @@
 package me.vrekt.oasis.save;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
+/**
+ * Data about a save slot
+ */
 public class GameSaveSlotProperty {
 
     @Expose
     private String name;
-
     @Expose
-    private String progress;
-
+    private float progress;
     @Expose
     private String date;
-
     @Expose
+    @SerializedName("multiplayer")
     private boolean isMultiplayer;
-
     @Expose
     private int slot;
 
-    public GameSaveSlotProperty(String name, String progress, String date, boolean isMultiplayer, int slot) {
+    public GameSaveSlotProperty(String name, float progress, String date, boolean isMultiplayer, int slot) {
         this.name = name;
         this.progress = progress;
         this.date = date;
@@ -27,19 +28,19 @@ public class GameSaveSlotProperty {
         this.slot = slot;
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    public String getProgress() {
+    public float progress() {
         return progress;
     }
 
-    public String getDate() {
+    public String date() {
         return date;
     }
 
-    public int getSlot() {
+    public int slot() {
         return slot;
     }
 }

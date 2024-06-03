@@ -16,7 +16,7 @@ import me.vrekt.oasis.network.netty.GameClientServer;
 import me.vrekt.oasis.network.player.DummyConnection;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
-import me.vrekt.oasis.save.Save;
+import me.vrekt.oasis.save.GameSave;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisSaveScreen;
@@ -36,7 +36,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240603-0409-3952";
+    public static final String GAME_VERSION = "20240603-1039-3990";
 
     private Asset asset;
 
@@ -122,7 +122,7 @@ public final class OasisGame extends Game {
      *
      * @param state the state
      */
-    public void loadGameFromSave(Save state) {
+    public void loadGameFromSave(GameSave state) {
         final OasisLoadingScreen loadingScreen = new OasisLoadingScreen(this, asset, true);
         setScreen(loadingScreen);
         loadGameStructure();
@@ -134,10 +134,10 @@ public final class OasisGame extends Game {
         }
 
         // FIXME  player.loadFromSave(state.getPlayerProperties());
-        final String worldName = state.getWorldProperties().getWorldName();
-        final GameWorld world = worldManager.getWorld(worldName);
-        loadingScreen.setWorldLoadingIn(world);
-        world.loadFromSave(state.getWorldProperties());
+      //  final String worldName = state.getWorldProperties().getWorldName();
+    //    final GameWorld world = worldManager.getWorld(worldName);
+     //   loadingScreen.setWorldLoadingIn(world);
+       // world.loadFromSave(state.getWorldProperties());
 
         // TODO: Depending on how things go, probably just use CompleteableFuture instead
         asyncLoadingService.shutdown();
@@ -185,7 +185,7 @@ public final class OasisGame extends Game {
      */
     private void loadGameSaveAsync(int slot) {
         asyncLoadingService.execute(() -> {
-            final Save state = SaveManager.load(slot);
+            final GameSave state = SaveManager.load(slot);
             if (state == null) {
                 throw new IllegalArgumentException("Slot " + slot + " does not exist.");
             } else {

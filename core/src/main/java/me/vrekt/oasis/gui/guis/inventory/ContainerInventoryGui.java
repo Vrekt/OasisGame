@@ -337,7 +337,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      * Populate the players inventory
      */
     private void populatePlayerInventoryItems() {
-        for (IntMap.Entry<Item> entry : player.getInventory().getItems()) {
+        for (IntMap.Entry<Item> entry : player.getInventory().items()) {
             final InventoryGuiSlot guiSlot = playerSlots.get(entry.key);
             guiSlot.setOccupiedItem(entry.value);
         }
@@ -358,7 +358,7 @@ public final class ContainerInventoryGui extends InventoryGui {
         playerSlots.forEach(slot -> slot.getTarget().setSourceInventory(activeContainerInventory));
         playerSlots.forEach(slot -> slot.getTarget().setTargetInventory(player.getInventory()));
 
-        for (IntMap.Entry<Item> entry : inventory.getItems()) {
+        for (IntMap.Entry<Item> entry : inventory.items()) {
             final InventoryGuiSlot guiSlot = containerSlots.get(entry.key);
             guiSlot.setOccupiedItem(entry.value);
         }

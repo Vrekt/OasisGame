@@ -3,8 +3,8 @@ package me.vrekt.oasis.save;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.save.inventory.InventorySaveProperties;
-import me.vrekt.oasis.save.world.WorldSaveProperties;
+import me.vrekt.oasis.save.world.inventory.InventorySave;
+import me.vrekt.oasis.save.world.inventory.InventorySaveTypeCodec;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.io.FileReader;
@@ -17,15 +17,11 @@ import java.nio.file.Paths;
 public class SaveManager {
 
     private static final Gson SAVE_GAME_GSON = new GsonBuilder()
-            .registerTypeAdapter(InventorySaveProperties.class, new InventorySaveProperties.InventoryPropertiesSerializer())
-            .registerTypeAdapter(WorldSaveProperties.class, new WorldSaveProperties.WorldSaver())
+            .registerTypeAdapter(InventorySave.class, new InventorySaveTypeCodec.InventoryPropertiesSerializer())
             .setPrettyPrinting()
             .create();
 
-    private static final Gson LOAD_GAME_GSON = new GsonBuilder()
-            .registerTypeAdapter(InventorySaveProperties.class, new InventorySaveProperties.InventoryPropertiesDeserializer())
-            .registerTypeAdapter(WorldSaveProperties.class, new WorldSaveProperties.WorldLoader())
-            .create();
+    private static final Gson LOAD_GAME_GSON = new GsonBuilder().create();
 
     private static GameSaveProperties properties;
 
@@ -50,7 +46,7 @@ public class SaveManager {
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
-                final Save save = new Save(name, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer(), slot);
+                final GameSave save = new GameSave(name, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer(), slot);
 
                 writeGameSaveProperties(slot, save);
                 SAVE_GAME_GSON.toJson(save, writer);
@@ -115,14 +111,14 @@ public class SaveManager {
      * @param slot the save slot to load
      * @return {@code  true} if successful, otherwise default new game state
      */
-    public static Save load(int slot) {
+    public static GameSave load(int slot) {
         readSaveGameProperties();
         Path path = Paths.get("saves/" + properties.getSlotName(slot) + ".json");
         if (Files.exists(path)) {
             final long now = System.currentTimeMillis();
             try {
                 try (FileReader reader = new FileReader(path.toFile())) {
-                    Save save = LOAD_GAME_GSON.fromJson(reader, Save.class);
+                    GameSave save = LOAD_GAME_GSON.fromJson(reader, GameSave.class);
                     GameLogging.info("SaveManager", "Finished loading game save took: %d ms", (System.currentTimeMillis() - now));
                     return save;
                 }
