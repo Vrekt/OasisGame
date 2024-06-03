@@ -6,6 +6,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
+import me.vrekt.oasis.utility.logging.GameLogging;
+
+import java.util.Optional;
 
 /**
  * Box2d base world
@@ -102,6 +105,10 @@ public abstract class Box2dGameWorld {
      */
     public NetworkPlayer getPlayer(int id) {
         return players.get(id);
+    }
+
+    public Optional<NetworkPlayer> player(int id) {
+        return Optional.ofNullable(getPlayer(id));
     }
 
     /**
@@ -207,7 +214,7 @@ public abstract class Box2dGameWorld {
      * @param angle    angle/rotation
      */
     public void updatePlayerPositionInWorld(int entityId, float x, float y, float angle) {
-        players().get(entityId).updatePositionFromNetwork(x, y, angle);
+        player(entityId).ifPresentOrElse(p -> p.updatePositionFromNetwork(x, y, angle), () -> GameLogging.warn(this, "No player (pos)! %d", entityId));
     }
 
     /**
@@ -219,7 +226,7 @@ public abstract class Box2dGameWorld {
      * @param angle    angle/rotation
      */
     public void updatePlayerVelocityInWorld(int entityId, float x, float y, float angle) {
-        players().get(entityId).updateVelocityFromNetwork(x, y, angle);
+        player(entityId).ifPresentOrElse(p -> p.updateVelocityFromNetwork(x, y, angle), () -> GameLogging.warn(this, "No player (vel)! %d", entityId));
     }
 
 }

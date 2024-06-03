@@ -1,29 +1,30 @@
 package me.vrekt.shared.packet.server.interior;
 
 import io.netty.buffer.ByteBuf;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.packet.GamePacket;
 
 /**
  * Server -> Client enter interior request
  */
-public final class S2CEnterInterior extends GamePacket {
+public final class S2CEnterInteriorWorld extends GamePacket {
 
     public static final int ID = 3000_3;
 
-    private String interiorName;
+    private InteriorWorldType interiorWorldType;
     private boolean isEnterable;
 
-    public S2CEnterInterior(ByteBuf buffer) {
+    public S2CEnterInteriorWorld(ByteBuf buffer) {
         super(buffer);
     }
 
-    public S2CEnterInterior(String interiorName, boolean isEnterable) {
-        this.interiorName = interiorName;
+    public S2CEnterInteriorWorld(InteriorWorldType type, boolean isEnterable) {
+        this.interiorWorldType = type;
         this.isEnterable = isEnterable;
     }
 
-    public String interiorName() {
-        return interiorName;
+    public InteriorWorldType interior() {
+        return interiorWorldType;
     }
 
     public boolean isEnterable() {
@@ -33,13 +34,13 @@ public final class S2CEnterInterior extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        writeString(interiorName);
+        buffer.writeInt(interiorWorldType.ordinal());
         buffer.writeBoolean(isEnterable);
     }
 
     @Override
     public void decode() {
-        interiorName = readString();
+        interiorWorldType = InteriorWorldType.values()[buffer.readInt()];
         isEnterable = buffer.readBoolean();
     }
 

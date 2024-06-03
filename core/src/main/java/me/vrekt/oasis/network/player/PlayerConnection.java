@@ -7,18 +7,24 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.network.NetworkUtility;
 import me.vrekt.shared.packet.client.C2SKeepAlive;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
 import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;
+import me.vrekt.shared.packet.client.animation.NetworkAnimation;
+import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
 import me.vrekt.shared.packet.client.item.C2SEquipItem;
 import me.vrekt.shared.packet.client.item.C2SResetEquippedItem;
+import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.server.*;
+import me.vrekt.shared.packet.server.player.S2CChatMessage;
 import me.vrekt.shared.protocol.GameProtocol;
 
 /**
  * Represents our local players connection
  */
-public final class PlayerConnection extends AbstractConnection {
+public class PlayerConnection extends AbstractConnection {
 
     private static final C2SKeepAlive KEEP_ALIVE = new C2SKeepAlive();
 
@@ -36,8 +42,36 @@ public final class PlayerConnection extends AbstractConnection {
         attach(S2CKeepAlive.PACKET_ID, packet -> sendImmediately(KEEP_ALIVE));
         attach(S2CPacketPing.PACKET_ID, packet -> updatePingMs((S2CPacketPing) packet));
         attach(S2CPacketAuthenticate.PACKET_ID, packet -> handleAuthenticationResult((S2CPacketAuthenticate) packet));
-        attach(S2CPacketJoinWorld.PACKET_ID, packet -> handleJoinWorld((S2CPacketJoinWorld) packet));
         attach(S2CPacketDisconnected.PACKET_ID, packet -> handleServerDisconnect((S2CPacketDisconnected) packet));
+        attach(S2CChatMessage.PACKET_ID, packet -> handleChatMessage((S2CChatMessage) packet));
+    }
+
+    public PlayerConnection() {
+        game = null;
+        player = null;
+    }
+
+    public void updateNetworkInteriorWorldEntered(GameWorldInterior interior) {
+        sendImmediately(new C2SEnterInteriorWorld(player.entityId(), interior.type()));
+    }
+
+    /**
+     * Send a chat message, should be validated
+     *
+     * @param text text
+     */
+    public void sendChatMessage(String text) {
+        sendImmediately(new C2SChatMessage(player.entityId(), text));
+    }
+
+    /**
+     * Update the server on the state of the player swinging animation
+     *
+     * @param animation     animation
+     * @param animationTime animation time
+     */
+    public void updateNetworkSwingAnimation(NetworkAnimation animation, float animationTime) {
+
     }
 
     /**
@@ -72,7 +106,7 @@ public final class PlayerConnection extends AbstractConnection {
      * @param packet packet
      */
     private void handleJoinWorld(S2CPacketJoinWorld packet) {
-        GameLogging.info(this, "Loading into network world " + packet.getWorldName());
+        GameLogging.info(this, "Loading into network world %s with ID %d", packet.getWorldName(), packet.getEntityId());
 
         player.setEntityId(packet.getEntityId());
         game.loadIntoNetworkWorld(packet.getWorldName());
@@ -89,6 +123,25 @@ public final class PlayerConnection extends AbstractConnection {
     }
 
     /**
+     * Handle chat messages
+     *
+     * @param packet packet
+     */
+    private void handleChatMessage(S2CChatMessage packet) {
+        if (!NetworkUtility.ensureWorldState(player, packet)) return;
+
+        if (packet.message() == null || packet.message().length() > 150) {
+            GameLogging.warn(this, "Received invalid message packet! n=, m=",
+                    packet.message() == null, packet.message() == null ? "0" : packet.message().length());
+            return;
+        }
+
+        player.getWorldState()
+                .player(packet.from())
+                .ifPresent(f -> game.guiManager.getChatComponent().addNetworkMessage(f.name(), packet.message()));
+    }
+
+    /**
      * Attempt to join a world.
      * unlike {@code joinWorld(world, username, time)} this method substitutes time for {@code System.currentTimeMillis}
      *
@@ -98,7 +151,7 @@ public final class PlayerConnection extends AbstractConnection {
     public void joinWorld(String world, String username) {
         final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(world, username, 0L);
         sendImmediatelyWithCallback(packet, 5000, true, this::joinWorldTimedOut, callback -> {
-            GameManager.game().loadIntoNetworkWorld(world);
+            handleJoinWorld((S2CPacketJoinWorld) callback);
         });
     }
 

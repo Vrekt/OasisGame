@@ -33,6 +33,7 @@ public final class NewGameWorld extends GameWorld {
     protected void loadNetworkComponents() {
         networkHandler.registerStartGameHandler();
         networkHandler.registerPlayerHandlers();
+        networkHandler.registerInteriorHandlers();
     }
 
     @Override
@@ -41,9 +42,9 @@ public final class NewGameWorld extends GameWorld {
 
         if (!isWorldLoaded) create(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
+        player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
         if (game.isNewGame()) {
 
-            player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
             // TODO: Better start hint
             //  guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
             game.setNewGame(false);

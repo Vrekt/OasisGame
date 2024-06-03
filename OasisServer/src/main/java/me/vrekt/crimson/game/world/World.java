@@ -5,11 +5,7 @@ import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.crimson.game.entity.ServerEntity;
 import me.vrekt.crimson.game.entity.ServerPlayerEntity;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.server.S2CPacketStartGame;
-import me.vrekt.shared.packet.server.player.S2CPacketCreatePlayer;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayerPosition;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayerVelocity;
-import me.vrekt.shared.packet.server.player.S2CPacketRemovePlayer;
+import me.vrekt.shared.packet.server.player.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -140,21 +136,21 @@ public abstract class World implements Disposable {
         player.setWorldIn(this);
         if (players.isEmpty()) {
             // no players, send empty start game
-            player.getConnection().sendImmediately(new S2CPacketStartGame(currentTime));
+            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld());
         } else {
-            final S2CPacketStartGame.BasicServerPlayer[] serverPlayers = new S2CPacketStartGame.BasicServerPlayer[players.size()];
+            final S2CNetworkPlayer[] serverPlayers = new S2CNetworkPlayer[players.size()];
             // first, notify other players a new player as joined
             broadcastNowWithExclusion(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), 0.0f, 0.0f));
 
             // next, construct start game packet
             int index = 0;
             for (ServerPlayerEntity other : players.values()) {
-                serverPlayers[index] = new S2CPacketStartGame.BasicServerPlayer(other.entityId(), other.name(), other.getPosition());
+                serverPlayers[index] = new S2CNetworkPlayer(other.entityId(), other.name(), other.getPosition());
                 index++;
             }
 
             // send!
-            player.getConnection().sendImmediately(new S2CPacketStartGame(currentTime, serverPlayers));
+            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld(serverPlayers));
         }
 
         // add this new player to the list
@@ -163,6 +159,11 @@ public abstract class World implements Disposable {
 
     public void spawnEntityInWorld(ServerEntity entity) {
         this.entities.put(entity.entityId(), entity);
+    }
+
+    public void removePlayerTemporarily(ServerPlayerEntity player) {
+        if (!hasPlayer(player.entityId())) return;
+        players.remove(player.entityId());
     }
 
     /**

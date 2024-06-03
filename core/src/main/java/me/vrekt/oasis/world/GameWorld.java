@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.GdxAI;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -22,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.PerformanceCounter;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
@@ -113,8 +113,10 @@ public abstract class GameWorld extends
     protected final InteractionManager interactionManager;
     // the current tick of this world.
     protected long lastTick;
+    protected float lastProfilerPrint;
 
     protected final EntityDamageAnimator worldDamageAnimator;
+    protected final PerformanceCounter performanceCounter;
 
     protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
@@ -132,6 +134,7 @@ public abstract class GameWorld extends
         this.projectileManager = new ProjectileManager();
         this.systemManager = new SystemManager();
         this.worldDamageAnimator = new EntityDamageAnimator();
+        this.performanceCounter = new PerformanceCounter("GameWorldPerformanceCounter");
     }
 
     public String getWorldName() {
@@ -252,6 +255,7 @@ public abstract class GameWorld extends
      * @param interior the interior
      */
     protected void enterInterior(GameWorldInterior interior) {
+        player.getConnection().updateNetworkInteriorWorldEntered(interior);
         GameManager.getWorldManager().transfer(player, this, interior);
     }
 
@@ -695,6 +699,7 @@ public abstract class GameWorld extends
             GameManager.tick++;
         }
 
+        performanceCounter.start();
         delta = update(delta);
 
         GdxAI.getTimepiece().update(delta);
@@ -710,6 +715,15 @@ public abstract class GameWorld extends
         player.interpolatePosition();
         player.update(delta);
         renderWorld(delta);
+
+        performanceCounter.stop();
+        performanceCounter.tick(delta);
+
+        if (GameManager.hasTimeElapsed(lastProfilerPrint, 3.0f)) {
+            lastProfilerPrint = GameManager.getTick();
+            GameLogging.info(performanceCounter.name, "time-max=%f, time-min=%f, time-avg=%f, load-avg is %f",
+                    performanceCounter.time.max, performanceCounter.time.min, performanceCounter.time.average, performanceCounter.load.average);
+        }
 
         // always last
         GameManager.getTaskManager().update();
@@ -836,22 +850,6 @@ public abstract class GameWorld extends
         }
 
         batch.end();
-
-        if (player.getEquippedItem() != null) {
-            final Rectangle bounds = player.getEquippedItem().getBounds();
-            debugRenderer.setProjectionMatrix(renderer.getCamera().combined);
-            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-            debugRenderer.setColor(Color.RED);
-            debugRenderer.rect(bounds.x, bounds.y, bounds.width, bounds.height);
-
-            for (GameEntity entity : entities.values()) {
-                if (entity.bb() != null) {
-                    debugRenderer.rect(entity.bb().x, entity.bb().y, entity.bb().width, entity.bb().height);
-                }
-            }
-
-            debugRenderer.end();
-        }
 
         game.guiManager.updateAndDrawStage();
     }

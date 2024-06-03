@@ -18,6 +18,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
+import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
 import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
@@ -51,6 +52,7 @@ public class GuiManager {
     private final EntityDialogGui dialogGui;
     private final ReadableSignGui signGui;
     private final ContainerInventoryGui containerGui;
+    private final GameChatGui chatGui;
 
     private Cursor cursorState;
     private boolean wasCursorChanged;
@@ -77,6 +79,7 @@ public class GuiManager {
         guis.put(GuiType.DIALOG, dialogGui = new EntityDialogGui(this));
         guis.put(GuiType.SIGN, signGui = new ReadableSignGui(this));
         guis.put(GuiType.CONTAINER, containerGui = new ContainerInventoryGui(this));
+        guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -135,6 +138,10 @@ public class GuiManager {
 
     public ContainerInventoryGui getContainerComponent() {
         return containerGui;
+    }
+
+    public GameChatGui getChatComponent() {
+        return chatGui;
     }
 
     /**

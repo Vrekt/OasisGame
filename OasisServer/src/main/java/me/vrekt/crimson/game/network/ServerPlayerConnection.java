@@ -9,9 +9,12 @@ import me.vrekt.crimson.game.entity.adapter.ServerPlayerEntityAdapter;
 import me.vrekt.crimson.game.world.World;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.*;
+import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
+import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.packet.server.*;
+import me.vrekt.shared.packet.server.player.S2CChatMessage;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
 /**
@@ -57,6 +60,8 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             case C2SPacketPlayerPosition.PACKET_ID -> handlePlayerPosition((C2SPacketPlayerPosition) packet);
             case C2SPacketPlayerVelocity.PACKET_ID -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet);
             case C2SKeepAlive.PACKET_ID -> handleKeepAlive((C2SKeepAlive) packet);
+            case C2SEnterInteriorWorld.ID -> handleEnterInterior((C2SEnterInteriorWorld) packet);
+            case C2SChatMessage.PACKET_ID -> handleChatMessage((C2SChatMessage) packet);
             default -> Crimson.warning("Unhandled packet ID! %d", packet.getId());
         }
     }
@@ -120,7 +125,6 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             return;
         }
 
-
         player = new ServerPlayerEntityAdapter(server, this);
         player.setName(packet.username());
         player.setWorldIn(world);
@@ -164,6 +168,35 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
     public void handlePlayerVelocity(C2SPacketPlayerVelocity packet) {
         if (hasJoined && player.isInWorld()) {
             player.world().handlePlayerVelocity(player, packet.x(), packet.y(), packet.rotation());
+        }
+    }
+
+    public void handleEnterInterior(C2SEnterInteriorWorld packet) {
+        Crimson.log("Player %d entered interior %s", packet.entityId(), packet.type());
+        // TODO: WRONG ENTITY ID FIX
+        if (hasJoined && player.isInWorld()) {
+            player.transfer(server.getWorldManager().getInteriorWorld(packet.type()));
+        }
+    }
+
+    /**
+     * Handle chat message
+     *
+     * @param packet packet
+     */
+    public void handleChatMessage(C2SChatMessage packet) {
+        if (packet.message() == null) {
+            Crimson.log("Chat message was null? from=%d", packet.from());
+            return;
+        }
+
+        if (packet.message().length() > 150) {
+            Crimson.log("Chat message packet is too long! l=%d", packet.message().length());
+            return;
+        }
+
+        if (hasJoined && player.isInWorld()) {
+            player.world().broadcastNowWithExclusion(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
         }
     }
 

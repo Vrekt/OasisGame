@@ -31,4 +31,5 @@ public final class C2SKeepAlive extends GamePacket {
     public void encode() {
         writeId();
     }
+
 }

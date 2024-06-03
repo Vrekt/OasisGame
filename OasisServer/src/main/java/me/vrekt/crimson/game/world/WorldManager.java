@@ -2,6 +2,8 @@ package me.vrekt.crimson.game.world;
 
 
 import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.crimson.game.world.interior.InteriorWorld;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ public final class WorldManager implements Disposable {
      * Map of all worlds
      */
     private final Map<String, World> worlds = new HashMap<>();
+    private final Map<InteriorWorldType, InteriorWorld> interiorWorlds = new HashMap<>();
 
     public WorldManager() {
 
@@ -32,6 +35,17 @@ public final class WorldManager implements Disposable {
     }
 
     /**
+     * Add a world
+     *
+     * @param type  the type
+     * @param world the world
+     */
+    public void addInteriorWorld(InteriorWorldType type, InteriorWorld world) {
+        this.interiorWorlds.put(type, world);
+    }
+
+
+    /**
      * Retrieve a world by its name
      *
      * @param name the name
@@ -39,6 +53,10 @@ public final class WorldManager implements Disposable {
      */
     public World getWorld(String name) {
         return worlds.get(name);
+    }
+
+    public InteriorWorld getInteriorWorld(InteriorWorldType type) {
+        return interiorWorlds.get(type);
     }
 
     public boolean worldExists(String name) {
@@ -52,6 +70,10 @@ public final class WorldManager implements Disposable {
         return worlds.values();
     }
 
+    public Collection<InteriorWorld> getInteriorWorlds() {
+        return interiorWorlds.values();
+    }
+
     /**
      * Update all worlds.
      */
@@ -59,12 +81,18 @@ public final class WorldManager implements Disposable {
         for (World world : worlds.values()) {
             world.tick();
         }
+
+        for (InteriorWorld world : interiorWorlds.values()) {
+            world.tick();
+        }
     }
 
     @Override
     public void dispose() {
         getWorlds().forEach(World::dispose);
+        getInteriorWorlds().forEach(World::dispose);
         worlds.clear();
+        interiorWorlds.clear();
     }
 
 }

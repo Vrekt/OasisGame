@@ -14,6 +14,7 @@ public enum GuiType {
     SAVE_GAME,
     DEBUG_MENU,
     HINT,
-    SIGN;
+    SIGN,
+    CHAT
 
 }

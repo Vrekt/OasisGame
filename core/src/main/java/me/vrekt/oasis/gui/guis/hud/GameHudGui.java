@@ -51,6 +51,8 @@ public final class GameHudGui extends Gui {
 
     private final VisTable hintComponent;
     private final VisTable attributeComponent;
+    private final VisTable artifactComponent;
+    private final VisTable hotbarComponent;
 
     private float lastHintTime, currentHintDuration;
 
@@ -71,13 +73,10 @@ public final class GameHudGui extends Gui {
 
         hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
 
-        rootTable.setVisible(true);
-        rootTable.setFillParent(true);
-
         initializeDebugComponent();
-        initializeArtifactComponent();
+        artifactComponent = initializeArtifactComponent();
         hintComponent = initializeHintComponent();
-        initializeHotbarComponent();
+        hotbarComponent = initializeHotbarComponent();
         attributeComponent = initializeAttributeComponents();
 
         builder = new StringBuilder();
@@ -251,7 +250,7 @@ public final class GameHudGui extends Gui {
     /**
      * Initialize artifact ui component
      */
-    private void initializeArtifactComponent() {
+    private VisTable initializeArtifactComponent() {
         final VisTable artifactComponentTable = new VisTable();
         artifactComponentTable.setVisible(true);
         artifactComponentTable.bottom().left().padLeft(8).padBottom(24);
@@ -263,6 +262,7 @@ public final class GameHudGui extends Gui {
 
         guiManager.addGui(artifactComponentTable);
         components.add(artifactComponentTable);
+        return artifactComponentTable;
     }
 
 
@@ -316,7 +316,7 @@ public final class GameHudGui extends Gui {
     /**
      * Initialize hotbar components
      */
-    private void initializeHotbarComponent() {
+    private VisTable initializeHotbarComponent() {
         final VisTable table = new VisTable();
         table.bottom().padBottom(8);
 
@@ -347,6 +347,8 @@ public final class GameHudGui extends Gui {
 
         guiManager.addGui(table);
         components.add(table);
+
+        return table;
     }
 
     /**
@@ -433,10 +435,19 @@ public final class GameHudGui extends Gui {
         debugComponentText.setText(builder.toString());
     }
 
+    public void hideComponentsForChat() {
+        hotbarComponent.setVisible(false);
+        artifactComponent.setVisible(false);
+    }
+
+    public void showComponentsAfterChat() {
+        hotbarComponent.setVisible(true);
+        artifactComponent.setVisible(true);
+    }
+
     @Override
     public void show() {
         super.show();
-        rootTable.setVisible(true);
         components.forEach(table -> {
             if (table != hintComponent) table.setVisible(true);
         });
@@ -445,7 +456,6 @@ public final class GameHudGui extends Gui {
     @Override
     public void hide() {
         super.hide();
-        rootTable.setVisible(false);
         components.forEach(table -> {
             if (table == hintComponent) {
                 // override hint visibility if this GUI

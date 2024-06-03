@@ -24,5 +24,6 @@ public final class OasisKeybindings {
     public static int SLOT_5 = Input.Keys.NUM_5;
     public static int SLOT_6 = Input.Keys.NUM_6;
 
+    public static int CHAT = Input.Keys.T;
 
 }

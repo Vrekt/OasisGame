@@ -1,6 +1,8 @@
 package me.vrekt.oasis.entity.player.mp;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
@@ -9,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Network player base
@@ -25,6 +28,22 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
     protected boolean snapToPositionIfDesync;
     // Default distance that player will interpolate to if they are too far away from server position.
     protected float interpolateDesyncDistance = 3.0f;
+
+    protected boolean enteringInterior;
+    protected float fadingAnimationEnteringAlpha = 1.0f;
+
+    public AbstractNetworkPlayer(GameWorld world) {
+        this.worldIn = world;
+    }
+
+    public void transferIntoInterior() {
+        enteringInterior = true;
+    }
+
+    @Override
+    public GameWorld getWorldState() {
+        return worldIn;
+    }
 
     /**
      * Enable or disable interpolating of a network players position
@@ -137,7 +156,22 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
     }
 
     protected void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
+        if (enteringInterior) {
+            batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
+            fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
+            if (fadingAnimationEnteringAlpha <= 0.0f) {
+                // remove the player after they have faded out
+                // do not destroy this player, we still need them
+                getWorldState().removePlayerInWorld(entityId(), false);
+            }
+        }
+
         batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, width, height);
+
+        if (enteringInterior) {
+            if (fadingAnimationEnteringAlpha <= 0.0f) enteringInterior = false;
+            batch.setColor(Color.WHITE);
+        }
     }
 
 }

@@ -14,6 +14,7 @@ import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.utility.EmptyDrawable;
 
 /**
  * Various UI styles and configurations
@@ -23,6 +24,7 @@ public class Styles {
     private final NinePatchDrawable theme, themePadded;
     private final Tooltip.TooltipStyle tooltipStyle;
     private final VisTextField.VisTextFieldStyle fieldStyle;
+    private final VisTextField.VisTextFieldStyle transparentFieldStyle;
 
     private final Label.LabelStyle smallWhite, mediumWhite, largeWhite,
             smallBlack, mediumBlack, largeBlack, smallerWhite;
@@ -45,7 +47,10 @@ public class Styles {
         tooltipStyle = new Tooltip.TooltipStyle(theme);
 
         defaultCursorTexture = new Texture(Gdx.files.internal(Cursor.DEFAULT.getFile()));
+
         fieldStyle = new VisTextField.VisTextFieldStyle(asset.getMedium(), Color.WHITE, new TextureRegionDrawable(defaultCursorTexture), theme, theme);
+        transparentFieldStyle = new VisTextField.VisTextFieldStyle(fieldStyle);
+        transparentFieldStyle.background = new EmptyDrawable();
 
         final VisCheckBox.VisCheckBoxStyle providedCheckBoxStyle = VisUI.getSkin().get(VisCheckBox.VisCheckBoxStyle.class);
         checkBoxStyle = new VisCheckBox.VisCheckBoxStyle(providedCheckBoxStyle);
@@ -114,6 +119,10 @@ public class Styles {
 
     public VisTextField.VisTextFieldStyle getFieldStyle() {
         return fieldStyle;
+    }
+
+    public VisTextField.VisTextFieldStyle getTransparentFieldStyle() {
+        return transparentFieldStyle;
     }
 
     public VisCheckBox.VisCheckBoxStyle getCheckBoxStyle() {

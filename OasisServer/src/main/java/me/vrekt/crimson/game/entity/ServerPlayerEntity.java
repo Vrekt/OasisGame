@@ -2,7 +2,9 @@ package me.vrekt.crimson.game.entity;
 
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.network.ServerPlayerConnection;
+import me.vrekt.crimson.game.world.interior.InteriorWorld;
 import me.vrekt.shared.packet.server.S2CPacketDisconnected;
+import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 
 /**
  * Base implementation of a player entity within the server
@@ -15,6 +17,13 @@ public abstract class ServerPlayerEntity extends ServerEntity {
     public ServerPlayerEntity(CrimsonGameServer server, ServerPlayerConnection connection) {
         super(server);
         this.connection = connection;
+    }
+
+    public void transfer(InteriorWorld to) {
+        world.removePlayerTemporarily(this);
+        world.broadcastNowWithExclusion(entityId, new S2CPlayerEnteredInterior(entityId));
+
+        to.spawnPlayerInWorld(this);
     }
 
     public boolean loaded() {

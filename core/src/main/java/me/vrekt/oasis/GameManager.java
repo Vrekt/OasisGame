@@ -43,7 +43,12 @@ public class GameManager {
     }
 
     private static void registerGlobalKeyAction(int key, GuiType gui) {
-        KEY_ACTIONS.put(key, () -> GameManager.guiManager.toggleGui(gui));
+        KEY_ACTIONS.put(key, () -> {
+            if (!guiManager.isGuiVisible(GuiType.CHAT)) {
+                // do not open this GUI if the chat is open
+                GameManager.guiManager.toggleGui(gui);
+            }
+        });
     }
 
     private static void registerHotBarKeys() {
@@ -53,6 +58,7 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
+
     }
 
     private static void registerGlobalKeyActions() {
@@ -61,6 +67,10 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
             getPlayer().getWorldState().findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
             getPlayer().getWorldState().removeSimpleObject("oasis:basement_gate");
+        });
+        KEY_ACTIONS.put(OasisKeybindings.CHAT, () -> {
+            /*if(game().isMultiplayer())*/
+            guiManager.showGui(GuiType.CHAT);
         });
         registerHotBarKeys();
 
@@ -90,6 +100,7 @@ public class GameManager {
                 world.pause();
                 return true;
             }
+
             // next, check escape key press for exiting GUIs and child GUIs
             if (!guiManager.hideOrShowParentGuis()) {
                 GameLogging.warn("GameManagerKeyPress", "Unhandled escape key press, what were you doing?");

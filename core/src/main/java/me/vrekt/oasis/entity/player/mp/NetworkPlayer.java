@@ -11,6 +11,7 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.utility.ResourceLoader;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents any player over the network
@@ -29,10 +30,13 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     private EntityRotation lastRotation = EntityRotation.UP;
     private EntityRotation entityRotation = EntityRotation.UP;
 
-    public NetworkPlayer() {
+    public NetworkPlayer(GameWorld world) {
+        super(world);
+
         setInterpolatePosition(true);
-        setSnapToPositionIfDesynced(true);
+        setSnapToPositionIfDesynced(false);
         setDesyncDistanceToInterpolate(2.5f);
+
         disableCollision();
         dynamicSize = false;
     }

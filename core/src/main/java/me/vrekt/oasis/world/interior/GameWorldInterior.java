@@ -51,9 +51,13 @@ public abstract class GameWorldInterior extends GameWorld {
         parentWorld.getGame().getMultiplexer().addProcessor(this);
     }
 
+    public InteriorWorldType type() {
+        return type;
+    }
+
     @Override
     protected void loadNetworkComponents() {
-        networkHandler.registerInteriorHandlers();
+
     }
 
     /**
@@ -134,6 +138,8 @@ public abstract class GameWorldInterior extends GameWorld {
         game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
         isWorldLoaded = true;
+
+
     }
 
     /**

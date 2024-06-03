@@ -2,7 +2,9 @@ package me.vrekt.crimson;
 
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.world.WorldAdapter;
+import me.vrekt.crimson.game.world.interior.InteriorWorldAdapter;
 import me.vrekt.crimson.netty.NettyServer;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.protocol.GameProtocol;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
@@ -48,6 +50,7 @@ public final class Crimson {
         log("Netty server successfully started!");
 
         gameServer.getWorldManager().addWorld("TutorialWorld", new WorldAdapter("TutorialWorld"));
+        gameServer.getWorldManager().addInteriorWorld(InteriorWorldType.WRYNN_HOUSE, new InteriorWorldAdapter());
         gameServer.start();
 
         final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));
@@ -55,7 +58,8 @@ public final class Crimson {
 
         // keep alive
         // TODO: Fix this shit
-        while (true) {}
+        while (true) {
+        }
     }
 
     public static void log(String information, Object... arguments) {

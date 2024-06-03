@@ -61,6 +61,10 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
         this.player = player;
     }
 
+    public AbstractConnection() {
+        channel = null;
+    }
+
     /**
      * Indicates this connection is still alive
      */

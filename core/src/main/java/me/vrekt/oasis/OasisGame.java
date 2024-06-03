@@ -13,6 +13,7 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.netty.GameClientServer;
+import me.vrekt.oasis.network.player.DummyConnection;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.Save;
@@ -35,7 +36,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240602-0855-3829";
+    public static final String GAME_VERSION = "20240603-0409-3952";
 
     private Asset asset;
 
@@ -149,6 +150,8 @@ public final class OasisGame extends Game {
         final OasisLoadingScreen loadingScreen = new OasisLoadingScreen(this, asset, true);
         setScreen(loadingScreen);
         loadGameStructure();
+
+        player.connection(new DummyConnection());
 
         final GameWorld world = worldManager.getWorld("TutorialWorld");
         loadingScreen.setWorldLoadingIn(world);
@@ -401,7 +404,7 @@ public final class OasisGame extends Game {
             if (screen != null) screen.hide();
             logoTexture.dispose();
             player.getConnection().dispose();
-            clientServer.dispose();
+            if (isLocalMultiplayer || isMultiplayer) clientServer.dispose();
             // if (isLocalMultiplayer) server.dispose();
             asyncLoadingService.shutdownNow();
             player.dispose();

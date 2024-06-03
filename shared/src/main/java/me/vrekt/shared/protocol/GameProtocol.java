@@ -3,15 +3,15 @@ package me.vrekt.shared.protocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import me.vrekt.shared.packet.client.*;
+import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
+import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.packet.server.*;
 import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.codec.S2CPacketHandler;
-import me.vrekt.shared.packet.server.player.S2CPacketCreatePlayer;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayerPosition;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayerVelocity;
-import me.vrekt.shared.packet.server.player.S2CPacketRemovePlayer;
+import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
+import me.vrekt.shared.packet.server.player.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,9 +88,11 @@ public final class GameProtocol {
         server.put(S2CPacketPlayerVelocity.PACKET_ID, (buf, handler) -> S2CPacketPlayerVelocity.handle(handler, buf));
         server.put(S2CPacketRemovePlayer.PACKET_ID, (buf, handler) -> S2CPacketRemovePlayer.handle(handler, buf));
         server.put(S2CPacketSetEntityProperties.PACKET_ID, (buf, handler) -> S2CPacketSetEntityProperties.handle(handler, buf));
-        server.put(S2CPacketStartGame.PACKET_ID, (buf, handler) -> S2CPacketStartGame.handle(handler, buf));
+        server.put(S2CPacketPlayersInWorld.PACKET_ID, (buf, handler) -> S2CPacketPlayersInWorld.handle(handler, buf));
         server.put(S2CPacketWorldInvalid.PACKET_ID, (buf, handler) -> S2CPacketWorldInvalid.handle(handler, buf));
         server.put(S2CKeepAlive.PACKET_ID, (buf, handler) -> S2CKeepAlive.handle(handler, buf));
+        server.put(S2CPlayerEnteredInterior.ID, (buf, handler) -> S2CPlayerEnteredInterior.handle(handler, buf));
+        server.put(S2CChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new S2CChatMessage(buf)));
     }
 
     private void initializeClientHandlers() {
@@ -102,6 +104,8 @@ public final class GameProtocol {
         client.put(C2SPacketPlayerVelocity.PACKET_ID, (buf, handler) -> C2SPacketPlayerVelocity.handle(handler, buf));
         client.put(C2SPacketWorldLoaded.PACKET_ID, (buf, handler) -> C2SPacketWorldLoaded.handle(handler, buf));
         client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> C2SKeepAlive.handle(handler, buf));
+        client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> C2SEnterInteriorWorld.handle(handler, buf));
+        client.put(C2SChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new C2SChatMessage(buf)));
     }
 
     /**
