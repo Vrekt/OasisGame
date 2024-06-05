@@ -7,7 +7,7 @@ import me.vrekt.oasis.entity.npc.EntityNPCType;
 /**
  * Data about an interactable entity
  */
-public final class InteractableEntitySave extends GameEntitySave {
+public final class InteractableEntitySave extends AbstractEntitySaveState {
 
     @Expose
     private EntityNPCType type;
@@ -27,16 +27,26 @@ public final class InteractableEntitySave extends GameEntitySave {
     }
 
     public InteractableEntitySave() {
+
     }
 
+    /**
+     * @return type of
+     */
     public EntityNPCType type() {
         return type;
     }
 
+    /**
+     * @return the active dialogue stage index
+     */
     public int dialogueStageIndex() {
         return dialogueStageIndex;
     }
 
+    /**
+     * @return the active dialogue stage key
+     */
     public String dialogueStage() {
         return dialogueEntryKey;
     }

@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.save.inventory.InventorySave;
-import me.vrekt.oasis.save.inventory.InventorySaveTypeCodec;
-import me.vrekt.oasis.save.world.WorldSave;
-import me.vrekt.oasis.save.world.entity.GameEntitySave;
-import me.vrekt.oasis.save.world.obj.WorldObjectSave;
+import me.vrekt.oasis.save.inventory.adapter.InventoryAdapter;
+import me.vrekt.oasis.save.world.AbstractWorldSaveState;
+import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
+import me.vrekt.oasis.save.world.entity.adapter.GameEntityAdapter;
+import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
+import me.vrekt.oasis.save.world.obj.adapters.WorldObjectAdapter;
+import me.vrekt.oasis.save.world.obj.adapters.WorldSaveAdapter;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.io.FileReader;
@@ -20,15 +23,15 @@ import java.nio.file.Paths;
 public class SaveManager {
 
     private static final Gson SAVE_GAME_GSON = new GsonBuilder()
-            .registerTypeAdapter(InventorySave.class, new InventorySaveTypeCodec.InventoryPropertiesSerializer())
+            .registerTypeAdapter(InventorySave.class, new InventoryAdapter.InventoryPropertiesSerializer())
             .setPrettyPrinting()
             .create();
 
     private static final Gson LOAD_GAME_GSON = new GsonBuilder().
-            registerTypeAdapter(InventorySave.class, new InventorySaveTypeCodec.InventoryPropertiesDeserializer())
-            .registerTypeAdapter(WorldSave.class, new WorldSave.WorldSaveAdapter())
-            .registerTypeAdapter(GameEntitySave.class, new GameEntitySave.GameEntitySaveAdapter())
-            .registerTypeAdapter(WorldObjectSave.class, new WorldObjectSave.WorldObjectSaveAdapter())
+            registerTypeAdapter(InventorySave.class, new InventoryAdapter.InventoryPropertiesDeserializer())
+            .registerTypeAdapter(AbstractWorldSaveState.class, new WorldSaveAdapter())
+            .registerTypeAdapter(AbstractEntitySaveState.class, new GameEntityAdapter())
+            .registerTypeAdapter(AbstractWorldObjectSaveState.class, new WorldObjectAdapter())
             .create();
 
     private static GameSaveProperties properties;

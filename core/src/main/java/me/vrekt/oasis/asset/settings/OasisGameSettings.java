@@ -19,7 +19,7 @@ public final class OasisGameSettings {
      *
      * @param save save state
      */
-    public static void fromSave(GameSettingsSave save) {
+    public static void loadSaveSettings(GameSettingsSave save) {
         ENTITY_UPDATE_DISTANCE = save.entityUpdateDistance();
         SHOW_FPS = save.showFps();
         ENABLE_MP_LAN = save.multiplayerLan();

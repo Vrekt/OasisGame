@@ -2,14 +2,14 @@ package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.save.Savable;
-import me.vrekt.oasis.save.world.InteriorSave;
-import me.vrekt.oasis.save.world.WorldSave;
+import me.vrekt.oasis.save.world.InteriorWorldSave;
+import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
-import me.vrekt.oasis.save.world.entity.GameEntitySave;
+import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
-import me.vrekt.oasis.save.world.obj.ContainerWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.WorldObjectSave;
+import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Handles loading a world
  */
-public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
+public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, Disposable {
 
     private GameWorld world;
 
@@ -29,18 +29,17 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
     }
 
     @Override
-    public void load(WorldSave worldSave) {
+    public void load(AbstractWorldSaveState worldSave) {
         loadWorldEntities(worldSave);
         loadContainersAndObjects(worldSave);
 
-        if (worldSave instanceof InteriorSave save) {
+        if (worldSave instanceof InteriorWorldSave save) {
             final GameWorldInterior interior = (GameWorldInterior) world;
-            GameLogging.info(world.worldName, "Loading interior WorldSave %s", worldSave.name());
 
             interior.setEnterable(save.enterable());
             world.getGame().getWorldManager().setParentWorldPosition(save.enteredPosition());
         } else {
-            for (InteriorSave interior : worldSave.interiors()) {
+            for (InteriorWorldSave interior : worldSave.interiors()) {
                 loadInterior(interior);
             }
         }
@@ -51,14 +50,14 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
      *
      * @param worldSave save
      */
-    private void loadWorldEntities(WorldSave worldSave) {
+    private void loadWorldEntities(AbstractWorldSaveState worldSave) {
         if (worldSave.entities() == null) return;
 
         var interactable = 0;
         var enemy = 0;
 
         // TODO: EntityId, maybe only if multiplayer
-        for (GameEntitySave entitySave : worldSave.entities()) {
+        for (AbstractEntitySaveState entitySave : worldSave.entities()) {
             if (StringUtils.equals(entitySave.is(), "interactable")) {
                 final InteractableEntitySave ies = (InteractableEntitySave) entitySave;
                 world.getEntityByType(ies.type()).load(ies);
@@ -79,17 +78,13 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
      *
      * @param save save
      */
-    private void loadContainersAndObjects(WorldSave save) {
-        GameLogging.info(this, "HELLO22132 %s", world.worldName);
+    private void loadContainersAndObjects(AbstractWorldSaveState save) {
         if (save.objects() == null) return;
 
         var interactable = 0;
         var normal = 0;
 
-        GameLogging.info(this, "HELLO 1 %s", world.worldName);
-
-        for (WorldObjectSave object : save.objects()) {
-            GameLogging.info(this, "object: %s in world %s is %b", object.key(), world.worldName, object.destroyed());
+        for (AbstractWorldObjectSaveState object : save.objects()) {
             if (object.interactable()) {
                 loadInteractableObject((InteractableWorldObjectSave) object);
                 interactable++;
@@ -106,9 +101,8 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
      *
      * @param save save
      */
-    private void loadNormalWorldObject(WorldObjectSave save) {
+    private void loadNormalWorldObject(AbstractWorldObjectSaveState save) {
         if (save.destroyed()) {
-            GameLogging.info(world.worldName, "Destroyed object %s", save.key());
             world.removeDestroyedSaveObject(save.key());
         }
     }
@@ -138,16 +132,18 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
             if (interaction != null) {
                 interaction.inventory().transferFrom(save.inventory().inventory());
                 if (save.enabled()) interaction.enable();
-
-                GameLogging.info(world.worldName, "Loaded container: %s", save.key());
             } else {
                 GameLogging.warn(world.worldName, "Failed to find a container: %s", save.key());
             }
         }
     }
 
-    private void loadInterior(InteriorSave save) {
-        System.err.println(world.worldName + ":" + save.interiorType());
+    /**
+     * Load an interior
+     *
+     * @param save save world interior
+     */
+    private void loadInterior(InteriorWorldSave save) {
         final GameWorldInterior interior = world.findInteriorByType(save.interiorType());
         interior.loadWorld(true);
         interior.loader().load(save);

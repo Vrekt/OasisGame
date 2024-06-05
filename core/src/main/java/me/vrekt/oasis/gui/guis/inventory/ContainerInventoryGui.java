@@ -76,17 +76,11 @@ public final class ContainerInventoryGui extends InventoryGui {
             dragAndDrop.addTarget(target);
         }
 
-        final VisImageTextButton moveAllButton = new VisImageTextButton("Move All", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton moveOneButton = new VisImageTextButton("Move One", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton moveXButton = new VisImageTextButton("...", guiManager.getStyle().getImageTextButtonStyle());
-
-        handleMoveAllButton(moveAllButton);
-        handleMoveOneButton(moveOneButton);
+        final VisImageTextButton takeAllButton = new VisImageTextButton("Take All", guiManager.getStyle().getImageTextButtonStyle());
+        handleMoveAllButton(takeAllButton);
 
         final VisTable buttonTable = new VisTable();
-        buttonTable.add(moveAllButton).width(120);
-        buttonTable.add(moveOneButton).padLeft(4f).width(120);
-        buttonTable.add(moveXButton).padLeft(4f).width(120);
+        buttonTable.add(takeAllButton).width(120);
 
         rootTable.add(topTable);
         rootTable.row();
@@ -98,24 +92,6 @@ public final class ContainerInventoryGui extends InventoryGui {
     }
 
     /**
-     * Handle the clicking of the move one button
-     *
-     * @param button the button
-     */
-    private void handleMoveOneButton(VisImageTextButton button) {
-        button.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (isOnContainer && selectedContainerSlot != null) {
-                    doTransferSingle(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
-                } else if (!isOnContainer && selectedPlayerSlot != null) {
-                    doTransferSingle(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
-                }
-            }
-        });
-    }
-
-    /**
      * Handle clicking of the move all button
      *
      * @param button the button
@@ -124,10 +100,8 @@ public final class ContainerInventoryGui extends InventoryGui {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (isOnContainer && selectedContainerSlot != null) {
-                    doTransferAll(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
-                } else if (!isOnContainer && selectedPlayerSlot != null) {
-                    doTransferAll(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
+                if (isOnContainer) {
+                    transferAllItems(activeContainerInventory, player.getInventory());
                 }
             }
         });
@@ -141,7 +115,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      * @param slot        the slot to transfer
      * @param isContainer if the from inventory is a container
      */
-    private void doTransferAll(AbstractInventory from, AbstractInventory to, int slot, boolean isContainer) {
+    private void transferAllFromSlot(AbstractInventory from, AbstractInventory to, int slot, boolean isContainer) {
         final int newSlot = from.transferAll(slot, to);
         if (isContainer) {
             updateContainerSlotTransfer(slot, newSlot);
@@ -151,33 +125,19 @@ public final class ContainerInventoryGui extends InventoryGui {
     }
 
     /**
-     * Do a single item transfer
+     * Transfer all items
      *
-     * @param from        the from inventory
-     * @param to          the to inventory
-     * @param slot        the slot to transfer
-     * @param isContainer if the from inventory is a container
+     * @param from from
+     * @param to   to
      */
-    private void doTransferSingle(AbstractInventory from, AbstractInventory to, int slot, boolean isContainer) {
-        final int newSlot = from.transferAmount(slot, 1, to);
-        if (isContainer) {
-            updateSingleContainerSlotTransfer(slot, newSlot);
-        } else {
-            updateSinglePlayerSlotTransfer(slot, newSlot);
+    private void transferAllItems(AbstractInventory from, AbstractInventory to) {
+        for (IntMap.Entry<Item> entry : from.items()) {
+            final Item item = entry.value;
+            final int add = to.add(item);
+            updateContainerSlotTransfer(entry.key, add);
         }
-    }
 
-    /**
-     * Update a single player item transfer
-     *
-     * @param playerSlot       the player slot transferred from
-     * @param newContainerSlot the container slot transferred to
-     */
-    private void updateSinglePlayerSlotTransfer(int playerSlot, int newContainerSlot) {
-        containerSlots.get(newContainerSlot).updateTransfer(activeContainerInventory, newContainerSlot);
-        final boolean result = playerSlots.get(playerSlot).updateTransfer(player.getInventory(), playerSlot);
-        // item was fully transferred
-        if (result) selectedPlayerSlot = null;
+        from.clear();
     }
 
     /**
@@ -192,19 +152,6 @@ public final class ContainerInventoryGui extends InventoryGui {
         // item is fully removed, just reset slot.
         playerSlots.get(playerSlot).resetSlot();
         containerSlots.get(newContainerSlot).updateTransfer(activeContainerInventory, newContainerSlot);
-    }
-
-    /**
-     * Update a single container slot transfer
-     *
-     * @param containerSlot the container slot transferred from
-     * @param newPlayerSlot the player slot transferred to
-     */
-    private void updateSingleContainerSlotTransfer(int containerSlot, int newPlayerSlot) {
-        final boolean result = containerSlots.get(containerSlot).updateTransfer(activeContainerInventory, containerSlot);
-        // item was fully transferred
-        if (result) selectedContainerSlot = null;
-        playerSlots.get(newPlayerSlot).updateTransfer(player.getInventory(), newPlayerSlot);
     }
 
     /**
@@ -270,7 +217,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             selectedContainerSlot = slot.isEmpty() ? null : slot;
             if (selectedContainerSlot != null && isShiftPressed) {
                 // transfer instantly since the player shift clicked this slot
-                doTransferAll(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
+                transferAllFromSlot(activeContainerInventory, player.getInventory(), selectedContainerSlot.getSlotNumber(), true);
                 selectedContainerSlot = null;
             }
             selectedPlayerSlot = null;
@@ -279,7 +226,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             selectedPlayerSlot = slot.isEmpty() ? null : slot;
             if (selectedPlayerSlot != null && isShiftPressed) {
                 // transfer instantly since the player shift clicked this slot
-                doTransferAll(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
+                transferAllFromSlot(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
                 selectedContainerSlot = null;
             }
             selectedContainerSlot = null;
@@ -368,6 +315,7 @@ public final class ContainerInventoryGui extends InventoryGui {
     @Override
     public void show() {
         super.show();
+        isOnContainer = true;
         populatePlayerInventoryItems();
         rootTable.setVisible(true);
     }

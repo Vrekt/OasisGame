@@ -33,7 +33,7 @@ public final class OasisKeybindings {
      *
      * @param save save state
      */
-    public static void fromSave(GameSettingsSave save) {
+    public static void loadSaveSettings(GameSettingsSave save) {
         QUEST_KEY = save.questKey();
         INVENTORY_KEY = save.inventoryKey();
         SKIP_DIALOG_KEY = save.skipDialogKey();

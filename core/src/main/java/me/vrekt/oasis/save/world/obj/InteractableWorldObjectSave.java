@@ -8,7 +8,7 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 /**
  * Interactable world object save data
  */
-public class InteractableWorldObjectSave extends WorldObjectSave {
+public class InteractableWorldObjectSave extends AbstractWorldObjectSaveState {
 
     @Expose
     private boolean enabled;
@@ -24,15 +24,22 @@ public class InteractableWorldObjectSave extends WorldObjectSave {
         this.interactable = true;
     }
 
+    public InteractableWorldObjectSave() {
+
+    }
+
+    /**
+     * @return if the interaction is enabled
+     */
     public boolean enabled() {
         return enabled;
     }
 
+    /**
+     * @return type
+     */
     public WorldInteractionType type() {
         return type;
     }
 
-    public InteractableWorldObjectSave() {
-
-    }
 }

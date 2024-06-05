@@ -32,14 +32,23 @@ public final class QuestSave {
         }
     }
 
+    /**
+     * @return type
+     */
     public QuestType type() {
         return type;
     }
 
+    /**
+     * @return all objectives
+     */
     public LinkedList<QuestObjectiveSave> objectives() {
         return objectives;
     }
 
+    /**
+     * @return the active objective/stage index.
+     */
     public int objectiveIndex() {
         return objectiveIndex;
     }

@@ -7,7 +7,7 @@ import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 /**
  * Enemy save data
  */
-public final class EnemyEntitySave extends GameEntitySave {
+public final class EnemyEntitySave extends AbstractEntitySaveState {
 
     @Expose
     private EntityEnemyType type;
@@ -18,9 +18,9 @@ public final class EnemyEntitySave extends GameEntitySave {
         this.type = entity.type();
     }
 
-    public EnemyEntitySave() {
-    }
-
+    /**
+     * @return type of
+     */
     public EntityEnemyType type() {
         return type;
     }

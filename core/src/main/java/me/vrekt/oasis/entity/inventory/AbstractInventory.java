@@ -81,6 +81,13 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Clear this inventory
+     */
+    public void clear() {
+        items.clear();
+    }
+
+    /**
      * Find an empty slot.
      *
      * @return the slot number

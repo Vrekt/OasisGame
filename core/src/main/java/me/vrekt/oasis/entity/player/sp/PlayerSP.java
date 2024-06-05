@@ -117,9 +117,9 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         this.setPosition(playerSave.position(), true);
         this.getInventory().transferFrom(playerSave.inventory().inventory());
 
-        loadArtifacts(playerSave.artifactInventory().artifacts());
-        loadQuests(playerSave.quests().activeQuests());
-        loadEffects(playerSave.activeEffects());
+        loadArtifacts(playerSave.artifacts());
+        loadQuests(playerSave.quests());
+        loadEffects(playerSave.effects());
     }
 
     /**

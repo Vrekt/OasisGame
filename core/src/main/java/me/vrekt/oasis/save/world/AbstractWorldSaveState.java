@@ -1,15 +1,14 @@
 package me.vrekt.oasis.save.world;
 
-import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
-import me.vrekt.oasis.save.world.entity.GameEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
-import me.vrekt.oasis.save.world.obj.ContainerWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.WorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.WorldObject;
@@ -17,14 +16,13 @@ import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The data of a generic world or interior
  */
-public abstract class WorldSave {
+public abstract class AbstractWorldSaveState {
 
     @Expose
     protected String map;
@@ -33,19 +31,35 @@ public abstract class WorldSave {
     @Expose
     protected boolean interior;
     @Expose
-    List<GameEntitySave> entities = new ArrayList<>();
+    List<AbstractEntitySaveState> entities = new ArrayList<>();
     @Expose
-    List<InteriorSave> interiors;
+    List<InteriorWorldSave> interiors;
     @Expose
-    List<WorldObjectSave> objects;
+    List<AbstractWorldObjectSaveState> objects;
 
-    public WorldSave() {
+    // the interior to exclude when writing this save
+    private transient final String excludeInteriorName;
+
+    public AbstractWorldSaveState() {
+        this.excludeInteriorName = null;
     }
 
-    public WorldSave(GameWorld world) {
+    public AbstractWorldSaveState(GameWorld world, String excludeInteriorName) {
         this.map = world.getWorldMap();
         this.name = world.getWorldName();
         this.interior = world.isInterior();
+        this.excludeInteriorName = excludeInteriorName;
+
+        writeEntities(world);
+        writeInteriors(world);
+        writeObjects(world);
+    }
+
+    public AbstractWorldSaveState(GameWorld world) {
+        this.map = world.getWorldMap();
+        this.name = world.getWorldName();
+        this.interior = world.isInterior();
+        this.excludeInteriorName = null;
 
         writeEntities(world);
         writeInteriors(world);
@@ -79,8 +93,8 @@ public abstract class WorldSave {
         // TODO: Ideally, save it to a file before unloading
         // TODO: So then it can be reloaded from disk
         for (GameWorldInterior interior : world.interiorWorlds().values()) {
-            if (interior.isWorldLoaded()) {
-                interiors.add(new InteriorSave(interior));
+            if (interior.isWorldLoaded() && !excludeInteriorName.equals(interior.getWorldName())) {
+                interiors.add(new InteriorWorldSave(interior));
             }
         }
     }
@@ -98,7 +112,7 @@ public abstract class WorldSave {
         }
 
         for (WorldObject object : world.worldObjects()) {
-            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(world, object);
+            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(object);
             objects.add(save);
         }
 
@@ -113,40 +127,39 @@ public abstract class WorldSave {
         }
     }
 
+    /**
+     * @return name
+     */
     public String name() {
         return name;
     }
 
-    public List<GameEntitySave> entities() {
+    /**
+     * @return entities
+     */
+    public List<AbstractEntitySaveState> entities() {
         return entities;
     }
 
-    public List<InteriorSave> interiors() {
+    /**
+     * @return interiors
+     */
+    public List<InteriorWorldSave> interiors() {
         return interiors;
     }
 
-    public List<WorldObjectSave> objects() {
+    /**
+     * @return objects
+     */
+    public List<AbstractWorldObjectSaveState> objects() {
         return objects;
     }
 
+    /**
+     * @return if this world is an interior
+     */
     public boolean interior() {
         return interior;
-    }
-
-    /**
-     * Handle deserializing world saves
-     */
-    public static final class WorldSaveAdapter implements JsonDeserializer<WorldSave> {
-        @Override
-        public WorldSave deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject src = json.getAsJsonObject();
-            final boolean interior = src.get("interior").getAsBoolean();
-            if (interior) {
-                return context.deserialize(json, InteriorSave.class);
-            } else {
-                return context.deserialize(json, DefaultWorldSave.class);
-            }
-        }
     }
 
 }

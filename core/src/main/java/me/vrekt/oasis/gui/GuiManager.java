@@ -194,8 +194,16 @@ public final class GuiManager implements Disposable {
         if (texture.getTextureData().disposePixmap()) {
             map.dispose();
         }
+
         this.cursorState = Cursor.DEFAULT;
         wasCursorChanged = false;
+    }
+
+    /**
+     * @return active cursor
+     */
+    public Cursor cursor() {
+        return cursorState;
     }
 
     public void updateAndDrawStage() {

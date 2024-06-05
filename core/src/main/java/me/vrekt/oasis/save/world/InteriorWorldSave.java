@@ -7,9 +7,9 @@ import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
- * Save data of an interior world
+ * Represents the data of an interior world.
  */
-public final class InteriorSave extends WorldSave {
+public final class InteriorWorldSave extends AbstractWorldSaveState {
 
     @Expose
     @SerializedName("type")
@@ -22,10 +22,11 @@ public final class InteriorSave extends WorldSave {
     @SerializedName("entered_position")
     private Vector2 enteredPosition;
 
-    public InteriorSave() {
+    public InteriorWorldSave() {
+
     }
 
-    public InteriorSave(GameWorldInterior world) {
+    public InteriorWorldSave(GameWorldInterior world) {
         this.map = world.getWorldMap();
         this.name = world.getWorldName();
         this.interiorType = world.type();
@@ -37,14 +38,23 @@ public final class InteriorSave extends WorldSave {
         writeObjects(world);
     }
 
+    /**
+     * @return type of
+     */
     public InteriorWorldType interiorType() {
         return interiorType;
     }
 
+    /**
+     * @return if this interior is enterable.
+     */
     public boolean enterable() {
         return enterable;
     }
 
+    /**
+     * @return the position of the parent world where the player entered.
+     */
     public Vector2 enteredPosition() {
         return enteredPosition;
     }

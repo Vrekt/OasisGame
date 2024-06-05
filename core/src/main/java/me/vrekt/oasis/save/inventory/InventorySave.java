@@ -5,9 +5,9 @@ import me.vrekt.oasis.entity.inventory.AbstractInventory;
 /**
  * An inventory save, player or container.
  */
-public class InventorySave {
+public final class InventorySave {
 
-    transient AbstractInventory inventory;
+    private transient AbstractInventory inventory;
 
     public InventorySave(AbstractInventory inventory) {
         this.inventory = inventory;
@@ -16,7 +16,19 @@ public class InventorySave {
     public InventorySave() {
     }
 
+    /**
+     * @return the inventory.
+     */
     public AbstractInventory inventory() {
         return inventory;
+    }
+
+    /**
+     * Set de-serialized
+     *
+     * @param inventory inventory
+     */
+    public void setInventory(AbstractInventory inventory) {
+        this.inventory = inventory;
     }
 }

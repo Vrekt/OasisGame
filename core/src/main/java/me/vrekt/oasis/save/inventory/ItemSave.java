@@ -6,20 +6,21 @@ import me.vrekt.oasis.item.Items;
 
 /**
  * Singular item
+ * TODO: isStackable?
  */
 public final class ItemSave {
 
     @Expose
-    int slot;
+    private int slot;
 
     @Expose
-    String name;
+    private String name;
 
     @Expose
-    Items type;
+    private Items type;
 
     @Expose
-    int amount;
+    private int amount;
 
     public ItemSave(int slot, Item item) {
         this.slot = slot;
@@ -28,4 +29,33 @@ public final class ItemSave {
         this.amount = item.amount();
     }
 
+    /**
+     * @return slot
+     */
+    public int slot() {
+        return slot;
+    }
+
+    /**
+     * NOTE: Not currently required or used.
+     *
+     * @return name
+     */
+    public String name() {
+        return name;
+    }
+
+    /**
+     * @return type
+     */
+    public Items type() {
+        return type;
+    }
+
+    /**
+     * @return amount
+     */
+    public int amount() {
+        return amount;
+    }
 }

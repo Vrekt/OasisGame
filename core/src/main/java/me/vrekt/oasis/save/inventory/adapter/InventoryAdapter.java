@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.inventory;
+package me.vrekt.oasis.save.inventory.adapter;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.google.gson.*;
@@ -7,13 +7,15 @@ import me.vrekt.oasis.entity.inventory.InventoryType;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.save.inventory.InventorySave;
+import me.vrekt.oasis.save.inventory.ItemSave;
 
 import java.lang.reflect.Type;
 
 /**
- * Adapters for {@link InventorySave}
+ * Handles deserializing inventories and items
  */
-public final class InventorySaveTypeCodec {
+public final class InventoryAdapter {
 
     /**
      * Adapt this inventory to JSON
@@ -24,10 +26,10 @@ public final class InventorySaveTypeCodec {
             final JsonObject base = new JsonObject();
             final JsonArray items = new JsonArray();
 
-            base.addProperty("type", src.inventory.type().name());
-            base.addProperty("size", src.inventory.getSize());
+            base.addProperty("type", src.inventory().type().name());
+            base.addProperty("size", src.inventory().getSize());
 
-            for (IntMap.Entry<Item> entry : src.inventory.items()) {
+            for (IntMap.Entry<Item> entry : src.inventory().items()) {
                 items.add(context.serialize(new ItemSave(entry.key, entry.value)));
             }
 
@@ -37,7 +39,7 @@ public final class InventorySaveTypeCodec {
     }
 
     /**
-     * Load a player inventory from a save game
+     * Deserialize an inventory
      */
     public static final class InventoryPropertiesDeserializer implements JsonDeserializer<InventorySave> {
         @Override
@@ -49,12 +51,12 @@ public final class InventorySaveTypeCodec {
             final int size = src.get("size").getAsInt();
 
             final AbstractInventory inventory = (type == InventoryType.PLAYER) ? new PlayerInventory() : new ContainerInventory(size);
-            save.inventory = inventory;
+            save.setInventory(inventory);
 
             final JsonArray contents = src.getAsJsonArray("contents");
             for (JsonElement element : contents) {
                 final ItemSave item = context.deserialize(element, ItemSave.class);
-                inventory.putSavedItem(item.type, item.name, item.slot, item.amount);
+                inventory.putSavedItem(item.type(), item.name(), item.slot(), item.amount());
             }
 
             return save;

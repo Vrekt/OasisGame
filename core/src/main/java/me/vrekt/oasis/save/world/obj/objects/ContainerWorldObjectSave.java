@@ -1,9 +1,10 @@
-package me.vrekt.oasis.save.world.obj;
+package me.vrekt.oasis.save.world.obj.objects;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.save.inventory.InventorySave;
+import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 
@@ -26,6 +27,9 @@ public final class ContainerWorldObjectSave extends InteractableWorldObjectSave 
 
     }
 
+    /**
+     * @return the inventory of this container
+     */
     public InventorySave inventory() {
         return inventory;
     }

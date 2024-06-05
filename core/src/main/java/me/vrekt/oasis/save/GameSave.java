@@ -86,10 +86,16 @@ public final class GameSave {
         return slot;
     }
 
+    /**
+     * @return settings
+     */
     public GameSettingsSave settings() {
         return settings;
     }
 
+    /**
+     * @return all player data
+     */
     public PlayerSave player() {
         return player;
     }

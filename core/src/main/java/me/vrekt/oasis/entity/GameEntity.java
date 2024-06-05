@@ -25,6 +25,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.input.EntityMouseHandler;
 import me.vrekt.oasis.world.GameWorld;
@@ -542,6 +543,11 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
             } else if (mouseOver) {
                 mouseOver = false;
                 mouseHandler.handle(this, true);
+
+                // TODO: Partially fixes EM-67 (again)
+                // TODO: Just update cursor stuff every frame or something
+                // TODO: Instead of mouse move
+                if (GameManager.getGuiManager().cursor() == Cursor.DIALOG) GameManager.getGuiManager().resetCursor();
             }
         }
     }

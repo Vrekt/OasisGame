@@ -20,8 +20,8 @@ import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.GameSave;
 import me.vrekt.oasis.save.SaveManager;
-import me.vrekt.oasis.save.player.WorldStatesSave;
 import me.vrekt.oasis.save.player.PlayerSave;
+import me.vrekt.oasis.save.world.PlayerWorldSave;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisMainMenu;
 import me.vrekt.oasis.ui.OasisSplashScreen;
@@ -41,7 +41,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240605-0631-4299";
+    public static final String GAME_VERSION = "20240605-1029-4338";
 
     private Asset asset;
 
@@ -139,8 +139,8 @@ public final class OasisGame extends Game {
             startIntegratedServer();
         }
 
-        OasisGameSettings.fromSave(state.settings());
-        OasisKeybindings.fromSave(state.settings());
+        OasisGameSettings.loadSaveSettings(state.settings());
+        OasisKeybindings.loadSaveSettings(state.settings());
 
         player.load(state.player());
         loadWorldState(state.player());
@@ -152,31 +152,31 @@ public final class OasisGame extends Game {
      * @param save save
      */
     private void loadWorldState(PlayerSave save) {
-        final WorldStatesSave state = save.worldState();
+        final PlayerWorldSave worldSave = save.worldSave();
+        final GameWorld world = worldManager.getWorld(worldSave.inInterior() ? worldSave.parentWorld() : worldSave.worldIn());
 
-        // load the parent world or the main world, so interior state/objects can be created
-        final GameWorld world = worldManager.getWorld(state.inInterior() ? state.parentWorld() : state.worldIn());
+        // loads all the tiled map properties, not save data
         world.loadWorld(true);
 
-        if (state.inInterior()) {
-            world.loader().load(save.worldState().worlds().get(state.parentWorld()));
-        } else {
-            world.loader().load(save.worldState().world());
-        }
+        if (worldSave.inInterior()) {
+            // load the parent world save data
+            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()));
 
-        // find the world the player was in and load that
-        if (state.inInterior()) {
-            final GameWorldInterior interior = world.interiorWorlds().get(state.interiorType());
+            final GameWorldInterior interior = world.interiorWorlds().get(worldSave.interiorType());
+            // loads the interior tiled map properties
             interior.loadWorld(true);
-
-            interior.loader().load(save.worldState().world());
+            // loads the save data
+            interior.loader().load(save.worldSave().world());
             interior.enter();
 
-            // we finished loading this world from a save
+            // done loading save data, resume normal operation
             interior.setGameSave(false);
         } else {
+            // loads the world normally
+            world.loader().load(worldSave.world());
             world.enter();
-            // set no more save state
+
+            // done loading save data, resume normal operation
             world.setGameSave(false);
         }
     }

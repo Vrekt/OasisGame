@@ -1128,11 +1128,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public boolean mouseMoved(int screenX, int screenY) {
         // do not update cursor state if any GUI is visible besides the HUD
         if (guiManager.isAnyGuiVisible(GuiType.HUD)) return false;
+
         // TODO: Not desirable, added to fix EM-57
         // TODO: Movement was not disabled during save because it was pausing the interior
         // TODO: world and technically not this one since that had input enabled to the multiplexer.
-        interiorWorlds.values().forEach(w -> w.mouseMoved(screenX, screenY));
 
+        interiorWorlds.values().forEach(w -> w.mouseMoved(screenX, screenY));
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
         return true;
