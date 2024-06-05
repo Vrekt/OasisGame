@@ -398,6 +398,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             // So we only show that afterwards.
             if (speakable.advance()) {
                 game.getGuiManager().hideGui(GuiType.DIALOG);
+                game.guiManager.resetCursor();
                 return;
             }
 

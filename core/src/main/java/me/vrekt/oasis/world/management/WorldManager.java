@@ -69,7 +69,7 @@ public final class WorldManager implements Disposable {
      */
     public void transfer(PlayerSP player, GameWorldInterior from, GameWorld parent) {
         player.removeFromInteriorWorld();
-        manageInteriorMemoryState(from);
+        // FIXME:  manageInteriorMemoryState(from);
 
         player.createBoxBody(parent.boxWorld());
         player.setPosition(parentWorldPosition, true);

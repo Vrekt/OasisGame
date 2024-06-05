@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.GdxAI;
@@ -95,6 +96,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected AreaEffectUpdateSystem effectUpdateSystem;
     protected AreaEffectCloudManager effectCloudManager;
 
+    // destroyed world objects used for saving
+    protected final Bag<String> destroyedWorldObjects = new Bag<>();
+
     // objects within this world
     protected final Map<String, WorldObject> worldObjects = new HashMap<>();
     protected final Array<InteractableWorldObject> interactableWorldObjects = new Array<>();
@@ -112,6 +116,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
+
+    // indicates this world should be saved
+    protected boolean hasVisited;
 
     public GameWorld(OasisGame game, PlayerSP player, World world) {
         super(world, new PooledEngine());
@@ -175,6 +182,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public WorldSaveLoader loader() {
         if (saveLoader == null) this.saveLoader = new WorldSaveLoader(this);
         return saveLoader;
+    }
+
+    public boolean hasVisited() {
+        return hasVisited;
     }
 
     /**
@@ -283,6 +294,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (!isWorldLoaded) {
             throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
         }
+
+        this.hasVisited = true;
 
         guiManager.resetCursor();
         game.setScreen(this);
@@ -555,10 +568,33 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
         if (object == null) return;
 
+        destroyedWorldObjects.add(key);
+
         object.destroyCollision();
         object.dispose();
 
         worldObjects.remove(key);
+    }
+
+    /**
+     * Remove an object that was saved as destroyed
+     *
+     * @param key key
+     */
+    protected void removeDestroyedSaveObject(String key) {
+        final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
+        if (object == null) return;
+
+        object.destroyCollision();
+        object.dispose();
+        worldObjects.remove(key);
+    }
+
+    /**
+     * @return all destroyed objects
+     */
+    public Bag<String> destroyedWorldObjects() {
+        return destroyedWorldObjects;
     }
 
     /**

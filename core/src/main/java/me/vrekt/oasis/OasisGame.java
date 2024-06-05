@@ -20,7 +20,7 @@ import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.GameSave;
 import me.vrekt.oasis.save.SaveManager;
-import me.vrekt.oasis.save.player.ActiveWorldStateSave;
+import me.vrekt.oasis.save.player.WorldStatesSave;
 import me.vrekt.oasis.save.player.PlayerSave;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisMainMenu;
@@ -41,7 +41,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240605-0352-4249";
+    public static final String GAME_VERSION = "20240605-0631-4299";
 
     private Asset asset;
 
@@ -152,11 +152,17 @@ public final class OasisGame extends Game {
      * @param save save
      */
     private void loadWorldState(PlayerSave save) {
-        final ActiveWorldStateSave state = save.worldState();
+        final WorldStatesSave state = save.worldState();
 
         // load the parent world or the main world, so interior state/objects can be created
         final GameWorld world = worldManager.getWorld(state.inInterior() ? state.parentWorld() : state.worldIn());
         world.loadWorld(true);
+
+        if (state.inInterior()) {
+            world.loader().load(save.worldState().worlds().get(state.parentWorld()));
+        } else {
+            world.loader().load(save.worldState().world());
+        }
 
         // find the world the player was in and load that
         if (state.inInterior()) {
@@ -169,9 +175,7 @@ public final class OasisGame extends Game {
             // we finished loading this world from a save
             interior.setGameSave(false);
         } else {
-            world.loader().load(save.worldState().world());
             world.enter();
-
             // set no more save state
             world.setGameSave(false);
         }

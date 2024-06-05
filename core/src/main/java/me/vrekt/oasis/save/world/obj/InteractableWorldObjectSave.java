@@ -1,6 +1,7 @@
 package me.vrekt.oasis.save.world.obj;
 
 import com.google.gson.annotations.Expose;
+import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
@@ -15,10 +16,11 @@ public class InteractableWorldObjectSave extends WorldObjectSave {
     @Expose
     private WorldInteractionType type;
 
-    public InteractableWorldObjectSave(InteractableWorldObject object) {
+    public InteractableWorldObjectSave(GameWorld world, InteractableWorldObject object) {
         this.key = object.getKey();
         this.enabled = object.isEnabled();
         this.type = object.getType();
+        this.destroyed = world.destroyedWorldObjects().contains(key);
         this.interactable = true;
     }
 
@@ -31,5 +33,6 @@ public class InteractableWorldObjectSave extends WorldObjectSave {
     }
 
     public InteractableWorldObjectSave() {
+
     }
 }

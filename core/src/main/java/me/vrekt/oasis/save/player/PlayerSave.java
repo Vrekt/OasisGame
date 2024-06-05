@@ -3,6 +3,7 @@ package me.vrekt.oasis.save.player;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.save.inventory.InventorySave;
 
@@ -24,7 +25,7 @@ public final class PlayerSave {
 
     @Expose
     @SerializedName("world_state")
-    ActiveWorldStateSave worldState;
+    WorldStatesSave worldState;
 
     @Expose
     @SerializedName("artifact_inventory")
@@ -37,13 +38,13 @@ public final class PlayerSave {
     @SerializedName("active_effects")
     private LinkedList<EffectSave> activeEffects;
 
-    public PlayerSave(PlayerSP player) {
+    public PlayerSave(OasisGame game, PlayerSP player) {
         this.name = player.name();
         this.position = player.getPosition();
         this.inventory = new InventorySave(player.getInventory());
         this.artifactInventory = new PlayerArtifactSave(player);
         this.quests = new PlayerQuestSave(player);
-        this.worldState = new ActiveWorldStateSave(player);
+        this.worldState = new WorldStatesSave(game, player);
 
         if (player.activeEffect() != null) {
             activeEffects = new LinkedList<>();
@@ -59,7 +60,7 @@ public final class PlayerSave {
         return position;
     }
 
-    public ActiveWorldStateSave worldState() {
+    public WorldStatesSave worldState() {
         return worldState;
     }
 

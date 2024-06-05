@@ -510,13 +510,10 @@ public final class GameHudGui extends Gui {
             slot.setColor(Color.WHITE);
         }
 
-        /**
-         * Notes: could need scale size in the future.
-         *
-         * @param item item
-         */
         public void setItemInSlot(Item item) {
             itemIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
+            itemIcon.setScale(item.scale());
+
             this.item = item;
         }
 

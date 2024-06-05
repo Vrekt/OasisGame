@@ -76,7 +76,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
                 .moving(EntityRotation.DOWN, 0.25f, "roach_walking_down", 2)
                 .hurting("roach_walking_down_hit", 2)
                 .add(animationComponent)
-                .moving(EntityRotation.UP, 0.25f, "roach_walking_left", 2)
+                .moving(EntityRotation.UP, 0.25f, "roach_walking_up", 2)
                 .hurting("roach_walking_up_hit", 2)
                 .add(animationComponent);
 

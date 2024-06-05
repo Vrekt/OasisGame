@@ -355,7 +355,7 @@ public final class EntityDialogGui extends Gui {
                 } else if (sim <= tolerance && suggestionsShowing.contains(suggestion)) {
                     clearTextContainerSuggestion(suggestion);
                     suggestionsShowing.remove(suggestion);
-                    suggestionsBeingShown--;
+                    suggestionsBeingShown = suggestionsBeingShown <= 0 ? 0 : suggestionsBeingShown - 1;
                 }
             }
         }

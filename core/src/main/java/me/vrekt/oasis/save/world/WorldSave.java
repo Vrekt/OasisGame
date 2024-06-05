@@ -93,20 +93,28 @@ public abstract class WorldSave {
     protected void writeObjects(GameWorld world) {
         this.objects = new ArrayList<>();
 
+        for (int i = 0; i < world.destroyedWorldObjects().size(); i++) {
+            objects.add(new DefaultWorldObjectSave(world.destroyedWorldObjects().get(i)));
+        }
+
         for (WorldObject object : world.worldObjects()) {
-            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(object);
+            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(world, object);
             objects.add(save);
         }
 
         for (InteractableWorldObject object : world.interactableWorldObjects()) {
             if (object.getType() == WorldInteractionType.CONTAINER) {
-                final ContainerWorldObjectSave container = new ContainerWorldObjectSave(object, ((OpenableContainerInteraction) object).inventory());
+                final ContainerWorldObjectSave container = new ContainerWorldObjectSave(world, object, ((OpenableContainerInteraction) object).inventory());
                 objects.add(container);
             } else {
-                final InteractableWorldObjectSave save = new InteractableWorldObjectSave(object);
+                final InteractableWorldObjectSave save = new InteractableWorldObjectSave(world, object);
                 objects.add(save);
             }
         }
+    }
+
+    public String name() {
+        return name;
     }
 
     public List<GameEntitySave> entities() {
@@ -119,6 +127,10 @@ public abstract class WorldSave {
 
     public List<WorldObjectSave> objects() {
         return objects;
+    }
+
+    public boolean interior() {
+        return interior;
     }
 
     /**

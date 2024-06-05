@@ -140,10 +140,12 @@ public abstract class GameWorldInterior extends GameWorld {
             throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
         }
 
+        game.getGuiManager().resetCursor();
         game.getMultiplexer().addProcessor(this);
         game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
 
+        hasVisited = true;
         isExiting = false;
         isWorldActive = true;
         isWorldLoaded = true;

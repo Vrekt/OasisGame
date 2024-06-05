@@ -35,12 +35,15 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
 
         if (worldSave instanceof InteriorSave save) {
             final GameWorldInterior interior = (GameWorldInterior) world;
-            GameLogging.info(this, "Loading interior WorldSave");
+            GameLogging.info(world.worldName, "Loading interior WorldSave %s", worldSave.name());
 
             interior.setEnterable(save.enterable());
             world.getGame().getWorldManager().setParentWorldPosition(save.enteredPosition());
+        } else {
+            for (InteriorSave interior : worldSave.interiors()) {
+                loadInterior(interior);
+            }
         }
-
     }
 
     /**
@@ -68,7 +71,7 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
                 enemy++;
             }
         }
-        GameLogging.info(this, "Loaded %d interactable entities and %d enemies", interactable, enemy);
+        GameLogging.info(world.worldName, "Loaded %d interactable entities and %d enemies", interactable, enemy);
     }
 
     /**
@@ -77,11 +80,16 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
      * @param save save
      */
     private void loadContainersAndObjects(WorldSave save) {
+        GameLogging.info(this, "HELLO22132 %s", world.worldName);
         if (save.objects() == null) return;
 
         var interactable = 0;
         var normal = 0;
+
+        GameLogging.info(this, "HELLO 1 %s", world.worldName);
+
         for (WorldObjectSave object : save.objects()) {
+            GameLogging.info(this, "object: %s in world %s is %b", object.key(), world.worldName, object.destroyed());
             if (object.interactable()) {
                 loadInteractableObject((InteractableWorldObjectSave) object);
                 interactable++;
@@ -90,7 +98,7 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
                 normal++;
             }
         }
-        GameLogging.info(this, "Loaded %d interactable objects and %d normal objects", interactable, normal);
+        GameLogging.info(world.worldName, "Loaded %d interactable objects and %d normal objects", interactable, normal);
     }
 
     /**
@@ -99,7 +107,10 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
      * @param save save
      */
     private void loadNormalWorldObject(WorldObjectSave save) {
-        // TODO: Unused currently.
+        if (save.destroyed()) {
+            GameLogging.info(world.worldName, "Destroyed object %s", save.key());
+            world.removeDestroyedSaveObject(save.key());
+        }
     }
 
     /**
@@ -128,11 +139,18 @@ public final class WorldSaveLoader implements Savable<WorldSave>, Disposable {
                 interaction.inventory().transferFrom(save.inventory().inventory());
                 if (save.enabled()) interaction.enable();
 
-                GameLogging.info(this, "Loaded container: %s", save.key());
+                GameLogging.info(world.worldName, "Loaded container: %s", save.key());
             } else {
-                GameLogging.warn(this, "Failed to find a container: %s", save.key());
+                GameLogging.warn(world.worldName, "Failed to find a container: %s", save.key());
             }
         }
+    }
+
+    private void loadInterior(InteriorSave save) {
+        System.err.println(world.worldName + ":" + save.interiorType());
+        final GameWorldInterior interior = world.findInteriorByType(save.interiorType());
+        interior.loadWorld(true);
+        interior.loader().load(save);
     }
 
     @Override
