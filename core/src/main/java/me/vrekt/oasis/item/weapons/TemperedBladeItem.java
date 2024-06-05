@@ -1,13 +1,9 @@
 package me.vrekt.oasis.item.weapons;
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
-import me.vrekt.oasis.item.draw.AnimationRendererConfig;
-import me.vrekt.oasis.item.draw.ItemAnimationRenderer;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class TemperedBladeItem extends ItemWeapon {
@@ -32,17 +28,9 @@ public final class TemperedBladeItem extends ItemWeapon {
 
     @Override
     public void load(Asset asset) {
-        final AnimationRendererConfig config = new AnimationRendererConfig()
-                .rotation(EntityRotation.UP, 0.55f, 0.45f)
-                .rotation(EntityRotation.DOWN, 0.45f, 0.45f)
-                .rotation(EntityRotation.LEFT, 0.45f, 0.45f)
-                .rotation(EntityRotation.RIGHT, 0.0f, 0.0f);
-
-        final TextureRegion region = asset.get(TEXTURE);
-        this.renderer = new ItemAnimationRenderer(asset.get(TEXTURE), this, config);
-
-        this.width = region.getRegionWidth() * OasisGameSettings.SCALE;
-        this.height = region.getRegionHeight() * OasisGameSettings.SCALE;
+        sprite = asset.get(TEXTURE);
+        this.width = sprite.getRegionWidth() * OasisGameSettings.SCALE;
+        this.height = sprite.getRegionHeight() * OasisGameSettings.SCALE;
         bounds.setSize(width, height);
     }
 }

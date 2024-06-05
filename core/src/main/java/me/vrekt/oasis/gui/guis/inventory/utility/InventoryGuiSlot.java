@@ -134,7 +134,7 @@ public final class InventoryGuiSlot {
 
         // TODO: Cache drawables?
         slotIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
-        slotIcon.setScale(item.getScaleSize());
+        slotIcon.setScale(item.scale());
 
         if (item.isStackable()) {
             amountText.setVisible(true);

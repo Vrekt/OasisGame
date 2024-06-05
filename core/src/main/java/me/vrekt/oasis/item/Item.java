@@ -1,11 +1,8 @@
 package me.vrekt.oasis.item;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
-import me.vrekt.oasis.item.draw.ItemRenderer;
 import me.vrekt.oasis.utility.ResourceLoader;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,7 +15,7 @@ import java.util.Map;
 public abstract class Item implements ResourceLoader {
 
     protected final Items itemType;
-    protected ItemRenderer renderer;
+    protected TextureRegion sprite;
 
     protected String key, name, description;
     protected ItemRarity rarity;
@@ -75,17 +72,10 @@ public abstract class Item implements ResourceLoader {
     }
 
     /**
-     * @return renderer
-     */
-    public ItemRenderer renderer() {
-        return renderer;
-    }
-
-    /**
      * @return texture
      */
     public TextureRegion sprite() {
-        return renderer.region();
+        return sprite;
     }
 
     /**
@@ -95,6 +85,9 @@ public abstract class Item implements ResourceLoader {
         return rarity;
     }
 
+    /**
+     * @return the amount
+     */
     public int amount() {
         return amount;
     }
@@ -149,11 +142,7 @@ public abstract class Item implements ResourceLoader {
 
     }
 
-    public void draw(SpriteBatch batch) {
-        if (renderer != null) renderer.render(batch, Gdx.graphics.getDeltaTime());
-    }
-
-    public float getScaleSize() {
+    public float scale() {
         return scaleSize;
     }
 

@@ -14,6 +14,7 @@ public abstract class ItemWeapon extends ItemEquippable {
     protected float swingCooldown, lastSwing, range;
     protected boolean isSwinging;
 
+
     protected final Rectangle bounds;
     protected float width, height;
 
@@ -34,7 +35,8 @@ public abstract class ItemWeapon extends ItemEquippable {
     public void updateItemBoundingSize(EntityRotation rotation) {
         bounds.setSize(
                 bounds.width + rotation.vector2.x * OasisGameSettings.SCALE,
-                bounds.height + rotation.vector2.y * OasisGameSettings.SCALE);
+                bounds.height + rotation.vector2.y * OasisGameSettings.SCALE
+        );
     }
 
     public void resetBoundingSize() {

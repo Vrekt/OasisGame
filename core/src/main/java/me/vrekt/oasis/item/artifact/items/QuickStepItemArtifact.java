@@ -7,7 +7,6 @@ import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.artifact.artifacts.QuickStepArtifact;
-import me.vrekt.oasis.item.draw.StaticItemRenderer;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 public final class QuickStepItemArtifact extends ItemArtifact {
@@ -25,7 +24,7 @@ public final class QuickStepItemArtifact extends ItemArtifact {
 
     @Override
     public void load(Asset asset) {
-        this.renderer = new StaticItemRenderer(asset.get(TEXTURE), this);
+        this.sprite = asset.get(TEXTURE);
 
         this.artifact = new QuickStepArtifact();
         this.artifact.load(asset);

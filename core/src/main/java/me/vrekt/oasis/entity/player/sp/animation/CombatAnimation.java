@@ -24,7 +24,7 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
      * @param frame frame
      * @return this
      */
-    public CombatAnimation addFrame(TextureRegion frame) {
+    public CombatAnimation add(TextureRegion frame) {
         frames[index] = new SingleAnimationFrame(frame, false, false, 0.0f);
         index++;
 
@@ -37,7 +37,7 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
      * @param frame frame
      * @return this
      */
-    public CombatAnimation addFrameOffsetX(TextureRegion frame) {
+    public CombatAnimation addWithOffsetX(TextureRegion frame) {
         frames[index] = new SingleAnimationFrame(frame, true, false, 0.0f);
         index++;
 
@@ -51,7 +51,7 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
      * @param offset Y offset
      * @return this
      */
-    public CombatAnimation addFrameOffset(TextureRegion frame, float offset) {
+    public CombatAnimation addWithOffsets(TextureRegion frame, float offset) {
         frames[index] = new SingleAnimationFrame(frame, true, true, offset);
         index++;
 
@@ -71,10 +71,7 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
         animationTime += delta;
     }
 
-    public void draw(SpriteBatch batch,
-                              float x,
-                              float y,
-                              ItemWeapon item) {
+    public void draw(SpriteBatch batch, float x, float y, ItemWeapon item) {
         getKeyFrame(animationTime).draw(batch, x, y, item);
     }
 
@@ -103,38 +100,36 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
             this.yOffset = yOffset;
         }
 
-        void updateItemPosition(ItemWeapon weapon,
-                                float x,
-                                float y) {
-
-            final float newX = offsetX
-                    ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f)
-                    : x;
-
-            final float newY = offsetY ?
-                    y - ((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) + yOffset
-                    : y;
-
-            weapon.updateItemPosition(newX, newY);
-        }
-
         void draw(SpriteBatch batch, float x, float y, ItemWeapon item) {
-            updateItemPosition(item, x, y);
+            final float nx = calculatePositionX(x);
+            final float ny = calculatePositionY(y);
+            item.updateItemPosition(nx, ny);
 
-            final float newX = offsetX
-                    ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f)
-                    : x;
-
-            final float newY = offsetY ?
-                    y - ((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) + yOffset
-                    : y;
-
-            batch.draw(frame,
-                    newX, newY,
-                    0.0f, 0.0f,
+            batch.draw(frame, nx, ny, 0.0f, 0.0f,
                     frame.getRegionWidth() * OasisGameSettings.SCALE,
                     frame.getRegionHeight() * OasisGameSettings.SCALE,
-                    1.0f, 1.0f, 0.0f);
+                    1.0f, 1.0f,
+                    0.0f);
+        }
+
+        /**
+         * Calculate Y position based on offsets
+         *
+         * @param y X
+         * @return the position
+         */
+        float calculatePositionY(float y) {
+            return offsetY ? y - ((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) + yOffset : y;
+        }
+
+        /**
+         * Calculate X position based on offsets
+         *
+         * @param x X
+         * @return the position
+         */
+        float calculatePositionX(float x) {
+            return offsetX ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f) : x;
         }
 
     }

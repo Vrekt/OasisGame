@@ -341,6 +341,7 @@ public final class GameHudGui extends Gui {
 
             final VisTable itemTable = new VisTable(false);
             itemTable.add(item).size(32, 32);
+
             final Stack overlay = new Stack(slot, itemTable);
 
             final VisTable slotNumber = new VisTable(true);
@@ -509,6 +510,11 @@ public final class GameHudGui extends Gui {
             slot.setColor(Color.WHITE);
         }
 
+        /**
+         * Notes: could need scale size in the future.
+         *
+         * @param item item
+         */
         public void setItemInSlot(Item item) {
             itemIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
             this.item = item;

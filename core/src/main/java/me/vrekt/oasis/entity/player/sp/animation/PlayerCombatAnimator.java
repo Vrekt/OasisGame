@@ -15,18 +15,18 @@ public final class PlayerCombatAnimator implements ResourceLoader {
 
     @Override
     public void load(Asset asset) {
-        right(asset);
+        loadAttackAnimationRight(asset);
         loadAttackAnimationUp(asset);
         loadAttackAnimationDown(asset);
         loadAttackAnimationLeft(asset);
     }
 
-    private void right(Asset asset) {
+    private void loadAttackAnimationRight(Asset asset) {
         final CombatAnimation animation = new CombatAnimation(0.1f, 4);
-        animation.addFrame(asset.get("attack", 1))
-                .addFrame(asset.get("attack", 2))
-                .addFrame(asset.get("attack_rightv2", 3))
-                .addFrame(asset.get("attack_rightv2", 4))
+        animation.add(asset.get("attack", 1))
+                .add(asset.get("attack", 2))
+                .add(asset.get("attack_rightv2", 3))
+                .add(asset.get("attack_rightv2", 4))
                 .build();
 
         animations[EntityRotation.RIGHT.ordinal()] = animation;
@@ -34,10 +34,10 @@ public final class PlayerCombatAnimator implements ResourceLoader {
 
     private void loadAttackAnimationUp(Asset asset) {
         final CombatAnimation animation = new CombatAnimation(0.1f, 4);
-        animation.addFrame(asset.get("attack_upv2", 1))
-                .addFrame(asset.get("attack_upv2", 2))
-                .addFrame(asset.get("attack_upv2", 3))
-                .addFrame(asset.get("attack_upv2", 4))
+        animation.add(asset.get("attack_upv2", 1))
+                .add(asset.get("attack_upv2", 2))
+                .add(asset.get("attack_upv2", 3))
+                .add(asset.get("attack_upv2", 4))
                 .build();
 
         animations[EntityRotation.UP.ordinal()] = animation;
@@ -45,21 +45,21 @@ public final class PlayerCombatAnimator implements ResourceLoader {
 
     private void loadAttackAnimationLeft(Asset asset) {
         final CombatAnimation animation = new CombatAnimation(0.1f, 5);
-        animation.addFrameOffsetX(asset.get("attack_leftv5", 1))
-                .addFrameOffsetX(asset.get("attack_leftv5", 2))
-                .addFrameOffsetX(asset.get("attack_leftv5", 3))
-                .addFrameOffsetX(asset.get("attack_leftv5", 4))
-                .addFrameOffsetX(asset.get("attack_leftv5", 5))
+        animation.addWithOffsetX(asset.get("attack_leftv5", 1))
+                .addWithOffsetX(asset.get("attack_leftv5", 2))
+                .addWithOffsetX(asset.get("attack_leftv5", 3))
+                .addWithOffsetX(asset.get("attack_leftv5", 4))
+                .addWithOffsetX(asset.get("attack_leftv5", 5))
                 .build();
 
         animations[EntityRotation.LEFT.ordinal()] = animation;
     }
 
     private void loadAttackAnimationDown(Asset asset) {
-        final CombatAnimation animation = new CombatAnimation(0.11f, 3);
-        animation.addFrameOffsetX(asset.get("attack_downv7", 1))
-                .addFrameOffset(asset.get("attack_downv7", 2), 0.59f)
-                .addFrameOffset(asset.get("attack_downv7", 3), 0.27f)
+        final CombatAnimation animation = new CombatAnimation(0.12f, 3);
+        animation.addWithOffsetX(asset.get("attack_downv7", 1))
+                .addWithOffsets(asset.get("attack_downv7", 2), 0.93f)
+                .addWithOffsets(asset.get("attack_downv7", 3), 0.322f)
                 .build();
 
         animations[EntityRotation.DOWN.ordinal()] = animation;

@@ -7,7 +7,6 @@ import me.vrekt.oasis.entity.player.sp.attribute.attributes.PlayerSatisfactionAt
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
-import me.vrekt.oasis.item.draw.StaticItemRenderer;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 
 /**
@@ -35,6 +34,6 @@ public final class PigHeartConsumable extends ItemConsumable {
 
     @Override
     public void load(Asset asset) {
-        this.renderer = new StaticItemRenderer(asset.get(TEXTURE), this);
+        this.sprite = asset.get(TEXTURE);
     }
 }
