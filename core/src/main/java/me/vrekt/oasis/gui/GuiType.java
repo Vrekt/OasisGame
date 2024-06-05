@@ -15,6 +15,7 @@ public enum GuiType {
     DEBUG_MENU,
     HINT,
     SIGN,
-    CHAT
+    CHAT,
+    WORLD_MAP
 
 }

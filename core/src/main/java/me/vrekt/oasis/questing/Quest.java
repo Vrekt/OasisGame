@@ -44,6 +44,10 @@ public abstract class Quest {
         return currentObjectiveStep;
     }
 
+    public void setCurrentObjectiveStep(int currentObjectiveStep) {
+        this.currentObjectiveStep = currentObjectiveStep;
+    }
+
     /**
      * Update the current quest objective and then unlock the next steps
      */

@@ -14,12 +14,14 @@ import me.vrekt.oasis.entity.enemy.animation.EnemyAnimation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityState;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
+import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
  * An enemy entity
  */
-public abstract class EntityEnemy extends GameEntity {
+public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEntitySave> {
 
     protected final EntityEnemyType type;
     protected float inaccuracy, hostileRange, attackSpeed;
@@ -44,6 +46,14 @@ public abstract class EntityEnemy extends GameEntity {
         this.player = game.getPlayer();
         this.type = type;
         this.stateMachine = new EntityStateMachine(this);
+    }
+
+    @Override
+    public void load(EnemyEntitySave save) {
+        setPosition(save.position(), true);
+        setHealth(save.health());
+        setMoveSpeed(save.moveSpeed());
+        rotation = save.rotation();
     }
 
     /**

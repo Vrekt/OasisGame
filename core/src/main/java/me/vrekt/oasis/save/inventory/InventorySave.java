@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.inventory;
+package me.vrekt.oasis.save.inventory;
 
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 
@@ -14,5 +14,9 @@ public class InventorySave {
     }
 
     public InventorySave() {
+    }
+
+    public AbstractInventory inventory() {
+        return inventory;
     }
 }

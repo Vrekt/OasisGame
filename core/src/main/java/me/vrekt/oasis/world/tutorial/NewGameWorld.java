@@ -6,7 +6,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
 import me.vrekt.oasis.world.GameWorld;
@@ -27,7 +26,7 @@ public final class NewGameWorld extends GameWorld {
     }
 
     @Override
-    protected void preLoad() {
+    protected void init() {
         interactionManager.registerInteraction(WorldInteractionType.READABLE_SIGN, "oasis:basement_sign", WrynnBasementWarningSign::new);
     }
 
@@ -39,22 +38,14 @@ public final class NewGameWorld extends GameWorld {
     }
 
     @Override
-    public void enter() {
-        super.enter();
+    public void loadWorld(boolean isGameSave) {
+        super.loadWorld(isGameSave);
 
-        if (!isWorldLoaded) create(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
+        if (!isWorldLoaded) loadTiledMap(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
 
-        player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
-        if (game.isNewGame()) {
-
-            player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
-
-            // TODO: Better start hint
-            //  guiManager.getHudComponent().showPlayerHint(PlayerHints.WELCOME_HINT, GameManager.secondsToTicks(8));
-            game.setNewGame(false);
+        if (!isGameSave) {
+            player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
         }
-
-        game.setGameReady(true);
     }
 
     @Override
@@ -66,7 +57,6 @@ public final class NewGameWorld extends GameWorld {
         final GameWorldInterior interior = getInteriorToEnter();
         if (interior != null) {
             enterInterior(interior);
-            guiManager.resetCursor();
             return true;
         }
 

@@ -5,6 +5,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.artifact.ArtifactType;
 
 /**
  * Player move speed modifier
@@ -14,7 +15,7 @@ public final class QuickStepArtifact extends Artifact {
     private float moveSpeed, tick;
 
     public QuickStepArtifact() {
-        super("artifact:quick_step", "Quickstep", "Allows you to move around the environment faster.");
+        super("artifact:quick_step", ArtifactType.QUICKSTEP, "Quickstep", "Allows you to move around the environment faster.");
         this.artifactDuration = GameManager.secondsToTicks(1.5f);
     }
 

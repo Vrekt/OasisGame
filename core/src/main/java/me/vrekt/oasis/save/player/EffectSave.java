@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.world.effects.Effect;
@@ -28,4 +28,23 @@ public final class EffectSave {
         this.applied = effect.applied();
     }
 
+    public EffectType type() {
+        return type;
+    }
+
+    public float strength() {
+        return strength;
+    }
+
+    public float duration() {
+        return duration;
+    }
+
+    public float interval() {
+        return interval;
+    }
+
+    public float applied() {
+        return applied;
+    }
 }

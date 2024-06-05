@@ -7,4 +7,7 @@ public final class DefaultWorldObjectSave extends WorldObjectSave {
     public DefaultWorldObjectSave(WorldObject object) {
         super(object);
     }
+
+    public DefaultWorldObjectSave() {
+    }
 }

@@ -36,6 +36,14 @@ public final class WorldManager implements Disposable {
         return worldMap;
     }
 
+    public void setParentWorldPosition(Vector2 position) {
+        this.parentWorldPosition.set(position);
+    }
+
+    public Vector2 parentWorldPosition() {
+        return parentWorldPosition;
+    }
+
     /**
      * Transfer the player to an interior
      *
@@ -45,7 +53,11 @@ public final class WorldManager implements Disposable {
      */
     public void transfer(PlayerSP player, GameWorld parent, GameWorldInterior interior) {
         parentWorldPosition.set(player.getBody().getPosition());
-        GameManager.transitionScreen(parent, interior, interior::enter);
+
+        GameManager.transitionScreen(parent, interior, () -> {
+            interior.loadWorld(false);
+            interior.enter();
+        });
     }
 
     /**

@@ -167,9 +167,9 @@ public final class OasisMainMenu extends ScreenAdapter {
         final VisTable table = new VisTable();
         table.add(saveName).left();
         table.row();
-        table.add(progress);
+        table.add(progress).left();
         table.row();
-        table.add(dateSaved);
+        table.add(dateSaved).left();
         root.add(table).padLeft(12f);
 
         loadGameTable.add(root).padBottom(6f);
@@ -183,7 +183,6 @@ public final class OasisMainMenu extends ScreenAdapter {
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                // TODO: Does not work correctly, but for now its fine.
                 root.setColor(HOVER_COLOR);
             }
 

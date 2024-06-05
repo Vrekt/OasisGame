@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class Artifact implements ResourceLoader {
 
     protected final String key, name, description;
+    protected final ArtifactType type;
     protected Sprite sprite;
 
     protected int artifactLevel = 1;
@@ -28,8 +29,9 @@ public abstract class Artifact implements ResourceLoader {
     protected Sprite artifactParticle;
     protected ItemArtifact item;
 
-    public Artifact(String key, String name, String description) {
+    public Artifact(String key, ArtifactType type, String name, String description) {
         this.key = key;
+        this.type = type;
         this.name = name;
         this.description = description;
         this.effectPosition = new Vector2();
@@ -37,6 +39,13 @@ public abstract class Artifact implements ResourceLoader {
 
     public String getKey() {
         return key;
+    }
+
+    /**
+     * @return type of
+     */
+    public ArtifactType type() {
+        return type;
     }
 
     public boolean isApplied() {
@@ -49,6 +58,10 @@ public abstract class Artifact implements ResourceLoader {
 
     public int getArtifactLevel() {
         return artifactLevel;
+    }
+
+    public void setArtifactLevel(int artifactLevel) {
+        this.artifactLevel = artifactLevel;
     }
 
     public float getArtifactDuration() {

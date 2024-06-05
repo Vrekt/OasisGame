@@ -96,7 +96,7 @@ public final class MapRenderer implements Disposable {
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
 
-        for (TiledMapTileLayer layer : new Array.ArrayIterator<>(layers)) {
+        for (TiledMapTileLayer layer : layers) {
             renderer.renderTileLayer(layer);
         }
     }

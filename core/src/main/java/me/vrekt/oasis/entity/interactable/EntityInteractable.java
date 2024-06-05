@@ -5,12 +5,14 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Represents an NPC within the game
  */
-public abstract class EntityInteractable extends EntitySpeakable {
+public abstract class EntityInteractable extends EntitySpeakable implements Savable<InteractableEntitySave> {
 
     protected final OasisGame game;
     protected EntityNPCType type;
@@ -32,6 +34,13 @@ public abstract class EntityInteractable extends EntitySpeakable {
         return type;
     }
 
+    @Override
+    public void load(InteractableEntitySave save) {
+        setPosition(save.position(), true);
+        rotation = save.rotation();
+
+        setActiveEntry(dialogue.setStageAndUpdate(save.dialogueStage(), save.dialogueStageIndex()));
+    }
 
     /**
      * Update active texture based on entity rotation

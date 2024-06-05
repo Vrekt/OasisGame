@@ -35,8 +35,15 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.network.player.DummyConnection;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
+import me.vrekt.oasis.questing.Quest;
+import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.save.player.ArtifactSave;
+import me.vrekt.oasis.save.player.EffectSave;
+import me.vrekt.oasis.save.player.PlayerSave;
+import me.vrekt.oasis.save.player.QuestSave;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -44,12 +51,14 @@ import me.vrekt.oasis.world.effects.Effect;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Represents the local player SP
  */
-public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Drawable {
+public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Drawable, Savable<PlayerSave> {
 
     private static final float VELOCITY_NETWORK_SEND_RATE = 0.1f;
     private static final float POSITION_NETWORK_SEND_RATE = 0.35f;
@@ -90,8 +99,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private float lastEffectApplied, effectStarted;
     private Effect activeEffect;
 
-    private boolean swinged;
-
     private final PlayerCombatAnimator combatAnimator;
     private final Rectangle itemBounds = new Rectangle();
 
@@ -102,6 +109,69 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
         this.combatAnimator = new PlayerCombatAnimator();
+    }
+
+    @Override
+    public void load(PlayerSave playerSave) {
+        this.setName(playerSave.name());
+        this.setPosition(playerSave.position(), true);
+        this.getInventory().transferFrom(playerSave.inventory().inventory());
+
+        loadArtifacts(playerSave.artifactInventory().artifacts());
+        loadQuests(playerSave.quests().activeQuests());
+        loadEffects(playerSave.activeEffects());
+    }
+
+    /**
+     * Load artifacts
+     *
+     * @param artifacts artifacts
+     */
+    private void loadArtifacts(LinkedList<ArtifactSave> artifacts) {
+        if (artifacts == null) return;
+
+        for (ArtifactSave save : artifacts) {
+            final Artifact artifact = save.type().create();
+            artifact.setArtifactLevel(save.level());
+
+            this.artifacts.put(save.slot(), artifact);
+        }
+    }
+
+    /**
+     * Load quests
+     *
+     * @param quests quests
+     */
+    private void loadQuests(List<QuestSave> quests) {
+        if (quests == null) return;
+
+        for (QuestSave save : quests) {
+            final Quest quest = save.type().create();
+            quest.setCurrentObjectiveStep(save.objectiveIndex());
+
+            for (int i = 0; i < save.objectives().size(); i++) {
+                final QuestSave.QuestObjectiveSave objectiveSave = save.objectives().get(i);
+                quest.getObjectives().get(i).setStatus(objectiveSave.unlocked(), objectiveSave.completed());
+            }
+
+            questManager.addActiveQuest(save.type(), quest);
+        }
+    }
+
+    /**
+     * Load effects
+     *
+     * @param effects effects
+     */
+    private void loadEffects(LinkedList<EffectSave> effects) {
+        if (effects == null) return;
+        // TODO: Multiple effects
+        for (EffectSave save : effects) {
+            this.activeEffect = Effect.create(save.type(), save.interval(), save.strength(), save.duration());
+            this.activeEffect.setApplied(save.applied());
+            this.activeEffect.applyPreviously(this);
+        }
     }
 
     @Override
@@ -175,6 +245,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @return network connection
      */
     public PlayerConnection getConnection() {
+        if (connection == null) {
+            GameLogging.warn(this, "Connection in null, providing DummyConnection");
+            connection = new DummyConnection();
+        }
         return connection;
     }
 

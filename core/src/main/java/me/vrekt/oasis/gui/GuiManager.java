@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
@@ -22,6 +23,7 @@ import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
 import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
+import me.vrekt.oasis.gui.guis.map.WorldMapGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
 import me.vrekt.oasis.gui.guis.sign.ReadableSignGui;
@@ -35,7 +37,7 @@ import java.util.Map;
 /**
  * Handles most functions related to guis
  */
-public class GuiManager {
+public final class GuiManager implements Disposable {
 
     private final OasisGame game;
     private final Asset asset;
@@ -66,6 +68,7 @@ public class GuiManager {
         // fit this stage to always respect the general constraints we want
         stage = new Stage(new FitViewport(640, 480));
         stack = new Stack();
+
         stack.setFillParent(true);
         stage.addActor(stack);
 
@@ -80,6 +83,7 @@ public class GuiManager {
         guis.put(GuiType.SIGN, signGui = new ReadableSignGui(this));
         guis.put(GuiType.CONTAINER, containerGui = new ContainerInventoryGui(this));
         guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
+        guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -335,4 +339,9 @@ public class GuiManager {
         stack.add(gui);
     }
 
+    @Override
+    public void dispose() {
+        guis.values().forEach(Gui::dispose);
+        guis.clear();
+    }
 }

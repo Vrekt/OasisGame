@@ -3,8 +3,11 @@ package me.vrekt.oasis.save;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.save.world.inventory.InventorySave;
-import me.vrekt.oasis.save.world.inventory.InventorySaveTypeCodec;
+import me.vrekt.oasis.save.inventory.InventorySave;
+import me.vrekt.oasis.save.inventory.InventorySaveTypeCodec;
+import me.vrekt.oasis.save.world.WorldSave;
+import me.vrekt.oasis.save.world.entity.GameEntitySave;
+import me.vrekt.oasis.save.world.obj.WorldObjectSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.io.FileReader;
@@ -21,7 +24,12 @@ public class SaveManager {
             .setPrettyPrinting()
             .create();
 
-    private static final Gson LOAD_GAME_GSON = new GsonBuilder().create();
+    private static final Gson LOAD_GAME_GSON = new GsonBuilder().
+            registerTypeAdapter(InventorySave.class, new InventorySaveTypeCodec.InventoryPropertiesDeserializer())
+            .registerTypeAdapter(WorldSave.class, new WorldSave.WorldSaveAdapter())
+            .registerTypeAdapter(GameEntitySave.class, new GameEntitySave.GameEntitySaveAdapter())
+            .registerTypeAdapter(WorldObjectSave.class, new WorldObjectSave.WorldObjectSaveAdapter())
+            .create();
 
     private static GameSaveProperties properties;
 
@@ -37,9 +45,9 @@ public class SaveManager {
      * Save the game
      *
      * @param slot the slot
-     * @param name the name
      */
     public static void save(int slot, String name) {
+        name = name == null ? properties.getSlotName(slot) : name;
         final long now = System.currentTimeMillis();
         try {
             Path path = Paths.get("saves/" + name + ".json");
@@ -81,6 +89,22 @@ public class SaveManager {
 
     public static GameSaveProperties getProperties() {
         return properties;
+    }
+
+    /**
+     * Rewrite json files after deletion
+     */
+    private static void writeRefreshGameSaveProperties() {
+        try {
+            Path path = Paths.get("saves/save_properties.json");
+            if (!Files.exists(path)) Files.createFile(path);
+
+            try (FileWriter writer = new FileWriter(path.toFile(), false)) {
+                SAVE_GAME_GSON.toJson(properties, writer);
+            }
+        } catch (IOException exception) {
+            GameLogging.exceptionThrown("SaveManager", "WriteSaveProperties", exception);
+        }
     }
 
     /**
@@ -128,6 +152,27 @@ public class SaveManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Delete a save
+     *
+     * @param slot slot
+     */
+    public static void delete(int slot) {
+        Path path = Paths.get("saves/" + properties.getSlotName(slot) + ".json");
+        properties.delete(slot);
+
+        if (Files.exists(path)) {
+            GameManager.game().executeAsync(() -> {
+                try {
+                    Files.delete(path);
+                    writeRefreshGameSaveProperties();
+                } catch (IOException exception) {
+                    GameLogging.exceptionThrown("SaveManager", "Failed to delete save slot: %d", exception, slot);
+                }
+            });
+        }
     }
 
 }

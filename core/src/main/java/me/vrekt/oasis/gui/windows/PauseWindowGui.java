@@ -30,12 +30,14 @@ public final class PauseWindowGui extends Gui {
         final VisImageTextButton resume = new VisImageTextButton("Resume", guiManager.getStyle().getImageTextButtonStyle());
         final VisImageTextButton settings = new VisImageTextButton("Settings", guiManager.getStyle().getImageTextButtonStyle());
         final VisImageTextButton saveGame = new VisImageTextButton("Save Game", guiManager.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton backToMenu = new VisImageTextButton("Back to Main Menu", guiManager.getStyle().getImageTextButtonStyle());
         final VisImageTextButton exit = new VisImageTextButton("Exit Game", guiManager.getStyle().getImageTextButtonStyle());
 
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
         addHoverComponents(settings, Color.LIGHT_GRAY, Color.WHITE, this::handleSettingsComponentAction);
         addHoverComponents(saveGame, Color.LIGHT_GRAY, Color.WHITE, this::handleSaveGameComponentAction);
+        addHoverComponents(backToMenu, Color.LIGHT_GRAY, Color.WHITE, this::handleBackToMenuComponent);
         // TODO: Exit and save, Exit without saving
         addHoverComponents(exit, Color.LIGHT_GRAY, Color.WHITE, () -> Gdx.app.exit());
 
@@ -50,6 +52,8 @@ public final class PauseWindowGui extends Gui {
         table.add(settings).fillX();
         table.row().padTop(6);
         table.add(saveGame).fillX();
+        table.row().padTop(6);
+        table.add(backToMenu).fillX();
         table.row().padTop(6);
         table.add(exit).fillX();
 
@@ -68,6 +72,10 @@ public final class PauseWindowGui extends Gui {
 
     private void handleSaveGameComponentAction() {
         guiManager.showChildGui(this, GuiType.SAVE_GAME);
+    }
+
+    private void handleBackToMenuComponent() {
+        guiManager.getGame().returnToMenu();
     }
 
     @Override

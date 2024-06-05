@@ -50,6 +50,7 @@ public final class FadeScreen extends ScreenAdapter {
         Gdx.gl.glDisable(GL20.GL_BLEND);
     }
 
+    @Override
     public void render(float delta) {
         if (primary != null) {
             elapsed += delta;

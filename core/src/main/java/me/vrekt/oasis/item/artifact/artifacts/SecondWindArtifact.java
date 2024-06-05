@@ -4,11 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.artifact.ArtifactType;
 
 public final class SecondWindArtifact extends Artifact {
 
     public SecondWindArtifact() {
-        super("artifact:second_wind", "Second Wind", "Allows you to heal yourself.");
+        super("artifact:second_wind", ArtifactType.SECOND_WIND, "Second Wind", "Allows you to heal yourself.");
     }
 
     @Override

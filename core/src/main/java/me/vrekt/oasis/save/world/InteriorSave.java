@@ -1,5 +1,6 @@
 package me.vrekt.oasis.save.world;
 
+import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
@@ -17,6 +18,10 @@ public final class InteriorSave extends WorldSave {
     @Expose
     private boolean enterable;
 
+    @Expose
+    @SerializedName("entered_position")
+    private Vector2 enteredPosition;
+
     public InteriorSave() {
     }
 
@@ -26,9 +31,21 @@ public final class InteriorSave extends WorldSave {
         this.interiorType = world.type();
         this.interior = true;
         this.enterable = world.isEnterable();
+        this.enteredPosition = world.getGame().getWorldManager().parentWorldPosition();
 
         writeEntities(world);
-        writeContainers(world);
         writeObjects(world);
+    }
+
+    public InteriorWorldType interiorType() {
+        return interiorType;
+    }
+
+    public boolean enterable() {
+        return enterable;
+    }
+
+    public Vector2 enteredPosition() {
+        return enteredPosition;
     }
 }

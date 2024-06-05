@@ -1,6 +1,7 @@
 package me.vrekt.oasis.asset.settings;
 
 import com.badlogic.gdx.Input;
+import me.vrekt.oasis.save.settings.GameSettingsSave;
 
 public final class OasisKeybindings {
 
@@ -25,5 +26,19 @@ public final class OasisKeybindings {
     public static int SLOT_6 = Input.Keys.NUM_6;
 
     public static int CHAT = Input.Keys.T;
+    public static int MAP = Input.Keys.M;
+
+    /**
+     * Load keybindings from a save
+     *
+     * @param save save state
+     */
+    public static void fromSave(GameSettingsSave save) {
+        QUEST_KEY = save.questKey();
+        INVENTORY_KEY = save.inventoryKey();
+        SKIP_DIALOG_KEY = save.skipDialogKey();
+        CHAT = save.chatKey();
+        MAP = save.mapKey();
+    }
 
 }

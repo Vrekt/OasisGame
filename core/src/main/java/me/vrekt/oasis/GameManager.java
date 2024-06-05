@@ -42,10 +42,12 @@ public class GameManager {
         GameManager.oasis = oasis;
     }
 
-    private static void registerGlobalKeyAction(int key, GuiType gui) {
+    private static void registerGlobalKeyAction(int key, GuiType gui, boolean override) {
         KEY_ACTIONS.put(key, () -> {
-            if (!guiManager.isGuiVisible(GuiType.CHAT)) {
+            if (!guiManager.isGuiVisible(GuiType.CHAT) && !override) {
                 // do not open this GUI if the chat is open
+                GameManager.guiManager.toggleGui(gui);
+            } else if (override) {
                 GameManager.guiManager.toggleGui(gui);
             }
         });
@@ -61,8 +63,10 @@ public class GameManager {
     }
 
     private static void registerGlobalKeyActions() {
-        registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY);
-        registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST);
+        registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY, false);
+        registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST, false);
+        registerGlobalKeyAction(OasisKeybindings.MAP, GuiType.WORLD_MAP, true);
+
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
             getPlayer().getWorldState().findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
             getPlayer().getWorldState().removeSimpleObject("oasis:basement_gate");

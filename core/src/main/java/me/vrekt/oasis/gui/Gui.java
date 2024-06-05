@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Disposable;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
 
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * Represents a basic GUI
  */
-public abstract class Gui {
+public abstract class Gui implements Disposable {
 
     protected final GuiManager guiManager;
     protected boolean isShowing;
@@ -137,4 +138,8 @@ public abstract class Gui {
         actor.addAction(Actions.fadeIn(duration));
     }
 
+    @Override
+    public void dispose() {
+
+    }
 }

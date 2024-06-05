@@ -97,6 +97,16 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Transfer from another inventory
+     *
+     * @param other other
+     */
+    public void transferFrom(AbstractInventory other) {
+        this.items.clear();
+        this.items.putAll(other.items);
+    }
+
+    /**
      * Get the slot number for the provided item
      *
      * @param item the item

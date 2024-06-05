@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.inventory;
+package me.vrekt.oasis.save.inventory;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.google.gson.*;

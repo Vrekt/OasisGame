@@ -8,13 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.VisUI;
-import com.kotcrab.vis.ui.widget.VisDialog;
-import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.kotcrab.vis.ui.widget.VisTextField;
-import me.vrekt.oasis.gui.GuiType;
+import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +21,16 @@ import java.util.Map;
 
 public final class SaveGameWindowGui extends Gui {
 
+    private static final String EMPTY_SAVE_SLOT = "Empty Save Slot";
+
     private final Map<Integer, SlotRowComponent> components = new HashMap<>();
 
     private VisTextField input;
     private VisDialog dialog;
-    private int currentSlot;
+    private VisDialog showConfirmationDialog;
+    private VisDialog deleteConfirmationDialog;
+
+    private int currentSlot, currentDeleteSlot;
 
     public SaveGameWindowGui(GuiManager guiManager) {
         super(GuiType.SAVE_GAME, guiManager);
@@ -41,34 +43,64 @@ public final class SaveGameWindowGui extends Gui {
         rootTable.setVisible(false);
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("pause")));
 
-        final Table slots = new Table();
-        final Table slot1 = new Table();
-        final Table slot2 = new Table();
-        final Table slot3 = new Table();
+        final VisTable slots = new VisTable();
+        final VisTable slot1 = new VisTable();
+        final VisTable slot2 = new VisTable();
+        final VisTable slot3 = new VisTable();
+
         slot1.setBackground(guiManager.getStyle().getTheme());
         slot2.setBackground(guiManager.getStyle().getTheme());
         slot3.setBackground(guiManager.getStyle().getTheme());
 
-        initializeSlotComponent(1, slot1);
-        initializeSlotComponent(2, slot2);
-        initializeSlotComponent(3, slot3);
+        final VisTable deleteComponent1 = createDeleteComponent(1);
+        final VisTable deleteComponent2 = createDeleteComponent(2);
+        final VisTable deleteComponent3 = createDeleteComponent(3);
+
+        initializeSlotComponent(1, slot1, deleteComponent1);
+        initializeSlotComponent(2, slot2, deleteComponent2);
+        initializeSlotComponent(3, slot3, deleteComponent3);
 
         slots.add(createSlotNumberComponent(1));
         slots.row();
-        slots.add(slot1);
+        slots.add(slot1).width(250);
+        slots.add(deleteComponent1).padLeft(4f);
         slots.row();
         slots.add(createSlotNumberComponent(2));
         slots.row();
-        slots.add(slot2);
+        slots.add(slot2).width(250);
+        slots.add(deleteComponent2).padLeft(4);
         slots.row();
         slots.add(createSlotNumberComponent(3));
         slots.row();
-        slots.add(slot3);
+        slots.add(slot3).width(250);
+        slots.add(deleteComponent3).padLeft(4f);
 
         initializeDialogComponent();
 
         rootTable.add(slots);
         guiManager.addGui(rootTable);
+    }
+
+    /**
+     * Create the little trash can icon for deleting active saves
+     *
+     * @return the table component
+     */
+    private VisTable createDeleteComponent(int slot) {
+        final VisTable table = new VisTable();
+        table.add(new VisImage(guiManager.getAsset().get("delete_icon")));
+        table.setBackground(guiManager.getStyle().getTheme());
+        table.setVisible(false);
+
+        table.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                currentDeleteSlot = slot;
+                deleteConfirmationDialog.show(guiManager.getStage());
+            }
+        });
+
+        return table;
     }
 
     /**
@@ -94,7 +126,7 @@ public final class SaveGameWindowGui extends Gui {
             protected void result(Object object) {
                 if ((boolean) object) {
                     // save the game
-                    SaveManager.save(currentSlot, input.getText());
+                    saveAndShowConfirmation(currentSlot, input.getText());
                     // update components after saving
                     components.get(currentSlot).updateData();
                 }
@@ -108,6 +140,35 @@ public final class SaveGameWindowGui extends Gui {
         dialog.button("Confirm", true, buttonStyle);
         dialog.button("Cancel", false, buttonStyle);
         dialog.key(Input.Keys.ENTER, true);
+
+        showConfirmationDialog = new VisDialog(StringUtils.EMPTY, style) {
+            @Override
+            protected void result(Object object) {
+                if ((boolean) object) {
+                    updateSlotComponents();
+                }
+            }
+        };
+        showConfirmationDialog.text("Game Saved!", guiManager.getStyle().getMediumWhite());
+        showConfirmationDialog.button("Ok", true, buttonStyle);
+        showConfirmationDialog.key(Input.Keys.ENTER, true);
+        showConfirmationDialog.key(Input.Keys.ESCAPE, false);
+
+        deleteConfirmationDialog = new VisDialog(StringUtils.EMPTY, style) {
+            @Override
+            protected void result(Object object) {
+                if ((boolean) object) {
+                    SaveManager.delete(currentDeleteSlot);
+                    updateSlotComponents();
+                }
+            }
+        };
+
+        // prefer not to do enter == yes, just in-case its accidentally pressed while spamming buttons
+        deleteConfirmationDialog.text("Are you sure you want to delete this save?", guiManager.getStyle().getMediumWhite());
+        deleteConfirmationDialog.button("Yes", true);
+        deleteConfirmationDialog.button("No", false);
+        deleteConfirmationDialog.key(Input.Keys.ESCAPE, false);
     }
 
     /**
@@ -116,27 +177,29 @@ public final class SaveGameWindowGui extends Gui {
      * @param slot  the slot number
      * @param table the parent table
      */
-    private void initializeSlotComponent(int slot, Table table) {
-        final VisLabel saveName = new VisLabel("Empty Save Slot", guiManager.getStyle().getMediumWhite());
-        final VisLabel gameProgress = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getSmallWhite());
-        final VisLabel saveDate = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getSmallWhite());
-        gameProgress.setVisible(false);
-        saveDate.setVisible(false);
+    private void initializeSlotComponent(int slot, VisTable table, VisTable deleteComponentTable) {
+        table.left();
+
+        final VisLabel saveName = new VisLabel(EMPTY_SAVE_SLOT, guiManager.getStyle().getMediumWhite());
+
         table.add(saveName).padTop(4).left();
         table.row();
-        components.put(slot, new SlotRowComponent(slot, saveName, table));
+        components.put(slot, new SlotRowComponent(slot, saveName, table, deleteComponentTable));
 
         table.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 // check if slot is occupied, overwrite save if so.
                 if (components.get(slot).hasData) {
-                    SaveManager.save(slot, SaveManager.getProperties().getSlotName(slot));
+                    saveAndShowConfirmation(slot, null);
                 } else {
                     // otherwise show the save name dialog
                     currentSlot = slot;
                     input.setText(StringUtils.EMPTY);
                     dialog.show(guiManager.getStage());
+
+                    // focus the dialog, added because of EM-57
+                    guiManager.getStage().setKeyboardFocus(dialog);
                 }
             }
         });
@@ -145,6 +208,11 @@ public final class SaveGameWindowGui extends Gui {
 
     private VisLabel createSlotNumberComponent(int slot) {
         return new VisLabel("Slot " + slot, guiManager.getStyle().getMediumWhite());
+    }
+
+    private void saveAndShowConfirmation(int slot, String text) {
+        showConfirmationDialog.show(guiManager.getStage());
+        guiManager.getGame().saveGameAsync(slot, text);
     }
 
     @Override
@@ -170,19 +238,27 @@ public final class SaveGameWindowGui extends Gui {
      */
     private final class SlotRowComponent {
         private final int slot;
+        private final VisTable contentsTable;
         private final VisLabel saveNameLabel;
         private final VisLabel gameProgress;
         private final VisLabel saveDate;
         private final Table table;
+
+        private final VisTable deleteComponentTable;
         private boolean tableUpdated;
         private boolean hasData;
 
-        public SlotRowComponent(int slot, VisLabel saveName, Table table) {
+        public SlotRowComponent(int slot, VisLabel saveName, VisTable table, VisTable deleteComponentTable) {
             this.slot = slot;
             this.saveNameLabel = saveName;
             this.gameProgress = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getSmallWhite());
             this.saveDate = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getSmallWhite());
             this.table = table;
+
+            this.contentsTable = new VisTable();
+            contentsTable.left();
+
+            this.deleteComponentTable = deleteComponentTable;
         }
 
         /**
@@ -191,6 +267,14 @@ public final class SaveGameWindowGui extends Gui {
         private void updateData() {
             final GameSaveSlotProperty properties = SaveManager.getProperties().getSaveSlotProperty(slot);
             if (properties == null) {
+                // reset the data in this slot
+                if (hasData) {
+                    hasData = false;
+                    tableUpdated = false;
+                    saveNameLabel.setText(EMPTY_SAVE_SLOT);
+
+                    contentsTable.clear();
+                }
                 return;
             }
 
@@ -201,10 +285,15 @@ public final class SaveGameWindowGui extends Gui {
 
             // add components afterward to ensure no weird big empty box.
             if (!tableUpdated) {
-                table.add(gameProgress).left();
+                contentsTable.add(gameProgress).left();
+                contentsTable.row();
+                contentsTable.add(saveDate).padBottom(4f).left();
+
                 table.row();
-                table.add(saveDate).padBottom(4).left();
+                table.add(contentsTable).left();
+
                 tableUpdated = true;
+                deleteComponentTable.setVisible(true);
             }
 
         }

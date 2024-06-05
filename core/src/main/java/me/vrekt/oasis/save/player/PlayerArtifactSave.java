@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.badlogic.gdx.utils.IntMap;
 import com.google.gson.annotations.Expose;
@@ -24,4 +24,7 @@ public final class PlayerArtifactSave {
         }
     }
 
+    public LinkedList<ArtifactSave> artifacts() {
+        return artifacts;
+    }
 }

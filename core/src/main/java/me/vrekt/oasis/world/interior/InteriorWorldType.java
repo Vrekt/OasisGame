@@ -2,6 +2,7 @@ package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.wrynn.WrynnBasementInterior;
 import me.vrekt.oasis.world.interior.wrynn.WrynnHouseInterior;
@@ -51,6 +52,7 @@ public enum InteriorWorldType {
         try {
             return valueOf(key.toUpperCase());
         } catch (IllegalArgumentException exception) {
+            GameLogging.exceptionThrown("InteriorWorldType", "Failed to find of interior key! key=%s", exception, key);
             return NONE;
         }
     }

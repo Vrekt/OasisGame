@@ -52,6 +52,17 @@ public final class QuestObjective {
     }
 
     /**
+     * Set status of this quest from a save
+     *
+     * @param unlocked  unlocked
+     * @param completed completed
+     */
+    public void setStatus(boolean unlocked, boolean completed) {
+        this.unlocked = unlocked;
+        this.completed = completed;
+    }
+
+    /**
      * Steps and description of what to do
      *
      * @return the description

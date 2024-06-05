@@ -1,10 +1,10 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.save.world.inventory.InventorySave;
+import me.vrekt.oasis.save.inventory.InventorySave;
 
 import java.util.LinkedList;
 
@@ -23,6 +23,10 @@ public final class PlayerSave {
     InventorySave inventory;
 
     @Expose
+    @SerializedName("world_state")
+    ActiveWorldStateSave worldState;
+
+    @Expose
     @SerializedName("artifact_inventory")
     PlayerArtifactSave artifactInventory;
 
@@ -39,10 +43,39 @@ public final class PlayerSave {
         this.inventory = new InventorySave(player.getInventory());
         this.artifactInventory = new PlayerArtifactSave(player);
         this.quests = new PlayerQuestSave(player);
+        this.worldState = new ActiveWorldStateSave(player);
 
         if (player.activeEffect() != null) {
             activeEffects = new LinkedList<>();
             activeEffects.add(new EffectSave(player.activeEffect()));
         }
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public Vector2 position() {
+        return position;
+    }
+
+    public ActiveWorldStateSave worldState() {
+        return worldState;
+    }
+
+    public InventorySave inventory() {
+        return inventory;
+    }
+
+    public PlayerArtifactSave artifactInventory() {
+        return artifactInventory;
+    }
+
+    public PlayerQuestSave quests() {
+        return quests;
+    }
+
+    public LinkedList<EffectSave> activeEffects() {
+        return activeEffects;
     }
 }

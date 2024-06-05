@@ -71,10 +71,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents a base world within the game
  */
-public abstract class GameWorld extends
-        Box2dGameWorld implements
-        WorldInputAdapter,
-        Screen {
+public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdapter, Screen {
 
     protected final OasisGame game;
     protected final PlayerSP player;
@@ -111,6 +108,7 @@ public abstract class GameWorld extends
 
     protected final EntityDamageAnimator worldDamageAnimator;
     protected final PerformanceCounter performanceCounter;
+    protected WorldSaveLoader saveLoader;
 
     protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
@@ -167,18 +165,29 @@ public abstract class GameWorld extends
         return performanceCounter;
     }
 
+    public void setGameSave(boolean gameSave) {
+        isGameSave = gameSave;
+    }
+
     /**
-     * Invoked before world is loaded
-     * Useful for registering things that are already defined or known
+     * @return save loader
      */
-    protected void preLoad() {
+    public WorldSaveLoader loader() {
+        if (saveLoader == null) this.saveLoader = new WorldSaveLoader(this);
+        return saveLoader;
+    }
+
+    /**
+     * Initialize before loading
+     */
+    protected void init() {
 
     }
 
     /**
-     * Load this world, implementing function.
+     * Invoked after loading is finished
      */
-    protected void load() {
+    protected void finalizeWorld() {
 
     }
 
@@ -190,17 +199,25 @@ public abstract class GameWorld extends
     }
 
     /**
+     * Load this world
+     * Should be overridden to provide the correct map and scaling
+     */
+    public void loadWorld(boolean isGameSave) {
+        this.isGameSave = isGameSave;
+    }
+
+    /**
      * Create and initialize this world.
      *
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
      */
-    public void create(TiledMap worldMap, float worldScale) {
+    protected void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
 
         debugRenderer = new ShapeRenderer();
 
-        preLoad();
+        init();
 
         TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
@@ -218,7 +235,6 @@ public abstract class GameWorld extends
 
         if (isGameSave) {
             player.createBoxBody(world);
-            player.setPosition(player.getX(), player.getY(), true);
         } else {
             player.createBoxBody(world);
             player.setPosition(worldOrigin, true);
@@ -227,7 +243,7 @@ public abstract class GameWorld extends
         player.updateWorldState(this);
         if (game.isAnyMultiplayer()) loadNetworkComponents();
 
-        load();
+        finalizeWorld();
 
         isWorldLoaded = true;
     }
@@ -264,7 +280,13 @@ public abstract class GameWorld extends
      * Enter this world
      */
     public void enter() {
+        if (!isWorldLoaded) {
+            throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
+        }
+
         guiManager.resetCursor();
+        game.setScreen(this);
+        game.setGameReady(true);
     }
 
     /**
@@ -916,6 +938,22 @@ public abstract class GameWorld extends
     }
 
     /**
+     * Find an interaction
+     *
+     * @param type type
+     * @param key  key
+     * @return the object or {@code null} if not found
+     */
+    public InteractableWorldObject findInteraction(WorldInteractionType type, String key) {
+        for (InteractableWorldObject interaction : interactableWorldObjects) {
+            if (interaction.matches(type, key)) {
+                return interaction;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return all interactable objects
      */
     public Array<InteractableWorldObject> interactableWorldObjects() {
@@ -1054,6 +1092,10 @@ public abstract class GameWorld extends
     public boolean mouseMoved(int screenX, int screenY) {
         // do not update cursor state if any GUI is visible besides the HUD
         if (guiManager.isAnyGuiVisible(GuiType.HUD)) return false;
+        // TODO: Not desirable, added to fix EM-57
+        // TODO: Movement was not disabled during save because it was pausing the interior
+        // TODO: world and technically not this one since that had input enabled to the multiplexer.
+        interiorWorlds.values().forEach(w -> w.mouseMoved(screenX, screenY));
 
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
@@ -1065,6 +1107,8 @@ public abstract class GameWorld extends
         entities.forEach(entity -> entity.value.dispose());
         worldObjects.values().forEach(Disposable::dispose);
         interactableWorldObjects.forEach(Disposable::dispose);
+
+        game.getMultiplexer().removeProcessor(this);
 
         unloadBox2dWorld();
 

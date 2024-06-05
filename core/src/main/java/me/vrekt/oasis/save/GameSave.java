@@ -3,15 +3,14 @@ package me.vrekt.oasis.save;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.save.player.PlayerSave;
+import me.vrekt.oasis.save.settings.GameSettingsSave;
 import me.vrekt.oasis.save.world.DefaultWorldSave;
 import me.vrekt.oasis.save.world.WorldSave;
-import me.vrekt.oasis.save.world.player.PlayerSave;
-import me.vrekt.oasis.save.world.settings.GameSettingsSave;
 import me.vrekt.oasis.world.GameWorld;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,8 +37,8 @@ public final class GameSave {
     @Expose
     private PlayerSave player;
 
-    @Expose
-    private List<WorldSave> worlds = new ArrayList<>();
+   // @Expose
+   // private List<WorldSave> worlds = new ArrayList<>();
 
     /**
      * Create a new save
@@ -62,7 +61,7 @@ public final class GameSave {
 
         for (GameWorld world : GameManager.getWorldManager().worlds().values()) {
             final WorldSave save = new DefaultWorldSave(world);
-            this.worlds.add(save);
+          //  this.worlds.add(save);
         }
     }
 
@@ -101,4 +100,16 @@ public final class GameSave {
         return slot;
     }
 
+    public GameSettingsSave settings() {
+        return settings;
+    }
+
+    public PlayerSave player() {
+        return player;
+    }
+
+    public List<WorldSave> worlds() {
+        //return worlds;
+        return null;
+    }
 }

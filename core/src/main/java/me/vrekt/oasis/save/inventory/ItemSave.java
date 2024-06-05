@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.inventory;
+package me.vrekt.oasis.save.inventory;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.item.Item;

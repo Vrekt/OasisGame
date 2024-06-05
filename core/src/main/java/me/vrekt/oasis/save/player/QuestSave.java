@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.questing.Quest;
@@ -32,7 +32,19 @@ public final class QuestSave {
         }
     }
 
-    private static final class QuestObjectiveSave {
+    public QuestType type() {
+        return type;
+    }
+
+    public LinkedList<QuestObjectiveSave> objectives() {
+        return objectives;
+    }
+
+    public int objectiveIndex() {
+        return objectiveIndex;
+    }
+
+    public static final class QuestObjectiveSave {
 
         // Mainly included for readability, it's not required.
         @Expose
@@ -48,6 +60,14 @@ public final class QuestSave {
             this.description = description;
             this.completed = completed;
             this.unlocked = unlocked;
+        }
+
+        public boolean completed() {
+            return completed;
+        }
+
+        public boolean unlocked() {
+            return unlocked;
         }
     }
 

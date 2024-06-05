@@ -4,9 +4,21 @@ Rapid fire
 
 Acid pop animation modified from https://opengameart.org/content/2d-bubble-animation
 
+World Map: https://opengameart.org/content/natural-word
+
+Roach enemy: https://opengameart.org/content/roach-pixel-sheet
+
+Modified by me
+
+
 # References, sources, tutorials
 TBA
 
+````
+antialiasing if needed
+libgdx discord
+if (GlobalSettings.antiAliasing) config.setBackBufferConfig(8,8,8,8,32,0,4);
+```
 
 # Art
 

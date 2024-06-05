@@ -1,7 +1,8 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.artifact.ArtifactType;
 
 /**
  * Single artifact save
@@ -12,14 +13,26 @@ public final class ArtifactSave {
     private int slot;
 
     @Expose
-    private String key;
+    private ArtifactType type;
 
     @Expose
     private int level;
 
     public ArtifactSave(int slot, Artifact artifact) {
         this.slot = slot;
-        this.key = artifact.getKey();
+        this.type = artifact.type();
         this.level = artifact.getArtifactLevel();
+    }
+
+    public int slot() {
+        return slot;
+    }
+
+    public ArtifactType type() {
+        return type;
+    }
+
+    public int level() {
+        return level;
     }
 }

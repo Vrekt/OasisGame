@@ -13,12 +13,31 @@ public final class InteractableEntitySave extends GameEntitySave {
     private EntityNPCType type;
 
     @Expose
-    private int dialogueIndex;
+    private int dialogueStageIndex;
+
+    @Expose
+    private String dialogueEntryKey;
 
     public InteractableEntitySave(EntityInteractable entity) {
         super(entity);
 
         this.type = entity.getType();
-        this.dialogueIndex = entity.dialogue().index();
+        this.dialogueStageIndex = entity.dialogue().index();
+        this.dialogueEntryKey = entity.dialogue().getActiveEntryKey();
+    }
+
+    public InteractableEntitySave() {
+    }
+
+    public EntityNPCType type() {
+        return type;
+    }
+
+    public int dialogueStageIndex() {
+        return dialogueStageIndex;
+    }
+
+    public String dialogueStage() {
+        return dialogueEntryKey;
     }
 }

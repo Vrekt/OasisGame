@@ -30,11 +30,30 @@ public final class Dialogue implements Disposable {
         this.owner = owner;
     }
 
+
+    /**
+     * @return active entry key
+     */
+    public String getActiveEntryKey() {
+        return activeEntry.getKey();
+    }
+
     /**
      * @return current index
      */
     public int index() {
         return index;
+    }
+
+    /**
+     * Set the active dialogue index and set the entry
+     *
+     * @param key
+     * @param index index
+     */
+    public DialogueEntry setStageAndUpdate(String key, int index) {
+        this.index = index;
+        return this.activeEntry = entries.get(key);
     }
 
     /**

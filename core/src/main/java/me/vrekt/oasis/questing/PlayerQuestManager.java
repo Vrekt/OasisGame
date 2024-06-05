@@ -17,6 +17,8 @@ public final class PlayerQuestManager {
         this.activeQuests.put(type, quest);
     }
 
+
+
     public Quest getQuest(QuestType type) {
         return activeQuests.get(type);
     }

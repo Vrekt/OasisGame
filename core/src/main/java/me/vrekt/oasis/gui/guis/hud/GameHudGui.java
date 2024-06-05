@@ -431,7 +431,9 @@ public final class GameHudGui extends Gui {
                 .append(Gdx.graphics.getFramesPerSecond())
                 .append(StringUtils.LF)
                 .append(MSPT)
-                .append(BigDecimal.valueOf(player.getWorldState().getPerformanceCounter().time.average).round(performanceMetricsContext));
+                .append(BigDecimal.valueOf(player.getWorldState().getPerformanceCounter().time.average).round(performanceMetricsContext))
+                .append(StringUtils.LF)
+                .append(player.getPosition());
 
         if (GameManager.game().isMultiplayer()) {
             builder.append(PING)

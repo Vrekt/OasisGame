@@ -25,7 +25,7 @@ public final class WrynnHouseInterior extends GameWorldInterior {
     }
 
     @Override
-    protected void preLoad() {
+    protected void init() {
         interactionManager.registerInteraction(WorldInteractionType.CONTAINER, "wrynn:container", WrynnOfficeContainerInteraction::new);
     }
 

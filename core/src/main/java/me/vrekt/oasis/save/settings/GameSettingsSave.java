@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.settings;
+package me.vrekt.oasis.save.settings;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -43,6 +43,10 @@ public final class GameSettingsSave {
     @SerializedName("keybinding_chat")
     private int chatKey;
 
+    @Expose
+    @SerializedName("keybinding_map")
+    private int mapKey;
+
     public GameSettingsSave() {
         this.entityUpdateDistance = OasisGameSettings.ENTITY_UPDATE_DISTANCE;
         this.showFps = OasisGameSettings.SHOW_FPS;
@@ -52,6 +56,42 @@ public final class GameSettingsSave {
         this.inventoryKey = OasisKeybindings.INVENTORY_KEY;
         this.skipDialogKey = OasisKeybindings.SKIP_DIALOG_KEY;
         this.chatKey = OasisKeybindings.CHAT;
+        this.mapKey = OasisKeybindings.MAP;
     }
 
+    public float entityUpdateDistance() {
+        return entityUpdateDistance;
+    }
+
+    public boolean showFps() {
+        return showFps;
+    }
+
+    public boolean multiplayerLan() {
+        return multiplayerLan;
+    }
+
+    public boolean vsync() {
+        return vsync;
+    }
+
+    public int questKey() {
+        return questKey;
+    }
+
+    public int inventoryKey() {
+        return inventoryKey;
+    }
+
+    public int skipDialogKey() {
+        return skipDialogKey;
+    }
+
+    public int chatKey() {
+        return chatKey;
+    }
+
+    public int mapKey() {
+        return mapKey;
+    }
 }

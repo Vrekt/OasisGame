@@ -17,4 +17,11 @@ public final class EnemyEntitySave extends GameEntitySave {
 
         this.type = entity.type();
     }
+
+    public EnemyEntitySave() {
+    }
+
+    public EntityEnemyType type() {
+        return type;
+    }
 }

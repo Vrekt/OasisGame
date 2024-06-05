@@ -1,4 +1,4 @@
-package me.vrekt.oasis.save.world.player;
+package me.vrekt.oasis.save.player;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -25,4 +25,7 @@ public final class PlayerQuestSave {
         });
     }
 
+    public List<QuestSave> activeQuests() {
+        return activeQuests;
+    }
 }

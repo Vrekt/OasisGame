@@ -19,6 +19,19 @@ public class GameSaveProperties {
     private GameSaveSlotProperty slot3;
 
     /**
+     * Delete a slot
+     *
+     * @param slot slot
+     */
+    public void delete(int slot) {
+        switch (slot) {
+            case 1 -> slot1 = null;
+            case 2 -> slot2 = null;
+            case 3 -> slot3 = null;
+        }
+    }
+
+    /**
      * Set properties of a slot
      *
      * @param slot the slot

@@ -49,6 +49,16 @@ public final class Effect implements Pool.Poolable {
         this.applied = tick;
     }
 
+    /**
+     * Apply without setting the applied tick
+     * Useful for saves
+     *
+     * @param player player
+     */
+    public void applyPreviously(PlayerSP player) {
+        type.applyToPlayer(player, strength);
+    }
+
     public EffectType type() {
         return type;
     }
@@ -63,6 +73,10 @@ public final class Effect implements Pool.Poolable {
 
     public float applied() {
         return applied;
+    }
+
+    public void setApplied(float applied) {
+        this.applied = applied;
     }
 
     /**

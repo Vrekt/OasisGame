@@ -1,11 +1,12 @@
 package me.vrekt.oasis.save.world;
 
+import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.save.world.container.WorldContainerSave;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.GameEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.world.obj.ContainerWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.WorldObjectSave;
@@ -16,6 +17,7 @@ import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +37,6 @@ public abstract class WorldSave {
     @Expose
     List<InteriorSave> interiors;
     @Expose
-    List<WorldContainerSave> containers;
-
-    @Expose
     List<WorldObjectSave> objects;
 
     public WorldSave() {
@@ -50,7 +49,6 @@ public abstract class WorldSave {
 
         writeEntities(world);
         writeInteriors(world);
-        writeContainers(world);
         writeObjects(world);
     }
 
@@ -88,22 +86,6 @@ public abstract class WorldSave {
     }
 
     /**
-     * Write all containers and their contents
-     *
-     * @param world world
-     */
-    protected void writeContainers(GameWorld world) {
-        this.containers = new ArrayList<>();
-
-        for (InteractableWorldObject object : world.interactableWorldObjects()) {
-            if (object.getType() == WorldInteractionType.CONTAINER) {
-                final WorldContainerSave save = new WorldContainerSave((OpenableContainerInteraction) object);
-                containers.add(save);
-            }
-        }
-    }
-
-    /**
      * Write objects
      *
      * @param world world
@@ -117,8 +99,41 @@ public abstract class WorldSave {
         }
 
         for (InteractableWorldObject object : world.interactableWorldObjects()) {
-            final InteractableWorldObjectSave save = new InteractableWorldObjectSave(object);
-            objects.add(save);
+            if (object.getType() == WorldInteractionType.CONTAINER) {
+                final ContainerWorldObjectSave container = new ContainerWorldObjectSave(object, ((OpenableContainerInteraction) object).inventory());
+                objects.add(container);
+            } else {
+                final InteractableWorldObjectSave save = new InteractableWorldObjectSave(object);
+                objects.add(save);
+            }
+        }
+    }
+
+    public List<GameEntitySave> entities() {
+        return entities;
+    }
+
+    public List<InteriorSave> interiors() {
+        return interiors;
+    }
+
+    public List<WorldObjectSave> objects() {
+        return objects;
+    }
+
+    /**
+     * Handle deserializing world saves
+     */
+    public static final class WorldSaveAdapter implements JsonDeserializer<WorldSave> {
+        @Override
+        public WorldSave deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            final JsonObject src = json.getAsJsonObject();
+            final boolean interior = src.get("interior").getAsBoolean();
+            if (interior) {
+                return context.deserialize(json, InteriorSave.class);
+            } else {
+                return context.deserialize(json, DefaultWorldSave.class);
+            }
         }
     }
 

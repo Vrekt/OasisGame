@@ -8,7 +8,7 @@ import me.vrekt.oasis.item.artifact.Artifact;
 public final class FusionArtifact extends Artifact {
 
     public FusionArtifact() {
-        super("artifact:fusion", "Fusion", "Allows you to combine two elements in one attack.");
+        super("artifact:fusion", null, "Fusion", "Allows you to combine two elements in one attack.");
     }
 
     @Override

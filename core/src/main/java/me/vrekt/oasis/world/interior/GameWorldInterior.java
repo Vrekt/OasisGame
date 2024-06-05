@@ -9,11 +9,12 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.utility.input.InteriorMouseHandler;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
+import me.vrekt.oasis.utility.input.InteriorMouseHandler;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.WorldSaveLoader;
 
 /**
  * Represents an interior within the parent world;
@@ -48,7 +49,7 @@ public abstract class GameWorldInterior extends GameWorld {
         this.exit = new Rectangle();
         this.worldName = type.name();
 
-        parentWorld.getGame().getMultiplexer().addProcessor(this);
+        this.saveLoader = new WorldSaveLoader(this);
     }
 
     public InteriorWorldType type() {
@@ -58,11 +59,6 @@ public abstract class GameWorldInterior extends GameWorld {
     @Override
     public boolean isInterior() {
         return true;
-    }
-
-    @Override
-    protected void loadNetworkComponents() {
-
     }
 
     /**
@@ -129,31 +125,38 @@ public abstract class GameWorldInterior extends GameWorld {
         return super.update(delta);
     }
 
+    @Override
+    public void loadWorld(boolean isGameSave) {
+        this.isGameSave = isGameSave;
+        loadTiledMap(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
+    }
+
     /**
      * Enter this interior world
      */
     @Override
     public void enter() {
-        GameLogging.info(this, "Entering interior %s", worldName);
-        guiManager.resetCursor();
+        if (!isWorldLoaded) {
+            throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
+        }
+
+        game.getMultiplexer().addProcessor(this);
+        game.getMultiplexer().removeProcessor(parentWorld);
+        game.setScreen(this);
 
         isExiting = false;
         isWorldActive = true;
-        create(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
-        game.getMultiplexer().removeProcessor(parentWorld);
-        game.setScreen(this);
         isWorldLoaded = true;
-
-
     }
 
     /**
      * Exit
      */
     protected void exit() {
-        isWorldActive = false;
-
         GameLogging.info(this, "Exiting interior");
+
+        isWorldActive = false;
+        game.getMultiplexer().removeProcessor(this);
         GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transfer(player, this, parentWorld));
     }
 
@@ -165,24 +168,21 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     @Override
-    public void create(TiledMap worldMap, float worldScale) {
+    public void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
 
-        if (debugRenderer == null) debugRenderer = new ShapeRenderer();
-
         if (isWorldLoaded) {
-            // indicates this instance is already loaded into memory.
             updateRendererMap();
             player.removeFromWorld();
             setPlayerState();
             return;
         }
 
-        if (world == null) {
-            world = new World(Vector2.Zero, true);
-        }
+        // if world was previously disposed
+        if (debugRenderer == null) debugRenderer = new ShapeRenderer();
+        if (world == null) world = new World(Vector2.Zero, true);
 
-        preLoad();
+        init();
 
         TiledMapLoader.loadMapCollision(map, worldScale, world);
         TiledMapLoader.loadMapActions(map, worldScale, worldOrigin, exit);
@@ -191,14 +191,13 @@ public abstract class GameWorldInterior extends GameWorld {
         createEntities(game, game.getAsset(), map, worldScale);
 
         updateRendererMap();
-
-        // remove player from parent world
         player.removeFromWorld();
-        load();
 
         world.setContactListener(new BasicEntityCollisionHandler());
         setPlayerState();
         addDefaultWorldSystems();
+
+        finalizeWorld();
 
         isWorldLoaded = true;
         GameLogging.info(this, "Loaded interior successfully.");
@@ -206,7 +205,7 @@ public abstract class GameWorldInterior extends GameWorld {
 
     private void setPlayerState() {
         player.createBoxBody(world);
-        player.setPosition(worldOrigin, true);
+        if (!isGameSave) player.setPosition(worldOrigin, true);
         player.updateWorldState(this);
     }
 
@@ -215,6 +214,11 @@ public abstract class GameWorldInterior extends GameWorld {
         GameLogging.info(this, "Unloading interior: " + type);
         isWorldLoaded = false;
         super.dispose();
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return super.keyDown(keycode);
     }
 
     @Override
