@@ -943,12 +943,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * End world rendering and render GUI(s)
      */
     protected void endRender() {
-        // render player name-tags last
         batch.setProjectionMatrix(guiManager.getCamera().combined);
-        for (NetworkPlayer player : players.values()) {
-            if (player.shouldRenderNametag()) {
-                guiManager.renderPlayerNametag(player, renderer.getCamera(), batch);
-            }
+
+        // render object UI elements
+        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+            guiManager.renderWorldObjectComponents((AbstractInteractableWorldObject) worldObject, renderer.getCamera(), batch);
+
         }
 
         // render entity UI elements
@@ -956,8 +956,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             entity.renderDamageAnimation(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
         }
 
-        for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            guiManager.renderWorldObjectComponents((AbstractInteractableWorldObject) worldObject, renderer.getCamera(), batch);
+        // this should be on top of everything ideally.
+        for (NetworkPlayer player : players.values()) {
+            if (player.shouldRenderNametag()) {
+                guiManager.renderPlayerNametag(player, renderer.getCamera(), batch);
+            }
         }
 
         batch.end();
@@ -1047,7 +1050,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * @return all (non) interactable world obejects
+     * @return all (non) interactable world objects
      */
     public Collection<WorldObject> worldObjects() {
         return worldObjects.values();

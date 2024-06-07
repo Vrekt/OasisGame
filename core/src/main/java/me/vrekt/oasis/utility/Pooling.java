@@ -45,7 +45,8 @@ public final class Pooling {
     public static void init(Asset asset) {
         final ParticleEffect effect = new ParticleEffect();
         effect.load(Gdx.files.internal("world/asset/particles/pick_up_hint.p"), asset.getAtlasAssets());
-        itemDropHintPool = new ParticleEffectPool(effect, 6, 100);
+        // watch this, 20 may not be enough depending on how complex the game gets. 6-6-2024
+        itemDropHintPool = new ParticleEffectPool(effect, 6, 20);
     }
 
     public static Effect effect() {

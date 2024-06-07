@@ -8,7 +8,7 @@ import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
- * The basement of wrynns house, first real quest location.
+ * The basement of wrynn's house, first real quest location.
  */
 public final class WrynnBasementInterior extends GameWorldInterior {
 
@@ -16,9 +16,5 @@ public final class WrynnBasementInterior extends GameWorldInterior {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
 
         this.worldMap = Asset.WRYNN_BASEMENT;
-    }
-
-    @Override
-    protected void init() {
     }
 }

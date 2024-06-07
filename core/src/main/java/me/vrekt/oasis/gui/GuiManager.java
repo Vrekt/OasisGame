@@ -81,8 +81,6 @@ public final class GuiManager implements Disposable {
         stack.setFillParent(true);
         stage.addActor(stack);
 
-        stage.setDebugAll(true);
-
         guis.put(GuiType.INVENTORY, inventoryGui = new PlayerInventoryGui(this));
         guis.put(GuiType.HUD, hudGui = new GameHudGui(this));
         guis.put(GuiType.SETTINGS, new SettingsWindowGui(this));
@@ -239,6 +237,12 @@ public final class GuiManager implements Disposable {
         stage.getBatch().end();
     }
 
+    /**
+     * Resize, updates each GUI and stage.
+     *
+     * @param width  width
+     * @param height height
+     */
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
         stage.getCamera().update();
@@ -254,7 +258,9 @@ public final class GuiManager implements Disposable {
      * @param batch  batch to draw with
      */
     public void renderPlayerNametag(NetworkPlayer player, Camera camera, Batch batch) {
-        player.renderNametag(asset.getSmall(), batch, camera, stage.getCamera());
+        worldPosition.set(camera.project(worldPosition.set(player.getX(), player.getY() + 2.25f, 0)));
+        screenPosition.set(getCamera().project(worldPosition));
+        player.renderNametag(asset.getSmall(), batch, screenPosition);
     }
 
     /**

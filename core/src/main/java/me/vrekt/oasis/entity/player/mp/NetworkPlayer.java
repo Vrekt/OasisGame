@@ -1,7 +1,9 @@
 package me.vrekt.oasis.entity.player.mp;
 
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
@@ -22,9 +24,6 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     private TextureRegion activeTexture;
 
     private float nametagRenderWidth;
-    private final Vector3 worldPosition = new Vector3();
-    private final Vector3 screenPosition = new Vector3();
-
     private boolean renderNametag;
 
     private EntityRotation lastRotation = EntityRotation.UP;
@@ -52,10 +51,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     @Override
     public void setName(String name) {
         super.setName(name);
-
-        final GlyphLayout fontLayout = new GlyphLayout(GameManager.getGuiManager().getSmallFont(), name);
-        this.nametagRenderWidth = (fontLayout.width / 6f) * OasisGameSettings.SCALE;
-        fontLayout.reset();
+        this.nametagRenderWidth = GameManager.getGuiManager().getStringWidth(name);
     }
 
     @Override
@@ -119,15 +115,12 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     /**
      * Render the name tag of this player
      *
-     * @param font        the font to use
-     * @param batch       the batch to draw with
-     * @param worldCamera the game world camera
-     * @param guiCamera   the gui camera
+     * @param font           the font to use
+     * @param batch          the batch to draw with
+     * @param screenPosition screen position
      */
-    public void renderNametag(BitmapFont font, Batch batch, Camera worldCamera, Camera guiCamera) {
-        worldPosition.set(worldCamera.project(worldPosition.set(getInterpolatedPosition().x - nametagRenderWidth, getInterpolatedPosition().y + 2.25f, 0.0f)));
-        screenPosition.set(guiCamera.project(worldPosition));
-        font.draw(batch, name(), screenPosition.x, screenPosition.y);
+    public void renderNametag(BitmapFont font, Batch batch, Vector3 screenPosition) {
+        font.draw(batch, name(), screenPosition.x - nametagRenderWidth, screenPosition.y);
     }
 
     private void setIdleRegionState() {

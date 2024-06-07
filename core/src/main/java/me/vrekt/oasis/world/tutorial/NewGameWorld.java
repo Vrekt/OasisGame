@@ -42,10 +42,7 @@ public final class NewGameWorld extends GameWorld {
         super.loadWorld(isGameSave);
 
         if (!isWorldLoaded) loadTiledMap(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
-
-        if (!isGameSave) {
-            player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
-        }
+        if (!isGameSave) player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
     }
 
     @Override

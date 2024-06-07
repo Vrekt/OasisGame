@@ -2,6 +2,7 @@ package me.vrekt.oasis.entity.dialog;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.entity.dialog.utility.DialogueEntryCondition;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.dialog.utility.DialogueState;
@@ -16,6 +17,7 @@ import java.util.Map;
 public final class Dialogue implements Disposable {
 
     // the entries of this dialogue
+    @Expose
     private Map<String, DialogueEntry> entries;
 
     private final transient Map<String, Runnable> dialogueTaskHandlers = new HashMap<>();
@@ -29,7 +31,6 @@ public final class Dialogue implements Disposable {
     public void setOwner(EntitySpeakable owner) {
         this.owner = owner;
     }
-
 
     /**
      * @return active entry key

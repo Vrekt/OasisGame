@@ -41,7 +41,7 @@ public class Styles {
 
     public Styles(Asset asset) {
         themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
-         themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
+        themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
 
         theme = new NinePatchDrawable(themePatch);
         themePadded = new NinePatchDrawable(themePatchPadded);
@@ -102,7 +102,10 @@ public class Styles {
         healingAttributeIcon = new TextureRegionDrawable(asset.get("healing_attribute2"));
     }
 
-    public NinePatch themeAsPatch() {
+    /**
+     * @return the padded theme patch.
+     */
+    public NinePatch paddedTheme() {
         return themePatchPadded;
     }
 

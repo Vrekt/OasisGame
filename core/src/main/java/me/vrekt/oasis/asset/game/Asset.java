@@ -72,10 +72,7 @@ public final class Asset implements Disposable {
         parameter.size = (int) Math.ceil(640 * 0.06);
         large = generator.generateFont(parameter);
 
-        // TODO: Fix font blurriness
         parameter.size = (int) Math.ceil(640 * 0.04);
-        // parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
-        //parameter.magFilter = Texture.TextureFilter.Linear;
         parameter.genMipMaps = true;
 
         medium = generator.generateFont(parameter);

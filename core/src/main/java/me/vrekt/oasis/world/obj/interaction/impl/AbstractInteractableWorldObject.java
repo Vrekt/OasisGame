@@ -26,6 +26,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected float interactionRange = 4.5f;
 
     protected InteractionMouseHandler mouseHandler;
+    protected boolean isUiComponent;
     protected boolean handleMouseState = true;
     protected boolean mouseOver;
 
@@ -83,6 +84,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
                 >= INTERACTION_EXIT_DISTANCE)) {
             reset();
         }
+    }
+
+    /**
+     * @return if this object should be called upon for UI rendering.
+     */
+    public boolean isUiComponent() {
+        return isUiComponent;
     }
 
     /**

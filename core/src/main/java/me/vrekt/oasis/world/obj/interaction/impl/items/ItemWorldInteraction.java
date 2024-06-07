@@ -42,10 +42,6 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
         this.item = item;
     }
 
-    public Item item() {
-        return item;
-    }
-
     @Override
     public void load(Asset asset) {
         effect = Pooling.hint();
@@ -82,7 +78,7 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
             final float height = manager.getStringHeight(item.name()) + PATCH_PADDING;
 
             font.setColor(Color.SKY);
-            styles.themeAsPatch().draw(batch, position.x - width / 2f + (PATCH_PADDING + size.x), position.y - (height + size.y * PATCH_PADDING), width, height);
+            styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING + size.x), position.y - (height + size.y * PATCH_PADDING), width, height);
             font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING + size.x * 6f), position.y - (height + size.y * PATCH_PADDING) / 2f);
         }
     }

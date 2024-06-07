@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 /**
  * Basic utility class to create collision shapes
@@ -30,26 +29,18 @@ public final class CollisionShapeCreator {
      * @param scale  scale
      * @param bw     box2d world
      */
-    public static Body createCollisionInWorld(MapObject object, float scale, World bw) {
+    public static void createCollisionInWorld(MapObject object, float scale, World bw) {
         switch (object) {
-            case PolylineMapObject polylineMapObject -> {
-                return createPolylineShapeInWorld(polylineMapObject, scale, bw);
-            }
-            case PolygonMapObject polygonMapObject -> {
-                return createPolygonShapeInWorld(polygonMapObject, scale, bw);
-            }
-            case RectangleMapObject rectangleMapObject -> {
-                return createPolygonShapeInWorld(rectangleMapObject, scale, true, bw);
-            }
-            case null, default ->
-                    GameLogging.warn("CollisionShapeCreator", "Unknown map object collision type: " + object.getName() + ":" + object.getClass());
+            case PolylineMapObject polylineMapObject -> createPolylineShapeInWorld(polylineMapObject, scale, bw);
+            case PolygonMapObject polygonMapObject -> createPolygonShapeInWorld(polygonMapObject, scale, bw);
+            case RectangleMapObject rectangleMapObject -> createPolygonShapeInWorld(rectangleMapObject, scale, true, bw);
+            default -> throw new IllegalStateException("Unexpected value: " + object);
         }
-        return null;
     }
 
     /**
      * Create a polygon shape and add it to the world using the {@code STATIC_BODY}
-     * https://stackoverflow.com/questions/45805732/libgdx-tiled-map-box2d-collision-with-polygon-map-object
+     * <a href="https://stackoverflow.com/questions/45805732/libgdx-tiled-map-box2d-collision-with-polygon-map-object">...</a>
      *
      * @param object the object
      * @param scale  the scale
@@ -74,7 +65,7 @@ public final class CollisionShapeCreator {
 
     /**
      * Create a polyline shape and add it to the world using the {@code STATIC_BODY}
-     * https://stackoverflow.com/questions/45805732/libgdx-tiled-map-box2d-collision-with-polygon-map-object
+     * <a href="https://stackoverflow.com/questions/45805732/libgdx-tiled-map-box2d-collision-with-polygon-map-object">...</a>
      *
      * @param object the object
      * @param scale  the scale
