@@ -6,7 +6,7 @@ import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.save.inventory.InventorySave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 
 /**
  * Save the container data for this world object
@@ -17,7 +17,7 @@ public final class ContainerWorldObjectSave extends InteractableWorldObjectSave 
     @SerializedName("container_inventory")
     private InventorySave inventory;
 
-    public ContainerWorldObjectSave(GameWorld world, InteractableWorldObject object, AbstractInventory inventory) {
+    public ContainerWorldObjectSave(GameWorld world, AbstractInteractableWorldObject object, AbstractInventory inventory) {
         super(world, object);
 
         this.inventory = new InventorySave(inventory);

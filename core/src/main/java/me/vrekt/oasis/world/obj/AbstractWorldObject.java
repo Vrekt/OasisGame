@@ -7,14 +7,16 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Base implementation of {@link WorldObject}
  */
-public abstract class AbstractWorldObject implements WorldObject {
+public abstract class AbstractWorldObject implements ResourceLoader, Disposable {
 
     protected final Array<ParticleEffect> effects = new Array<>();
     protected GameWorld world;
@@ -26,68 +28,113 @@ public abstract class AbstractWorldObject implements WorldObject {
     protected String key;
     protected Body body;
 
-    @Override
+    /**
+     * @return the key of this object
+     */
     public String getKey() {
         return key;
     }
 
-    @Override
+    /**
+     * Set the world this object is in
+     *
+     * @param world the world
+     */
     public void setWorldIn(GameWorld world) {
         this.world = world;
     }
 
-    @Override
+    /**
+     * Set the position of this object
+     *
+     * @param x x
+     * @param y y
+     */
     public void setPosition(float x, float y) {
         position.set(x, y);
     }
 
-    @Override
+    /**
+     * @return the position of this object
+     */
     public Vector2 getPosition() {
         return position;
     }
 
-    @Override
+    /**
+     * Set the size of this object
+     *
+     * @param width  width
+     * @param height height
+     */
     public void setSize(float width, float height) {
         size.set(width, height);
     }
 
-    @Override
+    /**
+     * @return the size of this object
+     */
     public Vector2 getSize() {
         return size;
     }
 
-    @Override
+    /**
+     * Set the texture of this object
+     *
+     * @param texture the texture
+     */
     public void setTexture(TextureRegion texture) {
         this.texture = texture;
     }
 
-    @Override
+    /**
+     * Set the body of this object
+     *
+     * @param body the body
+     */
     public void setBody(Body body) {
         this.body = body;
     }
 
-    @Override
+    /**
+     * Destroy the collision body.
+     */
     public void destroyCollision() {
         world.boxWorld().destroyBody(body);
         body = null;
     }
 
-    @Override
+    /**
+     * Add a particle effect to this object
+     *
+     * @param effect the effect
+     */
     public void addEffect(ParticleEffect effect) {
         effects.add(effect);
     }
 
-    @Override
+    /**
+     * @param mouse the mouse position
+     * @return {@code true} if the mouse is over this object
+     */
     public boolean isMouseOver(Vector3 mouse) {
         return mouse.x > position.x && mouse.x < (position.x + size.x) && mouse.y > position.y && mouse.y < (position.y + size.y);
     }
 
-    @Override
+    /**
+     * @return the cursor this object should use.
+     */
     public Cursor getCursor() {
         return Cursor.DEFAULT;
     }
 
-    @Override
+    /**
+     * Render this object
+     * This will also render any associated particle effects.
+     *
+     * @param batch the batch
+     * @param delta delta time
+     */
     public void render(SpriteBatch batch, float delta) {
         if (texture != null) batch.draw(texture, position.x, position.y, size.x, size.y);
         for (ParticleEffect effect : effects) {

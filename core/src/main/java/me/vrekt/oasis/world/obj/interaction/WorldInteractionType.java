@@ -1,5 +1,7 @@
 package me.vrekt.oasis.world.obj.interaction;
 
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+
 /**
  * A registry of all interactions within the game
  */
@@ -17,7 +19,7 @@ public enum WorldInteractionType {
         return type;
     }
 
-    public InteractableWorldObject get(String key, InteractionManager manager) {
+    public AbstractInteractableWorldObject get(String key, InteractionManager manager) {
         return manager.getInteraction(this, key);
     }
 

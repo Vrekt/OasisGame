@@ -12,9 +12,9 @@ import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
-import me.vrekt.oasis.world.obj.WorldObject;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
+import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 
 import java.util.ArrayList;
@@ -118,12 +118,12 @@ public abstract class AbstractWorldSaveState {
             objects.add(new DefaultWorldObjectSave(world.destroyedWorldObjects().get(i)));
         }
 
-        for (WorldObject object : world.worldObjects()) {
+        for (AbstractWorldObject object : world.worldObjects()) {
             final DefaultWorldObjectSave save = new DefaultWorldObjectSave(object);
             objects.add(save);
         }
 
-        for (InteractableWorldObject object : world.interactableWorldObjects()) {
+        for (AbstractInteractableWorldObject object : world.interactableWorldObjects()) {
             if (object.getType() == WorldInteractionType.CONTAINER) {
                 final ContainerWorldObjectSave container = new ContainerWorldObjectSave(world, object, ((OpenableContainerInteraction) object).inventory());
                 objects.add(container);

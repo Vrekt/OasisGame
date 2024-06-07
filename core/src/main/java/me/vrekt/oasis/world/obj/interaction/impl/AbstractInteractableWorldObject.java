@@ -8,14 +8,13 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Base implementation of {@link InteractableWorldObject}
+ * Represents a world object that can be interacted with
  */
-public abstract class AbstractInteractableWorldObject extends AbstractWorldObject implements InteractableWorldObject {
+public abstract class AbstractInteractableWorldObject extends AbstractWorldObject {
 
     private static final float INTERACTION_EXIT_DISTANCE = 1.0f;
 
@@ -36,47 +35,67 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         this.interactionPoint = new Vector2();
     }
 
-    @Override
+    /**
+     * @return the type of this interaction
+     */
     public WorldInteractionType getType() {
         return type;
     }
 
-    @Override
+    /**
+     * @return {@code true} if this object was interacted with.
+     */
     public boolean wasInteractedWith() {
         return wasInteractedWith;
     }
 
-    @Override
+    /**
+     * @return {@code true} if the player is within interaction range of this object
+     */
     public boolean isInInteractionRange() {
         return world.player().getPosition().dst2(position) <= interactionRange;
     }
 
-    @Override
+    /**
+     * Set the interaction range
+     *
+     * @param interactionRange the range
+     */
     public void setInteractionRange(float interactionRange) {
         this.interactionRange = interactionRange;
     }
 
-    @Override
+    /**
+     * @return if this interaction is enabled.
+     */
     public boolean isEnabled() {
         return isEnabled;
     }
 
-    @Override
+    /**
+     * Enable this interaction
+     */
     public void enable() {
         this.isEnabled = true;
     }
 
-    @Override
+    /**
+     * Disable this interaction
+     */
     public void disable() {
         this.isEnabled = false;
     }
 
-    @Override
+    /**
+     * @return {@code true} if this update requires updating.
+     */
     public boolean isUpdatable() {
         return updatable;
     }
 
-    @Override
+    /**
+     * Update this object
+     */
     public void update() {
         // player moved away from this interaction so exit.
         if (world.player().movementNotified()
@@ -104,12 +123,18 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     }
 
-    @Override
+    /**
+     * Attach a handler
+     *
+     * @param handler the handler
+     */
     public void attachMouseHandler(InteractionMouseHandler handler) {
         this.mouseHandler = handler;
     }
 
-    @Override
+    /**
+     * Update the mouse state
+     */
     public void updateMouseState() {
         if (!handleMouseState) return;
 
@@ -125,7 +150,9 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         }
     }
 
-    @Override
+    /**
+     * Interact with this object
+     */
     public void interact() {
         world.getGame().getGuiManager().resetCursor();
         world.player().notifyIfMoved();
@@ -135,7 +162,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         interactionPoint.set(world.player().getPosition());
     }
 
-    @Override
+    /**
+     * Check if the provided values match this interaction
+     *
+     * @param type the type
+     * @param key  the key
+     * @return {@code true} if so
+     */
     public boolean matches(WorldInteractionType type, String key) {
         return this.type == type && StringUtils.equalsIgnoreCase(this.key, key);
     }

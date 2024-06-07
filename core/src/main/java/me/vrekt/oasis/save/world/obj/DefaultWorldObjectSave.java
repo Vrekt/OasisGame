@@ -1,13 +1,13 @@
 package me.vrekt.oasis.save.world.obj;
 
-import me.vrekt.oasis.world.obj.WorldObject;
+import me.vrekt.oasis.world.obj.AbstractWorldObject;
 
 /**
  * A normal world object.
  */
 public final class DefaultWorldObjectSave extends AbstractWorldObjectSaveState {
 
-    public DefaultWorldObjectSave(WorldObject object) {
+    public DefaultWorldObjectSave(AbstractWorldObject object) {
         super(object);
     }
 

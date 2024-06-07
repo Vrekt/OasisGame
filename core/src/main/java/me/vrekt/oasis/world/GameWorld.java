@@ -57,9 +57,8 @@ import me.vrekt.oasis.world.effects.AreaEffectCloud;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
+import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
-import me.vrekt.oasis.world.obj.WorldObject;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
@@ -106,8 +105,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final Bag<String> destroyedWorldObjects = new Bag<>();
 
     // objects within this world
-    protected final Map<String, WorldObject> worldObjects = new HashMap<>();
-    protected final Array<InteractableWorldObject> interactableWorldObjects = new Array<>();
+    protected final Map<String, AbstractWorldObject> worldObjects = new HashMap<>();
+    protected final Array<AbstractInteractableWorldObject> interactableWorldObjects = new Array<>();
     protected final Array<Vector2> paths = new Array<>();
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
@@ -450,31 +449,27 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Remove an interactable entity from this world
-     * TODO: In update system maybe check for a state within the entity to queue to remove from world
+     * Remove a dead entity now.
+     * Should be removed from the {@code entities} list from whoever calls the function
+     * Usually, via iterator.
      *
-     * @param entity the entity
+     * @param entity entity
      */
-    public void removeEntity(EntityInteractable entity) {
-        entities.remove(entity.entityId());
+    public void removeDeadEntityNow(GameEntity entity) {
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
+        deadEnemies.add(entity.asEnemy().type());
+        entity.dispose();
     }
 
     /**
-     * Remove a dead entity from this world
+     * Queue for a dead entity to be removed from this world.
+     * Entity will be removed next tick.
      *
      * @param entity the entity
      */
-    public void removeDeadEntity(GameEntity entity) {
-        entities.remove(entity.entityId());
-        engine.removeEntity(entity.getEntity());
-        nearbyEntities.remove(entity.entityId());
-
-        // save dead enemies
-        deadEnemies.add(entity.asEnemy().type());
-
-        entity.dispose();
+    public void queueRemoveDeadEntity(GameEntity entity) {
+        entity.queueForRemoval();
     }
 
     /**
@@ -520,7 +515,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 if (interactable) {
                     // find interaction and create world object either from key or type
                     final WorldInteractionType interactionType = WorldInteractionType.of(type);
-                    final InteractableWorldObject worldObject = interactionType.get(key, interactionManager);
+                    final AbstractInteractableWorldObject worldObject = interactionType.get(key, interactionManager);
 
                     worldObject.setWorldIn(this);
                     worldObject.setPosition(rectangle.x, rectangle.y);
@@ -536,7 +531,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                     interactableWorldObjects.add(worldObject);
                 } else {
                     // load base object
-                    final WorldObject worldObject = new SimpleWorldObject(key);
+                    final AbstractWorldObject worldObject = new SimpleWorldObject(key);
                     worldObject.load(asset);
                     worldObject.setWorldIn(this);
 
@@ -652,7 +647,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param object obj
      * @param asset  assets
      */
-    protected void createObjectParticles(WorldObject wb, MapObject object, Asset asset) {
+    protected void createObjectParticles(AbstractWorldObject wb, MapObject object, Asset asset) {
         final String particleKey = TiledMapLoader.ofString(object, "particle");
         if (particleKey == null) return; // this object has no particles
 
@@ -671,7 +666,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param wb        wb
      * @param rectangle the rectangle shape
      */
-    protected void createObjectCollisionBody(WorldObject wb, Rectangle rectangle) {
+    protected void createObjectCollisionBody(AbstractInteractableWorldObject wb, Rectangle rectangle) {
         final Body body = CollisionShapeCreator
                 .createPolygonShapeInWorld(
                         rectangle.x,
@@ -693,7 +688,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param x         x
      * @param y         y
      */
-    protected void createObjectCollisionBodyFromTexture(WorldObject wb, Rectangle rectangle, TextureRegion texture, float x, float y) {
+    protected void createObjectCollisionBodyFromTexture(AbstractWorldObject wb, Rectangle rectangle, TextureRegion texture, float x, float y) {
         if (texture == null) return;
 
         // create collision body, offset position to fit within bounds.
@@ -821,10 +816,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         projectileManager.update(delta);
         worldDamageAnimator.update(delta);
 
-        // added back since it was removed from lunar
-        // may be added back
-        // but ideally, user should implement updating player
-        // not the library
         player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);
@@ -858,7 +849,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param interaction interaction
      * @param exit        if it was exited
      */
-    protected void handleInteractionMouseOver(InteractableWorldObject interaction, boolean exit) {
+    protected void handleInteractionMouseOver(AbstractInteractableWorldObject interaction, boolean exit) {
         if (exit && guiManager.wasCursorChanged()) {
             guiManager.resetCursor();
         } else if (!guiManager.wasCursorChanged()) {
@@ -916,10 +907,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         // general world objects
-        for (WorldObject object : worldObjects.values()) object.render(batch, delta);
+        for (AbstractWorldObject object : worldObjects.values()) object.render(batch, delta);
 
         // interactions
-        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
             worldObject.updateMouseState();
 
             if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
@@ -946,9 +937,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         batch.setProjectionMatrix(guiManager.getCamera().combined);
 
         // render object UI elements
-        for (InteractableWorldObject worldObject : interactableWorldObjects) {
-            guiManager.renderWorldObjectComponents((AbstractInteractableWorldObject) worldObject, renderer.getCamera(), batch);
-
+        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
+            if (worldObject.isUiComponent()) {
+                guiManager.renderWorldObjectComponents(worldObject, renderer.getCamera(), batch);
+            }
         }
 
         // render entity UI elements
@@ -1018,7 +1010,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param key  the key
      */
     public void enableWorldInteraction(WorldInteractionType type, String key) {
-        for (InteractableWorldObject interaction : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject interaction : interactableWorldObjects) {
             if (interaction.matches(type, key)) {
                 interaction.enable();
                 break;
@@ -1033,8 +1025,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param key  key
      * @return the object or {@code null} if not found
      */
-    public InteractableWorldObject findInteraction(WorldInteractionType type, String key) {
-        for (InteractableWorldObject interaction : interactableWorldObjects) {
+    public AbstractInteractableWorldObject findInteraction(WorldInteractionType type, String key) {
+        for (AbstractInteractableWorldObject interaction : interactableWorldObjects) {
             if (interaction.matches(type, key)) {
                 return interaction;
             }
@@ -1045,14 +1037,14 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     /**
      * @return all interactable objects
      */
-    public Array<InteractableWorldObject> interactableWorldObjects() {
+    public Array<AbstractInteractableWorldObject> interactableWorldObjects() {
         return interactableWorldObjects;
     }
 
     /**
      * @return all (non) interactable world objects
      */
-    public Collection<WorldObject> worldObjects() {
+    public Collection<AbstractWorldObject> worldObjects() {
         return worldObjects.values();
     }
 
@@ -1105,8 +1097,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * Check if the player interacted with a world object
      */
     protected boolean didInteractWithWorldObject() {
-        InteractableWorldObject interaction = null;
-        for (InteractableWorldObject object : interactableWorldObjects) {
+        AbstractInteractableWorldObject interaction = null;
+        for (AbstractInteractableWorldObject object : interactableWorldObjects) {
             if (object.isEnabled()
                     && object.isInInteractionRange()
                     && object.isMouseOver(cursorInWorld)

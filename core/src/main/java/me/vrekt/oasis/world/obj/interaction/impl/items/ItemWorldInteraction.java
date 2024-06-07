@@ -39,6 +39,7 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
         enable();
 
         this.handleMouseState = false;
+        this.isUiComponent = true;
         this.item = item;
     }
 

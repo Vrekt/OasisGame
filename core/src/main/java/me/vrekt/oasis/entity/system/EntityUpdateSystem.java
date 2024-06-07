@@ -7,6 +7,8 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.world.GameWorld;
 
+import java.util.Iterator;
+
 /**
  * Handles updating entities
  */
@@ -25,13 +27,20 @@ public final class EntityUpdateSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
-        for (GameEntity entity : world.entities().values()) {
-            if (entity.invalid()) continue;
+        for (Iterator<GameEntity> it = world.entities().values().iterator(); it.hasNext(); ) {
+            final GameEntity entity = it.next();
+            if (entity.queuedForRemoval()) {
+                world.removeDeadEntityNow(entity);
+                it.remove();
+                continue;
+            }
 
             // update entities we can see, or are within update distance
             final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
             entity.setDistanceToPlayer(distance);
 
+            // TODO: Will cause issues when a entity is out of view, if dying
+            // TODO: Very low priority
             if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE
                     || entity.isInView(gameCamera)) {
 

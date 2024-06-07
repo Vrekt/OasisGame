@@ -1,5 +1,7 @@
 package me.vrekt.oasis.world.obj.interaction;
 
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -18,7 +20,7 @@ public final class InteractionManager {
      * @param key      the key of the specific implementation
      * @param provider the provider for that implementation
      */
-    public void registerInteraction(WorldInteractionType type, String key, Supplier<InteractableWorldObject> provider) {
+    public void registerInteraction(WorldInteractionType type, String key, Supplier<AbstractInteractableWorldObject> provider) {
         final ChildInteractionRegistry r = getOrCreateRegistry(type);
         r.registry.put(key, provider);
     }
@@ -40,12 +42,12 @@ public final class InteractionManager {
      * @param key  the subtype
      * @return the object
      */
-    public InteractableWorldObject getInteraction(WorldInteractionType type, String key) {
+    public AbstractInteractableWorldObject getInteraction(WorldInteractionType type, String key) {
         return interactionRegistry.get(type).registry.get(key).get();
     }
 
     private static final class ChildInteractionRegistry {
-        private final Map<String, Supplier<InteractableWorldObject>> registry = new HashMap<>();
+        private final Map<String, Supplier<AbstractInteractableWorldObject>> registry = new HashMap<>();
     }
 
 }

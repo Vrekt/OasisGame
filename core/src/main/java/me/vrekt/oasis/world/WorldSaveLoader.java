@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.InteriorWorldSave;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
@@ -12,8 +13,8 @@ import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import org.apache.commons.lang3.StringUtils;
 
@@ -68,7 +69,9 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
             } else {
                 final EnemyEntitySave ees = (EnemyEntitySave) entitySave;
                 if (ees.isDead()) {
-                    world.removeDeadEntity(world.getEnemyByType(ees.type()));
+                    final EntityEnemy e = world.getEnemyByType(ees.type());
+                    world.entities.remove(e.entityId());
+                    world.removeDeadEntityNow(e);
                 } else {
                     world.getEnemyByType(ees.type()).load(ees);
                 }
@@ -123,7 +126,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
         if (save.type() == WorldInteractionType.CONTAINER) {
             loadContainer((ContainerWorldObjectSave) save);
         } else {
-            final InteractableWorldObject object = world.findInteraction(save.type(), save.key());
+            final AbstractInteractableWorldObject object = world.findInteraction(save.type(), save.key());
             if (save.enabled()) object.enable();
         }
     }

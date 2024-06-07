@@ -2,8 +2,8 @@ package me.vrekt.oasis.save.world.obj;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 
 /**
  * Interactable world object save data
@@ -16,7 +16,7 @@ public class InteractableWorldObjectSave extends AbstractWorldObjectSaveState {
     @Expose
     private WorldInteractionType type;
 
-    public InteractableWorldObjectSave(GameWorld world, InteractableWorldObject object) {
+    public InteractableWorldObjectSave(GameWorld world, AbstractInteractableWorldObject object) {
         this.key = object.getKey();
         this.enabled = object.isEnabled();
         this.type = object.getType();

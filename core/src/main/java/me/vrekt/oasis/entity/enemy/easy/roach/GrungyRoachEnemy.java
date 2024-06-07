@@ -187,9 +187,8 @@ public final class GrungyRoachEnemy extends EntityEnemy {
             // indicates we entered the state already
             body.setLinearVelocity(0, 0);
             if (dyingState.isFinished()) {
-                this.invalid = true;
                 worldIn.spawnWorldDrop(Items.WRYNN_RECIPE_BOOK, 1, body.getPosition());
-                worldIn.removeDeadEntity(this);
+                worldIn.queueRemoveDeadEntity(this);
                 stateMachine.stop();
             }
         }

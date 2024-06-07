@@ -1,7 +1,7 @@
 package me.vrekt.oasis.save.world.obj;
 
 import com.google.gson.annotations.Expose;
-import me.vrekt.oasis.world.obj.WorldObject;
+import me.vrekt.oasis.world.obj.AbstractWorldObject;
 
 /**
  * Save a world object
@@ -17,7 +17,7 @@ public abstract class AbstractWorldObjectSaveState {
     @Expose
     protected boolean destroyed;
 
-    public AbstractWorldObjectSaveState(WorldObject object) {
+    public AbstractWorldObjectSaveState(AbstractWorldObject object) {
         this.key = object.getKey();
         this.interactable = false;
     }
