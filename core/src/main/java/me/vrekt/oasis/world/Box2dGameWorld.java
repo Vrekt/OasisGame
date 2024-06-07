@@ -29,7 +29,6 @@ public abstract class Box2dGameWorld {
     protected final Vector2 worldOrigin = new Vector2();
 
     protected float accumulator;
-    protected String worldName;
 
     public Box2dGameWorld(World world, Engine engine) {
         this.world = world;
@@ -49,14 +48,6 @@ public abstract class Box2dGameWorld {
      */
     public Vector2 origin() {
         return worldOrigin;
-    }
-
-    public String worldName() {
-        return worldName;
-    }
-
-    public void setWorldName(String worldName) {
-        this.worldName = worldName;
     }
 
     /**

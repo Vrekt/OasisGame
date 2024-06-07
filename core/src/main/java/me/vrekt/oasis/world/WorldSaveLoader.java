@@ -36,6 +36,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
         if (worldSave instanceof InteriorWorldSave save) {
             final GameWorldInterior interior = (GameWorldInterior) world;
 
+            interior.setHasVisited(true);
             interior.setEnterable(save.enterable());
             world.getGame().getWorldManager().setParentWorldPosition(save.enteredPosition());
         } else {
@@ -43,6 +44,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
                 loadInterior(interior);
             }
         }
+        world.hasVisited = true;
     }
 
     /**
@@ -65,11 +67,16 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
                 interactable++;
             } else {
                 final EnemyEntitySave ees = (EnemyEntitySave) entitySave;
-                world.getEnemyByType(ees.type()).load(ees);
+                if (ees.isDead()) {
+                    world.removeDeadEntity(world.getEnemyByType(ees.type()));
+                } else {
+                    world.getEnemyByType(ees.type()).load(ees);
+                }
 
                 enemy++;
             }
         }
+
         GameLogging.info(world.worldName, "Loaded %d interactable entities and %d enemies", interactable, enemy);
     }
 

@@ -59,6 +59,15 @@ public class GameSaveProperties {
             default -> StringUtils.EMPTY;
         };
     }
+    public String getSlotNameOr(int slot, String name) {
+        return switch (slot) {
+            case 1 -> slot1.name();
+            case 2 -> slot2.name();
+            case 3 -> slot3.name();
+            default -> name;
+        };
+    }
+
 
     public GameSaveSlotProperty getSaveSlotProperty(int slot) {
         return switch (slot) {

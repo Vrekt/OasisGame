@@ -13,22 +13,22 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 public abstract class AbstractEntitySaveState {
 
     @Expose
-    private String is;
+    protected String is;
     @Expose
-    private String name;
+    protected String name;
     @Expose
-    private int entityId;
+    protected int entityId;
     @Expose
-    private Vector2 position;
+    protected Vector2 position;
     @Expose
-    private Vector3 size;
+    protected Vector3 size;
     @Expose
-    private float health;
+    protected float health;
     @Expose
-    private EntityRotation rotation;
+    protected EntityRotation rotation;
     @Expose
     @SerializedName("move_speed")
-    private float moveSpeed;
+    protected float moveSpeed;
 
     public AbstractEntitySaveState(GameEntity entity) {
         this.is = entity.isInteractable() ? "interactable" : "enemy";

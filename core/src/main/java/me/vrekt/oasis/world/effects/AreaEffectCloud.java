@@ -6,19 +6,13 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.utility.Pooling;
 
 /**
  * Represents an area effect cloud.
  * Any entity within this cloud is effected by it.
  */
 public final class AreaEffectCloud implements Pool.Poolable {
-
-    private static final Pool<AreaEffectCloud> POOL = new Pool<>() {
-        @Override
-        protected AreaEffectCloud newObject() {
-            return new AreaEffectCloud();
-        }
-    };
 
     private Effect effect;
     private float tickApplied;
@@ -42,7 +36,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
                                          float interval,
                                          float strength,
                                          float duration) {
-        final AreaEffectCloud effectCloud = POOL.obtain();
+        final AreaEffectCloud effectCloud = Pooling.effectCloud();
         final Effect effect = Effect.create(type, interval, strength, 0.0f);
 
         effectCloud.load(effect, position, duration, null);
@@ -65,7 +59,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
                                          float strength,
                                          float duration,
                                          GameEntity immune) {
-        final AreaEffectCloud effectCloud = POOL.obtain();
+        final AreaEffectCloud effectCloud = Pooling.effectCloud();
         final Effect effect = Effect.create(type, interval, strength, 0.0f);
 
         effectCloud.load(effect, position, duration, immune);
@@ -133,7 +127,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
      */
     public void dispose() {
         effect.free();
-        POOL.free(this);
+        Pooling.freeEffectCloud(this);
     }
 
     @Override

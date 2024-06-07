@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -30,6 +33,7 @@ import me.vrekt.oasis.gui.guis.sign.ReadableSignGui;
 import me.vrekt.oasis.gui.windows.PauseWindowGui;
 import me.vrekt.oasis.gui.windows.SaveGameWindowGui;
 import me.vrekt.oasis.gui.windows.SettingsWindowGui;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,11 +63,16 @@ public final class GuiManager implements Disposable {
     private Cursor cursorState;
     private boolean wasCursorChanged;
 
+    private final GlyphLayout layout;
+    private final Vector3 worldPosition = new Vector3();
+    private final Vector3 screenPosition = new Vector3();
+
     public GuiManager(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.game = game;
         this.asset = asset;
         this.skin = asset.getDefaultLibgdxSkin();
         this.styles = game.getStyle();
+        this.layout = new GlyphLayout();
 
         // fit this stage to always respect the general constraints we want
         stage = new Stage(new FitViewport(640, 480));
@@ -71,6 +80,8 @@ public final class GuiManager implements Disposable {
 
         stack.setFillParent(true);
         stage.addActor(stack);
+
+        stage.setDebugAll(true);
 
         guis.put(GuiType.INVENTORY, inventoryGui = new PlayerInventoryGui(this));
         guis.put(GuiType.HUD, hudGui = new GameHudGui(this));
@@ -244,6 +255,43 @@ public final class GuiManager implements Disposable {
      */
     public void renderPlayerNametag(NetworkPlayer player, Camera camera, Batch batch) {
         player.renderNametag(asset.getSmall(), batch, camera, stage.getCamera());
+    }
+
+    /**
+     * Assumes using small font, maybe in the future provide font.
+     *
+     * @param text text
+     * @return the string width
+     */
+    public float getStringWidth(String text) {
+        layout.reset();
+        layout.setText(asset.getSmall(), text);
+        return layout.width;
+    }
+
+    /**
+     * Assumes using small font, maybe in the future provide font.
+     *
+     * @param text text
+     * @return the string height
+     */
+    public float getStringHeight(String text) {
+        layout.reset();
+        layout.setText(asset.getSmall(), text);
+        return layout.height;
+    }
+
+    /**
+     * Render object components
+     *
+     * @param worldObject object
+     * @param camera      world camera
+     * @param batch       world batch
+     */
+    public void renderWorldObjectComponents(AbstractInteractableWorldObject worldObject, Camera camera, SpriteBatch batch) {
+        worldPosition.set(camera.project(worldPosition.set(worldObject.getPosition().x, worldObject.getPosition().y + 0.55f, 0)));
+        screenPosition.set(getCamera().project(worldPosition));
+        worldObject.renderUiComponents(batch, styles, this, asset.getSmall(), screenPosition);
     }
 
     /**

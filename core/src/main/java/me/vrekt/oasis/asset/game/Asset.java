@@ -3,10 +3,7 @@ package me.vrekt.oasis.asset.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -27,6 +24,9 @@ public final class Asset implements Disposable {
     private BitmapFont smaller, small, medium, large, boxy;
     private TextureAtlas atlasAssets;
 
+    public Asset() {
+    }
+
     public void load() {
         final long now = System.currentTimeMillis();
         loadSkins();
@@ -44,6 +44,7 @@ public final class Asset implements Disposable {
 
         assetManager.finishLoading();
         this.atlasAssets = assetManager.get(ASSETS);
+
         final long time = System.currentTimeMillis() - now;
         GameLogging.info("AssetManager", "Finished loading assets in %sms", time);
     }
@@ -73,8 +74,8 @@ public final class Asset implements Disposable {
 
         // TODO: Fix font blurriness
         parameter.size = (int) Math.ceil(640 * 0.04);
-        parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
-        parameter.magFilter = Texture.TextureFilter.Linear;
+        // parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
+        //parameter.magFilter = Texture.TextureFilter.Linear;
         parameter.genMipMaps = true;
 
         medium = generator.generateFont(parameter);

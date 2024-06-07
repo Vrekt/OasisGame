@@ -13,6 +13,8 @@ public final class OasisGameSettings {
     public static boolean V_SYNC = true;
 
     public static boolean ENABLE_DEBUG_MENU = true;
+    public static boolean AUTO_SAVE = true;
+    public static float AUTO_SAVE_INTERVAL_MINUTES = 1f;
 
     /**
      * Load settings from save
@@ -24,6 +26,8 @@ public final class OasisGameSettings {
         SHOW_FPS = save.showFps();
         ENABLE_MP_LAN = save.multiplayerLan();
         V_SYNC = save.vsync();
+        AUTO_SAVE = save.autoSave();
+        AUTO_SAVE_INTERVAL_MINUTES = save.autoSaveInterval();
     }
 
 }

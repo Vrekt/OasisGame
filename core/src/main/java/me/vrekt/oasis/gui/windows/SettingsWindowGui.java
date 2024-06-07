@@ -18,6 +18,8 @@ import me.vrekt.oasis.gui.GuiType;
 public final class SettingsWindowGui extends Gui {
 
     private final VisLabel entityUpdateDistancePercentage;
+    private final VisLabel autoSaveIntervalLabel;
+    private final VisSlider autoSaveSlider;
     private long lastMultiplayerChecked = System.currentTimeMillis();
 
     public SettingsWindowGui(GuiManager guiManager) {
@@ -40,11 +42,18 @@ public final class SettingsWindowGui extends Gui {
         multiplayerGameContainer.left();
         final VisTable vsyncContainer = new VisTable();
         vsyncContainer.left();
+
+        final VisTable autoSaveContainer = new VisTable();
+        autoSaveContainer.left();
+
         final VisTable entityUpdateDistanceContainer = new VisTable();
+        final VisTable autoSaveSliderContainer = new VisTable();
 
         multiplayerGameContainer.setBackground(guiManager.getStyle().getTheme());
         vsyncContainer.setBackground(guiManager.getStyle().getTheme());
         entityUpdateDistanceContainer.setBackground(guiManager.getStyle().getTheme());
+        autoSaveContainer.setBackground(guiManager.getStyle().getTheme());
+        autoSaveSliderContainer.setBackground(guiManager.getStyle().getTheme());
 
         final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", guiManager.getStyle().getCheckBoxStyle());
         multiplayerGameCheck.setChecked(guiManager.getGame().isLocalMultiplayer());
@@ -54,8 +63,12 @@ public final class SettingsWindowGui extends Gui {
         vsyncCheck.setChecked(OasisGameSettings.V_SYNC);
         vsyncContainer.add(vsyncCheck).left();
 
+        final VisCheckBox autoSaveCheck = new VisCheckBox("Auto Save", guiManager.getStyle().getCheckBoxStyle());
+        autoSaveCheck.setChecked(OasisGameSettings.AUTO_SAVE);
+        autoSaveContainer.add(autoSaveCheck).left();
+
         // handle checking and changing options with the checkboxes
-        handleCheckBoxComponents(vsyncCheck, multiplayerGameCheck);
+        handleCheckBoxComponents(vsyncCheck, multiplayerGameCheck, autoSaveCheck);
 
         final NinePatch patch = new NinePatch(guiManager.getAsset().get("slider_knob"), 1, 1, 1, 1);
         final NinePatchDrawable drawable = new NinePatchDrawable(patch);
@@ -72,11 +85,22 @@ public final class SettingsWindowGui extends Gui {
         entityUpdateDistanceContainer.add(entityUpdateDistanceLabel).padRight(4f);
         entityUpdateDistanceContainer.add(entityUpdateDistanceSlider);
         entityUpdateDistanceContainer.add(entityUpdateDistancePercentage = new VisLabel("(100%)", guiManager.getStyle().getSmallerWhite())).padLeft(2f);
-        handleSliderComponent(entityUpdateDistanceSlider);
+
+        autoSaveIntervalLabel = new VisLabel("Autosave: " + OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES + " minutes", guiManager.getStyle().getMediumWhite());
+        autoSaveSlider = new VisSlider(1.0f, 60.0f, 1.0f, false, sliderStyle);
+        autoSaveSlider.setValue(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES);
+        autoSaveSliderContainer.add(autoSaveIntervalLabel).padRight(4f);
+        autoSaveSliderContainer.add(autoSaveSlider);
+
+        handleSliderComponents(entityUpdateDistanceSlider, autoSaveSlider);
 
         gameSettingsTable.add(multiplayerGameContainer).fillX();
         gameSettingsTable.row().padTop(4f);
         gameSettingsTable.add(vsyncContainer).fillX();
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(autoSaveContainer).fillX();
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(autoSaveSliderContainer).fillX();
         gameSettingsTable.row().padTop(4f);
         gameSettingsTable.add(entityUpdateDistanceContainer).fillX();
 
@@ -100,7 +124,7 @@ public final class SettingsWindowGui extends Gui {
      * @param vsync  the checkbox
      * @param mpGame mp game checkbox
      */
-    private void handleCheckBoxComponents(VisCheckBox vsync, VisCheckBox mpGame) {
+    private void handleCheckBoxComponents(VisCheckBox vsync, VisCheckBox mpGame, VisCheckBox autoSave) {
         vsync.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
@@ -127,14 +151,32 @@ public final class SettingsWindowGui extends Gui {
                 }
             }
         });
+
+        autoSave.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                OasisGameSettings.AUTO_SAVE = autoSave.isChecked();
+                autoSaveSlider.setDisabled(!autoSave.isChecked());
+            }
+        });
+
     }
 
-    private void handleSliderComponent(VisSlider slider) {
+    private void handleSliderComponents(VisSlider slider, VisSlider autoSaveSlider) {
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
                 OasisGameSettings.ENTITY_UPDATE_DISTANCE = slider.getValue();
                 entityUpdateDistancePercentage.setText(" (" + OasisGameSettings.ENTITY_UPDATE_DISTANCE + "%)");
+            }
+        });
+
+        autoSaveSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES = autoSaveSlider.getValue();
+                autoSaveIntervalLabel.setText("Autosave: " + autoSaveSlider.getValue() + " minutes");
+                guiManager.getGame().scheduleAutoSave(autoSaveSlider.getValue() * 60);
             }
         });
     }

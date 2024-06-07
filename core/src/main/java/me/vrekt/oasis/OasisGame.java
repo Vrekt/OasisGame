@@ -25,6 +25,7 @@ import me.vrekt.oasis.save.world.PlayerWorldSave;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisMainMenu;
 import me.vrekt.oasis.ui.OasisSplashScreen;
+import me.vrekt.oasis.utility.Pooling;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
@@ -41,7 +42,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240605-1029-4338";
+    public static final String GAME_VERSION = "20240606-2336-4494";
 
     private Asset asset;
 
@@ -73,6 +74,9 @@ public final class OasisGame extends Game {
     private Styles style;
     private Texture logoTexture;
 
+    private int autoSaveTaskId = -1;
+    private int currentSlot = -1;
+
     @Override
     public void create() {
         GameLogging.info(this, "Starting game, version: %s", GAME_VERSION);
@@ -94,7 +98,7 @@ public final class OasisGame extends Game {
         VisUI.load();
         style = new Styles(asset);
 
-        // read game properties for loading a game
+        Pooling.init(asset);
         SaveManager.init();
         SaveManager.readSaveGameProperties();
         GameManager.setOasis(this);
@@ -198,6 +202,8 @@ public final class OasisGame extends Game {
 
         world.loadWorld(false);
         world.enter();
+
+        scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);
     }
 
     public void hostNewGame() {
@@ -220,12 +226,31 @@ public final class OasisGame extends Game {
     }
 
     /**
+     * Schedule an auto save
+     *
+     * @param delay delay
+     */
+    public void scheduleAutoSave(float delay) {
+        if (autoSaveTaskId != -1) {
+            GameManager.getTaskManager().cancel(autoSaveTaskId);
+        }
+
+        autoSaveTaskId = GameManager.getTaskManager().schedule(() -> {
+            if (currentSlot == -1) currentSlot = 0;
+            saveGameAsync(currentSlot, SaveManager.getProperties().getSlotNameOr(currentSlot, "AutoSave"));
+        }, delay);
+    }
+
+    /**
      * Load a save game slot
      *
      * @param slot the slot
      */
     public void loadSaveGame(int slot) {
         loadGameSaveAsync(slot);
+        currentSlot = slot;
+
+        scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);
     }
 
     /**

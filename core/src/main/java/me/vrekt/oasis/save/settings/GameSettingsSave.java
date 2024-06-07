@@ -28,6 +28,14 @@ public final class GameSettingsSave {
     private boolean vsync;
 
     @Expose
+    @SerializedName("auto_save")
+    private boolean autoSave;
+
+    @Expose
+    @SerializedName("auto_save_interval")
+    private float autoSaveInterval;
+
+    @Expose
     @SerializedName("keybinding_quest")
     private int questKey;
 
@@ -57,6 +65,8 @@ public final class GameSettingsSave {
         this.skipDialogKey = OasisKeybindings.SKIP_DIALOG_KEY;
         this.chatKey = OasisKeybindings.CHAT;
         this.mapKey = OasisKeybindings.MAP;
+        this.autoSave = OasisGameSettings.AUTO_SAVE;
+        this.autoSaveInterval = OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES;
     }
 
     public float entityUpdateDistance() {
@@ -73,6 +83,14 @@ public final class GameSettingsSave {
 
     public boolean vsync() {
         return vsync;
+    }
+
+    public boolean autoSave() {
+        return autoSave;
+    }
+
+    public float autoSaveInterval() {
+        return autoSaveInterval;
     }
 
     public int questKey() {

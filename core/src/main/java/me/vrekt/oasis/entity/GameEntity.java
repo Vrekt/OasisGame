@@ -64,6 +64,8 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
 
     protected EntityMouseHandler mouseHandler;
     protected boolean mouseOver;
+    // entity is queued to be removed from the world.
+    protected boolean invalid;
 
     protected AreaEffectCloud cloudApartOf;
 
@@ -284,6 +286,13 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      */
     public boolean isDead() {
         return getHealth() <= 0;
+    }
+
+    /**
+     * @return entity should not be updated
+     */
+    public boolean invalid() {
+        return invalid;
     }
 
     public float getAngle() {

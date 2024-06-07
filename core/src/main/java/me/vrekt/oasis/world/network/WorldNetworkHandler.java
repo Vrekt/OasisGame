@@ -21,7 +21,7 @@ public final class WorldNetworkHandler {
     public WorldNetworkHandler(OasisGame game, GameWorld world) {
         this.game = game;
         this.world = world;
-        this.player = world.getLocalPlayer();
+        this.player = world.player();
     }
 
     /**

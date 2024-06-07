@@ -39,7 +39,7 @@ public abstract class GameWorldInterior extends GameWorld {
     protected boolean isWorldActive;
 
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
-        super(parentWorld.getGame(), parentWorld.getLocalPlayer(), new World(Vector2.Zero, true));
+        super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
 
         this.parentWorld = parentWorld;
         this.interiorMap = interiorMap;
@@ -129,6 +129,8 @@ public abstract class GameWorldInterior extends GameWorld {
     public void loadWorld(boolean isGameSave) {
         this.isGameSave = isGameSave;
         loadTiledMap(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
+
+        if (isGameSave) hasVisited = true;
     }
 
     /**

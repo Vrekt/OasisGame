@@ -107,6 +107,10 @@ public final class TiledMapLoader {
         return object.getProperties().get(key, false, Boolean.class);
     }
 
+    public static boolean ofBoolean(MapObject object, String key, boolean def) {
+        return object.getProperties().get(key, def, Boolean.class);
+    }
+
     public static String ofString(MapObject object, String key) {
         return object.getProperties().get(key, null, String.class);
     }

@@ -1,0 +1,89 @@
+{
+  "name": "AutoSave",
+  "progress": 0.0,
+  "date": "06-06-24 09:19 AM",
+  "multiplayer": false,
+  "slot": 0,
+  "settings": {
+    "entity_update_distance": 100.0,
+    "show_fps": true,
+    "mp_lan": false,
+    "v_sync": true,
+    "keybinding_quest": 45,
+    "keybinding_inventory": 37,
+    "keybinding_skip_dialog": 34,
+    "keybinding_chat": 48,
+    "keybinding_map": 41
+  },
+  "player": {
+    "name": "Player64",
+    "position": {
+      "x": 34.75,
+      "y": 25.88557
+    },
+    "inventory": {
+      "type": "PLAYER",
+      "size": 18,
+      "contents": []
+    },
+    "all_worlds_and_state": {
+      "world_in_name": "TutorialWorld",
+      "is_in_interior": false,
+      "current_world_in": {
+        "map": "world/worlds/TutorialWorld.tmx",
+        "name": "TutorialWorld",
+        "interior": false,
+        "entities": [],
+        "interiors": [],
+        "objects": [
+          {
+            "key": "oasis:basement_gate",
+            "interactable": false,
+            "destroyed": false
+          },
+          {
+            "enabled": true,
+            "type": "READABLE_SIGN",
+            "key": "oasis:basement_sign",
+            "interactable": true,
+            "destroyed": false
+          }
+        ]
+      },
+      "visited_worlds": {}
+    },
+    "active_quests": [
+      {
+        "type": "A_NEW_HORIZON",
+        "objectives": [
+          {
+            "description": "Explore the island village and see who\u0027s around.",
+            "completed": false,
+            "unlocked": true
+          },
+          {
+            "description": "Speak to Wrynn.",
+            "completed": false,
+            "unlocked": false
+          },
+          {
+            "description": "Check the container for some weapons",
+            "completed": false,
+            "unlocked": false
+          },
+          {
+            "description": "Go outside and enter the basement.",
+            "completed": false,
+            "unlocked": false
+          },
+          {
+            "description": "Find the cookbook.",
+            "completed": false,
+            "unlocked": false
+          }
+        ],
+        "objectiveIndex": 0
+      }
+    ]
+  }
+}

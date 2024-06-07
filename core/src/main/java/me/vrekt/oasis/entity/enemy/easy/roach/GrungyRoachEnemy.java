@@ -19,6 +19,7 @@ import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeathAnimation;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.Effect;
 import me.vrekt.oasis.world.effects.EffectType;
@@ -45,7 +46,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         setPosition(position, true);
         setName("Grungy Roach");
-        setHealth(2000);
+        setHealth(20);
 
         hostileRange = 16.0f;
         attackSpeed = 0.8f;
@@ -186,6 +187,8 @@ public final class GrungyRoachEnemy extends EntityEnemy {
             // indicates we entered the state already
             body.setLinearVelocity(0, 0);
             if (dyingState.isFinished()) {
+                this.invalid = true;
+                worldIn.spawnWorldDrop(Items.WRYNN_RECIPE_BOOK, 1, body.getPosition());
                 worldIn.removeDeadEntity(this);
                 stateMachine.stop();
             }

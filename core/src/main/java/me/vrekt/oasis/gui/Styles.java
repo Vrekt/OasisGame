@@ -21,6 +21,7 @@ import me.vrekt.oasis.utility.EmptyDrawable;
  */
 public class Styles {
 
+    private final NinePatch themePatch, themePatchPadded;
     private final NinePatchDrawable theme, themePadded;
     private final Tooltip.TooltipStyle tooltipStyle;
     private final VisTextField.VisTextFieldStyle fieldStyle;
@@ -39,8 +40,8 @@ public class Styles {
     private final TextureRegionDrawable satisfactionAttributeIcon, healingAttributeIcon;
 
     public Styles(Asset asset) {
-        final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
-        final NinePatch themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
+        themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
+         themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
 
         theme = new NinePatchDrawable(themePatch);
         themePadded = new NinePatchDrawable(themePatchPadded);
@@ -99,6 +100,10 @@ public class Styles {
 
         satisfactionAttributeIcon = new TextureRegionDrawable(asset.get("satisfaction_attribute3"));
         healingAttributeIcon = new TextureRegionDrawable(asset.get("healing_attribute2"));
+    }
+
+    public NinePatch themeAsPatch() {
+        return themePatchPadded;
     }
 
     public NinePatchDrawable getTheme() {

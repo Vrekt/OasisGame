@@ -1,0 +1,201 @@
+{
+  "name": "abc",
+  "progress": 0.0,
+  "date": "06-06-24 17:31 PM",
+  "multiplayer": false,
+  "slot": 1,
+  "settings": {
+    "entity_update_distance": 100.0,
+    "show_fps": true,
+    "mp_lan": false,
+    "v_sync": true,
+    "auto_save": true,
+    "auto_save_interval": 1.0,
+    "keybinding_quest": 45,
+    "keybinding_inventory": 37,
+    "keybinding_skip_dialog": 34,
+    "keybinding_chat": 48,
+    "keybinding_map": 41
+  },
+  "player": {
+    "name": "Player33",
+    "position": {
+      "x": 10.515642,
+      "y": 11.651534
+    },
+    "inventory": {
+      "type": "PLAYER",
+      "size": 18,
+      "contents": [
+        {
+          "slot": 0,
+          "name": "Pigs Heart",
+          "type": "PIG_HEART",
+          "amount": 1
+        },
+        {
+          "slot": 1,
+          "name": "Tempered Blade",
+          "type": "TEMPERED_BLADE",
+          "amount": 1
+        }
+      ]
+    },
+    "all_worlds_and_state": {
+      "world_in_name": "WRYNN_BASEMENT",
+      "parent_world_name": "TutorialWorld",
+      "is_in_interior": true,
+      "interior_type": "WRYNN_BASEMENT",
+      "current_world_in": {
+        "type": "WRYNN_BASEMENT",
+        "enterable": true,
+        "entered_position": {
+          "x": 43.7711,
+          "y": 30.611654
+        },
+        "map": "world/interiors/WrynnBasement.tmx",
+        "name": "WRYNN_BASEMENT",
+        "interior": true,
+        "entities": [
+          {
+            "type": "ROACH",
+            "is_dead": false,
+            "is": "enemy",
+            "name": "Grungy Roach",
+            "entityId": 1,
+            "position": {
+              "x": 11.93327,
+              "y": 11.574823
+            },
+            "size": {
+              "x": 32.0,
+              "y": 32.0,
+              "z": 0.0625
+            },
+            "health": 1.0,
+            "rotation": "LEFT",
+            "move_speed": 0.0
+          }
+        ],
+        "objects": []
+      },
+      "visited_worlds": {
+        "TutorialWorld": {
+          "map": "world/worlds/TutorialWorld.tmx",
+          "name": "TutorialWorld",
+          "interior": false,
+          "entities": [],
+          "interiors": [
+            {
+              "type": "WRYNN_HOUSE",
+              "enterable": true,
+              "entered_position": {
+                "x": 43.7711,
+                "y": 30.611654
+              },
+              "map": "world/interiors/Office.tmx",
+              "name": "WRYNN_HOUSE",
+              "interior": true,
+              "entities": [
+                {
+                  "type": "WRYNN",
+                  "dialogueStageIndex": 7,
+                  "dialogueEntryKey": "wrynn:dialog_stage_6",
+                  "is": "interactable",
+                  "name": "Wrynn",
+                  "entityId": 1,
+                  "position": {
+                    "x": 17.805832,
+                    "y": 13.628706
+                  },
+                  "size": {
+                    "x": 18.0,
+                    "y": 26.0,
+                    "z": 0.0625
+                  },
+                  "health": 100.0,
+                  "rotation": "DOWN",
+                  "move_speed": 0.0
+                }
+              ],
+              "objects": [
+                {
+                  "container_inventory": {
+                    "type": "CONTAINER",
+                    "size": 16,
+                    "contents": [
+                      {
+                        "slot": 0,
+                        "name": "Tempered Blade",
+                        "type": "TEMPERED_BLADE",
+                        "amount": 1
+                      },
+                      {
+                        "slot": 1,
+                        "name": "Pigs Heart",
+                        "type": "PIG_HEART",
+                        "amount": 3
+                      }
+                    ]
+                  },
+                  "enabled": true,
+                  "type": "CONTAINER",
+                  "key": "wrynn:container",
+                  "interactable": true,
+                  "destroyed": false
+                }
+              ]
+            }
+          ],
+          "objects": [
+            {
+              "key": "oasis:basement_gate",
+              "interactable": false,
+              "destroyed": true
+            },
+            {
+              "enabled": true,
+              "type": "READABLE_SIGN",
+              "key": "oasis:basement_sign",
+              "interactable": true,
+              "destroyed": false
+            }
+          ]
+        }
+      }
+    },
+    "active_quests": [
+      {
+        "type": "A_NEW_HORIZON",
+        "objectives": [
+          {
+            "description": "Explore the island village and see who\u0027s around.",
+            "completed": true,
+            "unlocked": true
+          },
+          {
+            "description": "Speak to Wrynn.",
+            "completed": true,
+            "unlocked": true
+          },
+          {
+            "description": "Check the container for some weapons",
+            "completed": true,
+            "unlocked": true
+          },
+          {
+            "description": "Go outside and enter the basement.",
+            "completed": false,
+            "unlocked": true
+          },
+          {
+            "description": "Find the cookbook.",
+            "completed": false,
+            "unlocked": false
+          }
+        ],
+        "objectiveIndex": 3
+      }
+    ]
+  }
+}

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
+import me.vrekt.oasis.utility.Pooling;
 
 /**
  * Manages projectiles per entity
@@ -13,12 +13,6 @@ import com.badlogic.gdx.utils.Pool;
 public final class ProjectileManager {
 
     private final Array<Projectile> activeProjectiles = new Array<>();
-    private final Pool<Projectile> pool = new Pool<>() {
-        @Override
-        protected Projectile newObject() {
-            return new Projectile();
-        }
-    };
 
 
     /**
@@ -33,7 +27,7 @@ public final class ProjectileManager {
                                 Vector2 origin,
                                 Vector2 target,
                                 ProjectileResult result) {
-        final Projectile obtained = pool.obtain();
+        final Projectile obtained = Pooling.projectile();
         obtained.load(type.data(), result);
 
         obtained.shoot(origin, target);
@@ -54,7 +48,7 @@ public final class ProjectileManager {
                                         Vector2 origin,
                                         Vector2 target,
                                         ProjectileResult result) {
-        final Projectile obtained = pool.obtain();
+        final Projectile obtained = Pooling.projectile();
         obtained.load(type.data(), result);
         obtained.animate(animation);
 
@@ -73,7 +67,7 @@ public final class ProjectileManager {
             projectile = activeProjectiles.get(i);
             if (projectile.isExpired()) {
                 activeProjectiles.removeIndex(i);
-                pool.free(projectile);
+                Pooling.freeProjectile(projectile);
             } else {
                 projectile.update(delta);
             }

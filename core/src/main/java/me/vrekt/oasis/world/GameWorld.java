@@ -45,6 +45,9 @@ import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
@@ -59,6 +62,8 @@ import me.vrekt.oasis.world.obj.WorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.items.ItemWorldInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
@@ -96,7 +101,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected AreaEffectUpdateSystem effectUpdateSystem;
     protected AreaEffectCloudManager effectCloudManager;
 
-    // destroyed world objects used for saving
+    // destroyed world objects/entities used for saving
+    protected final Bag<EntityEnemyType> deadEnemies = new Bag<>();
     protected final Bag<String> destroyedWorldObjects = new Bag<>();
 
     // objects within this world
@@ -144,7 +150,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         return worldMap;
     }
 
-    public PlayerSP getLocalPlayer() {
+    public PlayerSP player() {
         return player;
     }
 
@@ -182,6 +188,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public WorldSaveLoader loader() {
         if (saveLoader == null) this.saveLoader = new WorldSaveLoader(this);
         return saveLoader;
+    }
+
+    public void setHasVisited(boolean hasVisited) {
+        this.hasVisited = hasVisited;
     }
 
     public boolean hasVisited() {
@@ -461,7 +471,17 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
 
+        // save dead enemies
+        deadEnemies.add(entity.asEnemy().type());
+
         entity.dispose();
+    }
+
+    /**
+     * @return dead enemies
+     */
+    public Bag<EntityEnemyType> deadEnemies() {
+        return deadEnemies;
     }
 
     /**
@@ -560,6 +580,18 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Spawn a world drop interaction
+     *
+     * @param type item
+     */
+    public void spawnWorldDrop(Items type, int amount, Vector2 position) {
+        final Item item = ItemRegistry.createItem(type, amount);
+        final ItemWorldInteraction interaction = new ItemWorldInteraction(this, item, position);
+        interaction.load(game.getAsset());
+        interactableWorldObjects.add(interaction);
+    }
+
+    /**
      * Remove an object from the map
      *
      * @param key the key
@@ -585,9 +617,25 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
         if (object == null) return;
 
+        // will need to be saved again.
+        // fixes: EM-74
+        destroyedWorldObjects.add(key);
+
         object.destroyCollision();
         object.dispose();
         worldObjects.remove(key);
+    }
+
+    /**
+     * Remove an interaction
+     * Not required to save, if an item;
+     * TODO: If not item, save
+     *
+     * @param object object
+     */
+    public void removeInteraction(AbstractInteractableWorldObject object) {
+        interactableWorldObjects.removeValue(object, true);
+        System.err.println(interactableWorldObjects);
     }
 
     /**
@@ -874,8 +922,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         for (InteractableWorldObject worldObject : interactableWorldObjects) {
             worldObject.updateMouseState();
 
-            if (worldObject.isUpdatable()
-                    && worldObject.wasInteractedWith()) worldObject.update();
+            if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
             worldObject.render(batch, delta);
         }
 
@@ -909,9 +956,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             entity.renderDamageAnimation(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
         }
 
-        batch.end();
+        for (InteractableWorldObject worldObject : interactableWorldObjects) {
+            guiManager.renderWorldObjectComponents((AbstractInteractableWorldObject) worldObject, renderer.getCamera(), batch);
+        }
 
-        game.guiManager.updateAndDrawStage();
+        batch.end();
+        guiManager.updateAndDrawStage();
     }
 
     /**
@@ -932,7 +982,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     public EntityEnemy getEnemyByType(EntityEnemyType type) {
         for (GameEntity entity : entities.values()) {
-            if (entity instanceof EntityEnemy enemy) {
+            if (entity instanceof EntityEnemy enemy && enemy.type() == type) {
                 return enemy;
             }
         }

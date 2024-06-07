@@ -5,7 +5,7 @@ package me.vrekt.oasis.world.obj.interaction;
  */
 public enum WorldInteractionType {
 
-    READABLE_SIGN("readable_sign"), CONTAINER("container");
+    READABLE_SIGN("readable_sign"), CONTAINER("container"), ITEM_DROP("item_drop");
 
     private final String type;
 

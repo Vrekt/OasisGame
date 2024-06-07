@@ -17,4 +17,8 @@ public final class WrynnBasementInterior extends GameWorldInterior {
 
         this.worldMap = Asset.WRYNN_BASEMENT;
     }
+
+    @Override
+    protected void init() {
+    }
 }

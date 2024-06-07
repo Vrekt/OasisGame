@@ -26,6 +26,8 @@ public final class EntityUpdateSystem extends EntitySystem {
     @Override
     public void update(float deltaTime) {
         for (GameEntity entity : world.entities().values()) {
+            if (entity.invalid()) continue;
+
             // update entities we can see, or are within update distance
             final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
             entity.setDistanceToPlayer(distance);
@@ -34,7 +36,7 @@ public final class EntityUpdateSystem extends EntitySystem {
                     || entity.isInView(gameCamera)) {
 
                 entity.update(deltaTime);
-                entity.checkAreaEffects();
+                if (!entity.isDead()) entity.checkAreaEffects();
 
                 if (entity.isInteractable() && !entity.nearby()) {
                     entity.setNearby(true);

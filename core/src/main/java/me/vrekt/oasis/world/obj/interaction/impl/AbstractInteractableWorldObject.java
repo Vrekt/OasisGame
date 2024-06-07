@@ -1,6 +1,11 @@
 package me.vrekt.oasis.world.obj.interaction.impl;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractableWorldObject;
@@ -21,6 +26,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected float interactionRange = 4.5f;
 
     protected InteractionMouseHandler mouseHandler;
+    protected boolean handleMouseState = true;
     protected boolean mouseOver;
 
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
@@ -41,7 +47,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public boolean isInInteractionRange() {
-        return world.getLocalPlayer().getPosition().dst2(position) <= interactionRange;
+        return world.player().getPosition().dst2(position) <= interactionRange;
     }
 
     @Override
@@ -72,11 +78,22 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     @Override
     public void update() {
         // player moved away from this interaction so exit.
-        if (world.getLocalPlayer().movementNotified()
-                || (wasInteractedWith && interactionPoint.dst2(world.getLocalPlayer().getPosition())
+        if (world.player().movementNotified()
+                || (wasInteractedWith && interactionPoint.dst2(world.player().getPosition())
                 >= INTERACTION_EXIT_DISTANCE)) {
             reset();
         }
+    }
+
+    /**
+     * Render UI components associated with this object
+     *
+     * @param batch    batch
+     * @param font     font
+     * @param position projected position
+     */
+    public void renderUiComponents(SpriteBatch batch, Styles styles, GuiManager manager, BitmapFont font, Vector3 position) {
+
     }
 
     @Override
@@ -86,6 +103,8 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public void updateMouseState() {
+        if (!handleMouseState) return;
+
         if (!world.shouldUpdateMouseState() || wasInteractedWith || !isEnabled) return;
 
         final boolean result = isMouseOver(world.getCursorInWorld());
@@ -101,11 +120,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     @Override
     public void interact() {
         world.getGame().getGuiManager().resetCursor();
-        world.getLocalPlayer().notifyIfMoved();
+        world.player().notifyIfMoved();
 
         wasInteractedWith = true;
         isEnabled = false;
-        interactionPoint.set(world.getLocalPlayer().getPosition());
+        interactionPoint.set(world.player().getPosition());
     }
 
     @Override

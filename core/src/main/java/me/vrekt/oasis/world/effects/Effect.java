@@ -4,19 +4,13 @@ import com.badlogic.gdx.utils.Pool;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.utility.Pooling;
 
 /**
  * Represents an effect
  * Poison, etc
  */
 public final class Effect implements Pool.Poolable {
-
-    private static final Pool<Effect> POOL = new Pool<>() {
-        @Override
-        protected Effect newObject() {
-            return new Effect();
-        }
-    };
 
     private EffectType type;
     private float strength, duration, interval, applied;
@@ -31,7 +25,7 @@ public final class Effect implements Pool.Poolable {
      * @return the effect
      */
     public static Effect create(EffectType type, float interval, float strength, float duration) {
-        final Effect effect = POOL.obtain();
+        final Effect effect = Pooling.effect();
         effect.type = type;
         effect.interval = interval;
         effect.strength = strength;
@@ -97,7 +91,7 @@ public final class Effect implements Pool.Poolable {
      * Free
      */
     public void free() {
-        POOL.free(this);
+        Pooling.freeEffect(this);
     }
 
     @Override

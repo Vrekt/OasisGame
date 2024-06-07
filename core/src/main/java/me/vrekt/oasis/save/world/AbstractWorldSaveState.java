@@ -2,6 +2,7 @@ package me.vrekt.oasis.save.world;
 
 import com.google.gson.annotations.Expose;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
@@ -78,6 +79,12 @@ public abstract class AbstractWorldSaveState {
             } else if (entity.isEnemy()) {
                 entities.add(new EnemyEntitySave(entity.asEnemy()));
             }
+        }
+
+        // save dead enemies
+        for (int i = 0; i < world.deadEnemies().size(); i++) {
+            final EntityEnemyType type = world.deadEnemies().get(i);
+            entities.add(new EnemyEntitySave(type));
         }
     }
 

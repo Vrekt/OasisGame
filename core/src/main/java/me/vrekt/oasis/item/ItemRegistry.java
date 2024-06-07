@@ -4,6 +4,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
+import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 
@@ -25,6 +26,7 @@ public final class ItemRegistry {
         registry.put(Items.TEMPERED_BLADE, TemperedBladeItem::new);
         registry.put(Items.QUICKSTEP_ARTIFACT, QuickStepItemArtifact::new);
         registry.put(Items.PIG_HEART, PigHeartConsumable::new);
+        registry.put(Items.WRYNN_RECIPE_BOOK, WrynnRecipeBookItem::new);
         registry.put(Items.NO_ITEM, () -> {
             throw new UnsupportedOperationException("NO ITEM");
         });
@@ -47,7 +49,7 @@ public final class ItemRegistry {
     /**
      * Create a new item
      *
-     * @param item   the item type
+     * @param item the item type
      * @return the new item
      */
     public static Item createItem(Items item) {

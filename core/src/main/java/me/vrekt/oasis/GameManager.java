@@ -29,6 +29,8 @@ public class GameManager {
     // tick
     public static float tick;
     private static final TaskManager TASK_MANAGER = new TaskManager();
+    private static int autoSaveTaskId;
+
 
     public static OasisGame game() {
         return oasis;

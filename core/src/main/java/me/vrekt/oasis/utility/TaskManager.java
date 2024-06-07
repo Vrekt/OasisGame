@@ -55,7 +55,7 @@ public final class TaskManager {
         public Task(Runnable runnable, float delay) {
             this.runnable = runnable;
             this.delay = delay;
-            this.timeScheduled = GameManager.getTick();
+            this.timeScheduled = GameManager.getTick() == 0 ? 1 : GameManager.getTick();
         }
     }
 
