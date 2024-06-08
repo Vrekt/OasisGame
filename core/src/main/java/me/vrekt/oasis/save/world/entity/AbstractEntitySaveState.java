@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
@@ -13,7 +14,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 public abstract class AbstractEntitySaveState {
 
     @Expose
-    protected String is;
+    protected EntityType type;
     @Expose
     protected String name;
     @Expose
@@ -31,7 +32,7 @@ public abstract class AbstractEntitySaveState {
     protected float moveSpeed;
 
     public AbstractEntitySaveState(GameEntity entity) {
-        this.is = entity.isInteractable() ? "interactable" : "enemy";
+        this.type = entity.type();
         this.name = entity.name();
         this.entityId = entity.entityId();
         this.position = entity.getPosition();
@@ -45,10 +46,10 @@ public abstract class AbstractEntitySaveState {
     }
 
     /**
-     * @return what this game entity is
+     * @return type of
      */
-    public String is() {
-        return is;
+    public EntityType type() {
+        return type;
     }
 
     /**

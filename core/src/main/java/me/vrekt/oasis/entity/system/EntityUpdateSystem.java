@@ -47,12 +47,12 @@ public final class EntityUpdateSystem extends EntitySystem {
                 entity.update(deltaTime);
                 if (!entity.isDead()) entity.checkAreaEffects();
 
-                if (entity.isInteractable() && !entity.nearby()) {
+                if (entity.type().interactable() && !entity.nearby()) {
                     entity.setNearby(true);
                     world.addNearbyEntity(entity.asInteractable());
                 }
             } else {
-                if (entity.isInteractable() && entity.nearby()) {
+                if (entity.type().interactable() && entity.nearby()) {
                     entity.setNearby(false);
                     world.removeNearbyEntity(entity.asInteractable());
                 }

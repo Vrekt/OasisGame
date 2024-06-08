@@ -23,7 +23,6 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEntitySave> {
 
-    protected final EntityEnemyType type;
     protected float inaccuracy, hostileRange, attackSpeed;
     protected float attackStrength;
 
@@ -41,10 +40,10 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
     protected boolean hurt;
     protected float hurtTime;
 
-    public EntityEnemy(EntityEnemyType type, GameWorld world, OasisGame game) {
+    public EntityEnemy(String key, GameWorld world, OasisGame game) {
+        this.key = key;
         this.worldIn = world;
         this.player = game.getPlayer();
-        this.type = type;
         this.stateMachine = new EntityStateMachine(this);
     }
 
@@ -68,23 +67,6 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
 
     public AiProcessingState getAiState() {
         return (AiProcessingState) stateMachine.state();
-    }
-
-    @Override
-    public GameWorld getWorldState() {
-        return worldIn;
-    }
-
-    /**
-     * @return type of
-     */
-    public EntityEnemyType type() {
-        return type;
-    }
-
-    @Override
-    public boolean isEnemy() {
-        return true;
     }
 
     @Override

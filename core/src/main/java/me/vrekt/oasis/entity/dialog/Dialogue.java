@@ -49,7 +49,7 @@ public final class Dialogue implements Disposable {
     /**
      * Set the active dialogue index and set the entry
      *
-     * @param key
+     * @param key key
      * @param index index
      */
     public DialogueEntry setStageAndUpdate(String key, int index) {

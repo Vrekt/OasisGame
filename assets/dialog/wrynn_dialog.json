@@ -61,7 +61,22 @@
     "wrynn:dialog_stage_6": {
       "key": "wrynn:dialog_stage_6",
       "content": "Please hurry. I'm dying without my daily indulgence of bread.",
-      "nextEntry": "wrynn:dialog_stage_6",
+      "nextEntry": "wrynn:dialog_stage_7",
+      "locked": true,
+      "skippable": false
+    },
+    "wrynn:dialog_stage_7": {
+      "key": "wrynn:dialog_stage_7",
+      "content": "You found it! You keep those things you got from me, as a special thanks.",
+      "nextEntry": "wrynn:dialog_stage_8",
+      "task": "wrynn:take_item",
+      "locked": false,
+      "skippable": true
+    },
+    "wrynn:dialog_stage_8": {
+      "key": "wrynn:dialog_stage_8",
+      "content": "You come back sometime if you need anything, I'll always be around.",
+      "nextEntry": "wrynn:dialog_stage_8",
       "locked": true,
       "skippable": false
     }

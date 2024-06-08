@@ -1,8 +1,8 @@
 package me.vrekt.oasis.save.world;
 
 import com.google.gson.annotations.Expose;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
@@ -74,16 +74,18 @@ public abstract class AbstractWorldSaveState {
      */
     protected void writeEntities(GameWorld world) {
         for (GameEntity entity : world.entities().values()) {
-            if (entity.isInteractable()) {
+            if (entity.type().interactable()) {
                 entities.add(new InteractableEntitySave(entity.asInteractable()));
-            } else if (entity.isEnemy()) {
+            } else if (entity.type().enemy()) {
                 entities.add(new EnemyEntitySave(entity.asEnemy()));
+            } else if (entity.type().generic()) {
+                // TODO: Generic entities
             }
         }
 
         // save dead enemies
         for (int i = 0; i < world.deadEnemies().size(); i++) {
-            final EntityEnemyType type = world.deadEnemies().get(i);
+            final EntityType type = world.deadEnemies().get(i);
             entities.add(new EnemyEntitySave(type));
         }
     }

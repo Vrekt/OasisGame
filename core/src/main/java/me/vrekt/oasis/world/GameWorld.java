@@ -29,14 +29,14 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
+import me.vrekt.oasis.entity.Entities;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
-import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileManager;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileResult;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.system.EntityInteractableAnimationSystem;
@@ -101,7 +101,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected AreaEffectCloudManager effectCloudManager;
 
     // destroyed world objects/entities used for saving
-    protected final Bag<EntityEnemyType> deadEnemies = new Bag<>();
+    protected final Bag<EntityType> deadEnemies = new Bag<>();
     protected final Bag<String> destroyedWorldObjects = new Bag<>();
 
     // objects within this world
@@ -397,19 +397,21 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void createEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
-            final boolean enemy = TiledMapLoader.ofBoolean(object, "enemy");
-            if (enemy) {
-                createEnemy(object, rectangle, asset);
-            } else {
-                final EntityNPCType type = EntityNPCType.findType(object);
-                if (type != null) {
-                    final EntityInteractable entity = type.create(new Vector2(rectangle.x, rectangle.y), game, this);
-                    entity.load(asset);
+            final String key = TiledMapLoader.ofString(object, "key");
+            if (key == null) {
+                GameLogging.warn(this, "No key for an entity @ %f,%f", rectangle.x, rectangle.y);
+                return;
+            }
 
-                    populateEntity(entity);
-                } else {
-                    GameLogging.warn(this, "Found invalid entity: " + object);
-                }
+            final boolean enemy = TiledMapLoader.ofBoolean(object, "enemy");
+            final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
+
+            if (enemy) {
+                createEnemy(key, rectangle, asset);
+            } else if (interactable) {
+                createInteractableEntity(key, rectangle, asset);
+            } else {
+                createRegularEntity(key, rectangle, asset);
             }
         });
 
@@ -419,21 +421,47 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     /**
      * Create an enemy
      *
-     * @param object    map object
+     * @param key       entity key type
      * @param rectangle bounds
      * @param asset     asset
      */
-    protected void createEnemy(MapObject object, Rectangle rectangle, Asset asset) {
-        final EntityEnemyType type = EntityEnemyType.valueOf(TiledMapLoader.ofString(object, "entity_type"));
-        final String variety = TiledMapLoader.ofString(object, "variety");
-
-        final EntityEnemy enemy = type.create(new Vector2(rectangle.x, rectangle.y), game, this, variety);
+    protected void createEnemy(String key, Rectangle rectangle, Asset asset) {
+        final EntityEnemy enemy = Entities.enemy(key, this, new Vector2(rectangle.x, rectangle.y), game);
         enemy.load(asset);
         populateEntity(enemy);
 
-        GameLogging.info(this, "Loaded an enemy %s", type);
+        GameLogging.info(this, "Loaded enemy: %s", enemy.name());
     }
 
+    /**
+     * Create an interactable entity
+     *
+     * @param key       entity key type
+     * @param rectangle bounds
+     * @param asset     asset
+     */
+    protected void createInteractableEntity(String key, Rectangle rectangle, Asset asset) {
+        final EntityInteractable entity = Entities.interactable(key, this, new Vector2(rectangle.x, rectangle.y), game);
+        entity.load(asset);
+        populateEntity(entity);
+
+        GameLogging.info(this, "Loaded interactable entity: %s", entity.name());
+    }
+
+    /**
+     * Create a regular entity
+     *
+     * @param key       entity key type
+     * @param rectangle bounds
+     * @param asset     asset
+     */
+    protected void createRegularEntity(String key, Rectangle rectangle, Asset asset) {
+        final GameEntity entity = Entities.generic(key, this, new Vector2(rectangle.x, rectangle.y), game);
+        entity.load(asset);
+        populateEntity(entity);
+
+        GameLogging.info(this, "Loaded regular entity: %s", entity.name());
+    }
 
     /**
      * Populate this entity to the engine and list
@@ -458,7 +486,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public void removeDeadEntityNow(GameEntity entity) {
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
-        deadEnemies.add(entity.asEnemy().type());
+        deadEnemies.add(entity.type());
         entity.dispose();
     }
 
@@ -473,9 +501,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * TODO: Causes issues with multiple types of same enemy EM-86
+     *
      * @return dead enemies
      */
-    public Bag<EntityEnemyType> deadEnemies() {
+    public Bag<EntityType> deadEnemies() {
         return deadEnemies;
     }
 
@@ -532,6 +562,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 } else {
                     // load base object
                     final AbstractWorldObject worldObject = new SimpleWorldObject(key);
+
                     worldObject.load(asset);
                     worldObject.setWorldIn(this);
 
@@ -630,7 +661,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void removeInteraction(AbstractInteractableWorldObject object) {
         interactableWorldObjects.removeValue(object, true);
-        System.err.println(interactableWorldObjects);
     }
 
     /**
@@ -965,17 +995,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param type the type
      * @return the {@link EntityInteractable} or {@code  null} if not found
      */
-    public EntityInteractable getEntityByType(EntityNPCType type) {
+    public EntityInteractable getEntityByKey(EntityType type) {
         for (GameEntity entity : entities.values()) {
-            if (entity.isInteractable()
-                    && entity.asInteractable().getType() == type) {
+            if (entity.asInteractable().type() == type) {
                 return entity.asInteractable();
             }
         }
         return null;
     }
 
-    public EntityEnemy getEnemyByType(EntityEnemyType type) {
+    public EntityEnemy getEnemyByType(EntityType type) {
         for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy && enemy.type() == type) {
                 return enemy;

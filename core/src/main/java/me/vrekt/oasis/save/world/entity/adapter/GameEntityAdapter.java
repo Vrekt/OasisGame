@@ -1,10 +1,10 @@
 package me.vrekt.oasis.save.world.entity.adapter;
 
 import com.google.gson.*;
-import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
+import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 
@@ -15,11 +15,14 @@ public final class GameEntityAdapter implements JsonDeserializer<AbstractEntityS
     @Override
     public AbstractEntitySaveState deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         final JsonObject src = json.getAsJsonObject();
-        final String is = src.get("is").getAsString();
-        if (StringUtils.equals(is, "interactable")) {
+        final EntityType type = EntityType.valueOf(src.get("type").getAsString());
+        if (type.interactable()) {
             return context.deserialize(json, InteractableEntitySave.class);
-        } else {
+        } else if (type.enemy()) {
             return context.deserialize(json, EnemyEntitySave.class);
+        } else if (type.generic()) {
+            // TODO: Generic enemies
         }
+        return null;
     }
 }

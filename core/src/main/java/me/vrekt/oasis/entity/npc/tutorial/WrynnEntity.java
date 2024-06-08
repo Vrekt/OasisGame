@@ -1,4 +1,4 @@
-package me.vrekt.oasis.entity.npc.wrynn;
+package me.vrekt.oasis.entity.npc.tutorial;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -8,13 +8,12 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiFollowPathComponent;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
-import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
@@ -28,12 +27,17 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
  */
 public final class WrynnEntity extends EntityInteractable {
 
+    public static final String ENTITY_KEY = "oasis:wrynn";
+    public static final String NAME = "Wrynn";
+
     private boolean hintShown;
     private EntityAnimationComponent animationComponent;
     private AiFollowPathComponent pathComponent;
 
-    public WrynnEntity(String name, Vector2 position, PlayerSP player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
-        super(name, position, player, worldIn, game, type);
+    public WrynnEntity(GameWorld world, Vector2 position, OasisGame game) {
+        super(NAME, position, game.getPlayer(), world, game);
+        this.key = ENTITY_KEY;
+        this.type = EntityType.WRYNN;
     }
 
     @Override
@@ -71,6 +75,10 @@ public final class WrynnEntity extends EntityInteractable {
 
         // dialog will be set to complete once the player has the items
         dialogue.addEntryCondition("wrynn:dialog_stage_4", this::checkPlayerHasItems);
+        // if the player has the tutorial book continue
+        dialogue.addEntryCondition("wrynn:dialog_stage_6", this::checkPlayerHasBook);
+        // take the book
+        dialogue.addTaskHandler("wrynn:take_item", () -> player.getInventory().removeFirst(Items.WRYNN_RECIPE_BOOK));
 
         dialogue.addTaskHandler("wrynn:unlock_container", () -> {
             worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
@@ -119,7 +127,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         updateAi(delta);
 
-        if (pathComponent.isWithinTarget()) {
+        if (pathComponent.isWithinTarget(0.2f)) {
             setVelocity(0, 0, true);
             pauseFor(MathUtils.random(4.0f, 10.0f));
             pathComponent.pickRandomPoint();
@@ -159,6 +167,10 @@ public final class WrynnEntity extends EntityInteractable {
      */
     public boolean checkPlayerHasItems() {
         return player.getInventory().containsItem(Items.PIG_HEART);
+    }
+
+    public boolean checkPlayerHasBook() {
+        return player.getInventory().containsItem(Items.WRYNN_RECIPE_BOOK);
     }
 
 }

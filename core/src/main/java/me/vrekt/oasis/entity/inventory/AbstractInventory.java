@@ -361,6 +361,22 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Remove first occurrence of an item
+     *
+     * @param item item
+     */
+    public void removeFirst(Items item) {
+        final int slot = getItemSlotByType(item);
+        if (slot == -1) {
+            GameLogging.warn(this, "Could not find a slot for: %s", item);
+            return;
+        }
+
+        this.removed(null, slot);
+        items.remove(slot);
+    }
+
+    /**
      * Remove an item
      *
      * @param slot the slot

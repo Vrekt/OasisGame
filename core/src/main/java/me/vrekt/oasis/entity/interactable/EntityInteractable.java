@@ -3,7 +3,6 @@ package me.vrekt.oasis.entity.interactable;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
-import me.vrekt.oasis.entity.npc.EntityNPCType;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
@@ -15,9 +14,8 @@ import me.vrekt.oasis.world.GameWorld;
 public abstract class EntityInteractable extends EntitySpeakable implements Savable<InteractableEntitySave> {
 
     protected final OasisGame game;
-    protected EntityNPCType type;
 
-    public EntityInteractable(String name, Vector2 position, PlayerSP player, GameWorld worldIn, OasisGame game, EntityNPCType type) {
+    public EntityInteractable(String name, Vector2 position, PlayerSP player, GameWorld worldIn, OasisGame game) {
         super(player);
 
         setName(name);
@@ -27,11 +25,6 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
 
         this.worldIn = worldIn;
         this.game = game;
-        this.type = type;
-    }
-
-    public EntityNPCType getType() {
-        return type;
     }
 
     @Override
@@ -39,7 +32,9 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
         setPosition(save.position(), true);
         rotation = save.rotation();
 
-        setActiveEntry(dialogue.setStageAndUpdate(save.dialogueStage(), save.dialogueStageIndex()));
+        // if dialog was not implemented yet for the saved entity
+        if (dialogue != null)
+            setActiveEntry(dialogue.setStageAndUpdate(save.dialogueStage(), save.dialogueStageIndex()));
     }
 
     /**
@@ -50,11 +45,6 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
             if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation.name());
             previousRotation = rotation;
         }
-    }
-
-    @Override
-    public boolean isInteractable() {
-        return true;
     }
 
     @Override

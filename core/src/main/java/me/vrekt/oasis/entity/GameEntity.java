@@ -36,6 +36,9 @@ import me.vrekt.oasis.world.effects.AreaEffectCloud;
  */
 public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, Disposable {
 
+    protected String key;
+    protected EntityType type;
+
     protected Entity entity;
     protected Body body;
 
@@ -71,9 +74,22 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
 
     public GameEntity() {
         entity = new Entity();
-
         addComponents();
         setHealth(100.0f);
+    }
+
+    /**
+     * @return key, basically the type.
+     */
+    public String key() {
+        return key;
+    }
+
+    /**
+     * @return type of
+     */
+    public EntityType type() {
+        return type;
     }
 
     /**
@@ -526,9 +542,14 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         return rotation;
     }
 
+    /**
+     * TODO: Watch for bugs since this was changed.
+     * TODO: Just return worldIn instead of checking interior state, Fixes EM-85
+     *
+     * @return the current world state of this entity
+     */
     public GameWorld getWorldState() {
-        // reversed intentionally
-        return isInParentWorld ? worldIn : parentWorld;
+        return worldIn;
     }
 
     /**
@@ -678,17 +699,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      */
     public boolean isMouseInEntityBounds(Vector3 clicked) {
         return clicked.x > getX() && clicked.x < (getX() + getScaledWidth()) && clicked.y > getY() && clicked.y < (getY() + getScaledHeight());
-    }
-
-    /**
-     * @return {@code true} if this entity is interactable
-     */
-    public boolean isInteractable() {
-        return false;
-    }
-
-    public boolean isEnemy() {
-        return false;
     }
 
     /**

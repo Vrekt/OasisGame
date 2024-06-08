@@ -9,6 +9,7 @@ import com.kotcrab.vis.ui.VisUI;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.entity.Entities;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
@@ -42,7 +43,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240607-1211-4498";
+    public static final String GAME_VERSION = "20240608-0104-4627";
 
     private Asset asset;
 
@@ -99,6 +100,7 @@ public final class OasisGame extends Game {
         style = new Styles(asset);
 
         Pooling.init(asset);
+        Entities.init();
         SaveManager.init();
         SaveManager.readSaveGameProperties();
         GameManager.setOasis(this);
@@ -431,10 +433,8 @@ public final class OasisGame extends Game {
         if (guiManager != null) {
             guiManager.resize(width, height);
         }
-        // TODO: Fix this shit
-        if (player != null && player.getWorldState() != null) {
-            player.getWorldState().resize(width, height);
-        }
+
+        if (player != null && player.getWorldState() != null) player.getWorldState().resize(width, height);
     }
 
     public IntegratedServer getServer() {

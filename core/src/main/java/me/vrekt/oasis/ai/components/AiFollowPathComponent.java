@@ -29,7 +29,7 @@ public final class AiFollowPathComponent extends AiComponent {
     private boolean isInitialized;
 
     private int lastPathRotationSegment;
-    private boolean rotationLocked;
+    private boolean rotationLockOverride, rotationLocked;
 
     public AiFollowPathComponent(GameEntity entity, Array<Vector2> waypoints) {
         super(entity, AiComponentType.FOLLOW_PATH, ApplyBehavior.VELOCITY_ONLY);
@@ -46,6 +46,10 @@ public final class AiFollowPathComponent extends AiComponent {
         startTime = GameManager.getTick();
     }
 
+    public void setRotationLocked(boolean rotationLocked) {
+        this.rotationLockOverride = rotationLocked;
+    }
+
     @Override
     public void update(float delta) {
         currentPathSegment = followPath.getPathParam().getSegmentIndex();
@@ -54,7 +58,7 @@ public final class AiFollowPathComponent extends AiComponent {
             rotationLocked = false;
             lastPathRotationSegment = currentPathSegment;
         } else {
-            rotationLocked = true;
+            if (rotationLockOverride) rotationLocked = true;
         }
 
         // let's start moving this component now
@@ -100,7 +104,7 @@ public final class AiFollowPathComponent extends AiComponent {
     /**
      * @return if we are within target.
      */
-    public boolean isWithinTarget() {
+    public boolean isWithinTarget(float tolerance) {
         // prevent infinite loop because we stopped at the target and a new one
         // hasn't been decided yet by the gdx-ai
         if (waitForNextTarget) {
@@ -116,7 +120,7 @@ public final class AiFollowPathComponent extends AiComponent {
         final boolean result = entity.getBody()
                 .getPosition()
                 .dst2(followPath.getInternalTargetPosition())
-                <= TARGET_ARRIVAL_TOLERANCE
+                <= tolerance
                 && isInitialized;
 
         // ensure we tell the next time we check to wait.

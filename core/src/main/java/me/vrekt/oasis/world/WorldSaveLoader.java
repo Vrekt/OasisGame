@@ -3,20 +3,19 @@ package me.vrekt.oasis.world;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.save.Savable;
-import me.vrekt.oasis.save.world.InteriorWorldSave;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
-import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
+import me.vrekt.oasis.save.world.InteriorWorldSave;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
+import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
-import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
+import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Handles loading a world
@@ -61,12 +60,12 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
 
         // TODO: EntityId, maybe only if multiplayer
         for (AbstractEntitySaveState entitySave : worldSave.entities()) {
-            if (StringUtils.equals(entitySave.is(), "interactable")) {
+            if (entitySave.type().interactable()) {
                 final InteractableEntitySave ies = (InteractableEntitySave) entitySave;
-                world.getEntityByType(ies.type()).load(ies);
+                world.getEntityByKey(ies.type()).load(ies);
 
                 interactable++;
-            } else {
+            } else if (entitySave.type().enemy()) {
                 final EnemyEntitySave ees = (EnemyEntitySave) entitySave;
                 if (ees.isDead()) {
                     final EntityEnemy e = world.getEnemyByType(ees.type());
@@ -77,6 +76,8 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
                 }
 
                 enemy++;
+            } else if (entitySave.type().generic()) {
+                // TODO: Generic entities
             }
         }
 

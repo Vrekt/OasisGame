@@ -10,11 +10,11 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiHostilePursueComponent;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
-import me.vrekt.oasis.entity.enemy.EntityEnemyType;
 import me.vrekt.oasis.entity.enemy.animation.FadeAlphaDeathAnimation;
 import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
@@ -29,6 +29,9 @@ import me.vrekt.oasis.world.effects.EffectType;
  */
 public final class GrungyRoachEnemy extends EntityEnemy {
 
+    public static final String ENTITY_KEY = "oasis:grungy_roach";
+    public static final String NAME = "Grungy Roach";
+
     private final EntityAnimationComponent animationComponent;
     private AiHostilePursueComponent hostilePursueComponent;
 
@@ -41,11 +44,12 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     private AnimationProcessingState dyingState;
     private boolean velocityPaused;
 
-    public GrungyRoachEnemy(Vector2 position, GameWorld world, OasisGame game) {
-        super(EntityEnemyType.ROACH, world, game);
+    public GrungyRoachEnemy(GameWorld world, Vector2 position, OasisGame game) {
+        super(ENTITY_KEY, world, game);
+        this.type = EntityType.ROACH;
 
         setPosition(position, true);
-        setName("Grungy Roach");
+        setName(NAME);
         setHealth(20);
 
         hostileRange = 16.0f;

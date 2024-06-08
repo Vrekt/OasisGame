@@ -64,7 +64,8 @@
  <objectgroup id="6" name="Entities">
   <object id="3" name="Wrynn" x="291.151" y="203.242">
    <properties>
-    <property name="entity_type" value="WRYNN"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="key" value="oasis:wrynn"/>
    </properties>
    <point/>
   </object>

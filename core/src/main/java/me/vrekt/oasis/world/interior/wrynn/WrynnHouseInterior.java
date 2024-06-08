@@ -2,7 +2,7 @@ package me.vrekt.oasis.world.interior.wrynn;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.entity.npc.wrynn.WrynnEntity;
+import me.vrekt.oasis.entity.npc.tutorial.WrynnEntity;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.world.GameWorld;
