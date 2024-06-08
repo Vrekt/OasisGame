@@ -646,6 +646,18 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
+     * Add a texture part
+     *
+     * @param name    the name
+     * @param texture the texture
+     */
+    protected TextureRegion addTexturePart(String name, TextureRegion texture, boolean initial) {
+        entity.getComponent(EntityTextureComponent.class).textureRegions.put(name, texture);
+        if(initial) activeEntityTexture = texture;
+        return texture;
+    }
+
+    /**
      * Get a texture part
      *
      * @param name the name of the texture

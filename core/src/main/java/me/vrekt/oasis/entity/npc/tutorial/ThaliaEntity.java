@@ -9,6 +9,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.EntityType;
+import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.world.GameWorld;
 
@@ -36,12 +37,18 @@ public final class ThaliaEntity extends EntityInteractable {
 
         parentWorld = worldIn;
 
-        activeEntityTexture = addTexturePart("fishing_1", asset.get("thalia_fishing", 1));
+        addTexturePart("face", asset.get("thalia_face"));
+        addTexturePart("fishing_1", asset.get("thalia_fishing", 1), true);
         addTexturePart("fishing_2", asset.get("thalia_fishing", 2));
         addTexturePart("fishing_3", asset.get("thalia_fishing", 3));
 
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
         createBoxBody(worldIn.boxWorld());
+
+        dialogue = EntityDialogueLoader.load("assets/dialog/thalia_dialog.json");
+        dialogue.setOwner(this);
+
+        activeEntry = dialogue.getEntry("thalia:dialog_stage_0").getEntry();
     }
 
     @Override
@@ -64,7 +71,7 @@ public final class ThaliaEntity extends EntityInteractable {
 
     @Override
     public TextureRegion getDialogFace() {
-        return null;
+        return getTexturePart("face");
     }
 
     @Override

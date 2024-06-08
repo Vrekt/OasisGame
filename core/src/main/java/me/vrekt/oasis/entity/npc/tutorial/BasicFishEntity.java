@@ -20,6 +20,7 @@ public final class BasicFishEntity extends GameEntity {
 
     public static final String ENTITY_KEY = "oasis:fish";
 
+    // keep within the bounds of the water
     private static final float WANDERING_MAX_Y = 60f;
     private static final float WANDERING_MIN_Y = 57;
 
@@ -47,7 +48,7 @@ public final class BasicFishEntity extends GameEntity {
         fishAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         createBB(16 * OasisGameSettings.SCALE, 16 * OasisGameSettings.SCALE);
-        createBoxBody(parentWorld.boxWorld());
+        createBoxBody(worldIn.boxWorld());
 
         wanderComponent = new AiWanderComponent(this, WANDERING_MIN_Y, WANDERING_MAX_Y);
         wanderComponent.setMaxLinearSpeed(1f);
@@ -63,6 +64,8 @@ public final class BasicFishEntity extends GameEntity {
     @Override
     public void render(SpriteBatch batch, float delta) {
         boolean skipFrame = MathUtils.randomBoolean(0.25f);
+
+        // doesn't seem to work correctly, keep for now.
         if (lastFrame == null) lastFrame = fishAnimation.getKeyFrame(animationTime);
         if (!skipFrame) {
             lastFrame = fishAnimation.getKeyFrame(animationTime);

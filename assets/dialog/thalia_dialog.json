@@ -1,0 +1,28 @@
+{
+  "entries": {
+    "thalia:dialog_stage_0": {
+      "key": "thalia:dialog_stage_0",
+      "content": "How are you? I'm just over here fishin'. But I think this fish is smarter than I am.",
+      "nextEntry": "thalia:dialog_stage_1",
+      "hasSuggestions": true,
+      "skippable": false,
+      "suggestions": {
+        "Im ok": 0.4,
+        "I'm good": 0.45,
+        "Im good": 0.5,
+        "Doing ok": 0.4,
+        "Fine": 0.65,
+        "Ok": 0.45,
+        "I think so too": 0.65,
+        "Yeah": 0.66
+      }
+    },
+    "thalia:dialog_stage_1": {
+      "key": "thalia:dialog_stage_1",
+      "content": "That's good. Well, if you'll leave me to it partner'.",
+      "nextEntry": "thalia:dialog_stage_1",
+      "locked:": true,
+      "skippable": false
+    }
+  }
+}
