@@ -10,6 +10,8 @@ Roach enemy: https://opengameart.org/content/roach-pixel-sheet
 
 Modified by me
 
+# Sounds
+Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 
 # References, sources, tutorials
 TBA

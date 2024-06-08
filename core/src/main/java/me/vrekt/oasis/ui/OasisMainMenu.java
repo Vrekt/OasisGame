@@ -19,6 +19,7 @@ import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
@@ -184,6 +185,7 @@ public final class OasisMainMenu extends ScreenAdapter {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 root.setColor(HOVER_COLOR);
+                game.sounds().play(Sounds.BUTTON_HOVER, 0.8f, false);
             }
 
             @Override
@@ -205,6 +207,11 @@ public final class OasisMainMenu extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 action.run();
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                game.sounds().play(Sounds.BUTTON_HOVER, 0.8f, false);
             }
         });
     }

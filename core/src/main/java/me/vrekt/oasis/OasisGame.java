@@ -9,6 +9,7 @@ import com.kotcrab.vis.ui.VisUI;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.asset.sound.SoundManager;
 import me.vrekt.oasis.entity.Entities;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
@@ -43,7 +44,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240608-1131-4665";
+    public static final String GAME_VERSION = "20240608-1206-4673";
 
     private Asset asset;
 
@@ -52,6 +53,7 @@ public final class OasisGame extends Game {
     private SpriteBatch batch;
 
     private WorldManager worldManager;
+    private SoundManager soundManager;
 
     private InputMultiplexer multiplexer;
     public GuiManager guiManager;
@@ -104,6 +106,8 @@ public final class OasisGame extends Game {
         SaveManager.init();
         SaveManager.readSaveGameProperties();
         GameManager.setOasis(this);
+
+        soundManager = new SoundManager();
 
         ItemRegistry.registerItems();
         multiplexer = new InputMultiplexer();
@@ -492,6 +496,10 @@ public final class OasisGame extends Game {
 
     public WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    public SoundManager sounds() {
+        return soundManager;
     }
 
     public GuiManager getGuiManager() {
