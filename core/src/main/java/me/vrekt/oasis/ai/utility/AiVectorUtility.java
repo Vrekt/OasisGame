@@ -1,6 +1,7 @@
 package me.vrekt.oasis.ai.utility;
 
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.Direction;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
@@ -10,6 +11,8 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
  * <a href="https://gamedev.stackexchange.com/questions/49290/whats-the-best-way-of-transforming-a-2d-vector-into-the-closest-8-way-compass-d">...</a>
  */
 public final class AiVectorUtility {
+
+    private static final Vector2 FACING_DIRECTION_VECTOR = new Vector2();
 
     public static float vectorToAngle(Vector2 vector) {
         return (float) Math.atan2(-vector.x, vector.y);
@@ -25,6 +28,11 @@ public final class AiVectorUtility {
         final float angle = (float) Math.atan2(velocity.y, velocity.x);
         final int octant = (int) Math.round(8 * angle / (2 * Math.PI) + 8) % 8;
         return EntityRotation.fromDirection(Direction.values()[octant]);
+    }
+
+    public static EntityRotation faceEntity(GameEntity owner, GameEntity other) {
+        FACING_DIRECTION_VECTOR.set(owner.getPosition()).sub(other.getPosition());
+        return velocityToDirection(FACING_DIRECTION_VECTOR);
     }
 
 }

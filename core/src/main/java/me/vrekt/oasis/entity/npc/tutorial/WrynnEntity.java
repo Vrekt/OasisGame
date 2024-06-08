@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiFollowPathComponent;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
@@ -50,21 +51,21 @@ public final class WrynnEntity extends EntityInteractable {
         addTexturePart("face", asset.get("wrynn_face"));
         addTexturePart(EntityRotation.UP, asset.get("wrynn_facing_up"), false);
         addTexturePart(EntityRotation.DOWN, asset.get("wrynn_facing_down"), true);
+        addTexturePart(EntityRotation.RIGHT, asset.get("wrynn_facing_right"), false);
         addTexturePart(EntityRotation.LEFT, asset.get("wrynn_facing_left"), false);
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
 
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        // FIXME, add other walking animations
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
                 .moving(EntityRotation.LEFT, 0.4f, "wrynn_walking_left", 2)
                 .add(animationComponent)
                 .moving(EntityRotation.DOWN, 0.4f, "wrynn_walking_down", 2)
                 .add(animationComponent)
-                .moving(EntityRotation.RIGHT, 0.4f, "wrynn_walking_down", 2)
+                .moving(EntityRotation.RIGHT, 0.4f, "wrynn_walking_right", 2)
                 .add(animationComponent)
-                .moving(EntityRotation.UP, 0.4f, "wrynn_walking_down", 2)
+                .moving(EntityRotation.UP, 0.4f, "wrynn_walking_up", 2)
                 .add(animationComponent);
         builder.dispose();
 
@@ -122,6 +123,10 @@ public final class WrynnEntity extends EntityInteractable {
 
         if (isSpeakingTo()) {
             if (isMoving()) setVelocity(0.0f, 0.0f, true);
+            // face the player if we haven't already.
+            // maybe check if we haven't instead of running this every tick.
+            setRotation(AiVectorUtility.faceEntity(player, this));
+            updateRotationTextureState();
             return;
         }
 

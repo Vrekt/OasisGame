@@ -1,6 +1,5 @@
 package me.vrekt.oasis.entity.npc.tutorial;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -60,6 +59,7 @@ public final class ThaliaEntity extends EntityInteractable {
             activeEntityTexture = getTexturePart("fishing_" + fishingIndex);
         }
 
+        // we want to wait till the player can see us a bit before we animate ourselves
         if (inView && !drawFishing) {
             drawFishing = GameManager.hasTimeElapsed(1, 1.0f);
         }
@@ -72,10 +72,5 @@ public final class ThaliaEntity extends EntityInteractable {
     @Override
     public TextureRegion getDialogFace() {
         return getTexturePart("face");
-    }
-
-    @Override
-    public boolean isInView(Camera camera) {
-        return super.isInView(camera);
     }
 }

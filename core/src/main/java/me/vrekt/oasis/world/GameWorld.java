@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
@@ -1116,6 +1117,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             entity.speak(true);
             guiManager.showGui(GuiType.DIALOG, true);
             guiManager.getDialogComponent().showEntityDialog(entity);
+
+            player.setRotation(AiVectorUtility.faceEntity(entity, player));
             return true;
         }
 

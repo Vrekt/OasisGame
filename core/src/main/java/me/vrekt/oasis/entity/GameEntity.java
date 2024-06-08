@@ -543,6 +543,13 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
+     * @param rotation rotation
+     */
+    public void setRotation(EntityRotation rotation) {
+        this.rotation = rotation;
+    }
+
+    /**
      * TODO: Watch for bugs since this was changed.
      * TODO: Just return worldIn instead of checking interior state, Fixes EM-85
      *
@@ -653,7 +660,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      */
     protected TextureRegion addTexturePart(String name, TextureRegion texture, boolean initial) {
         entity.getComponent(EntityTextureComponent.class).textureRegions.put(name, texture);
-        if(initial) activeEntityTexture = texture;
+        if (initial) activeEntityTexture = texture;
         return texture;
     }
 
