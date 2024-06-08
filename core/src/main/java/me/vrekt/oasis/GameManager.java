@@ -4,6 +4,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -176,6 +177,14 @@ public class GameManager {
     public static boolean hasTimeElapsed(float last, float seconds, boolean handleZero) {
         if (handleZero && last == 0.0) return false;
         return last == 0 || tick - last >= secondsToTicks(seconds);
+    }
+
+    public static void playSound(Sounds sound, float volume, boolean again) {
+        oasis.sounds().play(sound, volume, again);
+    }
+
+    public static void playSound(Sounds sound, float volume, float pitch, float pan) {
+        oasis.sounds().play(sound, volume, pitch, pan);
     }
 
     public static float getGameProgress() {

@@ -30,11 +30,24 @@ public final class SoundManager implements Disposable {
     /**
      * Play a sound
      *
-     * @param sound the sound
-     * @param again if {@code true} the sound will play again, even if its already playing.
+     * @param sound  the sound
+     * @param volume the volume
+     * @param again  if {@code true} the sound will play again, even if its already playing.
      */
     public void play(Sounds sound, float volume, boolean again) {
         allSounds.get(sound).play(volume, again);
+    }
+
+    /**
+     * Play a sound
+     *
+     * @param sound  the sound
+     * @param volume volume
+     * @param pitch  the pitch
+     * @param pan    panning
+     */
+    public void play(Sounds sound, float volume, float pitch, float pan) {
+        allSounds.get(sound).play(volume, pitch, pan);
     }
 
     @Override
@@ -56,6 +69,10 @@ public final class SoundManager implements Disposable {
         void play(float volume, boolean again) {
             if (lastSoundId != 0 && !again) sound.stop(lastSoundId);
             lastSoundId = sound.play(volume);
+        }
+
+        void play(float volume, float pitch, float pan) {
+            sound.play(volume, pitch, pan);
         }
 
         @Override

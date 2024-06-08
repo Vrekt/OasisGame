@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiWanderComponent;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.world.GameWorld;
@@ -30,10 +32,14 @@ public final class BasicFishEntity extends GameEntity {
     private Animation<TextureRegion> fishAnimation;
     private TextureRegion lastFrame;
 
+    private boolean playingSplashing;
+    private float lastPlayedSplashing;
+
     public BasicFishEntity(GameWorld world, Vector2 position, OasisGame game) {
         this.worldIn = world;
         this.key = ENTITY_KEY;
         this.type = EntityType.FISH;
+        this.player = game.getPlayer();
 
         setPosition(position.x, position.y, false);
     }
@@ -59,6 +65,18 @@ public final class BasicFishEntity extends GameEntity {
     @Override
     public void update(float delta) {
         wanderComponent.update(delta);
+
+        // play a splashing noise if the player is nearby
+        if (!playingSplashing
+                && body.getPosition().dst2(player.getPosition()) < 10
+                && GameManager.hasTimeElapsed(lastPlayedSplashing, 6.0f)) {
+            GameManager.playSound(Sounds.FISH_SPLASHING, 0.1f, -1.0f, 0.1f);
+
+            lastPlayedSplashing = GameManager.getTick();
+            playingSplashing = true;
+        } else if (playingSplashing) {
+            playingSplashing = GameManager.hasTimeElapsed(lastPlayedSplashing, 1.0f);
+        }
     }
 
     @Override

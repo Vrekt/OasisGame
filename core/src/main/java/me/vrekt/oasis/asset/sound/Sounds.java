@@ -5,7 +5,8 @@ package me.vrekt.oasis.asset.sound;
  */
 public enum Sounds {
 
-    BUTTON_HOVER("hover_1.wav");
+    BUTTON_HOVER("hover_1.wav"),
+    FISH_SPLASHING("fish_splashing.ogg");
 
     private final String resource;
     Sounds(String resource) {
