@@ -19,7 +19,7 @@ public final class DialogueEntry {
     private String requirement, task;
     private String incompleteContent;
 
-    private Map<String, Float> suggestions;
+    private Map<String, DialogEntrySuggestion> suggestions;
 
     private transient boolean completed = true;
     private transient boolean wasConditionTested;
@@ -135,7 +135,7 @@ public final class DialogueEntry {
     /**
      * @return the suggestions
      */
-    public Map<String, Float> getSuggestions() {
+    public Map<String, DialogEntrySuggestion> getSuggestions() {
         return suggestions;
     }
 

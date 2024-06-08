@@ -12,6 +12,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.entity.dialog.DialogEntrySuggestion;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
 import me.vrekt.oasis.gui.Gui;
@@ -95,8 +96,8 @@ public final class EntityDialogGui extends Gui {
         dialogOptionsContainer.add(dialogOptionsWrapper);
 
         final VisTable dialogContentsContainer = new VisTable();
-        entityNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
-        dialogTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
+        entityNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
+        dialogTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
         // fixed width for this text so it wraps nicely inside the container
         dialogTextLabel.setWidth(448);
         dialogTextLabel.setWrap(true);
@@ -343,14 +344,14 @@ public final class EntityDialogGui extends Gui {
             // if suggestions is already maxed, just return.
             if (suggestionsBeingShown >= 3) return;
 
-            for (Map.Entry<String, Float> entry : entity.getEntry().getSuggestions().entrySet()) {
+            for (Map.Entry<String, DialogEntrySuggestion> entry : entity.getEntry().getSuggestions().entrySet()) {
                 final String suggestion = entry.getKey();
-                final double tolerance = entry.getValue();
+                final double tolerance = entry.getValue().tolerance();
                 final double sim = similarity.apply(text, suggestion);
                 if (sim >= tolerance && !suggestionsShowing.contains(suggestion)) {
                     // string is similar show it as a suggestion.
                     suggestionsShowing.add(suggestion);
-                    addSuggestion(suggestionsBeingShown, suggestion, entity.getEntry().getNextKey());
+                    addSuggestion(suggestionsBeingShown, suggestion, entry.getValue().nextEntry());
                     suggestionsBeingShown++;
                 } else if (sim <= tolerance && suggestionsShowing.contains(suggestion)) {
                     clearTextContainerSuggestion(suggestion);

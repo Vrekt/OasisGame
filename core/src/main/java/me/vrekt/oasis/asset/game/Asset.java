@@ -3,6 +3,7 @@ package me.vrekt.oasis.asset.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -21,7 +22,7 @@ public final class Asset implements Disposable {
     private final AssetManager assetManager = new AssetManager();
 
     private Skin defaultLibgdxSkin;
-    private BitmapFont smaller, small, medium, large, boxy;
+    private BitmapFont smaller, small, medium, large, boxy, mediumMipMapped;
     private TextureAtlas atlasAssets;
 
     public Asset() {
@@ -78,6 +79,17 @@ public final class Asset implements Disposable {
         medium = generator.generateFont(parameter);
         medium.setUseIntegerPositions(false);
 
+        parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
+        parameter.magFilter = Texture.TextureFilter.Linear;
+
+        // mip mapped
+        mediumMipMapped = generator.generateFont(parameter);
+        mediumMipMapped.setUseIntegerPositions(false);
+
+        // reset
+        parameter.minFilter = Texture.TextureFilter.Nearest;
+        parameter.magFilter = Texture.TextureFilter.Nearest;
+
         parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.033);
         small = generator.generateFont(parameter);
 
@@ -117,6 +129,10 @@ public final class Asset implements Disposable {
 
     public BitmapFont getSmaller() {
         return smaller;
+    }
+
+    public BitmapFont getMediumMipMapped() {
+        return mediumMipMapped;
     }
 
     public BitmapFont getBoxy() {

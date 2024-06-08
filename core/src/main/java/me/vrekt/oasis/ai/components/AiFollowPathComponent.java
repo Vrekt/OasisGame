@@ -2,6 +2,7 @@ package me.vrekt.oasis.ai.components;
 
 import com.badlogic.gdx.ai.steer.behaviors.FollowPath;
 import com.badlogic.gdx.ai.steer.utils.paths.LinePath;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
@@ -17,6 +18,7 @@ public final class AiFollowPathComponent extends AiComponent {
     private static final float TARGET_ARRIVAL_TOLERANCE = 0.2f;
     private static final float ZERO_MARGIN = 0.1f;
 
+    private final Array<Vector2> waypoints;
     private final FollowPath<Vector2, LinePath.LinePathParam> followPath;
     private final LinePath<Vector2> linePath;
 
@@ -31,9 +33,13 @@ public final class AiFollowPathComponent extends AiComponent {
     private int lastPathRotationSegment;
     private boolean rotationLockOverride, rotationLocked;
 
+    private int reversingDirectionSegment;
+    private boolean reversingDirection;
+
     public AiFollowPathComponent(GameEntity entity, Array<Vector2> waypoints) {
         super(entity, AiComponentType.FOLLOW_PATH, ApplyBehavior.VELOCITY_ONLY);
 
+        this.waypoints = waypoints;
         linePath = new LinePath<>(waypoints);
         followPath = new FollowPath<>(steering, linePath, 1);
 
@@ -102,6 +108,7 @@ public final class AiFollowPathComponent extends AiComponent {
     }
 
     /**
+     * @param tolerance how close to the target position to get before stopping/waiting
      * @return if we are within target.
      */
     public boolean isWithinTarget(float tolerance) {
@@ -116,12 +123,29 @@ public final class AiFollowPathComponent extends AiComponent {
             }
         }
 
-        // only check if we are not on the first path.
-        final boolean result = entity.getBody()
-                .getPosition()
-                .dst2(followPath.getInternalTargetPosition())
-                <= tolerance
-                && isInitialized;
+        // only calculate if we are within if the current path segment is valid
+        // sometimes the path segment is greater than the list for whatever reason.
+        boolean result = false;
+        if (currentPathSegment + 1 < waypoints.size) {
+            result = entity.getBody().getPosition().dst2(waypoints.get(currentPathSegment + 1)) <= tolerance && isInitialized;
+        }
+
+        // TODO: A little quirky, but works better.
+        if (currentPathSegment + 1 >= waypoints.size
+                && isInitialized
+                && !reversingDirection
+                && MathUtils.randomBoolean()) {
+            // a small chance go back to where we came from
+            followPath.setPathOffset(-1);
+            reversingDirectionSegment = currentPathSegment - 1;
+            reversingDirection = true;
+        } else if (reversingDirection
+                && currentPathSegment != reversingDirectionSegment
+                && MathUtils.randomBoolean(0.25f)) {
+            // random chance to now turn back
+            followPath.setPathOffset(1);
+            reversingDirection = false;
+        }
 
         // ensure we tell the next time we check to wait.
         if (result) {

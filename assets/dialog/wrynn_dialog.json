@@ -13,12 +13,26 @@
       "hasSuggestions": true,
       "skippable": false,
       "suggestions": {
-        "Okay": 0.4,
-        "Sure": 0.45,
-        "What is it?": 0.5,
-        "What is it": 0.4,
-        "Fine": 0.65,
-        "Ok": 0.45
+        "Okay": {
+          "tolerance": 0.4,
+          "nextEntry": "wrynn:dialog_stage_2"
+        },
+        "Sure": {
+          "tolerance": 0.45,
+          "nextEntry": "wrynn:dialog_stage_2"
+        },
+        "What is it?": {
+          "tolerance": 0.5,
+          "nextEntry": "wrynn:dialog_stage_2"
+        },
+        "What is it": {
+          "tolerance": 0.4,
+          "nextEntry": "wrynn:dialog_stage_2"
+        },
+        "Fine": {
+          "tolerance": 0.45,
+          "nextEntry": "wrynn:dialog_stage_2"
+        }
       }
     },
     "wrynn:dialog_stage_2": {
@@ -34,11 +48,26 @@
       "hasSuggestions": true,
       "skippable": false,
       "suggestions": {
-        "Of course": 0.65,
-        "Yes": 0.4,
-        "Ok": 0.45,
-        "Sure": 0.47,
-        "Sounds good": 0.65
+        "Of course": {
+          "tolerance": 0.65,
+          "nextEntry": "wrynn:dialog_stage_4"
+        },
+        "Yes": {
+          "tolerance": 0.4,
+          "nextEntry": "wrynn:dialog_stage_4"
+        },
+        "Ok": {
+          "tolerance": 0.45,
+          "nextEntry": "wrynn:dialog_stage_4"
+        },
+        "Sure": {
+          "tolerance": 0.47,
+          "nextEntry": "wrynn:dialog_stage_4"
+        },
+        "Sounds good": {
+          "tolerance": 0.65,
+          "nextEntry": "wrynn:dialog_stage_4"
+        }
       }
     },
     "wrynn:dialog_stage_4": {

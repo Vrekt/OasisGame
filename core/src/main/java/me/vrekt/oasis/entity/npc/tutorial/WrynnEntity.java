@@ -132,7 +132,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         updateAi(delta);
 
-        if (pathComponent.isWithinTarget(0.2f)) {
+        if (pathComponent.isWithinTarget(1.0f)) {
             setVelocity(0, 0, true);
             pauseFor(MathUtils.random(4.0f, 10.0f));
             pathComponent.pickRandomPoint();
@@ -142,7 +142,6 @@ public final class WrynnEntity extends EntityInteractable {
 
         // only update rotation if we are moving
         if (isMoving()) rotation = pathComponent.getFacingDirection();
-
         updateRotationTextureState();
 
         dialogue.update();

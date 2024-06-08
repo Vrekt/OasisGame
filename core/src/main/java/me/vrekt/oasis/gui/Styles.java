@@ -28,7 +28,7 @@ public class Styles {
     private final VisTextField.VisTextFieldStyle transparentFieldStyle;
 
     private final Label.LabelStyle smallWhite, mediumWhite, largeWhite,
-            smallBlack, mediumBlack, largeBlack, smallerWhite;
+            smallBlack, mediumBlack, largeBlack, smallerWhite, mediumWhiteMipMapped;
 
     private final VisImageTextButton.VisImageTextButtonStyle imageTextButtonStyle;
     private final Texture defaultCursorTexture;
@@ -76,6 +76,7 @@ public class Styles {
         mediumBlack = new Label.LabelStyle(asset.getMedium(), Color.BLACK);
         largeBlack = new Label.LabelStyle(asset.getLarge(), Color.BLACK);
         smallerWhite = new Label.LabelStyle(asset.getSmaller(), Color.WHITE);
+        mediumWhiteMipMapped = new Label.LabelStyle(asset.getMediumMipMapped(), Color.WHITE);
 
         themeDownSelected = new TextureRegionDrawable(asset.get("theme_down"));
 
@@ -147,6 +148,13 @@ public class Styles {
 
     public Label.LabelStyle getMediumWhite() {
         return mediumWhite;
+    }
+
+    /**
+     * @return less blocky, weird looking font for dialogs, slightly blurry.
+     */
+    public Label.LabelStyle getMediumWhiteMipMapped() {
+        return mediumWhiteMipMapped;
     }
 
     public Label.LabelStyle getLargeWhite() {

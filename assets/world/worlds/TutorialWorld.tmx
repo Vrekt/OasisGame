@@ -168,7 +168,7 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Actions">
-  <object id="1" name="WorldSpawn" x="275.333" y="169">
+  <object id="1" name="WorldSpawn" x="642.833" y="551">
    <point/>
   </object>
  </objectgroup>
