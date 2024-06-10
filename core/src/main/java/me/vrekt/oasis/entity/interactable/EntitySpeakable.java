@@ -86,8 +86,16 @@ public abstract class EntitySpeakable extends GameEntity {
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (drawDialogAnimationTile() && !isSpeakingTo())
-            renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
+
+        // draw current entity status
+        if (statusResource != null) {
+            batch.draw(statusResource, getX() + 0.15f, getY() + getScaledHeight() + 0.1f, statusResource.getRegionWidth() * OasisGameSettings.SCALE, statusResource.getRegionHeight() * OasisGameSettings.SCALE);
+        } else {
+            if (drawDialogAnimationTile() && !isSpeakingTo()) {
+                renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
+            }
+        }
+
     }
 
     /**

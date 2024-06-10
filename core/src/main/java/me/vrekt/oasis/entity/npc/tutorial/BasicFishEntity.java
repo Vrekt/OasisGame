@@ -41,6 +41,7 @@ public final class BasicFishEntity extends GameEntity {
         this.type = EntityType.FISH;
         this.player = game.getPlayer();
 
+        setName("Fish");
         setPosition(position.x, position.y, false);
     }
 

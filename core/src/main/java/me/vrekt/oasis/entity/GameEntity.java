@@ -20,6 +20,7 @@ import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.component.*;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.component.status.EntityStatus;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -71,6 +72,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     protected boolean queueRemoval;
 
     protected AreaEffectCloud cloudApartOf;
+    protected TextureRegion statusResource;
 
     public GameEntity() {
         entity = new Entity();
@@ -689,6 +691,16 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
+     * Set the status of this entity
+     * Basically draws something above their head to describe what they may be doing or thinking
+     *
+     * @param status the status
+     */
+    protected void setStatus(EntityStatus status) {
+        this.statusResource = GameManager.asset().get(status.resource());
+    }
+
+    /**
      * Render the health bar of this entity
      * Usually only used for enemies.
      *
@@ -835,7 +847,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
 
     @Override
     public void dispose() {
-
         activeEntityTexture = null;
         worldIn = null;
         parentWorld = null;
@@ -843,6 +854,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         gradient = null;
         bb = null;
         mouseHandler = null;
+        statusResource = null;
         aiComponents.clear();
     }
 

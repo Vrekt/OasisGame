@@ -2,15 +2,15 @@ package me.vrekt.oasis.entity.npc.tutorial;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.ai.components.AiFollowPathComponent;
+import me.vrekt.oasis.ai.goals.EntityWalkPathGoal;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.world.GameWorld;
 
@@ -23,7 +23,7 @@ public final class LyraEntity extends EntityInteractable {
     public static final String NAME = "Lyra";
 
     private EntityAnimationComponent animationComponent;
-    private AiFollowPathComponent pathComponent;
+    private EntityWalkPathGoal pathComponent;
 
     public LyraEntity(GameWorld world, Vector2 position, OasisGame game) {
         super(NAME, position, game.getPlayer(), world, game);
@@ -36,7 +36,7 @@ public final class LyraEntity extends EntityInteractable {
         super.load(asset);
         this.parentWorld = worldIn;
 
-        addTexturePart("face", asset.get("wrynn_face"));
+        addTexturePart("face", asset.get("lyra_face"));
         addTexturePart(EntityRotation.UP, asset.get("lyra_walking_up_idle"), false);
         addTexturePart(EntityRotation.DOWN, asset.get("lyra_walking_down_idle"), false);
         addTexturePart(EntityRotation.LEFT, asset.get("lyra_walking_left_idle"), true);
@@ -46,6 +46,11 @@ public final class LyraEntity extends EntityInteractable {
         setDrawDialogAnimationTile(false);
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
+
+        dialogue = EntityDialogueLoader.load("assets/dialog/lyra_dialog.json");
+        dialogue.setOwner(this);
+
+        activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
 
         // FIXME: add other walking animations
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
@@ -60,10 +65,10 @@ public final class LyraEntity extends EntityInteractable {
         builder.dispose();
 
         createBoxBody(worldIn.boxWorld());
-        pathComponent = new AiFollowPathComponent(this, worldIn.getPaths());
+        pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths());
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
-        pathComponent.setRotationLocked(false);
+        pathComponent.setFinalRotation(EntityRotation.UP);
         addAiComponent(pathComponent);
     }
 
@@ -88,29 +93,18 @@ public final class LyraEntity extends EntityInteractable {
         super.update(delta);
 
         if (isSpeakingTo()) {
-            if (isMoving()) setVelocity(0.0f, 0.0f, true);
+            if (isMoving()) setVelocity(0, 0, true);
             return;
         }
 
-        updateAi(delta);
-
-        if (pathComponent.isWithinTarget(0.76f)) {
-            setVelocity(0, 0, true);
-            pauseFor(MathUtils.random(4.0f, 10.0f));
-            pathComponent.pickRandomPoint();
-        } else if (isPaused) {
-            setVelocity(0, 0, true);
+        if (!pathComponent.isFinished()) {
+            updateAi(delta);
+            rotation = pathComponent.getFacingDirection();
+        } else {
+            // TODO:
         }
 
-        // only update rotation if we are moving
-        if (isMoving()) rotation = pathComponent.getFacingDirection();
-
         updateRotationTextureState();
-    }
-
-    @Override
-    public void speak(boolean speakingTo) {
-
     }
 
 }

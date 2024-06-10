@@ -205,6 +205,7 @@ public final class PlayerInventoryGui extends InventoryGui {
      */
     private void initializeSlotActions() {
         final DragAndDrop action = new DragAndDrop();
+        action.setDragTime(100);
 
         for (InventoryGuiSlot guiSlot : guiSlots) {
             action.addSource(new InventorySlotSource(this, guiSlot));

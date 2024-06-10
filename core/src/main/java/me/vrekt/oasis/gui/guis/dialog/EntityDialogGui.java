@@ -161,21 +161,18 @@ public final class EntityDialogGui extends Gui {
 
         // the player has seen this dialog so tell the entry its visited.
         entity.getEntry().setVisited();
-
         dialogTextLabel.restart();
 
         if (entity.getEntry().suggestions()) {
             // enable suggestions input box
             userInputField.setVisible(true);
         } else {
-            userInputField.setVisible(false);
-            userInputField.setText("...");
-            // un-focus so global keyboard listener and retrieve input again
-            guiManager.getStage().unfocus(userInputField);
-            // clear options container so the input field is set correctly the next time around
-            dialogOptionContainers.forEach(container -> dialogOptionsWrapper.removeActor(container.parent));
-            suggestionsBeingShown = 0;
-            // FIXME: Options entity.getDialog().getOptions().forEach(this::addOption);
+            hideSuggestionComponents();
+
+            // Otherwise: populate any options we may have
+            if (entity.getEntry().hasOptions()) {
+                entity.getEntry().options().forEach((optionText, nextKey) -> addOption(nextKey, optionText));
+            }
         }
 
         // keep this down here
@@ -190,7 +187,6 @@ public final class EntityDialogGui extends Gui {
 
     /**
      * Add an option to be clicked
-     * TODO
      *
      * @param key    the key
      * @param option the option
@@ -200,7 +196,9 @@ public final class EntityDialogGui extends Gui {
         final DialogOptionContainer container = dialogOptionContainers.get(optionTracker);
         container.label.setText(option);
         container.listener.setKeyAndEntity(key, entity);
+        container.show();
         optionTracker++;
+
         // add this container to the screen
         addDialogOptionContainer(container);
     }
@@ -226,6 +224,22 @@ public final class EntityDialogGui extends Gui {
         addDialogOptionContainer(container);
     }
 
+    /**
+     * Hide suggestion components and reset everything
+     */
+    private void hideSuggestionComponents() {
+        userInputField.setVisible(false);
+        userInputField.setText("...");
+        // un-focus so global keyboard listener and retrieve input again
+        guiManager.getStage().unfocus(userInputField);
+        // clear options container so the input field is set correctly the next time around
+        dialogOptionContainers.forEach(container -> dialogOptionsWrapper.removeActor(container.parent));
+        suggestionsBeingShown = 0;
+    }
+
+    /**
+     * clear text containers
+     */
     private void clearTextContainers() {
         dialogOptionsWrapper.clearChildren();
     }

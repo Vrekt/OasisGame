@@ -13,6 +13,7 @@ public final class InventorySlotSource extends DragAndDrop.Source {
     private final DragAndDrop.Payload payload;
     private final Vector2 projection = new Vector2();
 
+
     public InventorySlotSource(InventoryGui gui, InventoryGuiSlot slot) {
         super(slot.getSlotIcon());
         this.gui = gui;

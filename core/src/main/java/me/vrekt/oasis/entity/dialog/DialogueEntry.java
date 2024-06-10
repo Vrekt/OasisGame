@@ -19,6 +19,7 @@ public final class DialogueEntry {
     private String requirement, task;
     private String incompleteContent;
 
+    private Map<String, String> options;
     private Map<String, DialogEntrySuggestion> suggestions;
 
     private transient boolean completed = true;
@@ -133,10 +134,24 @@ public final class DialogueEntry {
     }
 
     /**
+     * @return if this entry has options
+     */
+    public boolean hasOptions() {
+        return options != null;
+    }
+
+    /**
      * @return the suggestions
      */
     public Map<String, DialogEntrySuggestion> getSuggestions() {
         return suggestions;
+    }
+
+    /**
+     * @return list of options
+     */
+    public Map<String, String> options() {
+        return options;
     }
 
     /**

@@ -1,0 +1,28 @@
+{
+  "entries": {
+    "lyra:dialog_stage_0": {
+      "key": "lyra:dialog_stage_0",
+      "content": "Heard about Wrynn missing her book, such a shame.",
+      "nextEntry": "lyra:dialog_stage_1",
+      "hasSuggestions": false,
+      "skippable": false,
+      "options": {
+        "I got it for her": "lyra:dialog_stage_1"
+      }
+    },
+    "lyra:dialog_stage_1": {
+      "key": "lyra:dialog_stage_1",
+      "content": "Oh really? You must be something special.",
+      "nextEntry": "lyra:dialog_stage_2",
+      "locked:": false,
+      "skippable": true
+    },
+    "lyra:dialog_stage_2": {
+      "key": "lyra:dialog_stage_2",
+      "content": "That sounded sarcastic, but it only kind of was, anyway I'll be seeing ya'",
+      "nextEntry": "lyra:dialog_stage_2",
+      "locked": true,
+      "skippable": false
+    }
+  }
+}

@@ -15,4 +15,16 @@
    <frame tileid="375" duration="500"/>
   </animation>
  </tile>
+ <tile id="774">
+  <animation>
+   <frame tileid="774" duration="500"/>
+   <frame tileid="776" duration="500"/>
+  </animation>
+ </tile>
+ <tile id="806">
+  <animation>
+   <frame tileid="806" duration="500"/>
+   <frame tileid="808" duration="500"/>
+  </animation>
+ </tile>
 </tileset>

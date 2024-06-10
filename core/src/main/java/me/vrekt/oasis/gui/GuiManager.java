@@ -217,8 +217,7 @@ public final class GuiManager implements Disposable {
 
     public void updateAndDrawStage() {
         stage.getViewport().apply();
-
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 60));
+        stage.act(Gdx.graphics.getDeltaTime());
 
         for (Gui value : guis.values()) {
             value.update();
@@ -233,7 +232,7 @@ public final class GuiManager implements Disposable {
         stage.getBatch().setProjectionMatrix(stage.getCamera().combined);
         stage.getBatch().begin();
         stage.getRoot().draw(stage.getBatch(), 1);
-        guis.values().forEach(gui -> gui.draw(stage.getBatch()));
+        for (Gui gui : guis.values()) if (gui.isGuiVisible()) gui.draw(stage.getBatch());
         stage.getBatch().end();
     }
 

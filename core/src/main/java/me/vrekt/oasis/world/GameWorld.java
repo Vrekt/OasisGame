@@ -796,7 +796,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (paths == null) {
             GameLogging.warn(this, "Failed to load paths!");
         } else {
-            GameLogging.info(this, "Loaded %d paths", paths.length);
             this.paths.addAll(paths);
         }
     }
@@ -1118,6 +1117,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             guiManager.showGui(GuiType.DIALOG, true);
             guiManager.getDialogComponent().showEntityDialog(entity);
 
+            // face the entity
             player.setRotation(AiVectorUtility.faceEntity(entity, player));
             return true;
         }

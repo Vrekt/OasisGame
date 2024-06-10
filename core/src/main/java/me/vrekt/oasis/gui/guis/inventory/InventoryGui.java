@@ -2,6 +2,7 @@ package me.vrekt.oasis.gui.guis.inventory;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
  */
 public abstract class InventoryGui extends Gui {
 
-    protected TextureRegionDrawable draggingItem;
+    protected TextureRegion draggingItem;
     protected int draggingSlot;
     protected float dragX, dragY, dragWidth, dragHeight;
 
@@ -43,7 +44,7 @@ public abstract class InventoryGui extends Gui {
      * @param y    first Y
      */
     public void itemDragStarted(InventoryGuiSlot slot, float x, float y) {
-        draggingItem = new TextureRegionDrawable((TextureRegionDrawable) slot.getSlotIcon().getDrawable());
+        draggingItem = slot.getItem().sprite();
         draggingSlot = slot.getSlotNumber();
         dragWidth = slot.getSlotIcon().getImageWidth() * slot.getSlotIcon().getScaleX();
         dragHeight = slot.getSlotIcon().getImageHeight() * slot.getSlotIcon().getScaleY();
@@ -58,8 +59,8 @@ public abstract class InventoryGui extends Gui {
      * @param y y
      */
     public void updateItemDragPosition(float x, float y) {
-        dragX = Math.round(x - (dragWidth / 2f));
-        dragY = Math.round(y - (dragHeight / 2f));
+        dragX = x - (dragWidth / 2f);
+        dragY = y - (dragHeight / 2f);
     }
 
     /**
@@ -196,14 +197,17 @@ public abstract class InventoryGui extends Gui {
     @Override
     public void draw(Batch batch) {
         if (draggingItem != null) {
-            draggingItem.draw(batch, dragX, dragY, 0, 0, dragWidth, dragHeight, 1.0f, 1.0f, 1f);
+            batch.draw(draggingItem, dragX, dragY, dragX, dragY, dragWidth, dragHeight, 1.0f, 1.0f, 1f);
         }
     }
 
     /**
      * Represents the data within a slot... within an inventory ui
      */
-    public record InventoryUiComponent(Stack overlay, VisImage item, Tooltip.TooltipStyle style, VisLabel amountLabel,
+    public record InventoryUiComponent(Stack overlay,
+                                       VisImage item,
+                                       Tooltip.TooltipStyle style,
+                                       VisLabel amountLabel,
                                        int index) {
     }
 

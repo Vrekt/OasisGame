@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.ai.components.AiFollowPathComponent;
+import me.vrekt.oasis.ai.goals.EntityFollowPathGoal;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
@@ -33,7 +33,7 @@ public final class WrynnEntity extends EntityInteractable {
 
     private boolean hintShown;
     private EntityAnimationComponent animationComponent;
-    private AiFollowPathComponent pathComponent;
+    private EntityFollowPathGoal pathComponent;
 
     public WrynnEntity(GameWorld world, Vector2 position, OasisGame game) {
         super(NAME, position, game.getPlayer(), world, game);
@@ -95,7 +95,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         createBoxBody(worldIn.boxWorld());
 
-        pathComponent = new AiFollowPathComponent(this, worldIn.getPaths());
+        pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths());
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         addAiComponent(pathComponent);
@@ -135,7 +135,6 @@ public final class WrynnEntity extends EntityInteractable {
         if (pathComponent.isWithinTarget(1.0f)) {
             setVelocity(0, 0, true);
             pauseFor(MathUtils.random(4.0f, 10.0f));
-            pathComponent.pickRandomPoint();
         } else if (isPaused) {
             setVelocity(0, 0, true);
         }
