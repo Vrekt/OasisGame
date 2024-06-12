@@ -4,11 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
@@ -20,40 +21,43 @@ public final class Asset implements Disposable {
     public static final String MYCELIA_WORLD = "world/worlds/MyceliaWorld.tmx";
     public static final String HOUSE_2 = "world/interiors/House2.tmx";
     public static final String ASSETS = "OasisAssets.atlas";
+    public static final String LP = "Lockpicking.atlas";
+    public static final String UI = "Ui.atlas";
 
     private final AssetManager assetManager = new AssetManager();
 
-    private Skin defaultLibgdxSkin;
+    private TextureAtlas normal, lp, ui;
+
     private BitmapFont smaller, small, medium, large, boxy, mediumMipMapped;
-    private TextureAtlas atlasAssets;
 
     public Asset() {
     }
 
     public void load() {
         final long now = System.currentTimeMillis();
-        loadSkins();
 
         final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
         assetManager.setLoader(TiledMap.class, mapLoader);
+
         assetManager.load(ASSETS, TextureAtlas.class);
+        // task: (TODO-19) assetManager.load(UI, TextureAtlas.class);
+        assetManager.load(LP, TextureAtlas.class);
 
         loadFonts();
-        defaultLibgdxSkin.add("large", large);
-        defaultLibgdxSkin.add("medium", medium);
-        defaultLibgdxSkin.add("small", small);
-
         loadWorlds();
 
         assetManager.finishLoading();
-        this.atlasAssets = assetManager.get(ASSETS);
+
+        normal = assetManager.get(ASSETS);
+        lp = assetManager.get(LP);
+        // task: (TODO-19)  ui = assetManager.get(UI);
 
         final long time = System.currentTimeMillis() - now;
         GameLogging.info("AssetManager", "Finished loading assets in %sms", time);
     }
 
     /**
-     * TODO: Load on contact
+     * TODO: (TODO-8/Maybe) Load on contact
      */
     private void loadWorlds() {
         assetManager.load(TUTORIAL_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
@@ -63,10 +67,6 @@ public final class Asset implements Disposable {
         assetManager.load(HOUSE_2, TiledMap.class, new TmxMapLoader.Parameters());
     }
 
-    private void loadSkins() {
-        defaultLibgdxSkin = new Skin(Gdx.files.internal("ui/styles/gdx/uiskin.json"), new TextureAtlas("ui/styles/gdx/uiskin.atlas"));
-    }
-
     /**
      * Load fonts
      */
@@ -74,31 +74,15 @@ public final class Asset implements Disposable {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/Romulus.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = (int) Math.ceil(640 * 0.06);
-        large = generator.generateFont(parameter);
-
-        parameter.size = (int) Math.ceil(640 * 0.04);
         parameter.genMipMaps = true;
 
-        medium = generator.generateFont(parameter);
-        medium.setUseIntegerPositions(false);
+        large = of(generator, parameter, Math.ceil(640 * 0.06));
+        medium = of(generator, parameter, Math.ceil(640 * 0.04));
 
-        parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
-        parameter.magFilter = Texture.TextureFilter.Linear;
+        mediumMipMapped = ofMipMapped(generator, parameter, Math.ceil(640 * 0.04));
 
-        // mip mapped
-        mediumMipMapped = generator.generateFont(parameter);
-        mediumMipMapped.setUseIntegerPositions(false);
-
-        // reset
-        parameter.minFilter = Texture.TextureFilter.Nearest;
-        parameter.magFilter = Texture.TextureFilter.Nearest;
-
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.033);
-        small = generator.generateFont(parameter);
-
-        parameter.size = (int) Math.ceil(Gdx.graphics.getWidth() * 0.02);
-        smaller = generator.generateFont(parameter);
+        small = of(generator, parameter, Math.ceil(Gdx.graphics.getWidth() * 0.033));
+        smaller = of(generator, parameter, Math.ceil(Gdx.graphics.getWidth() * 0.02));
         generator.dispose();
 
         large.setUseIntegerPositions(false);
@@ -106,17 +90,45 @@ public final class Asset implements Disposable {
         small.setUseIntegerPositions(false);
         smaller.setUseIntegerPositions(false);
 
+        // Damage numbers font, task: (TODO-3)
         generator = new FreeTypeFontGenerator(Gdx.files.internal("ui/font/Boxy-Bold.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int) Math.ceil((Gdx.graphics.getWidth() * 0.025));
         boxy = generator.generateFont(parameter);
         boxy.setUseIntegerPositions(false);
         generator.dispose();
-
     }
 
-    public Skin getDefaultLibgdxSkin() {
-        return defaultLibgdxSkin;
+    /**
+     * Generate a font
+     *
+     * @param generator generator
+     * @param parameter parameter
+     * @param size      size
+     * @return the new font
+     */
+    private BitmapFont of(FreeTypeFontGenerator generator, FreeTypeFontGenerator.FreeTypeFontParameter parameter, double size) {
+        parameter.minFilter = Texture.TextureFilter.Nearest;
+        parameter.magFilter = Texture.TextureFilter.Nearest;
+
+        parameter.size = (int) size;
+        return generator.generateFont(parameter);
+    }
+
+    /**
+     * Generate a font mip-mapped
+     *
+     * @param generator generator
+     * @param parameter parameter
+     * @param size      size
+     * @return the new font
+     */
+    private BitmapFont ofMipMapped(FreeTypeFontGenerator generator, FreeTypeFontGenerator.FreeTypeFontParameter parameter, double size) {
+        parameter.minFilter = Texture.TextureFilter.MipMapLinearLinear;
+        parameter.magFilter = Texture.TextureFilter.Linear;
+
+        parameter.size = (int) size;
+        return generator.generateFont(parameter);
     }
 
     public BitmapFont getLarge() {
@@ -143,20 +155,56 @@ public final class Asset implements Disposable {
         return boxy;
     }
 
+    /**
+     * Get a texture
+     *
+     * @param resource the resource type
+     * @param name     the name
+     * @param index    the index
+     * @return the resource
+     */
+    public TextureRegion get(Resource resource, String name, int index) {
+        return switch (resource) {
+            case NORMAL -> normal.findRegion(name, index);
+            case UI -> ui.findRegion(name, index);
+            case LP -> lp.findRegion(name, index);
+        };
+    }
+
+    /**
+     * Get a texture
+     *
+     * @param resource the resource type
+     * @param name     the name
+     * @return the resource
+     */
+    public TextureRegion get(Resource resource, String name) {
+        return switch (resource) {
+            case NORMAL -> normal.findRegion(name);
+            case UI -> ui.findRegion(name);
+            case LP -> lp.findRegion(name);
+        };
+    }
+
+    /**
+     * task: (TODO-19)
+     */
     public TextureRegion get(String name) {
-        return atlasAssets.findRegion(name);
+        return get(Resource.NORMAL, name);
     }
 
+    /**
+     * task: (TODO-19)
+     */
     public TextureRegion get(String name, int index) {
-        return atlasAssets.findRegion(name, index);
+        return get(Resource.NORMAL, name, index);
     }
 
+    /**
+     * task: (TODO-19)
+     */
     public TextureAtlas getAtlasAssets() {
-        return atlasAssets;
-    }
-
-    public <T> T getType(String name) {
-        return assetManager.get(name);
+        return normal;
     }
 
     public TiledMap getWorldMap(String name) {

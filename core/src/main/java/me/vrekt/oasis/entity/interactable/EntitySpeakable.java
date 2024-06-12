@@ -5,9 +5,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
+import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
@@ -23,11 +23,7 @@ public abstract class EntitySpeakable extends GameEntity {
     protected DialogueEntry activeEntry;
 
     protected boolean speakingTo, speakable;
-    protected final TextureRegion[] dialogFrames = new TextureRegion[3];
-    protected float speakableDistance = 6f, dialogAnimationRange = 50f;
     protected final Vector2 interactionPoint = new Vector2();
-
-    protected float lastDialogUpdate;
 
     public EntitySpeakable(PlayerSP player) {
         this.player = player;
@@ -55,24 +51,16 @@ public abstract class EntitySpeakable extends GameEntity {
 
     @Override
     public void load(Asset asset) {
-        dialogFrames[0] = asset.get("dialog", 1);
-        dialogFrames[1] = asset.get("dialog", 2);
-        dialogFrames[2] = asset.get("dialog", 3);
+        setStatus(new EntitySpeakableStatus(this, asset));
     }
 
     @Override
     public void update(float v) {
         super.update(v);
 
-        this.speakable = getDistanceFromPlayer() <= speakableDistance;
-        entity.getComponent(EntityDialogComponent.class).isInView = inView;
+        if (status != null) status.update(v);
 
-        // update dialog animation state
-        if (getDistanceFromPlayer() <= dialogAnimationRange) {
-            setDrawDialogAnimationTile(true);
-        } else if (getDistanceFromPlayer() > dialogAnimationRange && drawDialogAnimationTile()) {
-            setDrawDialogAnimationTile(false);
-        }
+        entity.getComponent(EntityDialogComponent.class).isInView = inView;
 
         // stop speaking to this entity if the player moves away
         if (speakingTo) {
@@ -86,41 +74,7 @@ public abstract class EntitySpeakable extends GameEntity {
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-
-        // draw current entity status
-        if (statusResource != null) {
-            batch.draw(statusResource, getX() + 0.15f, getY() + getScaledHeight() + 0.1f, statusResource.getRegionWidth() * OasisGameSettings.SCALE, statusResource.getRegionHeight() * OasisGameSettings.SCALE);
-        } else {
-            if (drawDialogAnimationTile() && !isSpeakingTo()) {
-                renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
-            }
-        }
-
-    }
-
-    /**
-     * Render the dialog tile animation
-     *
-     * @param batch  batch
-     * @param region region
-     */
-    protected void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, getX() + 0.15f, getY() + getScaledHeight() + 0.1f, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
-    }
-
-    public int getCurrentDialogFrame() {
-        return entity.getComponent(EntityDialogComponent.class).currentDialogFrame;
-    }
-
-    public void setDrawDialogAnimationTile(boolean drawDialogAnimationTile) {
-        entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile = drawDialogAnimationTile;
-    }
-
-    /**
-     * @return if the floating dialog animation tile should be drawn.
-     */
-    public boolean drawDialogAnimationTile() {
-        return entity.getComponent(EntityDialogComponent.class).drawDialogAnimationTile;
+        if (status != null) status.render(batch, delta);
     }
 
     /**
@@ -134,8 +88,15 @@ public abstract class EntitySpeakable extends GameEntity {
         return dialogue.advance();
     }
 
+    /**
+     * @return {@code true} if this entity can be spoken to, (mainly distance related)
+     */
     public boolean isSpeakable() {
         return speakable;
+    }
+
+    public void setSpeakable(boolean speakable) {
+        this.speakable = speakable;
     }
 
     public boolean isSpeakingTo() {
@@ -183,8 +144,5 @@ public abstract class EntitySpeakable extends GameEntity {
         dialogue.dispose();
         dialogue = null;
         activeEntry = null;
-        dialogFrames[0] = null;
-        dialogFrames[1] = null;
-        dialogFrames[2] = null;
     }
 }

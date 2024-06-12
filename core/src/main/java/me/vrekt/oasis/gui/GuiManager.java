@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -26,6 +25,7 @@ import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
 import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
+import me.vrekt.oasis.gui.guis.lockpicking.LockPickingGui;
 import me.vrekt.oasis.gui.guis.map.WorldMapGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
@@ -45,7 +45,6 @@ public final class GuiManager implements Disposable {
 
     private final OasisGame game;
     private final Asset asset;
-    private final Skin skin;
     private final Styles styles;
 
     private final Stage stage;
@@ -70,7 +69,6 @@ public final class GuiManager implements Disposable {
     public GuiManager(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.game = game;
         this.asset = asset;
-        this.skin = asset.getDefaultLibgdxSkin();
         this.styles = game.getStyle();
         this.layout = new GlyphLayout();
 
@@ -93,6 +91,7 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.CONTAINER, containerGui = new ContainerInventoryGui(this));
         guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
         guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
+        guis.put(GuiType.LOCK_PICKING, new LockPickingGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -103,10 +102,6 @@ public final class GuiManager implements Disposable {
 
     public Asset getAsset() {
         return asset;
-    }
-
-    public Skin getSkin() {
-        return skin;
     }
 
     public Styles getStyle() {

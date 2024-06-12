@@ -72,7 +72,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     protected boolean queueRemoval;
 
     protected AreaEffectCloud cloudApartOf;
-    protected TextureRegion statusResource;
+    protected EntityStatus status;
 
     public GameEntity() {
         entity = new Entity();
@@ -525,6 +525,13 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         return GlobalEntityMapper.texture.get(entity);
     }
 
+    /**
+     * @return dialog component, if this entity is interactable
+     */
+    public EntityDialogComponent getDialogComponent() {
+        return GlobalEntityMapper.dialog.get(entity);
+    }
+
     public Rectangle bb() {
         return bb;
     }
@@ -697,7 +704,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
      * @param status the status
      */
     protected void setStatus(EntityStatus status) {
-        this.statusResource = GameManager.asset().get(status.resource());
+        this.status = status;
     }
 
     /**
@@ -854,7 +861,7 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         gradient = null;
         bb = null;
         mouseHandler = null;
-        statusResource = null;
+        status = null;
         aiComponents.clear();
     }
 

@@ -16,6 +16,7 @@ public enum GuiType {
     HINT,
     SIGN,
     CHAT,
-    WORLD_MAP
+    WORLD_MAP,
+    LOCK_PICKING
 
 }

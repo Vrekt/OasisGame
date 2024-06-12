@@ -1,15 +1,24 @@
 package me.vrekt.oasis.entity.component.status;
 
-public enum EntityStatus {
+import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.graphics.Drawable;
 
-    THINKING("entity_question");
+/**
+ * Basic status
+ */
+public abstract class EntityStatus implements Drawable {
 
-    private final String resource;
-    EntityStatus(String resource) {
-        this.resource = resource;
+    protected final GameEntity entity;
+
+    public EntityStatus(GameEntity entity) {
+        this.entity = entity;
     }
 
-    public String resource() {
-        return resource;
-    }
+    /**
+     * Update this status
+     *
+     * @param delta delta
+     */
+    public abstract void update(float delta);
+
 }

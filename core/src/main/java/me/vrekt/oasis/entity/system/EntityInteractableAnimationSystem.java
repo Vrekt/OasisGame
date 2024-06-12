@@ -34,4 +34,6 @@ public final class EntityInteractableAnimationSystem extends IntervalSystem {
             }
         }
     }
+
+
 }

@@ -42,8 +42,7 @@ public final class LyraEntity extends EntityInteractable {
         addTexturePart(EntityRotation.LEFT, asset.get("lyra_walking_left_idle"), true);
         addTexturePart(EntityRotation.RIGHT, asset.get("lyra_walking_right_idle"), false);
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
-
-        setDrawDialogAnimationTile(false);
+        
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 

@@ -8,7 +8,6 @@ import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.utility.TaskManager;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -65,8 +64,7 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            game().getPlayer().getInventory().add(Items.PIG_HEART, 1);
-            game().getPlayer().getInventory().add(Items.TEMPERED_BLADE, 1);
+            game().getGuiManager().showGui(GuiType.LOCK_PICKING);
         });
     }
 
