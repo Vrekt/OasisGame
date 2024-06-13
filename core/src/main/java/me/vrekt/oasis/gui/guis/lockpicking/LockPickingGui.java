@@ -35,13 +35,14 @@ public final class LockPickingGui extends Gui {
     private static final float MIN_D = 90.0f;
     private static final float MAX_D = 105.0f;
 
-    private final VisImage lockImage;
-    private final VisImage image;
+    private final VisImage lockState;
+    private final VisImage component;
     private float progress = 0.0f;
 
     private final ActiveLockpickStage stage;
+    private final TextureRegionDrawable locked, unlocked;
 
-    private boolean finished;
+    private boolean finished, inProgress;
     private Runnable successCallback, failureCallback;
 
     public LockPickingGui(GuiManager guiManager) {
@@ -50,12 +51,16 @@ public final class LockPickingGui extends Gui {
 
         final VisTable parentTable = new VisTable();
 
-        lockImage = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get("lock")));
-        lockImage.scaleBy(2.0f);
-        lockImage.getColor().a = 0.0f;
+        locked = new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, "lock"));
+        unlocked = new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, "unlocked"));
 
-        image = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(Resource.LP, "lockpick_easy", 1)));
+        lockState = new VisImage(locked);
+        lockState.scaleBy(2.0f);
+        lockState.getColor().a = 0.0f;
+
+        component = new VisImage();
         stage = new ActiveLockpickStage();
+
         // we start at the W stage
         stage.add(Input.Keys.W, createWStage());
         stage.of(Input.Keys.W);
@@ -64,8 +69,10 @@ public final class LockPickingGui extends Gui {
         stage.add(Input.Keys.S, createSStage());
         stage.add(Input.Keys.D, createDStage());
 
-        parentTable.add(image).size(164 * 2f, 132 * 2f);
-        rootTable.add(lockImage).padRight(32);
+        // don't use setScale here because it doesn't work correctly
+        // will of course break things when resizing, but everything gets broken.
+        parentTable.add(component).size(164 * 2f, 132 * 2f);
+        rootTable.add(lockState).padRight(32);
         rootTable.row();
 
         rootTable.add(parentTable).size(164 * 2f, 132 * 2f);
@@ -80,7 +87,7 @@ public final class LockPickingGui extends Gui {
      * @return the component
      */
     private LockpickUiComponent createWStage() {
-        return new LockpickUiComponent(image,
+        return new LockpickUiComponent(component,
                 guiManager.getAsset(),
                 "lockpick_easy",
                 "lockpick_easy_success_w",
@@ -98,7 +105,7 @@ public final class LockPickingGui extends Gui {
      * @return the component
      */
     private LockpickUiComponent createAStage() {
-        return new LockpickUiComponent(image,
+        return new LockpickUiComponent(component,
                 guiManager.getAsset(),
                 "lockpick_easy_a",
                 "lockpick_easy_success_a",
@@ -116,7 +123,7 @@ public final class LockPickingGui extends Gui {
      * @return the component
      */
     private LockpickUiComponent createSStage() {
-        return new LockpickUiComponent(image,
+        return new LockpickUiComponent(component,
                 guiManager.getAsset(),
                 "lockpick_easy_s",
                 "lockpick_easy_success_s",
@@ -134,7 +141,7 @@ public final class LockPickingGui extends Gui {
      * @return the component
      */
     private LockpickUiComponent createDStage() {
-        return new LockpickUiComponent(image,
+        return new LockpickUiComponent(component,
                 guiManager.getAsset(),
                 "lockpick_easy_d",
                 "lockpick_easy_success_d",
@@ -164,16 +171,16 @@ public final class LockPickingGui extends Gui {
     @Override
     public void update() {
         if (isShowing) {
-            // fade in the lock image over time
-            lockImage.addAction(Actions.fadeIn(12f, Interpolation.linear));
-            progress += Gdx.graphics.getDeltaTime() * 8f;
 
+            progress += Gdx.graphics.getDeltaTime() * 8f;
             stage.update(progress, Gdx.graphics.getDeltaTime());
 
             // all stages are completed, set unlocked
             if (stage.isCompleted() && !finished) {
-                lockImage.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get("unlocked")));
+                lockState.setDrawable(unlocked);
                 finished = true;
+                // we finished, no callback to be done in hide()
+                inProgress = false;
 
                 successCallback.run();
                 hide();
@@ -181,13 +188,14 @@ public final class LockPickingGui extends Gui {
                 final LockpickItem item = ((LockpickItem) guiManager.player().getInventory().get(Items.LOCK_PICK));
                 if (item != null && item.shouldBreak()) item.destroy(guiManager.player());
 
+                // player doesn't have any more lockpicks so just exit out completely.
                 if (!guiManager.player().getInventory().containsItem(Items.LOCK_PICK)) {
-                    // we cannot continue
                     guiManager.getHudComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
+                    failureCallback.run();
                     hide();
+                } else {
+                    reset();
                 }
-
-                reset();
             }
         }
     }
@@ -195,7 +203,7 @@ public final class LockPickingGui extends Gui {
     /**
      * Play the hit sound (in range)
      */
-    void hit() {
+    void click() {
         GameManager.playSound(Sounds.LOCK_CLICK, 0.15f, 1.0f, 0.0f);
     }
 
@@ -207,11 +215,24 @@ public final class LockPickingGui extends Gui {
     }
 
     void reset() {
+        inProgress = true;
+
         finished = false;
         progress = 0.0f;
 
         stage.resetAll();
         stage.of(Input.Keys.W);
+
+        // visible, no alpha, then fade
+        lockState.clearActions();
+
+        lockState.addAction(Actions.sequence(
+                Actions.visible(true),
+                Actions.run(() -> lockState.getColor().a = 0.0f),
+                Actions.fadeIn(12f, Interpolation.linear))
+        );
+
+        lockState.setDrawable(locked);
     }
 
     @Override
@@ -227,7 +248,16 @@ public final class LockPickingGui extends Gui {
     public void hide() {
         super.hide();
 
-        guiManager.player().enableMovementAfter(1.0f);
+        if (inProgress) {
+            // we were in-progress, call the callback
+            if (failureCallback != null) failureCallback.run();
+            inProgress = false;
+        }
+
+        // stop movement from registering
+        // a little to early when successful.
+        guiManager.player().enableMovementAfter(0.25f);
+        lockState.setVisible(false);
         rootTable.setVisible(false);
     }
 }

@@ -72,7 +72,7 @@ public final class LockpickUiComponent {
                 successful = true;
                 return true;
             } else if (!Gdx.input.isKeyJustPressed(key) && !inRange) {
-                gui.hit();
+                gui.click();
                 inRange = true;
             }
         }

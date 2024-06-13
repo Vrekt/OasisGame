@@ -1181,7 +1181,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected void updateNearInteriors() {
         for (GameWorldInterior interior : interiorWorlds.values()) {
             if (interior.isWithinEnteringDistance(player.getPosition())) {
-                interior.updateNearComponents(GameManager.getTick());
+                interior.updateNearComponents();
                 interior.setNear(true);
             } else if (interior.isNear()) {
                 interior.invalidateNearComponents();

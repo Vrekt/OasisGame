@@ -169,10 +169,8 @@ public abstract class GameWorldInterior extends GameWorld {
 
     /**
      * Update this interior if the player is near
-     *
-     * @param tick current world tick
      */
-    public void updateNearComponents(float tick) {
+    public void updateNearComponents() {
         if (locked() && !lockpickHint && player.getInventory().containsItem(Items.LOCK_PICK)) {
             // show the hint the player can use a lockpick on this interior
             guiManager.getHudComponent().showItemHint(LockpickItem.DESCRIPTOR);
@@ -199,8 +197,6 @@ public abstract class GameWorldInterior extends GameWorld {
      * Player cancelled or failed this lockpick
      */
     private void handleCancelOrFailLockpick() {
-        guiManager.getLockpickingComponent().hide();
-
         lockpickHint = false;
         lockpickUsed = false;
     }
@@ -212,7 +208,7 @@ public abstract class GameWorldInterior extends GameWorld {
         setLocked(false);
         invalidateNearComponents();
 
-        GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.85f, 1.0f, 1.0f);
+        GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.55f, 1.0f, 1.0f);
         player.getInventory().removeFirst(Items.LOCK_PICK);
     }
 

@@ -63,6 +63,7 @@ public final class NewGameWorld extends GameWorld {
             if (!interior.locked()) {
                 enterInterior(interior);
             } else {
+                // interior is locked, play the sound and hint the player.
                 game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
                 GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 1.0f);
             }
