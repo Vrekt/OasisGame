@@ -69,7 +69,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemNameHeader.setWrap(true);
         itemNameHeader.setWidth(150);
 
-        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumBlack());
+        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
         itemDescriptionHeader.setWidth(175);

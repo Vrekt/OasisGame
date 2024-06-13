@@ -349,6 +349,19 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Get an item
+     *
+     * @param item the item
+     * @return optional of
+     */
+    public Item get(Items item) {
+        for (IntMap.Entry<Item> entry : items) {
+            if (entry.value.type() == item) return entry.value;
+        }
+        return null;
+    }
+
+    /**
      * Remove a known item instance
      *
      * @param item the item

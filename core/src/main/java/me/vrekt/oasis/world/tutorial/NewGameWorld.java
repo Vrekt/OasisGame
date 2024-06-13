@@ -2,12 +2,16 @@ package me.vrekt.oasis.world.tutorial;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
+import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -42,7 +46,10 @@ public final class NewGameWorld extends GameWorld {
         super.loadWorld(isGameSave);
 
         if (!isWorldLoaded) loadTiledMap(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
-        if (!isGameSave) player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
+        if (!isGameSave) {
+            player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
+            player.getInventory().add(Items.LOCK_PICK, 1);
+        }
     }
 
     @Override
@@ -53,7 +60,12 @@ public final class NewGameWorld extends GameWorld {
 
         final GameWorldInterior interior = getInteriorToEnter();
         if (interior != null) {
-            enterInterior(interior);
+            if (!interior.locked()) {
+                enterInterior(interior);
+            } else {
+                game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
+                GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 1.0f);
+            }
             return true;
         }
 

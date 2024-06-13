@@ -93,4 +93,18 @@ public final class LockpickUiComponent {
         return !successful;
     }
 
+    /**
+     * Reset this component
+     */
+    void reset() {
+        animationTime = 0.0f;
+        skip = false;
+        successful = false;
+        inRange = false;
+    }
+
+    boolean failed(float progress) {
+        return progress >= max - 2.0f;
+    }
+
 }

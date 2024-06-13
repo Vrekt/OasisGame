@@ -2,6 +2,7 @@ package me.vrekt.oasis.gui.guis.hud;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -16,6 +17,7 @@ import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.Gui;
@@ -23,13 +25,16 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.utility.hints.PlayerHints;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,8 +64,11 @@ public final class GameHudGui extends Gui {
     private final VisTable attributeComponent;
     private final VisTable artifactComponent;
     private final VisTable hotbarComponent;
+    private final VisTable itemHintComponent;
+    private VisImage itemHintImage;
 
     private float lastHintTime, currentHintDuration;
+    private final EnumMap<PlayerHints, Float> hintTimes = new EnumMap<>(PlayerHints.class);
 
     private final List<VisTable> components = new ArrayList<>();
     private final LinkedList<HotbarComponentSlot> hotbarIconComponents = new LinkedList<>();
@@ -81,13 +89,14 @@ public final class GameHudGui extends Gui {
         debugComponentText = new VisLabel();
         debugComponentText.setStyle(guiManager.getStyle().getSmallBlack());
 
-        hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
+        hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
 
         initializeDebugComponent();
         artifactComponent = initializeArtifactComponent();
         hintComponent = initializeHintComponent();
         hotbarComponent = initializeHotbarComponent();
         attributeComponent = initializeAttributeComponents();
+        itemHintComponent = createItemHintComponent();
 
         builder = new StringBuilder();
         this.updateInterval = 1f;
@@ -165,24 +174,26 @@ public final class GameHudGui extends Gui {
             // ensure hint component is visible, not indefinite (0) and hint has expired.
             if (hintComponent.getColor().a == 1.0f
                     && currentHintDuration != 0.0f
-                    && now - lastHintTime >= currentHintDuration
+                    && GameManager.hasTimeElapsed(lastHintTime, currentHintDuration)
                     && hintComponentText.hasEnded()) {
                 hintComponent.addAction(Actions.sequence(Actions.fadeOut(1.0f), Actions.visible(false)));
             }
         }
     }
 
-    public void showPlayerHint(String text) {
-        showPlayerHint(text, 0);
-    }
-
     /**
      * Show a player hint
      *
-     * @param text     the text hint
+     * @param hint     the hint
      * @param duration the duration in ticks
+     * @param cooldown the cooldown before the same hint can be shown again
      */
-    public void showPlayerHint(String text, float duration) {
+    public void showPlayerHint(PlayerHints hint, float duration, float cooldown) {
+        // do not show this hint if the cooldown has not been met yet.
+        if (hintTimes.containsKey(hint) && !GameManager.hasTimeElapsed(hintTimes.get(hint), cooldown)) return;
+
+        hintTimes.put(hint, GameManager.getTick());
+
         if (!hintComponent.isVisible()) {
             hintComponent.getColor().a = 0.0f;
             hintComponent.setVisible(true);
@@ -200,7 +211,7 @@ public final class GameHudGui extends Gui {
         currentHintDuration = duration;
         hintComponent.setVisible(true);
         fadeIn(hintComponent, 1.0f);
-        hintComponentText.setText(text);
+        hintComponentText.setText(hint.text());
         hintComponentText.restart();
         lastHintTime = now;
     }
@@ -423,6 +434,49 @@ public final class GameHudGui extends Gui {
             }
         }
         if (!visible) attributeComponent.setVisible(false);
+    }
+
+    private VisTable createItemHintComponent() {
+        final VisTable table = new VisTable();
+        table.setVisible(false);
+
+        table.bottom().padBottom(64);
+
+        final VisImage keyImage = new VisImage(guiManager.getAsset().get(Resource.NORMAL, "ekey"));
+
+        final VisImage slot = new VisImage(guiManager.getStyle().getTheme());
+        itemHintImage = new VisImage();
+        itemHintImage.setOrigin(16 / 2f, 16 / 2f);
+
+        final VisTable itemTable = new VisTable(false);
+        itemTable.add(itemHintImage).size(32, 32);
+
+        final Stack overlay = new Stack(slot, itemTable);
+        table.add(keyImage);
+        table.row();
+        table.add(overlay).size(48, 48);
+
+        guiManager.addGui(table);
+        components.add(table);
+        return table;
+    }
+
+    /**
+     * Show an item hint required
+     *
+     * @param descriptor descriptor for the image
+     */
+    public void showItemHint(ItemDescriptor descriptor) {
+        itemHintImage.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, descriptor.texture())));
+        itemHintComponent.addAction(Actions.sequence(
+                Actions.visible(true),
+                Actions.fadeIn(0.65f, Interpolation.linear)));
+    }
+
+    public void removeItemHint() {
+        itemHintComponent.addAction(Actions.sequence(
+                Actions.fadeOut(0.65f, Interpolation.linear),
+                Actions.visible(false)));
     }
 
     @Override

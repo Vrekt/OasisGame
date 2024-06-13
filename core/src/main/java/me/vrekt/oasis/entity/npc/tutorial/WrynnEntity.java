@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.goals.EntityFollowPathGoal;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
@@ -156,7 +155,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         if (speakingTo && !hintShown) {
             // show player hint about how to interact with the dialog system
-            game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, GameManager.secondsToTicks(10));
+            game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, 10, 0.0f);
             hintShown = true;
         }
 

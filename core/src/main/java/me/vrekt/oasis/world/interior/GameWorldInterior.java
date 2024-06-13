@@ -1,5 +1,7 @@
 package me.vrekt.oasis.world.interior;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
@@ -8,13 +10,17 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.item.misc.LockpickItem;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.input.InteriorMouseHandler;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.WorldSaveLoader;
+import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 
 /**
  * Represents an interior within the parent world;
@@ -37,6 +43,13 @@ public abstract class GameWorldInterior extends GameWorld {
     protected InteriorMouseHandler mouseHandler;
     protected boolean mouseOver;
     protected boolean isWorldActive;
+
+    protected boolean isLocked;
+    protected LockDifficulty lockDifficulty;
+
+    // lockpick hint for this interior
+    protected boolean isNear;
+    protected boolean lockpickHint, lockpickUsed;
 
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
@@ -97,6 +110,13 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     /**
+     * @return the entrance area of this interior
+     */
+    public Rectangle entrance() {
+        return entrance;
+    }
+
+    /**
      * Set if this interior  can be entered.
      *
      * @param enterable state
@@ -112,9 +132,92 @@ public abstract class GameWorldInterior extends GameWorld {
         return enterable;
     }
 
+    /**
+     * @return if this interior is locked, requires lockpicking.
+     */
+    public boolean locked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
+    }
+
+    public LockDifficulty lockDifficulty() {
+        return lockDifficulty;
+    }
+
+    public void setLockDifficulty(LockDifficulty lockDifficulty) {
+        this.lockDifficulty = lockDifficulty;
+    }
+
+    /**
+     * Player is near this interior
+     *
+     * @param near state
+     */
+    public void setNear(boolean near) {
+        isNear = near;
+    }
+
+    /**
+     * @return if the player is near this interior
+     */
+    public boolean isNear() {
+        return isNear;
+    }
+
+    /**
+     * Update this interior if the player is near
+     *
+     * @param tick current world tick
+     */
+    public void updateNearComponents(float tick) {
+        if (locked() && !lockpickHint && player.getInventory().containsItem(Items.LOCK_PICK)) {
+            // show the hint the player can use a lockpick on this interior
+            guiManager.getHudComponent().showItemHint(LockpickItem.DESCRIPTOR);
+            lockpickHint = true;
+        } else if (lockpickHint && !lockpickUsed && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            // use the lockpick
+            guiManager.getLockpickingComponent().attemptLockpick(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
+            guiManager.getHudComponent().removeItemHint();
+            lockpickUsed = true;
+        }
+    }
+
+    /**
+     * When the player walks away, invalidate anything we may have done
+     */
+    public void invalidateNearComponents() {
+        lockpickHint = false;
+        lockpickUsed = false;
+
+        guiManager.getHudComponent().removeItemHint();
+    }
+
+    /**
+     * Player cancelled or failed this lockpick
+     */
+    private void handleCancelOrFailLockpick() {
+        guiManager.getLockpickingComponent().hide();
+
+        lockpickHint = false;
+        lockpickUsed = false;
+    }
+
+    /**
+     * Handle success, unlock this interior and play the sound
+     */
+    private void handleLockpickSuccess() {
+        setLocked(false);
+        invalidateNearComponents();
+
+        GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.85f, 1.0f, 1.0f);
+        player.getInventory().removeFirst(Items.LOCK_PICK);
+    }
+
     @Override
     public float update(float delta) {
-
         // check if the player entered the exit bounds
         if (!isExiting && exit.contains(player.getPosition())) {
             isExiting = true;

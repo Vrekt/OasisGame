@@ -113,9 +113,9 @@ public final class GameChatGui extends Gui {
             public void keyboardFocusChanged(FocusEvent event, Actor actor, boolean focused) {
                 if (focused) {
                     hasAnyFocus = true;
-                    GameManager.getPlayer().disableMovement(true);
+                    player.disableMovement();
                 } else if (hasAnyFocus) {
-                    GameManager.getPlayer().disableMovement(false);
+                    player.enableMovement();
                 }
             }
         });
@@ -129,7 +129,7 @@ public final class GameChatGui extends Gui {
                     guiManager.getStage().unfocus(chatInput);
 
                     hasAnyFocus = false;
-                    GameManager.getPlayer().disableMovement(false);
+                    player.enableMovement();
                     hide();
                     return true;
                 } else if (keycode == Input.Keys.ENTER) {
@@ -199,8 +199,9 @@ public final class GameChatGui extends Gui {
 
         guiManager.getHudComponent().showComponentsAfterChat();
         rootTable.setVisible(false);
+
         // give control back to player if this GUI was unexpectedly closed.
-        if (hasAnyFocus) GameManager.getPlayer().disableMovement(false);
+        if (hasAnyFocus) player.enableMovement();
     }
 
     private final class ChatMessageContainer implements Pool.Poolable {

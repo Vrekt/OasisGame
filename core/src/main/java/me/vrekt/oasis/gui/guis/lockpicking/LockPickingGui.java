@@ -13,6 +13,10 @@ import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.item.misc.LockpickItem;
+import me.vrekt.oasis.utility.hints.PlayerHints;
+import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 
 /**
  * The lock-picking GUI.
@@ -37,6 +41,9 @@ public final class LockPickingGui extends Gui {
 
     private final ActiveLockpickStage stage;
 
+    private boolean finished;
+    private Runnable successCallback, failureCallback;
+
     public LockPickingGui(GuiManager guiManager) {
         super(GuiType.LOCK_PICKING, guiManager);
         isShowing = false;
@@ -48,7 +55,6 @@ public final class LockPickingGui extends Gui {
         lockImage.getColor().a = 0.0f;
 
         image = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(Resource.LP, "lockpick_easy", 1)));
-
         stage = new ActiveLockpickStage();
         // we start at the W stage
         stage.add(Input.Keys.W, createWStage());
@@ -58,11 +64,11 @@ public final class LockPickingGui extends Gui {
         stage.add(Input.Keys.S, createSStage());
         stage.add(Input.Keys.D, createDStage());
 
-        parentTable.add(image).size(164 * 2f, 128 * 2f);
+        parentTable.add(image).size(164 * 2f, 132 * 2f);
         rootTable.add(lockImage).padRight(32);
         rootTable.row();
 
-        rootTable.add(parentTable).size(164 * 2f, 128 * 2f);
+        rootTable.add(parentTable).size(164 * 2f, 132 * 2f);
         rootTable.setVisible(false);
 
         guiManager.addGui(rootTable);
@@ -140,6 +146,21 @@ public final class LockPickingGui extends Gui {
                 this);
     }
 
+    /**
+     * Attempt to lock pick an object
+     *
+     * @param difficulty      the difficulty
+     * @param successCallback if the lockpick was successful
+     * @param failureCallback if the lockpick failed
+     */
+    public void attemptLockpick(LockDifficulty difficulty, Runnable successCallback, Runnable failureCallback) {
+        guiManager.resetCursor();
+
+        this.successCallback = successCallback;
+        this.failureCallback = failureCallback;
+        show();
+    }
+
     @Override
     public void update() {
         if (isShowing) {
@@ -150,8 +171,23 @@ public final class LockPickingGui extends Gui {
             stage.update(progress, Gdx.graphics.getDeltaTime());
 
             // all stages are completed, set unlocked
-            if (stage.isCompleted()) {
+            if (stage.isCompleted() && !finished) {
                 lockImage.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get("unlocked")));
+                finished = true;
+
+                successCallback.run();
+                hide();
+            } else if (stage.failed(progress)) {
+                final LockpickItem item = ((LockpickItem) guiManager.player().getInventory().get(Items.LOCK_PICK));
+                if (item != null && item.shouldBreak()) item.destroy(guiManager.player());
+
+                if (!guiManager.player().getInventory().containsItem(Items.LOCK_PICK)) {
+                    // we cannot continue
+                    guiManager.getHudComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
+                    hide();
+                }
+
+                reset();
             }
         }
     }
@@ -170,19 +206,28 @@ public final class LockPickingGui extends Gui {
         GameManager.playSound(Sounds.LOCK_SUCCESS, 1f, 1.0f, 0.0f);
     }
 
+    void reset() {
+        finished = false;
+        progress = 0.0f;
+
+        stage.resetAll();
+        stage.of(Input.Keys.W);
+    }
+
     @Override
     public void show() {
         super.show();
+        reset();
 
-        progress = 0.0f;
-        guiManager.getGame().getPlayer().disableMovement(true);
+        guiManager.player().disableMovement();
         rootTable.setVisible(true);
     }
 
     @Override
     public void hide() {
         super.hide();
-        guiManager.getGame().getPlayer().disableMovement(false);
+
+        guiManager.player().enableMovementAfter(1.0f);
         rootTable.setVisible(false);
     }
 }

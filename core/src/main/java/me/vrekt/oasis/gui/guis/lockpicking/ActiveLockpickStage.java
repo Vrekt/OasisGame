@@ -17,10 +17,7 @@ public final class ActiveLockpickStage {
     private LockpickUiComponent component;
 
     public ActiveLockpickStage() {
-        done.put(Input.Keys.W, false);
-        done.put(Input.Keys.A, false);
-        done.put(Input.Keys.S, false);
-        done.put(Input.Keys.D, false);
+        create();
     }
 
     public void add(int key, LockpickUiComponent component) {
@@ -36,6 +33,21 @@ public final class ActiveLockpickStage {
         this.component = components.get(key);
         this.isWaiting = false;
         this.isDone = false;
+    }
+
+    private void create() {
+        done.put(Input.Keys.W, false);
+        done.put(Input.Keys.A, false);
+        done.put(Input.Keys.S, false);
+        done.put(Input.Keys.D, false);
+    }
+
+    /**
+     * Reset all stages
+     */
+    public void resetAll() {
+        create();
+        components.values().forEach(LockpickUiComponent::reset);
     }
 
     /**
@@ -78,6 +90,10 @@ public final class ActiveLockpickStage {
             if (!entry.value) return false;
         }
         return true;
+    }
+
+    boolean failed(float progress) {
+        return component.failed(progress);
     }
 
 }

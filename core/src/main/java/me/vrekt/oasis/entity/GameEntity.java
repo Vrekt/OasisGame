@@ -336,6 +336,17 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
+     * Check if this entity is within the point
+     *
+     * @param point     point
+     * @param tolerance <= tolerance
+     * @return {@code true} if so
+     */
+    public boolean within(Vector2 point, float tolerance) {
+        return getPosition().dst2(point) <= tolerance;
+    }
+
+    /**
      * @return x position
      */
     public float getX() {

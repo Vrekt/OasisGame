@@ -53,7 +53,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      * @return {@code true} if the player is within interaction range of this object
      */
     public boolean isInInteractionRange() {
-        return world.player().getPosition().dst2(position) <= interactionRange;
+        return world.player().within(position, interactionRange);
     }
 
     /**

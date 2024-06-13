@@ -90,8 +90,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private final Vector3 screenPosition = new Vector3();
     private final Rectangle bounds = new Rectangle();
 
-    // disable movement listening while in dialogs
-    private boolean disableMovement;
+    private boolean canMove = true;
     // if the player has moved since some class requested it to be set.
     private boolean hasMoved = true;
 
@@ -304,12 +303,26 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     }
 
     /**
-     * Enable or disable movement of the playerF
-     *
-     * @param disableMovement state
+     * Disable movement
      */
-    public void disableMovement(boolean disableMovement) {
-        this.disableMovement = disableMovement;
+    public void disableMovement() {
+        this.canMove = false;
+    }
+
+    /**
+     * Enable movement
+     */
+    public void enableMovement() {
+        this.canMove = true;
+    }
+
+    /**
+     * Enable movement for this player after a specified period
+     *
+     * @param seconds seconds
+     */
+    public void enableMovementAfter(float seconds) {
+        GameManager.getTaskManager().schedule(this::enableMovement, seconds);
     }
 
     /**
@@ -592,7 +605,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     private void pollInput() {
         setVelocity(0.0f, 0.0f, false);
-        if (disableMovement) {
+        if (!canMove) {
             return;
         }
 

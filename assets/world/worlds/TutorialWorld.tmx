@@ -660,6 +660,8 @@
     <property name="enterable" type="bool" value="true"/>
     <property name="interior_asset" value="world/interiors/House2.tmx"/>
     <property name="interior_type" value="house2"/>
+    <property name="lock_difficulty" value="EASY"/>
+    <property name="locked" type="bool" value="true"/>
    </properties>
   </object>
  </objectgroup>

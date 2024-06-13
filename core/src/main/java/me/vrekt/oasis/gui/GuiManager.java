@@ -19,6 +19,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameChatGui;
@@ -46,6 +47,7 @@ public final class GuiManager implements Disposable {
     private final OasisGame game;
     private final Asset asset;
     private final Styles styles;
+    private final PlayerSP player;
 
     private final Stage stage;
     private final Stack stack;
@@ -58,6 +60,7 @@ public final class GuiManager implements Disposable {
     private final ReadableSignGui signGui;
     private final ContainerInventoryGui containerGui;
     private final GameChatGui chatGui;
+    private final LockPickingGui lockPickingGui;
 
     private Cursor cursorState;
     private boolean wasCursorChanged;
@@ -70,6 +73,7 @@ public final class GuiManager implements Disposable {
         this.game = game;
         this.asset = asset;
         this.styles = game.getStyle();
+        this.player = game.getPlayer();
         this.layout = new GlyphLayout();
 
         // fit this stage to always respect the general constraints we want
@@ -91,13 +95,20 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.CONTAINER, containerGui = new ContainerInventoryGui(this));
         guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
         guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
-        guis.put(GuiType.LOCK_PICKING, new LockPickingGui(this));
+        guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockPickingGui(this));
 
         multiplexer.addProcessor(stage);
     }
 
     public OasisGame getGame() {
         return game;
+    }
+
+    /**
+     * @return local player
+     */
+    public PlayerSP player() {
+        return player;
     }
 
     public Asset getAsset() {
@@ -150,6 +161,10 @@ public final class GuiManager implements Disposable {
 
     public GameChatGui getChatComponent() {
         return chatGui;
+    }
+
+    public LockPickingGui getLockpickingComponent() {
+        return lockPickingGui;
     }
 
     /**

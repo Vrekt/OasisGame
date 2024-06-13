@@ -57,6 +57,7 @@ import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
@@ -111,6 +112,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final Array<Vector2> paths = new Array<>();
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
+    protected boolean showedHint, ekey;
 
     protected final InteractionManager interactionManager;
     // last tick update, 50ms = 1 tick
@@ -752,9 +754,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 final String cursorType = object.getProperties().get("cursor", "default", String.class).toUpperCase();
                 final Cursor cursor = Cursor.valueOf(cursorType);
 
+                // if this interior is locked/requires lock picking
+                final boolean locked = TiledMapLoader.ofBoolean(object, "locked");
+                final LockDifficulty difficulty = locked ? LockDifficulty.valueOf(TiledMapLoader.ofString(object, "lock_difficulty")) : null;
+
                 final GameWorldInterior interior = type.createInterior(this, asset, cursor, bounds);
                 interior.setEnterable(enterable);
                 interior.attachMouseHandler(this::handleInteriorMouseOver);
+
+                interior.setLocked(locked);
+                interior.setLockDifficulty(difficulty);
 
                 interiorWorlds.put(type, interior);
                 GameLogging.info(this, "Loaded interior: %s", type);
@@ -952,6 +961,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             effect.update(delta);
             effect.draw(batch);
         }
+
+        updateNearInteriors();
 
         projectileManager.render(batch, delta);
 
@@ -1162,6 +1173,21 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             return interior;
         }
         return null;
+    }
+
+    /**
+     * Update any interiors the player may be near
+     */
+    protected void updateNearInteriors() {
+        for (GameWorldInterior interior : interiorWorlds.values()) {
+            if (interior.isWithinEnteringDistance(player.getPosition())) {
+                interior.updateNearComponents(GameManager.getTick());
+                interior.setNear(true);
+            } else if (interior.isNear()) {
+                interior.invalidateNearComponents();
+                interior.setNear(false);
+            }
+        }
     }
 
     @Override
