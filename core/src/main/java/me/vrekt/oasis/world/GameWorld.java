@@ -112,7 +112,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final Array<Vector2> paths = new Array<>();
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
-    protected boolean showedHint, ekey;
 
     protected final InteractionManager interactionManager;
     // last tick update, 50ms = 1 tick
@@ -1180,6 +1179,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void updateNearInteriors() {
         for (GameWorldInterior interior : interiorWorlds.values()) {
+            System.err.println(interior.worldName);
             if (interior.isWithinEnteringDistance(player.getPosition())) {
                 interior.updateNearComponents();
                 interior.setNear(true);

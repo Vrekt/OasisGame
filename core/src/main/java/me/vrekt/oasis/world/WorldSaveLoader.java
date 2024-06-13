@@ -11,6 +11,7 @@ import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ItemInteractionObjectSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -38,6 +39,8 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
 
             interior.setHasVisited(true);
             interior.setEnterable(save.enterable());
+            interior.setLocked(save.locked());
+            interior.setLockDifficulty(save.difficulty());
             world.getGame().getWorldManager().setParentWorldPosition(save.enteredPosition());
         } else {
             for (InteriorWorldSave interior : worldSave.interiors()) {
@@ -126,6 +129,9 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
     private void loadInteractableObject(InteractableWorldObjectSave save) {
         if (save.type() == WorldInteractionType.CONTAINER) {
             loadContainer((ContainerWorldObjectSave) save);
+        } else if (save.type() == WorldInteractionType.ITEM_DROP) {
+            final ItemInteractionObjectSave drop = (ItemInteractionObjectSave) save;
+            world.spawnWorldDrop(drop.item().type(), drop.item().amount(), drop.position());
         } else {
             final AbstractInteractableWorldObject object = world.findInteraction(save.type(), save.key());
             if (save.enabled()) object.enable();

@@ -273,7 +273,10 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemRarityIcon.setDrawable((Drawable) null);
         final ItemRarity rarity = selectedItem.rarity();
         if (rarityIcons.containsKey(rarity)) {
+            itemRarityIcon.setVisible(true);
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
+        } else {
+            itemRarityIcon.setVisible(false);
         }
 
     }

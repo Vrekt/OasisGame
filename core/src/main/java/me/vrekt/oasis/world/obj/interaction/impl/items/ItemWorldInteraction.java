@@ -43,6 +43,13 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
         this.item = item;
     }
 
+    /**
+     * @return the item
+     */
+    public Item item() {
+        return item;
+    }
+
     @Override
     public void load(Asset asset) {
         effect = Pooling.hint();

@@ -11,10 +11,10 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
 public class InteractableWorldObjectSave extends AbstractWorldObjectSaveState {
 
     @Expose
-    private boolean enabled;
+    protected boolean enabled;
 
     @Expose
-    private WorldInteractionType type;
+    protected WorldInteractionType type;
 
     public InteractableWorldObjectSave(GameWorld world, AbstractInteractableWorldObject object) {
         this.key = object.getKey();

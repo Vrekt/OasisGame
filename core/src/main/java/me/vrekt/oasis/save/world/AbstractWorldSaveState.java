@@ -10,12 +10,15 @@ import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ItemInteractionObjectSave;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.ItemWorldInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +105,15 @@ public abstract class AbstractWorldSaveState {
         // TODO: Ideally, save it to a file before unloading
         // TODO: So then it can be reloaded from disk
         for (GameWorldInterior interior : world.interiorWorlds().values()) {
-            if (interior.isWorldLoaded() && !excludeInteriorName.equals(interior.getWorldName())) {
+            // != null fixes EM-91
+            if (excludeInteriorName == null) {
+                // debugging purposes, remove later 6/12/24
+                GameLogging.warn(this, "Excluded was null, debugging: interior=%s, caller=%s", interior.type(), world.getWorldName());
+            }
+
+            if (interior.isWorldLoaded()
+                    && excludeInteriorName != null
+                    && !excludeInteriorName.equals(interior.getWorldName())) {
                 interiors.add(new InteriorWorldSave(interior));
             }
         }
@@ -129,6 +140,9 @@ public abstract class AbstractWorldSaveState {
             if (object.getType() == WorldInteractionType.CONTAINER) {
                 final ContainerWorldObjectSave container = new ContainerWorldObjectSave(world, object, ((OpenableContainerInteraction) object).inventory());
                 objects.add(container);
+            } else if (object.getType() == WorldInteractionType.ITEM_DROP) {
+                final ItemInteractionObjectSave itemDrop = new ItemInteractionObjectSave((ItemWorldInteraction) object);
+                objects.add(itemDrop);
             } else {
                 final InteractableWorldObjectSave save = new InteractableWorldObjectSave(world, object);
                 objects.add(save);

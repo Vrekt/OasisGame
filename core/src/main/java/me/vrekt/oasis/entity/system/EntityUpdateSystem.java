@@ -39,8 +39,7 @@ public final class EntityUpdateSystem extends EntitySystem {
             final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
             entity.setDistanceToPlayer(distance);
 
-            // TODO: Will cause issues when a entity is out of view, if dying
-            // TODO: Very low priority
+            // task: EM-92.1 entities dying outside range
             if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE
                     || entity.isInView(gameCamera)) {
 
@@ -52,6 +51,8 @@ public final class EntityUpdateSystem extends EntitySystem {
                     world.addNearbyEntity(entity.asInteractable());
                 }
             } else {
+                entity.stopUpdating();
+
                 if (entity.type().interactable() && entity.nearby()) {
                     entity.setNearby(false);
                     world.removeNearbyEntity(entity.asInteractable());

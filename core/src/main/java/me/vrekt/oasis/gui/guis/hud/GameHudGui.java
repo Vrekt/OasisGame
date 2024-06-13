@@ -517,7 +517,7 @@ public final class GameHudGui extends Gui {
     public void show() {
         super.show();
         components.forEach(table -> {
-            if (table != hintComponent) table.setVisible(true);
+            if (table != hintComponent && table != itemHintComponent) table.setVisible(true);
         });
     }
 

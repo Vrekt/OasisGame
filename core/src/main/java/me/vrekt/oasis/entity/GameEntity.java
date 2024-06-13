@@ -617,6 +617,13 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     }
 
     /**
+     * Called when this entity will stop updating (outside update distance)
+     */
+    public void stopUpdating() {
+        setVelocity(0, 0, true);
+    }
+
+    /**
      * Add an AI component
      */
     protected void addAiComponent(AiComponent component) {

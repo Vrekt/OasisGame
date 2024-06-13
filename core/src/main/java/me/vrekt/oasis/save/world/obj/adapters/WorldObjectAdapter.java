@@ -1,10 +1,11 @@
 package me.vrekt.oasis.save.world.obj.adapters;
 
 import com.google.gson.*;
+import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
+import me.vrekt.oasis.save.world.obj.objects.ItemInteractionObjectSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
@@ -26,7 +27,10 @@ public final class WorldObjectAdapter implements JsonDeserializer<AbstractWorldO
             final WorldInteractionType of = WorldInteractionType.of(type);
             if (of == WorldInteractionType.CONTAINER) {
                 return context.deserialize(json, ContainerWorldObjectSave.class);
+            } else if (of == WorldInteractionType.ITEM_DROP) {
+                return context.deserialize(json, ItemInteractionObjectSave.class);
             } else {
+                GameLogging.warn(this, "Did not register deserializer for: %s", of);
                 return context.deserialize(json, InteractableWorldObjectSave.class);
             }
         } catch (IllegalArgumentException ex) {
