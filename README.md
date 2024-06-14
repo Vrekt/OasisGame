@@ -30,11 +30,11 @@ Oasis is a multiplayer game built with [Lunar](https://github.com/Vrekt/LunarGdx
 </p>
 
 <p align="center">
-  <img src="screenshot_1.png" alt="Overworld">
+  <img src="world.png" alt="Overworld">
 </p>
 
 <p align="center">
-  <img src="screenshot_2.png" alt="Inventory">
+  <img src="inventory" alt="Inventory">
 </p>
 
 <p align="center">
@@ -42,5 +42,13 @@ Oasis is a multiplayer game built with [Lunar](https://github.com/Vrekt/LunarGdx
 </p>
 
 <p align="center">
-  <img src="screenshot_4.png" alt="Home Interior">
+  <img src="dialog.png" alt="Dialog">
+</p>
+
+<p align="center">
+  <img src="lockpicking.png" alt="Lockpicking">
+</p>
+
+<p align="center">
+  <img src="chest.png" alt="Chest">
 </p>
