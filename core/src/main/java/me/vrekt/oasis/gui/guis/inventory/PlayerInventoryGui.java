@@ -175,6 +175,18 @@ public final class PlayerInventoryGui extends InventoryGui {
     }
 
     @Override
+    public void itemTransferred(int from, int to) {
+        super.itemTransferred(from, to);
+
+        // EM-97: Keep the information page opened if we transferred slots
+        // Indirectly re-fixed EM-90
+        guiSlots.get(from).resetSlot();
+        guiSlots.get(to).setOccupiedItem(player.getInventory().get(to));
+
+        handleSlotClicked(guiSlots.get(to));
+    }
+
+    @Override
     public void update() {
         for (IntMap.Entry<Item> entry : player.getInventory().items()) {
             final InventoryGuiSlot slot = guiSlots.get(entry.key);
