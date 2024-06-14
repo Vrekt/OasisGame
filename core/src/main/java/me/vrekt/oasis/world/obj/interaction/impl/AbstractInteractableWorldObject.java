@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.gui.GuiManager;
-import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +22,8 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected boolean wasInteractedWith, isEnabled = true, updatable = true;
     protected float interactionRange = 4.5f;
 
-    protected InteractionMouseHandler mouseHandler;
     protected boolean isUiComponent;
     protected boolean handleMouseState = true;
-    protected boolean mouseOver;
 
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
         this.type = type;
@@ -122,31 +119,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     }
 
-    /**
-     * Attach a handler
-     *
-     * @param handler the handler
-     */
-    public void attachMouseHandler(InteractionMouseHandler handler) {
-        this.mouseHandler = handler;
-    }
-
-    /**
-     * Update the mouse state
-     */
-    public void updateMouseState() {
-        if (!handleMouseState) return;
-
-        if (!world.shouldUpdateMouseState() || wasInteractedWith || !isEnabled) return;
-
-        final boolean result = isMouseOver(world.getCursorInWorld());
-        if (result) {
-            mouseOver = true;
-            mouseHandler.handle(this, false);
-        } else if (mouseOver) {
-            mouseOver = false;
-            mouseHandler.handle(this, true);
+    @Override
+    public boolean clicked(Vector3 mouse) {
+        if (isEnabled && isInInteractionRange() && !wasInteractedWith) {
+            interact();
+            return true;
         }
+        return false;
     }
 
     /**

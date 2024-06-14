@@ -3,7 +3,9 @@ package me.vrekt.oasis.entity.interactable;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.EntityDialogComponent;
@@ -13,6 +15,7 @@ import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.cursor.Cursor;
 
 /**
  * Represents an entity that can be spoken to.
@@ -48,6 +51,23 @@ public abstract class EntitySpeakable extends GameEntity {
     }
 
     public abstract TextureRegion getDialogFace();
+
+    @Override
+    public Cursor enter(Vector3 mouse) {
+        return Cursor.DIALOG;
+    }
+
+    @Override
+    public boolean clicked(Vector3 mouse) {
+        if (!speakingTo && speakable) {
+            speak(true);
+
+            worldIn.getGame().guiManager.showGui(GuiType.DIALOG, true);
+            worldIn.getGame().guiManager.getDialogComponent().showEntityDialog(this);
+            player.setRotation(AiVectorUtility.faceEntity(this, player));
+        }
+        return true;
+    }
 
     @Override
     public void load(Asset asset) {

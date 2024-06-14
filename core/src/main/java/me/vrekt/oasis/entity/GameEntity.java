@@ -27,15 +27,15 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
-import me.vrekt.oasis.utility.input.EntityMouseHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
 
 /**
  * Represents a basic entity within Oasis
  */
-public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, Disposable {
+public abstract class GameEntity implements MouseListener, Viewable, Drawable, ResourceLoader, Disposable {
 
     protected String key;
     protected EntityType type;
@@ -66,8 +66,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
     protected boolean isPaused;
     protected float pauseTime, pauseForTime;
 
-    protected EntityMouseHandler mouseHandler;
-    protected boolean mouseOver;
     // entity is queued to be removed from the world.
     protected boolean queueRemoval;
 
@@ -593,27 +591,33 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         return !getVelocity().isZero(0.01f);
     }
 
+    @Override
+    public boolean within(Vector3 mouse) {
+        return isMouseInEntityBounds(mouse);
+    }
+
+    @Override
+    public boolean clicked(Vector3 mouse) {
+        return false;
+    }
+
+    @Override
+    public Cursor enter(Vector3 mouse) {
+        return Cursor.DEFAULT;
+    }
+
+    @Override
+    public void exit(Vector3 mouse) {
+
+    }
+
     /**
      * Update this game entity
      *
      * @param delta delta
      */
     public void update(float delta) {
-        if (mouseHandler != null && getWorldState().shouldUpdateMouseState()) {
-            boolean result = isMouseInEntityBounds(getWorldState().getCursorInWorld());
-            if (result) {
-                mouseOver = true;
-                mouseHandler.handle(this, false);
-            } else if (mouseOver) {
-                mouseOver = false;
-                mouseHandler.handle(this, true);
 
-                // TODO: Partially fixes EM-67 (again)
-                // TODO: Just update cursor stuff every frame or something
-                // TODO: Instead of mouse move
-                if (GameManager.getGuiManager().cursor() == Cursor.DIALOG) GameManager.getGuiManager().resetCursor();
-            }
-        }
     }
 
     /**
@@ -736,15 +740,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
 
         final float width = (getHealth() / 100.0f * getWidth()) * OasisGameSettings.SCALE;
         gradient.draw(batch, getX(), getY() + (getScaledHeight() + 0.1f), width, 3.0f * OasisGameSettings.SCALE);
-    }
-
-    /**
-     * Attach a mouse listener
-     *
-     * @param handler handler
-     */
-    public void attachMouseListener(EntityMouseHandler handler) {
-        this.mouseHandler = handler;
     }
 
     /**
@@ -878,7 +873,6 @@ public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, 
         player = null;
         gradient = null;
         bb = null;
-        mouseHandler = null;
         status = null;
         aiComponents.clear();
     }

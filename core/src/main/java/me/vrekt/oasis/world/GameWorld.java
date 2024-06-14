@@ -25,7 +25,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
-import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
@@ -46,6 +45,7 @@ import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
@@ -113,11 +113,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
 
+    // all mouse listeners
+    protected final HashMap<MouseListener, Boolean> mouseListeners = new HashMap<>();
+
     protected final InteractionManager interactionManager;
     // last tick update, 50ms = 1 tick
     protected long lastTick;
-    // last time we updated nearby interiors
-    protected float lastNearbyInteriorUpdate;
 
     protected final EntityDamageAnimator worldDamageAnimator;
     protected final PerformanceCounter performanceCounter;
@@ -246,7 +247,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
         buildEntityPathing(worldMap, worldScale);
-        createEntities(game, game.getAsset(), worldMap, worldScale);
+        createEntities(game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
@@ -295,7 +296,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      *
      * @param interior the interior
      */
-    protected void enterInterior(GameWorldInterior interior) {
+    public void enterInterior(GameWorldInterior interior) {
         player.getConnection().updateNetworkInteriorWorldEntered(interior);
         GameManager.getWorldManager().transfer(player, this, interior);
     }
@@ -396,10 +397,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     /**
      * Creates and loads all entities within this world
      *
+     * @param asset      asset
      * @param worldMap   map
      * @param worldScale scale
      */
-    protected void createEntities(OasisGame game, Asset asset, TiledMap worldMap, float worldScale) {
+    protected void createEntities(Asset asset, TiledMap worldMap, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "Entities", (object, rectangle) -> {
             final String key = TiledMapLoader.ofString(object, "key");
             if (key == null) {
@@ -477,7 +479,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         entities.put(entity.entityId(), entity);
         engine.addEntity(entity.getEntity());
 
-        entity.attachMouseListener(this::handleEntityMouseOver);
+        mouseListeners.put(entity, false);
     }
 
     /**
@@ -491,6 +493,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         deadEnemies.add(entity.type());
+        mouseListeners.remove(entity);
         entity.dispose();
     }
 
@@ -555,7 +558,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                     worldObject.setPosition(rectangle.x, rectangle.y);
                     worldObject.setSize(rectangle.width, rectangle.height);
                     worldObject.setInteractionRange(range);
-                    worldObject.attachMouseHandler(this::handleInteractionMouseOver);
                     worldObject.load(asset);
 
                     createObjectParticles(worldObject, object, asset);
@@ -563,6 +565,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                     // load collision for this object
                     if (hasCollision) createObjectCollisionBody(worldObject, rectangle);
                     interactableWorldObjects.add(worldObject);
+                    mouseListeners.put(worldObject, false);
                 } else {
                     // load base object
                     final AbstractWorldObject worldObject = new SimpleWorldObject(key);
@@ -761,12 +764,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
                 final GameWorldInterior interior = type.createInterior(this, asset, cursor, bounds);
                 interior.setEnterable(enterable);
-                interior.attachMouseHandler(this::handleInteriorMouseOver);
 
                 interior.setLocked(locked);
                 interior.setLockDifficulty(difficulty);
 
                 interiorWorlds.put(type, interior);
+                mouseListeners.put(interior, false);
                 GameLogging.info(this, "Loaded interior: %s", type);
             }
         });
@@ -869,58 +872,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Handle when the mouse is over an entity
-     * TODO: Enemies, other types, etc, not always dialog.
-     *
-     * @param entity the entity
-     * @param exit   if it was exited
-     */
-    protected void handleEntityMouseOver(GameEntity entity, boolean exit) {
-        if (exit && guiManager.wasCursorChanged()) {
-            guiManager.resetCursor();
-        } else if (!guiManager.wasCursorChanged() && entity instanceof EntityInteractable) {
-            guiManager.setCursorInGame(Cursor.DIALOG);
-        }
-    }
-
-    /**
-     * Handle when the mouse is over an interaction
-     *
-     * @param interaction interaction
-     * @param exit        if it was exited
-     */
-    protected void handleInteractionMouseOver(AbstractInteractableWorldObject interaction, boolean exit) {
-        if (exit && guiManager.wasCursorChanged()) {
-            guiManager.resetCursor();
-        } else if (!guiManager.wasCursorChanged()) {
-            guiManager.setCursorInGame(interaction.getCursor());
-        }
-    }
-
-    /**
-     * Handle when the mouse is over an interior
-     *
-     * @param interior interior
-     * @param exit     if it was exited
-     */
-    protected void handleInteriorMouseOver(GameWorldInterior interior, boolean exit) {
-        if (exit && guiManager.wasCursorChanged()) {
-            guiManager.resetCursor();
-        } else if (!guiManager.wasCursorChanged()) {
-            guiManager.setCursorInGame(interior.getCursor());
-        }
-    }
-
-    /**
-     * Check if the mouse state should be updated within entities and interactions
-     *
-     * @return {@code true} if so
-     */
-    public boolean shouldUpdateMouseState() {
-        return !guiManager.isAnyGuiVisible(GuiType.HUD);
-    }
-
-    /**
      * Render this world
      *
      * @param delta delta
@@ -951,8 +902,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // interactions
         for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
-            worldObject.updateMouseState();
-
             if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
             worldObject.render(batch, delta);
         }
@@ -963,13 +912,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             effect.draw(batch);
         }
 
-        // update nearby interiors every .88 seconds
-        // cuts down on processing time a little, though probably doesn't make a difference.
-        if (GameManager.hasTimeElapsed(lastNearbyInteriorUpdate, 0.88f)) {
-            updateNearbyInteriors();
-            lastNearbyInteriorUpdate = GameManager.getTick();
-        }
-
+        updateNearbyInteriors();
         projectileManager.render(batch, delta);
 
         // render local player next
@@ -1003,7 +946,32 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         batch.end();
+
+        updateMouseListeners();
         guiManager.updateAndDrawStage();
+    }
+
+    protected void updateMouseListeners() {
+        // do not update cursor state if any GUI is visible besides the HUD
+        if (guiManager.isAnyGuiVisible(GuiType.HUD)) return;
+
+        renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
+
+        // update all mouse listeners, if found one then break
+        // later: task: (TODO-28) priority
+        for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
+            if (!entry.getValue() && entry.getKey().within(cursorInWorld)) {
+                guiManager.setCursorInGame(entry.getKey().enter(cursorInWorld));
+                entry.setValue(true);
+                break;
+            } else if (entry.getValue() && !entry.getKey().within(cursorInWorld)) {
+                entry.getKey().exit(cursorInWorld);
+
+                guiManager.resetCursor();
+                entry.setValue(false);
+                break;
+            }
+        }
     }
 
     /**
@@ -1113,75 +1081,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Interact with an entity if they were clicked on.
-     * Finds the first entity and does not allow multiple
-     */
-    protected boolean didInteractWithEntity() {
-        EntityInteractable entity = null;
-        for (IntMap.Entry<GameEntity> entry : nearbyEntities) {
-            if (entry.value instanceof EntityInteractable interactable) {
-                if (interactable.isSpeakable()
-                        && !interactable.isSpeakingTo()
-                        && interactable.isMouseInEntityBounds(cursorInWorld)) {
-                    entity = interactable;
-                    break;
-                }
-            }
-        }
-
-        if (entity != null) {
-            entity.speak(true);
-            guiManager.showGui(GuiType.DIALOG, true);
-            guiManager.getDialogComponent().showEntityDialog(entity);
-
-            // face the entity
-            player.setRotation(AiVectorUtility.faceEntity(entity, player));
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if the player interacted with a world object
-     */
-    protected boolean didInteractWithWorldObject() {
-        AbstractInteractableWorldObject interaction = null;
-        for (AbstractInteractableWorldObject object : interactableWorldObjects) {
-            if (object.isEnabled()
-                    && object.isInInteractionRange()
-                    && object.isMouseOver(cursorInWorld)
-                    && !object.wasInteractedWith()) {
-                interaction = object;
-                break;
-            }
-        }
-
-        if (interaction != null) {
-            interaction.interact();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return an interior if the entrance was clicked on
-     */
-    protected GameWorldInterior getInteriorToEnter() {
-        final GameWorldInterior interior = interiorWorlds
-                .values()
-                .stream()
-                .filter(e -> e.clickedOn(cursorInWorld))
-                .findFirst()
-                .orElse(null);
-
-        if (interior != null && interior.isEnterable() && interior.isWithinEnteringDistance(player.getPosition())) {
-            return interior;
-        }
-        return null;
-    }
-
-    /**
      * Update interiors the player is near
      */
     protected void updateNearbyInteriors() {
@@ -1230,22 +1129,15 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return didInteractWithEntity() || didInteractWithWorldObject();
-    }
+        if (guiManager.isAnyGuiVisible(GuiType.HUD)) return true;
 
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        // do not update cursor state if any GUI is visible besides the HUD
-        if (guiManager.isAnyGuiVisible(GuiType.HUD)) return false;
-
-        // TODO: Not desirable, added to fix EM-57
-        // TODO: Movement was not disabled during save because it was pausing the interior
-        // TODO: world and technically not this one since that had input enabled to the multiplexer.
-
-        interiorWorlds.values().forEach(w -> w.mouseMoved(screenX, screenY));
-        renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-
-        return true;
+        for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
+            if (entry.getValue()) {
+                // mouse is within, we clicked it.
+                return entry.getKey().clicked(cursorInWorld);
+            }
+        }
+        return false;
     }
 
     @Override

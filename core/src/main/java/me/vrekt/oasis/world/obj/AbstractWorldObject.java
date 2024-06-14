@@ -10,13 +10,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
- * Base implementation of {@link WorldObject}
+ * Base implementation of a world object
  */
-public abstract class AbstractWorldObject implements ResourceLoader, Disposable {
+public abstract class AbstractWorldObject implements MouseListener, ResourceLoader, Disposable {
 
     protected final Array<ParticleEffect> effects = new Array<>();
     protected GameWorld world;
@@ -126,6 +127,26 @@ public abstract class AbstractWorldObject implements ResourceLoader, Disposable 
      */
     public Cursor getCursor() {
         return Cursor.DEFAULT;
+    }
+
+    @Override
+    public Cursor enter(Vector3 mouse) {
+        return getCursor();
+    }
+
+    @Override
+    public boolean within(Vector3 mouse) {
+        return isMouseOver(mouse);
+    }
+
+    @Override
+    public boolean clicked(Vector3 mouse) {
+        return false;
+    }
+
+    @Override
+    public void exit(Vector3 mouse) {
+
     }
 
     /**

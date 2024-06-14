@@ -12,10 +12,11 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.misc.LockpickItem;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
-import me.vrekt.oasis.utility.input.InteriorMouseHandler;
+import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
@@ -26,7 +27,7 @@ import me.vrekt.oasis.world.lp.ActivityManager;
 /**
  * Represents an interior within the parent world;
  */
-public abstract class GameWorldInterior extends GameWorld {
+public abstract class GameWorldInterior extends GameWorld implements MouseListener {
 
     private static final float ENTERING_DISTANCE = 3.5f;
     // unload interiors after 30 seconds
@@ -41,8 +42,6 @@ public abstract class GameWorldInterior extends GameWorld {
     protected final Rectangle entrance, exit;
     protected boolean isExiting;
 
-    protected InteriorMouseHandler mouseHandler;
-    protected boolean mouseOver;
     protected boolean isWorldActive;
 
     protected boolean isLocked;
@@ -80,10 +79,6 @@ public abstract class GameWorldInterior extends GameWorld {
      */
     public GameWorld getParentWorld() {
         return parentWorld;
-    }
-
-    public void attachMouseHandler(InteriorMouseHandler mouseHandler) {
-        this.mouseHandler = mouseHandler;
     }
 
     /**
@@ -292,7 +287,7 @@ public abstract class GameWorldInterior extends GameWorld {
         TiledMapLoader.loadMapActions(map, worldScale, worldOrigin, exit);
         createWorldObjects(map, game.getAsset(), worldScale);
         buildEntityPathing(map, worldScale);
-        createEntities(game, game.getAsset(), map, worldScale);
+        createEntities(game.getAsset(), map, worldScale);
 
         updateRendererMap();
         player.removeFromWorld();
@@ -321,38 +316,47 @@ public abstract class GameWorldInterior extends GameWorld {
     }
 
     @Override
+    public Cursor enter(Vector3 mouse) {
+        return cursor;
+    }
+
+    @Override
+    public boolean within(Vector3 mouse) {
+        return isMouseWithinBounds(mouse);
+    }
+
+    @Override
+    public boolean clicked(Vector3 mouse) {
+        if (isWithinEnteringDistance(player.getPosition()) && enterable) {
+            if (locked()) {
+                game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
+                GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 1.0f);
+            } else {
+                parentWorld.enterInterior(this);
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void exit(Vector3 mouse) {
+
+    }
+
+    @Override
     public boolean keyDown(int keycode) {
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (isWorldActive) {
-            final boolean anyAction = super.touchDown(screenX, screenY, pointer, button);
-            if (!anyAction) {
-                player.swingItem();
-            }
-            return anyAction;
+        final boolean anyAction = super.touchDown(screenX, screenY, pointer, button);
+        if (!anyAction) {
+            player.swingItem();
         }
-        return false;
+
+        return anyAction;
     }
 
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        if (isWorldActive) {
-            return super.mouseMoved(screenX, screenY);
-        } else {
-            if (mouseHandler != null && parentWorld.shouldUpdateMouseState()) {
-                final boolean result = isEnterable() && isMouseWithinBounds(parentWorld.getCursorInWorld());
-                if (result) {
-                    mouseOver = true;
-                    mouseHandler.handle(this, false);
-                } else if (mouseOver) {
-                    mouseOver = false;
-                    mouseHandler.handle(this, true);
-                }
-            }
-        }
-        return false;
-    }
 }
