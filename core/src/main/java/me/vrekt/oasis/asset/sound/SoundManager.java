@@ -3,6 +3,7 @@ package me.vrekt.oasis.asset.sound;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 
 import java.util.EnumMap;
 
@@ -68,11 +69,11 @@ public final class SoundManager implements Disposable {
 
         void play(float volume, boolean again) {
             if (lastSoundId != 0 && !again) sound.stop(lastSoundId);
-            lastSoundId = sound.play(volume);
+            lastSoundId = sound.play(volume * OasisGameSettings.VOLUME);
         }
 
         void play(float volume, float pitch, float pan) {
-            sound.play(volume, pitch, pan);
+            sound.play(volume * OasisGameSettings.VOLUME, pitch, pan);
         }
 
         @Override

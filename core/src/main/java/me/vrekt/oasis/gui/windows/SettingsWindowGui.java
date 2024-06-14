@@ -20,6 +20,7 @@ public final class SettingsWindowGui extends Gui {
 
     private final VisLabel entityUpdateDistancePercentage;
     private final VisLabel autoSaveIntervalLabel;
+    private final VisLabel volumeLabel;
     private final VisSlider autoSaveSlider;
     private long lastMultiplayerChecked = System.currentTimeMillis();
 
@@ -47,14 +48,21 @@ public final class SettingsWindowGui extends Gui {
         final VisTable autoSaveContainer = new VisTable();
         autoSaveContainer.left();
 
+        final VisTable volumeContainer = new VisTable();
+
         final VisTable entityUpdateDistanceContainer = new VisTable();
         final VisTable autoSaveSliderContainer = new VisTable();
+
+        final VisTable volumeSliderContainer = new VisTable();
 
         multiplayerGameContainer.setBackground(Styles.getTheme());
         vsyncContainer.setBackground(Styles.getTheme());
         entityUpdateDistanceContainer.setBackground(Styles.getTheme());
         autoSaveContainer.setBackground(Styles.getTheme());
         autoSaveSliderContainer.setBackground(Styles.getTheme());
+
+        volumeContainer.setBackground(Styles.getTheme());
+        volumeSliderContainer.setBackground(Styles.getTheme());
 
         final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", Styles.getCheckBoxStyle());
         multiplayerGameCheck.setChecked(guiManager.getGame().isLocalMultiplayer());
@@ -93,7 +101,13 @@ public final class SettingsWindowGui extends Gui {
         autoSaveSliderContainer.add(autoSaveIntervalLabel).padRight(4f);
         autoSaveSliderContainer.add(autoSaveSlider);
 
-        handleSliderComponents(entityUpdateDistanceSlider, autoSaveSlider);
+        volumeLabel = new VisLabel("SFX Volume: " + OasisGameSettings.VOLUME * 100, Styles.getMediumWhite());
+        final VisSlider volumeSlider = new VisSlider(0.0f, 100.0f, 1.0f, false, sliderStyle);
+        volumeSlider.setValue(OasisGameSettings.VOLUME * 100.0f);
+        volumeSliderContainer.add(volumeLabel).padRight(4f);
+        volumeSliderContainer.add(volumeSlider);
+
+        handleSliderComponents(entityUpdateDistanceSlider, autoSaveSlider, volumeSlider);
 
         gameSettingsTable.add(multiplayerGameContainer).fillX();
         gameSettingsTable.row().padTop(4f);
@@ -104,6 +118,8 @@ public final class SettingsWindowGui extends Gui {
         gameSettingsTable.add(autoSaveSliderContainer).fillX();
         gameSettingsTable.row().padTop(4f);
         gameSettingsTable.add(entityUpdateDistanceContainer).fillX();
+        gameSettingsTable.row().padTop(4f);
+        gameSettingsTable.add(volumeSliderContainer).fillX();
 
         final VisImageTextButton backButton = new VisImageTextButton("Go Back", Styles.getImageTextButtonStyle());
         addHoverComponents(backButton, new Color(64 / 255f, 64 / 255f, 64 / 255f, 1), Color.WHITE, () -> guiManager.showParentGui(this));
@@ -163,7 +179,7 @@ public final class SettingsWindowGui extends Gui {
 
     }
 
-    private void handleSliderComponents(VisSlider slider, VisSlider autoSaveSlider) {
+    private void handleSliderComponents(VisSlider slider, VisSlider autoSaveSlider, VisSlider volumeSlider) {
         slider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
@@ -180,6 +196,15 @@ public final class SettingsWindowGui extends Gui {
                 guiManager.getGame().scheduleAutoSave(autoSaveSlider.getValue() * 60);
             }
         });
+
+        volumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                volumeLabel.setText("SFX Volume: " + volumeSlider.getValue());
+                OasisGameSettings.VOLUME = volumeSlider.getValue() / 100.0f;
+            }
+        });
+
     }
 
     @Override

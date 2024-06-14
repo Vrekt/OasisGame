@@ -16,6 +16,9 @@ public final class OasisGameSettings {
     public static boolean AUTO_SAVE = true;
     public static float AUTO_SAVE_INTERVAL_MINUTES = 1f;
 
+    // volume of all sounds
+    public static float VOLUME = 1.0f;
+
     /**
      * Load settings from save
      *
@@ -28,6 +31,7 @@ public final class OasisGameSettings {
         V_SYNC = save.vsync();
         AUTO_SAVE = save.autoSave();
         AUTO_SAVE_INTERVAL_MINUTES = save.autoSaveInterval();
+        VOLUME = save.volume();
     }
 
 }

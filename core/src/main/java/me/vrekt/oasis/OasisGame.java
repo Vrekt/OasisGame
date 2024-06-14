@@ -44,7 +44,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240613-2319-5069";
+    public static final String GAME_VERSION = "20240614-0023-5080";
 
     private Asset asset;
 
@@ -227,6 +227,7 @@ public final class OasisGame extends Game {
      * @param nameIfAny name
      */
     public void saveGameAsync(int slot, String nameIfAny) {
+        guiManager.getHudComponent().showSavingIcon();
         virtualAsyncService.execute(() -> SaveManager.save(slot, nameIfAny));
     }
 

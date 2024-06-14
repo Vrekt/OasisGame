@@ -55,6 +55,10 @@ public final class GameSettingsSave {
     @SerializedName("keybinding_map")
     private int mapKey;
 
+    @Expose
+    @SerializedName("sfx_volume")
+    private float volume;
+
     public GameSettingsSave() {
         this.entityUpdateDistance = OasisGameSettings.ENTITY_UPDATE_DISTANCE;
         this.showFps = OasisGameSettings.SHOW_FPS;
@@ -67,6 +71,7 @@ public final class GameSettingsSave {
         this.mapKey = OasisKeybindings.MAP;
         this.autoSave = OasisGameSettings.AUTO_SAVE;
         this.autoSaveInterval = OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES;
+        this.volume = OasisGameSettings.VOLUME;
     }
 
     public float entityUpdateDistance() {
@@ -111,5 +116,9 @@ public final class GameSettingsSave {
 
     public int mapKey() {
         return mapKey;
+    }
+
+    public float volume() {
+        return volume;
     }
 }

@@ -66,7 +66,9 @@ public final class GameHudGui extends Gui {
     private final VisTable artifactComponent;
     private final VisTable hotbarComponent;
     private final VisTable itemHintComponent;
+    private final VisTable gameActionComponent;
     private VisImage itemHintImage;
+    private VisImage gameActionImage;
 
     private float lastHintTime, currentHintDuration;
     private final EnumMap<PlayerHints, Float> hintTimes = new EnumMap<>(PlayerHints.class);
@@ -98,6 +100,7 @@ public final class GameHudGui extends Gui {
         hotbarComponent = initializeHotbarComponent();
         attributeComponent = initializeAttributeComponents();
         itemHintComponent = createItemHintComponent();
+        gameActionComponent = createGameActionComponents();
 
         builder = new StringBuilder();
         this.updateInterval = 1f;
@@ -477,6 +480,40 @@ public final class GameHudGui extends Gui {
     public void removeItemHint() {
         itemHintComponent.addAction(Actions.sequence(
                 Actions.fadeOut(0.65f, Interpolation.linear),
+                Actions.visible(false)));
+    }
+
+    /**
+     * Game actions like saving, loading, etc
+     */
+    private VisTable createGameActionComponents() {
+        final VisTable gameActionComponent = new VisTable();
+        gameActionComponent.top().right().padTop(8).padRight(8);
+
+        gameActionImage = new VisImage(guiManager.getAsset().get(Resource.UI, "saving_icon"));
+        gameActionImage.setVisible(false);
+        gameActionComponent.add(gameActionImage).size(32, 32);
+
+        components.add(gameActionComponent);
+        guiManager.addGui(gameActionComponent);
+        return gameActionComponent;
+    }
+
+    /**
+     * Show saving icon
+     */
+    public void showSavingIcon() {
+        gameActionImage.setVisible(true);
+        gameActionImage.getColor().a = 0.0f;
+        // add a sort of "fake" saving animation, since saving only takes very few ms.
+        gameActionImage.addAction(Actions.sequence(
+                Actions.alpha(1.0f, 1f),
+                Actions.delay(0.25f),
+                Actions.alpha(0.1f, 1f),
+                Actions.delay(0.25f),
+                Actions.alpha(1.0f, 1f),
+                Actions.delay(0.25f),
+                Actions.alpha(0.1f, 1.0f),
                 Actions.visible(false)));
     }
 
