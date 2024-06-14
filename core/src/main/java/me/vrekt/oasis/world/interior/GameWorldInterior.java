@@ -21,6 +21,7 @@ import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.WorldSaveLoader;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
+import me.vrekt.oasis.world.lp.ActivityManager;
 
 /**
  * Represents an interior within the parent world;
@@ -170,14 +171,14 @@ public abstract class GameWorldInterior extends GameWorld {
     /**
      * Update this interior if the player is near
      */
-    public void updateNearComponents() {
+    public void updateWhilePlayerIsNear() {
         if (locked() && !lockpickHint && player.getInventory().containsItem(Items.LOCK_PICK)) {
             // show the hint the player can use a lockpick on this interior
             guiManager.getHudComponent().showItemHint(LockpickItem.DESCRIPTOR);
             lockpickHint = true;
         } else if (lockpickHint && !lockpickUsed && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             // use the lockpick
-            guiManager.getLockpickingComponent().attemptLockpick(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
+            ActivityManager.lockpicking(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
             guiManager.getHudComponent().removeItemHint();
             lockpickUsed = true;
         }
@@ -186,7 +187,7 @@ public abstract class GameWorldInterior extends GameWorld {
     /**
      * When the player walks away, invalidate anything we may have done
      */
-    public void invalidateNearComponents() {
+    public void invalidatePlayerNearbyState() {
         lockpickHint = false;
         lockpickUsed = false;
 
@@ -206,7 +207,7 @@ public abstract class GameWorldInterior extends GameWorld {
      */
     private void handleLockpickSuccess() {
         setLocked(false);
-        invalidateNearComponents();
+        invalidatePlayerNearbyState();
 
         GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.55f, 1.0f, 1.0f);
         player.getInventory().removeFirst(Items.LOCK_PICK);

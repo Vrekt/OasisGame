@@ -116,6 +116,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final InteractionManager interactionManager;
     // last tick update, 50ms = 1 tick
     protected long lastTick;
+    // last time we updated nearby interiors
+    protected float lastNearbyInteriorUpdate;
 
     protected final EntityDamageAnimator worldDamageAnimator;
     protected final PerformanceCounter performanceCounter;
@@ -961,7 +963,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             effect.draw(batch);
         }
 
-        updateNearInteriors();
+        // update nearby interiors every .88 seconds
+        // cuts down on processing time a little, though probably doesn't make a difference.
+        if (GameManager.hasTimeElapsed(lastNearbyInteriorUpdate, 0.88f)) {
+            updateNearbyInteriors();
+            lastNearbyInteriorUpdate = GameManager.getTick();
+        }
 
         projectileManager.render(batch, delta);
 
@@ -1175,16 +1182,15 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Update any interiors the player may be near
+     * Update interiors the player is near
      */
-    protected void updateNearInteriors() {
+    protected void updateNearbyInteriors() {
         for (GameWorldInterior interior : interiorWorlds.values()) {
-            System.err.println(interior.worldName);
             if (interior.isWithinEnteringDistance(player.getPosition())) {
-                interior.updateNearComponents();
+                interior.updateWhilePlayerIsNear();
                 interior.setNear(true);
             } else if (interior.isNear()) {
-                interior.invalidateNearComponents();
+                interior.invalidatePlayerNearbyState();
                 interior.setNear(false);
             }
         }

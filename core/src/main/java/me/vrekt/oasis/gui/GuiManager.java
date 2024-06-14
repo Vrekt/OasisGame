@@ -230,6 +230,8 @@ public final class GuiManager implements Disposable {
         stage.act(Gdx.graphics.getDeltaTime());
 
         for (Gui value : guis.values()) {
+            if (!value.updateWhileHidden && !value.isShowing) continue;
+
             value.update();
             if (value.updateInterval != 0
                     && GameManager.hasTimeElapsed(value.lastUpdate, value.updateInterval)) {

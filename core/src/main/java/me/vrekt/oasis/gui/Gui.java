@@ -26,6 +26,8 @@ public abstract class Gui implements Disposable {
     protected final VisTable rootTable;
     protected final GuiType type;
 
+    // if this gui should be updated while hidden
+    protected boolean updateWhileHidden = true;
     protected boolean hasParent;
     // if this gui should also for example, hide the same GUIs
     protected boolean inheritParentBehaviour;
