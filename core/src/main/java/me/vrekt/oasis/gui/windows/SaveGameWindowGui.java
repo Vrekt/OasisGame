@@ -237,7 +237,7 @@ public final class SaveGameWindowGui extends Gui {
     /**
      * Handles components within a slot row
      */
-    private final class SlotRowComponent {
+    private static final class SlotRowComponent {
         private final int slot;
         private final VisTable contentsTable;
         private final VisLabel saveNameLabel;

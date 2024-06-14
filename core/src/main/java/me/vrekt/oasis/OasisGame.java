@@ -44,7 +44,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240613-2314-5065";
+    public static final String GAME_VERSION = "20240613-2319-5069";
 
     private Asset asset;
 
@@ -74,7 +74,6 @@ public final class OasisGame extends Game {
 
     private OasisLoadingScreen loadingScreen;
 
-    private Styles style;
     private Texture logoTexture;
 
     private int autoSaveTaskId = -1;
@@ -464,10 +463,6 @@ public final class OasisGame extends Game {
      */
     public boolean isAnyMultiplayer() {
         return isMultiplayer;
-    }
-
-    public Styles getStyle() {
-        return style;
     }
 
     public Texture getLogoTexture() {

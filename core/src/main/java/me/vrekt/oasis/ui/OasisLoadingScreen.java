@@ -13,6 +13,7 @@ import com.kotcrab.vis.ui.widget.VisProgressBar;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.world.GameWorld;
 
 
@@ -44,7 +45,7 @@ public final class OasisLoadingScreen extends ScreenAdapter {
 
         // override default theme background but keep the knob, for now.
         final ProgressBar.ProgressBarStyle style = new ProgressBar.ProgressBarStyle(provided);
-        style.background = game.getStyle().getTheme();
+        style.background = Styles.getTheme();
 
         this.progressBar = new VisProgressBar(0.0f, 100.0f, 1.0f, false);
         this.progressBar.setColor(new Color(111 / 255f, 194 / 255f, 118 / 255f, 1.0f));

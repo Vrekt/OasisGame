@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 
@@ -63,9 +64,9 @@ public final class DialogCreator extends ScreenAdapter {
         final VisTable buttonTable = new VisTable();
         buttonTable.left();
 
-        final VisImageTextButton createButton = new VisImageTextButton("Create", game.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton loadButton = new VisImageTextButton("Load", game.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton saveButton = new VisImageTextButton("Save", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton createButton = new VisImageTextButton("Create", Styles.getImageTextButtonStyle());
+        final VisImageTextButton loadButton = new VisImageTextButton("Load", Styles.getImageTextButtonStyle());
+        final VisImageTextButton saveButton = new VisImageTextButton("Save", Styles.getImageTextButtonStyle());
 
         buttonTable.add(createButton);
         buttonTable.row().padBottom(4f);
@@ -78,51 +79,51 @@ public final class DialogCreator extends ScreenAdapter {
     private VisTable populateInputField(OasisGame game) {
         final VisTable root = new VisTable();
 
-        final VisLabel currentKeyLabel = new VisLabel("", game.getStyle().getMediumBlack());
+        final VisLabel currentKeyLabel = new VisLabel("", Styles.getMediumBlack());
         root.add(currentKeyLabel);
         root.row();
 
-        final VisLabel nameLabel = new VisLabel("Name: ", game.getStyle().getSmallBlack());
+        final VisLabel nameLabel = new VisLabel("Name: ", Styles.getSmallBlack());
         final VisTextField nameField = new VisTextField();
 
         root.add(nameLabel);
         root.add(nameField);
         root.row().padTop(4f);
 
-        final VisLabel keyFormatLabel = new VisLabel("Key Format: ", game.getStyle().getSmallBlack());
+        final VisLabel keyFormatLabel = new VisLabel("Key Format: ", Styles.getSmallBlack());
         final VisTextField keyFormatField = new VisTextField();
 
         root.add(keyFormatLabel);
         root.add(keyFormatField);
         root.row().padTop(4f);
 
-        final VisLabel suggestionLabel = new VisLabel("Suggestion: ", game.getStyle().getSmallBlack());
+        final VisLabel suggestionLabel = new VisLabel("Suggestion: ", Styles.getSmallBlack());
         final VisTextField suggestionField = new VisTextField();
-        final VisImageTextButton nextSuggestionButtion = new VisImageTextButton("NS", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton nextSuggestionButtion = new VisImageTextButton("NS", Styles.getImageTextButtonStyle());
 
         root.add(suggestionLabel);
         root.add(suggestionField);
         root.add(nextSuggestionButtion);
         root.row().padTop(4f);
 
-        final VisLabel linksToLabel = new VisLabel("Links To: ", game.getStyle().getSmallBlack());
+        final VisLabel linksToLabel = new VisLabel("Links To: ", Styles.getSmallBlack());
         final VisTextField linksToField = new VisTextField();
 
         root.add(linksToLabel);
         root.add(linksToField);
         root.row().padTop(4f);
 
-        final VisLabel k1Label = new VisLabel("K1: ", game.getStyle().getSmallBlack());
+        final VisLabel k1Label = new VisLabel("K1: ", Styles.getSmallBlack());
         final VisTextArea k1Field = new VisTextArea();
 
         root.add(k1Label);
         root.add(k1Field).size(400, 200);
         root.row().padTop(4f);
 
-        final VisImageTextButton nextButton = new VisImageTextButton("Next", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton nextButton = new VisImageTextButton("Next", Styles.getImageTextButtonStyle());
         root.add(nextButton);
 
-        final VisImageTextButton saveButton = new VisImageTextButton("Save", game.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton saveButton = new VisImageTextButton("Save", Styles.getImageTextButtonStyle());
         root.row().padTop(4f);
         root.add(saveButton);
 

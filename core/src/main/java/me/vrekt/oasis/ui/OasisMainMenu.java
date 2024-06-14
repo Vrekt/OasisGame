@@ -20,6 +20,7 @@ import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.sound.Sounds;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
@@ -64,8 +65,8 @@ public final class OasisMainMenu extends ScreenAdapter {
         rootTable.add(new VisImage(game.getLogoTexture()));
         rootTable.row();
 
-        initializeMainComponents(game.getStyle().getImageTextButtonStyle());
-        initializeLoadGameComponents(game.getStyle().getThemePadded(), game.getStyle().getImageTextButtonStyle());
+        initializeMainComponents(Styles.getImageTextButtonStyle());
+        initializeLoadGameComponents(Styles.getThemePadded(), Styles.getImageTextButtonStyle());
 
         stage.addActor(rootTable);
     }
