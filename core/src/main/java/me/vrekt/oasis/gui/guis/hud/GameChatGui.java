@@ -205,7 +205,7 @@ public final class GameChatGui extends Gui {
         if (hasAnyFocus) player.enableMovement();
     }
 
-    private final class ChatMessageContainer implements Pool.Poolable {
+    private static final class ChatMessageContainer implements Pool.Poolable {
         VisLabel label;
         Cell<?> parentCell;
 
