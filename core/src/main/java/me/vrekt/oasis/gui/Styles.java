@@ -14,6 +14,7 @@ import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.guis.inventory.style.ItemSlotStyles;
 import me.vrekt.oasis.utility.EmptyDrawable;
 
 /**
@@ -21,7 +22,7 @@ import me.vrekt.oasis.utility.EmptyDrawable;
  */
 public class Styles {
 
-    private final NinePatch themePatch, themePatchPadded;
+    private final NinePatch themePatchPadded;
     private final NinePatchDrawable theme, themePadded;
     private final Tooltip.TooltipStyle tooltipStyle;
     private final VisTextField.VisTextFieldStyle fieldStyle;
@@ -34,13 +35,14 @@ public class Styles {
     private final Texture defaultCursorTexture;
 
     private final VisCheckBox.VisCheckBoxStyle checkBoxStyle;
-    private final TextureRegionDrawable themeDownSelected;
 
     private final TextureRegionDrawable weaponDamageIcon, weaponRangeIcon, weaponCriticalIcon;
     private final TextureRegionDrawable satisfactionAttributeIcon, healingAttributeIcon;
 
+    private final ItemSlotStyles slotStyles;
+
     public Styles(Asset asset) {
-        themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
+        final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
         themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
 
         theme = new NinePatchDrawable(themePatch);
@@ -78,8 +80,6 @@ public class Styles {
         smallerWhite = new Label.LabelStyle(asset.getSmaller(), Color.WHITE);
         mediumWhiteMipMapped = new Label.LabelStyle(asset.getMediumMipMapped(), Color.WHITE);
 
-        themeDownSelected = new TextureRegionDrawable(asset.get("theme_down"));
-
         final NinePatch themeOverPatch = new NinePatch(asset.get("theme_over"), 6, 6, 6, 6);
         final NinePatch themeDownPatch = new NinePatch(asset.get("theme_down"), 6, 6, 6, 6);
 
@@ -101,6 +101,9 @@ public class Styles {
 
         satisfactionAttributeIcon = new TextureRegionDrawable(asset.get("satisfaction_attribute3"));
         healingAttributeIcon = new TextureRegionDrawable(asset.get("healing_attribute2"));
+
+        slotStyles = new ItemSlotStyles(asset);
+
     }
 
     /**
@@ -173,10 +176,6 @@ public class Styles {
         return largeBlack;
     }
 
-    public TextureRegionDrawable getThemeDownSelected() {
-        return themeDownSelected;
-    }
-
     public VisImageTextButton.VisImageTextButtonStyle getImageTextButtonStyle() {
         return imageTextButtonStyle;
     }
@@ -199,5 +198,12 @@ public class Styles {
 
     public TextureRegionDrawable getHealingAttributeIcon() {
         return healingAttributeIcon;
+    }
+
+    /**
+     * @return slot styles
+     */
+    public ItemSlotStyles slots() {
+        return slotStyles;
     }
 }

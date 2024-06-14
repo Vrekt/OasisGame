@@ -11,7 +11,6 @@ import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.dialog.DialogEntrySuggestion;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
@@ -64,7 +63,7 @@ public final class EntityDialogGui extends Gui {
         final VisTable inputTable = new VisTable();
         inputTable.left();
 
-        userInputField = new VisTextField("...", guiManager.getStyle().getFieldStyle());
+        userInputField = new VisTextField("...", guiManager.style().getFieldStyle());
         inputTable.add(userInputField).padBottom(-2f);
         createUserInputHandler(userInputField);
 
@@ -84,7 +83,7 @@ public final class EntityDialogGui extends Gui {
         // create containers for each dialog option that can be clicked.
         // these will be dynamically added/remove later.
         for (int i = 0; i < 3; i++) {
-            final VisLabel label = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getSmallWhite());
+            final VisLabel label = new VisLabel(StringUtils.EMPTY, guiManager.style().getSmallWhite());
             final VisTable table = createTextContainerComponent(label, start, middle, end);
             final DialogOptionContainer container = new DialogOptionContainer(table, label);
             table.setVisible(false);
@@ -96,8 +95,8 @@ public final class EntityDialogGui extends Gui {
         dialogOptionsContainer.add(dialogOptionsWrapper);
 
         final VisTable dialogContentsContainer = new VisTable();
-        entityNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
-        dialogTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
+        entityNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
+        dialogTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
         // fixed width for this text so it wraps nicely inside the container
         dialogTextLabel.setWidth(448);
         dialogTextLabel.setWrap(true);
@@ -109,7 +108,7 @@ public final class EntityDialogGui extends Gui {
         dialogContents.left();
 
         // set background of the container
-        dialogContentsContainer.setBackground(guiManager.getStyle().getTheme());
+        dialogContentsContainer.setBackground(guiManager.style().getTheme());
         // add names and previews
         entityPreviewContainer.add(entityNameLabel);
         entityPreviewContainer.row();

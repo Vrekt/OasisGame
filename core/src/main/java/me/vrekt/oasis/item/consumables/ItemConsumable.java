@@ -35,6 +35,9 @@ public abstract class ItemConsumable extends Item {
      */
     public void consume(PlayerSP player) {
         decreaseItemAmount();
+        if (this.amount <= 0) {
+            player.getInventory().remove(this);
+        }
         // automatically apply all attributes
         applyAttributes(player);
     }

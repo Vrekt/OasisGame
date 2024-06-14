@@ -87,9 +87,9 @@ public final class GameHudGui extends Gui {
         performanceMetricsContext = new MathContext(2, RoundingMode.FLOOR);
 
         debugComponentText = new VisLabel();
-        debugComponentText.setStyle(guiManager.getStyle().getSmallBlack());
+        debugComponentText.setStyle(guiManager.style().getSmallBlack());
 
-        hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
+        hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
 
         initializeDebugComponent();
         artifactComponent = initializeArtifactComponent();
@@ -319,7 +319,7 @@ public final class GameHudGui extends Gui {
         table.top();
 
         final VisTable hint = new VisTable();
-        hint.setBackground(guiManager.getStyle().getTheme());
+        hint.setBackground(guiManager.style().getTheme());
         hint.add(new VisImage(guiManager.getAsset().get("hint_icon"))).padLeft(4f).padRight(4f).padBottom(1f);
         hint.add(hintComponentText)
                 .width(448)
@@ -346,7 +346,7 @@ public final class GameHudGui extends Gui {
 
         for (int i = 0; i < 6; i++) {
             // adapter from InventoryGui class
-            final VisImage slot = new VisImage(guiManager.getStyle().getTheme());
+            final VisImage slot = new VisImage(guiManager.style().getTheme());
             final VisImage item = new VisImage();
             item.setOrigin(16 / 2f, 16 / 2f);
 
@@ -444,7 +444,7 @@ public final class GameHudGui extends Gui {
 
         final VisImage keyImage = new VisImage(guiManager.getAsset().get(Resource.NORMAL, "ekey"));
 
-        final VisImage slot = new VisImage(guiManager.getStyle().getTheme());
+        final VisImage slot = new VisImage(guiManager.style().getTheme());
         itemHintImage = new VisImage();
         itemHintImage.setOrigin(16 / 2f, 16 / 2f);
 
@@ -588,7 +588,7 @@ public final class GameHudGui extends Gui {
             this.artifactImageComponent = artifactImageComponent;
             this.tooltip = new Tooltip.Builder(StringUtils.EMPTY)
                     .target(artifactImageComponent)
-                    .style(GameHudGui.this.guiManager.getStyle().getTooltipStyle())
+                    .style(GameHudGui.this.guiManager.style().getTooltipStyle())
                     .build();
         }
 

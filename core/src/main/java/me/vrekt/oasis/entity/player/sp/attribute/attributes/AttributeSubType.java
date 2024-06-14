@@ -11,12 +11,12 @@ public enum AttributeSubType {
     SATISFACTION {
         @Override
         public TextureRegionDrawable get(GuiManager manager) {
-            return manager.getStyle().getSatisfactionAttributeIcon();
+            return manager.style().getSatisfactionAttributeIcon();
         }
     }, HEALING {
         @Override
         public TextureRegionDrawable get(GuiManager manager) {
-            return manager.getStyle().getHealingAttributeIcon();
+            return manager.style().getHealingAttributeIcon();
         }
     };
 

@@ -2,7 +2,6 @@ package me.vrekt.oasis.gui.guis.inventory;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -18,6 +17,7 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
+import me.vrekt.oasis.gui.guis.inventory.utility.ItemInformationContainer;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRarity;
@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class PlayerInventoryGui extends InventoryGui {
 
@@ -39,11 +38,10 @@ public final class PlayerInventoryGui extends InventoryGui {
     private final TypingLabel itemNameHeader, itemDescriptionHeader;
 
     // attributes and stats of the item
-    private final Array<VisImage> itemInformationComponents = new Array<>();
-    private final Array<Tooltip> itemInformationTooltipComponents = new Array<>();
+    private final Array<ItemInformationContainer> informationContainers = new Array<>();
 
     private final VisImage itemRarityIcon;
-    private final VisTextButton itemActionButton;
+    private final VisImageTextButton itemActionButton;
 
     // currently selected item
     private Item selectedItem;
@@ -60,21 +58,23 @@ public final class PlayerInventoryGui extends InventoryGui {
         rootTable.setVisible(false);
 
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("inventory")));
-        final VisTable left = new VisTable(true), right = new VisTable(true);
-        right.top().padTop(36).padLeft(32).left();
+        final VisTable left = new VisTable(true);
+        final VisTable right = new VisTable(true);
 
-        // Headers: init item name and description labels
-        itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
+        right.top().padTop(36).padLeft(32).left();
+        left.top().padTop(52).padLeft(84);
+
+        itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.style().getLargeBlack());
         itemNameHeader.setVisible(true);
         itemNameHeader.setWrap(true);
         itemNameHeader.setWidth(150);
 
-        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhiteMipMapped());
+        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
         itemDescriptionHeader.setWidth(175);
 
-        // Headers: item name and rarity icons
+        // add name + rarity icon
         final VisTable headerTable = new VisTable();
         headerTable.left();
         headerTable.add(itemNameHeader).width(150).left();
@@ -85,7 +85,7 @@ public final class PlayerInventoryGui extends InventoryGui {
                 .left()
                 .padTop(10);
 
-        // Headers: add to right hand size
+        // add header table + description
         right.add(headerTable).left();
         right.row();
         right.add(itemDescriptionHeader)
@@ -95,77 +95,56 @@ public final class PlayerInventoryGui extends InventoryGui {
         right.row().padTop(16);
 
         // Item info: Info and stats
-        final VisTable itemInformationTable = new VisTable();
-        final VisTable itemInformationImageComponents = new VisTable();
-        itemInformationTable.left();
-        itemInformationImageComponents.left();
+        final VisTable parentItemInformationContainer = new VisTable();
+        final VisTable itemInformationComponents = new VisTable();
 
-        // stores images in an array
-        itemInformationComponents.add(new VisImage(), new VisImage(), new VisImage());
-        // add them to the table
-        itemInformationImageComponents.add(itemInformationComponents.get(0)).size(36, 36).padRight(4);
-        itemInformationImageComponents.add(itemInformationComponents.get(1)).size(36, 36).padRight(4);
-        itemInformationImageComponents.add(itemInformationComponents.get(2)).size(36, 36).padRight(4);
-        itemInformationComponents.forEach(image -> image.setVisible(false));
+        parentItemInformationContainer.left();
+        itemInformationComponents.left();
 
-        // Item info: add to table
-        itemInformationTable.add(itemInformationImageComponents).left();
-        itemInformationTable.row();
-
-        // populate tooltips
-        for (VisImage component : itemInformationComponents) {
+        // Maximum of 3 allowed attributes or stats
+        for (int i = 0; i < 3; i++) {
+            final VisImage icon = new VisImage();
             final Tooltip tooltip = new Tooltip.Builder(StringUtils.EMPTY)
-                    .target(component)
-                    .style(guiManager.getStyle().getTooltipStyle())
+                    .target(icon)
+                    .style(guiManager.style().getTooltipStyle())
                     .build();
 
-            tooltip.setVisible(false);
-            itemInformationTooltipComponents.add(tooltip);
+            final ItemInformationContainer container = new ItemInformationContainer(icon, tooltip);
+            informationContainers.add(container);
+
+            itemInformationComponents.add(icon).size(36, 36).padRight(4);
         }
+
+        // Item info: add to table
+        parentItemInformationContainer.add(itemInformationComponents).left();
+        parentItemInformationContainer.row();
 
         // Use item button
         final VisTable buttonTable = new VisTable();
         buttonTable.left();
 
         // Init use item buttons and styles
-        itemActionButton = new VisTextButton(StringUtils.EMPTY);
-        itemActionButton.setLabel(new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite()));
-        itemActionButton.setStyle(new TextButton.TextButtonStyle(
-                guiManager.getStyle().getTheme(),
-                guiManager.getStyle().getTheme(),
-                guiManager.getStyle().getTheme(),
-                guiManager.getMediumFont()));
+        itemActionButton = new VisImageTextButton(StringUtils.EMPTY, guiManager.style().getImageTextButtonStyle());
         itemActionButton.setVisible(false);
+
         buttonTable.add(itemActionButton);
-        itemInformationTable.add(buttonTable).padTop(16).left();
+        parentItemInformationContainer.add(buttonTable).padTop(16).left();
 
         // Finally, add item information to right table
-        right.add(itemInformationTable).left();
+        right.add(parentItemInformationContainer).left();
         right.row();
 
         addItemActionButtonListener();
 
-        left.top().padTop(52).padLeft(84);
-        final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(guiManager.getAsset().get("theme"));
+        for (int i = 1; i < player.getInventory().getSize(); i++) {
+            // (i - 1) for compatibility with splitting the table in rows of 3
+            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), (i - 1) < 6, false);
+            guiSlots.add(new InventoryGuiSlot(guiManager, this, component, (i - 1)));
 
-        final AtomicInteger slotTracker = new AtomicInteger();
-        // Inventory: populate each individual UI component
-        populateInventoryUiComponents(guiManager, player.getInventory().getSize(), slotDrawable, true, component -> {
-            // add to list of slots
-            guiSlots.add(new InventoryGuiSlot(guiManager,
-                    this,
-                    component.overlay(),
-                    component.item(),
-                    component.amountLabel(),
-                    component.index() < 6,
-                    component.index()));
-            final int progress = slotTracker.incrementAndGet();
-            // add to left primary table with correct sizes
-            left.add(component.overlay()).size(48, 48);
-
+            left.add(component.container()).size(48, 48);
             // line break for hotbar components
             // TODO: Find out why cell resizing when adding longer separator
-            if (progress == 6) {
+            if (i == 6) {
                 final VisTable separator = new VisTable();
                 separator.addSeparator();
                 // TODO: Unable do it any other way because first column of,
@@ -175,8 +154,8 @@ public final class PlayerInventoryGui extends InventoryGui {
             }
 
             // split table in rows of 3
-            if (progress % 3 == 0) left.row();
-        });
+            if (i % 3 == 0) left.row();
+        }
 
         // Add split pane for left and right tables
         final VisSplitPane pane = new VisSplitPane(left, right, false);
@@ -188,6 +167,11 @@ public final class PlayerInventoryGui extends InventoryGui {
         initializeSlotActions();
 
         guiManager.addGui(rootTable);
+    }
+
+    @Override
+    protected InventoryGuiSlot getPlayerSlot(int index) {
+        return guiSlots.get(index);
     }
 
     @Override
@@ -233,8 +217,7 @@ public final class PlayerInventoryGui extends InventoryGui {
             public void clicked(InputEvent event, float x, float y) {
                 if (selectedItem instanceof ItemConsumable consumable) {
                     consumable.useItem(player);
-                    if (selectedItem.amount() <= 0)
-                        itemActionButton.setVisible(false);
+                    if (selectedItem.amount() <= 0) itemActionButton.setVisible(false);
                 } else if (selectedItem instanceof ItemEquippable equippable) {
                     if (equippable.canEquip(player)) {
                         equippable.equip(player);
@@ -247,38 +230,42 @@ public final class PlayerInventoryGui extends InventoryGui {
                         itemActionButton.setVisible(false);
                     }
                 }
-
-                // indicates it has been enabled by the above statements
-                if (itemActionButton.isVisible()) fadeIn(itemActionButton, 1.0f);
             }
         });
     }
 
     @Override
     public void handleSlotClicked(InventoryGuiSlot slot) {
-        hideItemOptionals();
+        hideItemInformation();
         selectedItem = slot.getItem();
 
+        // Update item name
         itemNameHeader.setText(selectedItem.rarity().getColorName() + selectedItem.name());
         itemNameHeader.setVisible(true);
         itemNameHeader.restart();
 
+        // Update item description
         itemDescriptionHeader.setText(selectedItem.description());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.restart();
 
         enableItemActionButton(selectedItem);
         populateWeaponOrArtifactStats(selectedItem);
+        updateItemRarityIcon();
+    }
 
-        itemRarityIcon.setDrawable((Drawable) null);
+    /**
+     * Update rarity icons for items
+     */
+    private void updateItemRarityIcon() {
         final ItemRarity rarity = selectedItem.rarity();
         if (rarityIcons.containsKey(rarity)) {
             itemRarityIcon.setVisible(true);
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
         } else {
+            itemRarityIcon.setDrawable((Drawable) null);
             itemRarityIcon.setVisible(false);
         }
-
     }
 
     /**
@@ -298,6 +285,8 @@ public final class PlayerInventoryGui extends InventoryGui {
             itemActionButton.setVisible(true);
             itemActionButton.setText("Activate");
         }
+
+        if (itemActionButton.isVisible()) fadeIn(itemActionButton, 1.0f);
     }
 
     /**
@@ -327,14 +316,7 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param index     current index, should not exceed 2
      */
     private void populateAttributeInformation(Attribute attribute, int index) {
-
-        itemInformationComponents.get(index).setDrawable(attribute.subType().get(guiManager));
-        itemInformationComponents.get(index).setVisible(true);
-
-        itemInformationTooltipComponents.get(index).setText(attribute.name() + StringUtils.LF + attribute.description());
-        itemInformationTooltipComponents.get(index).setVisible(true);
-
-        fadeIn(itemInformationComponents.get(index), 1.5f);
+        fadeIn(informationContainers.get(index).updateAttribute(guiManager, attribute), 1.5f);
     }
 
     /**
@@ -343,20 +325,9 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the item
      */
     private void populateItemStats(ItemWeapon item) {
-        for (Tooltip tooltip : itemInformationTooltipComponents) tooltip.setVisible(true);
-
-        itemInformationComponents.get(0).setDrawable(guiManager.getStyle().getWeaponRangeIcon());
-        itemInformationComponents.get(1).setDrawable(guiManager.getStyle().getWeaponDamageIcon());
-        itemInformationComponents.get(2).setDrawable(guiManager.getStyle().getWeaponCriticalIcon());
-
-        itemInformationTooltipComponents.get(0).setText("Range ~=~ " + item.getRange());
-        itemInformationTooltipComponents.get(1).setText("Damage ~=~ " + item.getBaseDamage());
-        itemInformationTooltipComponents.get(2).setText("Critical hit chance ~=~ " + item.getCriticalHitChance() + "%");
-
-        for (VisImage itemStat : itemInformationComponents) {
-            itemStat.setVisible(true);
-            fadeIn(itemStat, 1.5f);
-        }
+        fadeIn(informationContainers.get(0).updateRange(guiManager, item), 1.5f);
+        fadeIn(informationContainers.get(1).updateDamage(guiManager, item), 1.5f);
+        fadeIn(informationContainers.get(2).updateCriticalChance(guiManager, item), 1.5f);
     }
 
     /**
@@ -365,23 +336,15 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the artifact
      */
     private void populateArtifactStats(ItemArtifact item) {
-        final Tooltip tooltip = itemInformationTooltipComponents.get(0);
-        final VisImage itemStat = itemInformationComponents.get(0);
-
-        tooltip.setText(
-                "Artifact Level: " + item.getArtifact().getArtifactLevel()
-                        + "\n" + "Artifact Duration: " + item.getArtifact().getArtifactDuration()
-                        + " \n" + "Artifact Cooldown: " + item.getArtifact().getArtifactCooldown());
-        tooltip.setVisible(true);
-
-        itemStat.setDrawable(new TextureRegionDrawable(item.getIcon()));
-        itemStat.setVisible(true);
-        fadeIn(itemStat, 1.5f);
+        fadeIn(informationContainers.get(0).updateArtifact(item), 1.5f);
     }
 
-    private void hideItemOptionals() {
+    /**
+     * Hide item information
+     */
+    private void hideItemInformation() {
         itemActionButton.setVisible(false);
-        for (VisImage itemStat : itemInformationComponents) itemStat.setVisible(false);
+        informationContainers.forEach(ItemInformationContainer::hide);
     }
 
     /**
@@ -394,9 +357,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         itemNameHeader.setVisible(false);
         itemDescriptionHeader.setVisible(false);
-        itemActionButton.setVisible(false);
-        for (VisImage image : itemInformationComponents) image.setVisible(false);
-        for (Tooltip tooltip : itemInformationTooltipComponents) tooltip.setVisible(false);
+        hideItemInformation();
     }
 
     @Override

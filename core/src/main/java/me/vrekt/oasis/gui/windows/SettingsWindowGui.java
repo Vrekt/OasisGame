@@ -35,7 +35,7 @@ public final class SettingsWindowGui extends Gui {
 
         final VisTable primary = new VisTable();
         final VisTable headerTable = new VisTable();
-        headerTable.add(new VisLabel("Game Settings", guiManager.getStyle().getLargeWhite())).fillX();
+        headerTable.add(new VisLabel("Game Settings", guiManager.style().getLargeWhite())).fillX();
 
         final VisTable gameSettingsTable = new VisTable();
         final VisTable multiplayerGameContainer = new VisTable();
@@ -49,21 +49,21 @@ public final class SettingsWindowGui extends Gui {
         final VisTable entityUpdateDistanceContainer = new VisTable();
         final VisTable autoSaveSliderContainer = new VisTable();
 
-        multiplayerGameContainer.setBackground(guiManager.getStyle().getTheme());
-        vsyncContainer.setBackground(guiManager.getStyle().getTheme());
-        entityUpdateDistanceContainer.setBackground(guiManager.getStyle().getTheme());
-        autoSaveContainer.setBackground(guiManager.getStyle().getTheme());
-        autoSaveSliderContainer.setBackground(guiManager.getStyle().getTheme());
+        multiplayerGameContainer.setBackground(guiManager.style().getTheme());
+        vsyncContainer.setBackground(guiManager.style().getTheme());
+        entityUpdateDistanceContainer.setBackground(guiManager.style().getTheme());
+        autoSaveContainer.setBackground(guiManager.style().getTheme());
+        autoSaveSliderContainer.setBackground(guiManager.style().getTheme());
 
-        final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", guiManager.getStyle().getCheckBoxStyle());
+        final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", guiManager.style().getCheckBoxStyle());
         multiplayerGameCheck.setChecked(guiManager.getGame().isLocalMultiplayer());
         multiplayerGameContainer.add(multiplayerGameCheck).left();
 
-        final VisCheckBox vsyncCheck = new VisCheckBox("Enable VSync", guiManager.getStyle().getCheckBoxStyle());
+        final VisCheckBox vsyncCheck = new VisCheckBox("Enable VSync", guiManager.style().getCheckBoxStyle());
         vsyncCheck.setChecked(OasisGameSettings.V_SYNC);
         vsyncContainer.add(vsyncCheck).left();
 
-        final VisCheckBox autoSaveCheck = new VisCheckBox("Auto Save", guiManager.getStyle().getCheckBoxStyle());
+        final VisCheckBox autoSaveCheck = new VisCheckBox("Auto Save", guiManager.style().getCheckBoxStyle());
         autoSaveCheck.setChecked(OasisGameSettings.AUTO_SAVE);
         autoSaveContainer.add(autoSaveCheck).left();
 
@@ -74,9 +74,9 @@ public final class SettingsWindowGui extends Gui {
         final NinePatchDrawable drawable = new NinePatchDrawable(patch);
 
         // TODO: A little ugly but acceptable.
-        final VisLabel entityUpdateDistanceLabel = new VisLabel("Entity Update Distance", guiManager.getStyle().getMediumWhite());
+        final VisLabel entityUpdateDistanceLabel = new VisLabel("Entity Update Distance", guiManager.style().getMediumWhite());
         final Slider.SliderStyle sliderStyle = new Slider.SliderStyle(VisUI.getSkin().get("default-horizontal", Slider.SliderStyle.class));
-        sliderStyle.background = guiManager.getStyle().getThemePadded();
+        sliderStyle.background = guiManager.style().getThemePadded();
         sliderStyle.knob = new TextureRegionDrawable(guiManager.getAsset().get("slider_knob"));
         sliderStyle.knobBefore = drawable;
 
@@ -84,9 +84,9 @@ public final class SettingsWindowGui extends Gui {
         entityUpdateDistanceSlider.setValue(OasisGameSettings.ENTITY_UPDATE_DISTANCE);
         entityUpdateDistanceContainer.add(entityUpdateDistanceLabel).padRight(4f);
         entityUpdateDistanceContainer.add(entityUpdateDistanceSlider);
-        entityUpdateDistanceContainer.add(entityUpdateDistancePercentage = new VisLabel("(100%)", guiManager.getStyle().getSmallerWhite())).padLeft(2f);
+        entityUpdateDistanceContainer.add(entityUpdateDistancePercentage = new VisLabel("(100%)", guiManager.style().getSmallerWhite())).padLeft(2f);
 
-        autoSaveIntervalLabel = new VisLabel("Autosave: " + OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES + " minutes", guiManager.getStyle().getMediumWhite());
+        autoSaveIntervalLabel = new VisLabel("Autosave: " + OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES + " minutes", guiManager.style().getMediumWhite());
         autoSaveSlider = new VisSlider(1.0f, 60.0f, 1.0f, false, sliderStyle);
         autoSaveSlider.setValue(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES);
         autoSaveSliderContainer.add(autoSaveIntervalLabel).padRight(4f);
@@ -104,7 +104,7 @@ public final class SettingsWindowGui extends Gui {
         gameSettingsTable.row().padTop(4f);
         gameSettingsTable.add(entityUpdateDistanceContainer).fillX();
 
-        final VisImageTextButton backButton = new VisImageTextButton("Go Back", guiManager.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton backButton = new VisImageTextButton("Go Back", guiManager.style().getImageTextButtonStyle());
         addHoverComponents(backButton, new Color(64 / 255f, 64 / 255f, 64 / 255f, 1), Color.WHITE, () -> guiManager.showParentGui(this));
 
         gameSettingsTable.row().padTop(4f);

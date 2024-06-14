@@ -49,6 +49,7 @@ public final class NewGameWorld extends GameWorld {
         if (!isGameSave) {
             player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
             player.getInventory().add(Items.LOCK_PICK, 1);
+            player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
         }
     }
 

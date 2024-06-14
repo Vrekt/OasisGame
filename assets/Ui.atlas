@@ -1,0 +1,15 @@
+Ui.png
+size:256,64
+repeat:none
+common_slot_rarity
+bounds:2,2,32,32
+common_slot_rarity_down
+bounds:104,2,32,32
+cosmic_slot_rarity
+bounds:36,2,32,32
+cosmic_slot_rarity_down
+bounds:138,2,32,32
+theme
+bounds:172,2,32,32
+theme_down
+bounds:70,2,32,32

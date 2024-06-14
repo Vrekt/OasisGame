@@ -29,7 +29,7 @@ public final class QuestGui extends Gui {
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
 
-        final VisLabel label = new VisLabel("Active Quests", guiManager.getStyle().getLargeBlack());
+        final VisLabel label = new VisLabel("Active Quests", guiManager.style().getLargeBlack());
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest"));
 
         rootTable.setBackground(drawable);
@@ -55,8 +55,8 @@ public final class QuestGui extends Gui {
         int index = 0;
         for (Quest quest : manager.getActiveQuests().values()) {
             final VisTable parent = new VisTable();
-            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.getStyle().getMediumBlack());
-            final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.getStyle().getSmallWhite());
+            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.style().getMediumBlack());
+            final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.style().getSmallWhite());
             completeness.setColor(Color.LIGHT_GRAY);
 
             parent.add(label).left();

@@ -40,7 +40,7 @@ public final class Asset implements Disposable {
         assetManager.setLoader(TiledMap.class, mapLoader);
 
         assetManager.load(ASSETS, TextureAtlas.class);
-        // task: (TODO-19) assetManager.load(UI, TextureAtlas.class);
+        assetManager.load(UI, TextureAtlas.class);
         assetManager.load(LP, TextureAtlas.class);
 
         loadFonts();
@@ -50,7 +50,7 @@ public final class Asset implements Disposable {
 
         normal = assetManager.get(ASSETS);
         lp = assetManager.get(LP);
-        // task: (TODO-19)  ui = assetManager.get(UI);
+        ui = assetManager.get(UI);
 
         final long time = System.currentTimeMillis() - now;
         GameLogging.info("AssetManager", "Finished loading assets in %sms", time);

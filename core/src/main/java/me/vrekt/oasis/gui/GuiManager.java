@@ -115,7 +115,7 @@ public final class GuiManager implements Disposable {
         return asset;
     }
 
-    public Styles getStyle() {
+    public Styles style() {
         return styles;
     }
 

@@ -1,15 +1,11 @@
 package me.vrekt.oasis.gui.guis.inventory;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -18,8 +14,6 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.function.Consumer;
 
 /**
  * Inventory GUi for players or containers
@@ -103,83 +97,97 @@ public abstract class InventoryGui extends Gui {
     }
 
     /**
-     * Populate inventory UI (slots) components
+     * Create slot components for as many {@code slots}
      *
-     * @param inventorySize        the inventory size
-     * @param drawable             the theme
-     * @param consumer             the acceptor
-     * @param drawHotBarIndicators if the numbered hotbar should be labeled.
+     * @param manager      the manager
+     * @param slot         the slot
+     * @param hotbar       if this new slot is a hotbar
+     * @param forContainer if this component is for a container
      */
-    protected void populateInventoryUiComponents(GuiManager manager, int inventorySize,
-                                                 TextureRegionDrawable drawable,
-                                                 boolean drawHotBarIndicators,
-                                                 Consumer<InventoryUiComponent> consumer) {
-        final Label.LabelStyle style = new Label.LabelStyle(manager.getSmallFont(), Color.LIGHT_GRAY);
+    protected InventoryUiComponent createSlotComponents(GuiManager manager, int slot, boolean hotbar, boolean forContainer) {
+        final VisImage background = new VisImage(manager.style().slots().normal());
 
-        for (int i = 0; i < inventorySize; i++) {
-            // background image of the actual slot
-            final VisImage slot = new VisImage(drawable);
-            // the container for our item image
-            final VisImage item = new VisImage();
-            item.setOrigin(16 / 2f, 16 / 2f);
+        final VisImage item = new VisImage();
+        item.setOrigin(16 / 2f, 16 / 2f);
 
-            // just holds our item image container
-            final VisTable itemTable = new VisTable(false);
-            itemTable.add(item).size(32, 32);
+        final VisTable itemContainer = new VisTable(false);
+        itemContainer.add(item).size(32, 32);
 
-            final VisTable itemAmount = new VisTable(true);
-            final VisLabel amountLabel = new VisLabel(StringUtils.EMPTY, style);
+        final VisTable amountContainer = new VisTable(true);
+        final VisLabel amountLabel = new VisLabel(StringUtils.EMPTY, manager.style().getSmallBlack());
+        amountLabel.setVisible(false);
 
-            amountLabel.setVisible(false);
+        amountContainer.bottom().right();
+        amountContainer.add(amountLabel).right().padBottom(4).padRight(4);
 
-            itemAmount.bottom().right();
-            itemAmount.add(amountLabel).bottom().right().padBottom(4).padRight(4);
+        final Stack container = new Stack(background, itemContainer, amountContainer);
+        registerSlotListener(container, background, slot, forContainer);
 
-            // create a separate container for the item image... so it doesn't get stretched.
-            final Stack overlay = new Stack(slot, itemTable);
-            addParentListener(overlay, slot, drawable);
+        if (hotbar) {
+            final VisTable hotbarContainer = new VisTable(true);
+            final VisLabel hotbarSlot = new VisLabel(Integer.toString(slot + 1), manager.style().getSmallBlack());
 
-            // hotbar components
-            if (i < 6 && drawHotBarIndicators) {
-                final VisTable slotNumber = new VisTable(true);
-                // i + 1 to represents slots 1-6 instead of 0-5
-                final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i + 1), style);
-                slotNumber.top().left();
-                slotNumber.add(slotNumberLabel).top().left().padLeft(2);
-                overlay.add(slotNumber);
-            }
-
-            overlay.add(itemAmount);
-
-            consumer.accept(new InventoryUiComponent(overlay, item, guiManager.getStyle().getTooltipStyle(), amountLabel, i));
+            hotbarContainer.top().left();
+            hotbarContainer.add(hotbarSlot).top().left().padLeft(3);
+            container.add(hotbarContainer);
         }
+        return new InventoryUiComponent(container, background, item, amountLabel, slot);
     }
 
     /**
-     * Adds a listener to the parent stack to change the state of the slot image indicating when the mouse is over
+     * Register slot listeners to change the background when hovering
      *
-     * @param parent   the parent, used for listening
-     * @param slot     the slot, used to change the drawable
-     * @param drawable the initial drawable
+     * @param container    container
+     * @param background   background
+     * @param forContainer if this listener is for a container
      */
-    private void addParentListener(Stack parent, VisImage slot, TextureRegionDrawable drawable) {
-        parent.addListener(new ClickListener() {
+    private void registerSlotListener(Stack container, VisImage background, int index, boolean forContainer) {
+        container.addListener(new ClickListener() {
             private boolean drawableChanged;
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 if (!drawableChanged) {
-                    slot.setDrawable(guiManager.getStyle().getThemeDownSelected());
+                    if (forContainer) {
+                        background.setDrawable(getContainerSlot(index).getSlotStyle(guiManager, true));
+                    } else {
+                        background.setDrawable(getPlayerSlot(index).getSlotStyle(guiManager, true));
+                    }
+
                     drawableChanged = true;
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (drawableChanged) slot.setDrawable(drawable);
+                if (drawableChanged) {
+                    if (forContainer) {
+                        background.setDrawable(getContainerSlot(index).getSlotStyle(guiManager, false));
+                    } else {
+                        background.setDrawable(getPlayerSlot(index).getSlotStyle(guiManager, false));
+                    }
+                }
                 drawableChanged = false;
             }
         });
+    }
+
+    /**
+     * Get a slot from the extending class
+     *
+     * @param index the index
+     * @return (hopefully) the slot
+     */
+    protected abstract InventoryGuiSlot getPlayerSlot(int index);
+
+    /**
+     * Get a slot from the container
+     *
+     * @param index index
+     * @return (hopefully) the slot
+     */
+    protected InventoryGuiSlot getContainerSlot(int index) {
+        return null;
     }
 
     @Override
@@ -204,11 +212,8 @@ public abstract class InventoryGui extends Gui {
     /**
      * Represents the data within a slot... within an inventory ui
      */
-    public record InventoryUiComponent(Stack overlay,
-                                       VisImage item,
-                                       Tooltip.TooltipStyle style,
-                                       VisLabel amountLabel,
-                                       int index) {
+    public record InventoryUiComponent(Stack container, VisImage background, VisImage item, VisLabel amountLabel,
+                                       int slot) {
     }
 
 }

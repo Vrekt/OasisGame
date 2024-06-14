@@ -8,10 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
+import me.vrekt.oasis.gui.guis.inventory.style.ItemSlotStyle;
 import me.vrekt.oasis.item.Item;
 
 /**
@@ -22,41 +24,60 @@ public final class InventoryGuiSlot {
     private static final String EMPTY_SLOT = "Empty Slot";
     private static final float APPEAR_DELAY = 0.35f;
 
-    private final Stack parent;
-    private final VisImage slotIcon;
+    private final Stack container;
+    private final VisImage background;
+    private final VisImage item;
     private final VisLabel amountText;
     private final Tooltip tooltip;
-    private Item item;
-    private boolean occupied, isHotbarSlot, isContainerSlot;
+
+    private Item itemInSlot;
+    private boolean occupied, isContainerSlot;
     private String lastItemKey;
     private final int slotNumber;
 
     private InventorySlotTarget target;
+    private ItemSlotStyle slotStyle = ItemSlotStyle.NORMAL;
 
-    public InventoryGuiSlot(GuiManager manager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, int slotNumber) {
-        this(manager, owner, parent, slotIcon, amountText, false, slotNumber);
-        this.isContainerSlot = true;
-    }
-
-    public InventoryGuiSlot(GuiManager guiManager, InventoryGui owner, Stack parent, VisImage slotIcon, VisLabel amountText, boolean isHotbarSlot, int slotNumber) {
-        this.parent = parent;
-        this.slotIcon = slotIcon;
+    /**
+     * Initialize
+     *
+     * @param guiManager gui manager
+     * @param owner      the owner of this slot
+     * @param container  the parent container
+     * @param background the background slot image
+     * @param item       the slot item image
+     * @param amountText the amount text label
+     * @param slotNumber the slot number
+     */
+    private InventoryGuiSlot(GuiManager guiManager,
+                             InventoryGui owner,
+                             Stack container,
+                             VisImage background,
+                             VisImage item,
+                             VisLabel amountText,
+                             int slotNumber) {
+        this.container = container;
+        this.item = item;
+        this.background = background;
         this.amountText = amountText;
         this.tooltip = new Tooltip.Builder(EMPTY_SLOT)
-                .style(guiManager.getStyle().getTooltipStyle())
-                .target(parent)
+                .style(guiManager.style().getTooltipStyle())
+                .target(container)
                 .build();
         this.tooltip.setAppearDelayTime(APPEAR_DELAY);
-        parent.addListener(new ClickListener() {
+        container.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (occupied) owner.handleSlotClicked(InventoryGuiSlot.this);
             }
         });
 
-        this.isHotbarSlot = isHotbarSlot;
         this.slotNumber = slotNumber;
-        slotIcon.setUserObject(slotNumber);
+        item.setUserObject(slotNumber);
+    }
+
+    public InventoryGuiSlot(GuiManager manager, InventoryGui owner, InventoryGui.InventoryUiComponent component, int slot) {
+        this(manager, owner, component.container(), component.background(), component.item(), component.amountLabel(), slot);
     }
 
     public void setTarget(InventorySlotTarget target) {
@@ -67,20 +88,32 @@ public final class InventoryGuiSlot {
         return target;
     }
 
+    /**
+     * Set if this slot is a container slot
+     *
+     * @param containerSlot state
+     */
+    public void setContainerSlot(boolean containerSlot) {
+        isContainerSlot = containerSlot;
+    }
+
+    /**
+     * @return {@code true} if this slot is within a container
+     */
     public boolean isContainerSlot() {
         return isContainerSlot;
     }
 
     public boolean isEmpty() {
-        return this.item == null;
+        return this.itemInSlot == null;
     }
 
-    public Stack getParent() {
-        return parent;
+    public Stack getContainer() {
+        return container;
     }
 
     public VisImage getSlotIcon() {
-        return slotIcon;
+        return item;
     }
 
     public int getSlotNumber() {
@@ -88,11 +121,15 @@ public final class InventoryGuiSlot {
     }
 
     public Item getItem() {
-        return item;
+        return itemInSlot;
     }
 
     public String getLastItemKey() {
         return lastItemKey;
+    }
+
+    public Drawable getSlotStyle(GuiManager manager, boolean isMouseOver) {
+        return isMouseOver ? slotStyle.down(manager) : slotStyle.get(manager);
     }
 
     /**
@@ -100,22 +137,20 @@ public final class InventoryGuiSlot {
      *
      * @param owner the owner inventory
      * @param slot  the new slot
-     * @return if the item was fully transferred and thus removed
      */
-    public boolean updateTransfer(AbstractInventory owner, int slot) {
+    public void updateTransfer(AbstractInventory owner, int slot) {
         final Item item = owner.get(slot);
         if (item == null || item.amount() <= 0) {
             resetSlot();
-            return true;
-        } else if (this.item == null || !item.compare(this.item)) {
+            return;
+        } else if (this.itemInSlot == null || !item.compare(this.itemInSlot)) {
             // this item is new, so just reset entirely.
             // not sure if this will ever happen but maybe.
             setOccupiedItem(item);
-            return false;
+            return;
         }
 
         amountText.setText(item.amount());
-        return false;
     }
 
     /**
@@ -129,12 +164,14 @@ public final class InventoryGuiSlot {
             return;
         }
 
-        this.item = item;
+        this.itemInSlot = item;
         this.lastItemKey = item.key();
 
-        // TODO: Cache drawables?
-        slotIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
-        slotIcon.setScale(item.scale());
+        // task: (TODO-26) Cache drawables
+        this.item.setDrawable(new TextureRegionDrawable(item.sprite()));
+        this.item.setScale(item.scale());
+
+        updateBackground();
 
         if (item.isStackable()) {
             amountText.setVisible(true);
@@ -148,14 +185,40 @@ public final class InventoryGuiSlot {
     }
 
     /**
+     * Update background slot based on the item
+     */
+    private void updateBackground() {
+        this.slotStyle = ItemSlotStyle.of(itemInSlot);
+        background.setDrawable(slotStyle.get(GameManager.getGuiManager()));
+    }
+
+    /**
+     * Reset item slot  image
+     */
+    private void resetItemSlot() {
+        item.setDrawable((Drawable) null);
+    }
+
+    /**
+     * Reset background slot
+     */
+    private void resetBackground() {
+        this.slotStyle = ItemSlotStyle.NORMAL;
+        background.setDrawable(slotStyle.get(GameManager.getGuiManager()));
+    }
+
+    /**
      * Reset this slot
      */
     public void resetSlot() {
         occupied = false;
         lastItemKey = null;
-        slotIcon.setDrawable((Drawable) null);
+
+        resetItemSlot();
+        resetBackground();
+
         tooltip.setText(EMPTY_SLOT);
-        item = null;
+        itemInSlot = null;
 
         amountText.setVisible(false);
     }

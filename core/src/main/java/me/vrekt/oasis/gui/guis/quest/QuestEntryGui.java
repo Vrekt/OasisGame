@@ -56,19 +56,19 @@ public final class QuestEntryGui extends Gui {
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest_entry"));
         rootTable.setBackground(drawable);
 
-        questNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
-        completeness = new TypingLabel("(25% complete)", guiManager.getStyle().getSmallWhite());
+        questNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.style().getLargeBlack());
+        completeness = new TypingLabel("(25% complete)", guiManager.style().getSmallWhite());
         completeness.setColor(44 / 255f, 61 / 255f, 66 / 255f, 1.0f);
 
         questDifficultyIcon = new VisImage();
         questDifficultyTooltip = new Tooltip.Builder(StringUtils.EMPTY)
                 .target(questDifficultyIcon)
-                .style(guiManager.getStyle().getTooltipStyle())
+                .style(guiManager.style().getTooltipStyle())
                 .build();
-        ((VisLabel) questDifficultyTooltip.getContent()).setStyle(guiManager.getStyle().getSmallWhite());
+        ((VisLabel) questDifficultyTooltip.getContent()).setStyle(guiManager.style().getSmallWhite());
 
-        itemsRequiredLabel = new VisLabel("Items Required", guiManager.getStyle().getLargeBlack());
-        questRewardsLabel = new VisLabel("Rewards", guiManager.getStyle().getLargeBlack());
+        itemsRequiredLabel = new VisLabel("Items Required", guiManager.style().getLargeBlack());
+        questRewardsLabel = new VisLabel("Rewards", guiManager.style().getLargeBlack());
 
         itemsRequiredLabel.setVisible(false);
         questRewardsLabel.setVisible(false);
@@ -174,7 +174,7 @@ public final class QuestEntryGui extends Gui {
             label = questObjectiveLabels.get(i);
             wasExistingLabel = true;
         } else {
-            label = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getMediumWhite());
+            label = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhite());
             questObjectiveLabels.put(i, label);
         }
 
@@ -203,14 +203,14 @@ public final class QuestEntryGui extends Gui {
     private void populateQuestItemComponents(Table owner, LinkedList<ItemDescriptor> descriptors, VisLabel labelOwner) {
         for (ItemDescriptor itemDescriptor : descriptors) {
             final Stack stack = new Stack();
-            final VisImage background = new VisImage(guiManager.getStyle().getTheme());
+            final VisImage background = new VisImage(guiManager.style().getTheme());
             final VisImage icon = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(itemDescriptor.texture())));
             stack.add(background);
             stack.add(icon);
 
             new Tooltip.Builder(itemDescriptor.name())
                     .target(stack)
-                    .style(guiManager.getStyle().getTooltipStyle())
+                    .style(guiManager.style().getTooltipStyle())
                     .build()
                     .setAppearDelayTime(0.1f);
 

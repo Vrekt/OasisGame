@@ -25,7 +25,7 @@ public final class ReadableSignGui extends Gui {
         rootTable.setFillParent(true);
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("pause")));
 
-        final VisLabel label = new VisLabel("The sign reads...", guiManager.getStyle().getMediumBlack());
+        final VisLabel label = new VisLabel("The sign reads...", guiManager.style().getMediumBlack());
         rootTable.add(label);
         rootTable.row();
 
@@ -33,7 +33,7 @@ public final class ReadableSignGui extends Gui {
         final NinePatch patch = new NinePatch(guiManager.getAsset().get("sign"), 6, 6, 6, 6);
         table.setBackground(new NinePatchDrawable(patch));
 
-        signTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.getStyle().getLargeBlack());
+        signTextLabel = new TypingLabel(StringUtils.EMPTY, guiManager.style().getLargeBlack());
         signTextLabel.setWrap(true);
         signTextLabel.setColor(Color.BLACK);
 

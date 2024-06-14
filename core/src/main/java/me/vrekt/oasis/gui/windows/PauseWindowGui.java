@@ -27,11 +27,11 @@ public final class PauseWindowGui extends Gui {
 
         final VisImage logoImage = new VisImage(guiManager.getGame().getLogoTexture());
 
-        final VisImageTextButton resume = new VisImageTextButton("Resume", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton settings = new VisImageTextButton("Settings", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton saveGame = new VisImageTextButton("Save Game", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton backToMenu = new VisImageTextButton("Back to Main Menu", guiManager.getStyle().getImageTextButtonStyle());
-        final VisImageTextButton exit = new VisImageTextButton("Exit Game", guiManager.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton resume = new VisImageTextButton("Resume", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton settings = new VisImageTextButton("Settings", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton saveGame = new VisImageTextButton("Save Game", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton backToMenu = new VisImageTextButton("Back to Main Menu", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton exit = new VisImageTextButton("Exit Game", guiManager.style().getImageTextButtonStyle());
 
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
@@ -44,7 +44,7 @@ public final class PauseWindowGui extends Gui {
         table.add(logoImage);
         table.row();
 
-        final TypingLabel header = new TypingLabel("Game Paused", guiManager.getStyle().getLargeWhite());
+        final TypingLabel header = new TypingLabel("Game Paused", guiManager.style().getLargeWhite());
         table.add(header);
         table.row().padTop(16);
         table.add(resume).fillX();

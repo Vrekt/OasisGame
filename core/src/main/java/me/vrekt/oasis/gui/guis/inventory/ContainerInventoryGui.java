@@ -20,8 +20,6 @@ import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
 import me.vrekt.oasis.item.Item;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Container GUI
  */
@@ -54,9 +52,8 @@ public final class ContainerInventoryGui extends InventoryGui {
         bottomTable.top();
         topTable.top();
 
-        final TextureRegionDrawable slotDrawable = new TextureRegionDrawable(guiManager.getAsset().get("theme"));
-        populateContainerInventoryComponents(topTable, slotDrawable);
-        populatePlayerInventoryComponents(bottomTable, slotDrawable);
+        populateContainerInventoryComponents(topTable);
+        populatePlayerInventoryComponents(bottomTable);
 
         dragAndDrop = new DragAndDrop();
         //  register drag handlers
@@ -76,7 +73,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             dragAndDrop.addTarget(target);
         }
 
-        final VisImageTextButton takeAllButton = new VisImageTextButton("Take All", guiManager.getStyle().getImageTextButtonStyle());
+        final VisImageTextButton takeAllButton = new VisImageTextButton("Take All", guiManager.style().getImageTextButtonStyle());
         handleMoveAllButton(takeAllButton);
 
         final VisTable buttonTable = new VisTable();
@@ -89,6 +86,16 @@ public final class ContainerInventoryGui extends InventoryGui {
         rootTable.add(bottomTable);
 
         guiManager.addGui(rootTable);
+    }
+
+    @Override
+    protected InventoryGuiSlot getPlayerSlot(int index) {
+        return playerSlots.get(index);
+    }
+
+    @Override
+    protected InventoryGuiSlot getContainerSlot(int index) {
+        return containerSlots.get(index);
     }
 
     /**
@@ -237,47 +244,34 @@ public final class ContainerInventoryGui extends InventoryGui {
     /**
      * Populate container slots
      *
-     * @param topTable     the top table
-     * @param slotDrawable drawable
+     * @param topTable the top table
      */
-    private void populateContainerInventoryComponents(VisTable topTable, TextureRegionDrawable slotDrawable) {
-        final AtomicInteger slotTracker = new AtomicInteger();
-        populateInventoryUiComponents(guiManager, 16, slotDrawable, false, component -> {
-            final InventoryGuiSlot slot = new InventoryGuiSlot(guiManager,
-                    this,
-                    component.overlay(),
-                    component.item(),
-                    component.amountLabel(),
-                    component.index());
+    private void populateContainerInventoryComponents(VisTable topTable) {
+        for (int i = 1; i < 16; i++) {
+            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), false, true);
+            final InventoryGuiSlot slot = new InventoryGuiSlot(guiManager, this, component, (i - 1));
+
+            slot.setContainerSlot(true);
             containerSlots.add(slot);
 
-            final int progress = slotTracker.incrementAndGet();
-            topTable.add(component.overlay()).size(48, 48);
-            if (progress % 6 == 0) topTable.row();
-        });
+            topTable.add(component.container()).size(48, 48);
+            if (i % 6 == 0) topTable.row();
+        }
     }
 
     /**
      * Populate the components for the players inventory
      *
-     * @param bottomTable  bottom table
-     * @param slotDrawable drawable
+     * @param bottomTable bottom table
      */
-    private void populatePlayerInventoryComponents(VisTable bottomTable, TextureRegionDrawable slotDrawable) {
-        final AtomicInteger slotTracker = new AtomicInteger();
-        populateInventoryUiComponents(guiManager, player.getInventory().getSize(), slotDrawable, true, component -> {
-            playerSlots.add(new InventoryGuiSlot(guiManager,
-                    this,
-                    component.overlay(),
-                    component.item(),
-                    component.amountLabel(),
-                    component.index() < 6,
-                    component.index()));
+    private void populatePlayerInventoryComponents(VisTable bottomTable) {
+        for (int i = 1; i < player.getInventory().getSize(); i++) {
+            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), false, false);
+            playerSlots.add(new InventoryGuiSlot(guiManager, this, component, (i - 1)));
 
-            final int progress = slotTracker.incrementAndGet();
-            bottomTable.add(component.overlay()).size(48, 48);
-            if (progress % 6 == 0) bottomTable.row();
-        });
+            bottomTable.add(component.container()).size(48, 48);
+            if (i % 6 == 0) bottomTable.row();
+        }
     }
 
     /**
