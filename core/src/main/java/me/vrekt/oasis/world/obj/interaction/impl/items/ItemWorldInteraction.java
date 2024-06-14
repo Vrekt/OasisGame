@@ -78,7 +78,7 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
     }
 
     @Override
-    public void renderUiComponents(SpriteBatch batch, Styles styles, GuiManager manager, BitmapFont font, Vector3 position) {
+    public void renderUiComponents(SpriteBatch batch, GuiManager manager, BitmapFont font, Vector3 position) {
         if (this.item == null) return;
 
         if (isMouseOver(world.getCursorInWorld())) {
@@ -86,7 +86,7 @@ public final class ItemWorldInteraction extends AbstractInteractableWorldObject 
             final float height = manager.getStringHeight(item.name()) + PATCH_PADDING;
 
             font.setColor(Color.SKY);
-            styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING + size.x), position.y - (height + size.y * PATCH_PADDING), width, height);
+            Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING + size.x), position.y - (height + size.y * PATCH_PADDING), width, height);
             font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING + size.x * 6f), position.y - (height + size.y * PATCH_PADDING) / 2f);
         }
     }

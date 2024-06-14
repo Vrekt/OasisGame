@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.gui.GuiManager;
-import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.utility.input.InteractionMouseHandler;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -119,7 +118,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      * @param font     font
      * @param position projected position
      */
-    public void renderUiComponents(SpriteBatch batch, Styles styles, GuiManager manager, BitmapFont font, Vector3 position) {
+    public void renderUiComponents(SpriteBatch batch, GuiManager manager, BitmapFont font, Vector3 position) {
 
     }
 

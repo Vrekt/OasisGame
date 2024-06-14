@@ -35,19 +35,8 @@ public abstract class Box2dGameWorld {
         this.engine = engine;
     }
 
-    public Engine engine() {
-        return engine;
-    }
-
     public World boxWorld() {
         return world;
-    }
-
-    /**
-     * @return world origin (spawn)
-     */
-    public Vector2 origin() {
-        return worldOrigin;
     }
 
     /**
@@ -61,31 +50,12 @@ public abstract class Box2dGameWorld {
     }
 
     /**
-     * Check if this world has the entity
-     *
-     * @param entityId entity id
-     * @return {@code true} if so
-     */
-    public boolean hasEntity(int entityId) {
-        return entities.containsKey(entityId);
-    }
-
-    /**
      * Add a network player
      *
      * @param player player
      */
     public void addPlayer(NetworkPlayer player) {
         players.put(player.entityId(), player);
-    }
-
-    /**
-     * Add a network entity
-     *
-     * @param entity entity
-     */
-    public void addEntity(GameEntity entity) {
-        entities.put(entity.entityId(), entity);
     }
 
     /**
@@ -100,16 +70,6 @@ public abstract class Box2dGameWorld {
 
     public Optional<NetworkPlayer> player(int id) {
         return Optional.ofNullable(getPlayer(id));
-    }
-
-    /**
-     * Get an entity by ID
-     *
-     * @param id their ID
-     * @return the entity
-     */
-    public GameEntity getEntity(int id) {
-        return entities.get(id);
     }
 
     /**

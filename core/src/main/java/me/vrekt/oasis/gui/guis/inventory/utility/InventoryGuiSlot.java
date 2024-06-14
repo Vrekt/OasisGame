@@ -8,9 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.gui.guis.inventory.InventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.style.ItemSlotStyle;
@@ -61,7 +61,7 @@ public final class InventoryGuiSlot {
         this.background = background;
         this.amountText = amountText;
         this.tooltip = new Tooltip.Builder(EMPTY_SLOT)
-                .style(guiManager.style().getTooltipStyle())
+                .style(Styles.getTooltipStyle())
                 .target(container)
                 .build();
         this.tooltip.setAppearDelayTime(APPEAR_DELAY);
@@ -128,8 +128,8 @@ public final class InventoryGuiSlot {
         return lastItemKey;
     }
 
-    public Drawable getSlotStyle(GuiManager manager, boolean isMouseOver) {
-        return isMouseOver ? slotStyle.down(manager) : slotStyle.get(manager);
+    public Drawable getSlotStyle(boolean isMouseOver) {
+        return isMouseOver ? slotStyle.down() : slotStyle.get();
     }
 
     /**
@@ -189,7 +189,7 @@ public final class InventoryGuiSlot {
      */
     private void updateBackground() {
         this.slotStyle = ItemSlotStyle.of(itemInSlot);
-        background.setDrawable(slotStyle.get(GameManager.getGuiManager()));
+        background.setDrawable(slotStyle.get());
     }
 
     /**
@@ -204,7 +204,7 @@ public final class InventoryGuiSlot {
      */
     private void resetBackground() {
         this.slotStyle = ItemSlotStyle.NORMAL;
-        background.setDrawable(slotStyle.get(GameManager.getGuiManager()));
+        background.setDrawable(slotStyle.get());
     }
 
     /**

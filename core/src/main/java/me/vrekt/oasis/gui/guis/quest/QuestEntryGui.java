@@ -10,9 +10,10 @@ import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
@@ -56,19 +57,19 @@ public final class QuestEntryGui extends Gui {
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest_entry"));
         rootTable.setBackground(drawable);
 
-        questNameLabel = new VisLabel(StringUtils.EMPTY, guiManager.style().getLargeBlack());
-        completeness = new TypingLabel("(25% complete)", guiManager.style().getSmallWhite());
+        questNameLabel = new VisLabel(StringUtils.EMPTY, Styles.getLargeBlack());
+        completeness = new TypingLabel("(25% complete)", Styles.getSmallWhite());
         completeness.setColor(44 / 255f, 61 / 255f, 66 / 255f, 1.0f);
 
         questDifficultyIcon = new VisImage();
         questDifficultyTooltip = new Tooltip.Builder(StringUtils.EMPTY)
                 .target(questDifficultyIcon)
-                .style(guiManager.style().getTooltipStyle())
+                .style(Styles.getTooltipStyle())
                 .build();
-        ((VisLabel) questDifficultyTooltip.getContent()).setStyle(guiManager.style().getSmallWhite());
+        ((VisLabel) questDifficultyTooltip.getContent()).setStyle(Styles.getSmallWhite());
 
-        itemsRequiredLabel = new VisLabel("Items Required", guiManager.style().getLargeBlack());
-        questRewardsLabel = new VisLabel("Rewards", guiManager.style().getLargeBlack());
+        itemsRequiredLabel = new VisLabel("Items Required", Styles.getLargeBlack());
+        questRewardsLabel = new VisLabel("Rewards", Styles.getLargeBlack());
 
         itemsRequiredLabel.setVisible(false);
         questRewardsLabel.setVisible(false);
@@ -174,7 +175,7 @@ public final class QuestEntryGui extends Gui {
             label = questObjectiveLabels.get(i);
             wasExistingLabel = true;
         } else {
-            label = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhite());
+            label = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhite());
             questObjectiveLabels.put(i, label);
         }
 
@@ -203,14 +204,14 @@ public final class QuestEntryGui extends Gui {
     private void populateQuestItemComponents(Table owner, LinkedList<ItemDescriptor> descriptors, VisLabel labelOwner) {
         for (ItemDescriptor itemDescriptor : descriptors) {
             final Stack stack = new Stack();
-            final VisImage background = new VisImage(guiManager.style().getTheme());
+            final VisImage background = new VisImage(Styles.getTheme());
             final VisImage icon = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(itemDescriptor.texture())));
             stack.add(background);
             stack.add(icon);
 
             new Tooltip.Builder(itemDescriptor.name())
                     .target(stack)
-                    .style(guiManager.style().getTooltipStyle())
+                    .style(Styles.getTooltipStyle())
                     .build()
                     .setAppearDelayTime(0.1f);
 

@@ -12,6 +12,7 @@ import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
 import org.apache.commons.lang3.StringUtils;
@@ -48,9 +49,9 @@ public final class SaveGameWindowGui extends Gui {
         final VisTable slot2 = new VisTable();
         final VisTable slot3 = new VisTable();
 
-        slot1.setBackground(guiManager.style().getTheme());
-        slot2.setBackground(guiManager.style().getTheme());
-        slot3.setBackground(guiManager.style().getTheme());
+        slot1.setBackground(Styles.getTheme());
+        slot2.setBackground(Styles.getTheme());
+        slot3.setBackground(Styles.getTheme());
 
         final VisTable deleteComponent1 = createDeleteComponent(1);
         final VisTable deleteComponent2 = createDeleteComponent(2);
@@ -89,7 +90,7 @@ public final class SaveGameWindowGui extends Gui {
     private VisTable createDeleteComponent(int slot) {
         final VisTable table = new VisTable();
         table.add(new VisImage(guiManager.getAsset().get("delete_icon")));
-        table.setBackground(guiManager.style().getTheme());
+        table.setBackground(Styles.getTheme());
         table.setVisible(false);
 
         table.addListener(new ClickListener() {
@@ -110,7 +111,7 @@ public final class SaveGameWindowGui extends Gui {
         final Window.WindowStyle style = new Window.WindowStyle();
         style.titleFont = guiManager.getMediumFont();
         style.titleFontColor = Color.WHITE;
-        style.background = guiManager.style().getTheme();
+        style.background = Styles.getTheme();
 
         final VisTextButton.VisTextButtonStyle buttonStyle = VisUI.getSkin().get(VisTextButton.VisTextButtonStyle.class);
         buttonStyle.font = guiManager.getMediumFont();
@@ -119,7 +120,7 @@ public final class SaveGameWindowGui extends Gui {
         final VisTextField.VisTextFieldStyle inputStyle = VisUI.getSkin().get(VisTextField.VisTextFieldStyle.class);
         inputStyle.font = guiManager.getSmallFont();
         inputStyle.fontColor = Color.WHITE;
-        inputStyle.background = guiManager.style().getTheme();
+        inputStyle.background = Styles.getTheme();
         input = new VisTextField(StringUtils.EMPTY, inputStyle);
         dialog = new VisDialog(StringUtils.EMPTY, style) {
             @Override
@@ -133,7 +134,7 @@ public final class SaveGameWindowGui extends Gui {
             }
         };
 
-        dialog.text("Enter the name of this new save:", guiManager.style().getMediumWhite());
+        dialog.text("Enter the name of this new save:", Styles.getMediumWhite());
         dialog.getContentTable().row();
         dialog.getContentTable().add(input);
         dialog.getContentTable().row();
@@ -149,7 +150,7 @@ public final class SaveGameWindowGui extends Gui {
                 }
             }
         };
-        showConfirmationDialog.text("Game Saved!", guiManager.style().getMediumWhite());
+        showConfirmationDialog.text("Game Saved!", Styles.getMediumWhite());
         showConfirmationDialog.button("Ok", true, buttonStyle);
         showConfirmationDialog.key(Input.Keys.ENTER, true);
         showConfirmationDialog.key(Input.Keys.ESCAPE, false);
@@ -165,7 +166,7 @@ public final class SaveGameWindowGui extends Gui {
         };
 
         // prefer not to do enter == yes, just in-case its accidentally pressed while spamming buttons
-        deleteConfirmationDialog.text("Are you sure you want to delete this save?", guiManager.style().getMediumWhite());
+        deleteConfirmationDialog.text("Are you sure you want to delete this save?", Styles.getMediumWhite());
         deleteConfirmationDialog.button("Yes", true);
         deleteConfirmationDialog.button("No", false);
         deleteConfirmationDialog.key(Input.Keys.ESCAPE, false);
@@ -180,7 +181,7 @@ public final class SaveGameWindowGui extends Gui {
     private void initializeSlotComponent(int slot, VisTable table, VisTable deleteComponentTable) {
         table.left();
 
-        final VisLabel saveName = new VisLabel(EMPTY_SAVE_SLOT, guiManager.style().getMediumWhite());
+        final VisLabel saveName = new VisLabel(EMPTY_SAVE_SLOT, Styles.getMediumWhite());
 
         table.add(saveName).padTop(4).left();
         table.row();
@@ -207,7 +208,7 @@ public final class SaveGameWindowGui extends Gui {
     }
 
     private VisLabel createSlotNumberComponent(int slot) {
-        return new VisLabel("Slot " + slot, guiManager.style().getMediumWhite());
+        return new VisLabel("Slot " + slot, Styles.getMediumWhite());
     }
 
     private void saveAndShowConfirmation(int slot, String text) {
@@ -251,8 +252,8 @@ public final class SaveGameWindowGui extends Gui {
         public SlotRowComponent(int slot, VisLabel saveName, VisTable table, VisTable deleteComponentTable) {
             this.slot = slot;
             this.saveNameLabel = saveName;
-            this.gameProgress = new VisLabel(StringUtils.EMPTY, guiManager.style().getSmallWhite());
-            this.saveDate = new VisLabel(StringUtils.EMPTY, guiManager.style().getSmallWhite());
+            this.gameProgress = new VisLabel(StringUtils.EMPTY, Styles.getSmallWhite());
+            this.saveDate = new VisLabel(StringUtils.EMPTY, Styles.getSmallWhite());
             this.table = table;
 
             this.contentsTable = new VisTable();

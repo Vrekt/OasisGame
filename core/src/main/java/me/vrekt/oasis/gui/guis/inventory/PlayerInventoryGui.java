@@ -14,6 +14,7 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
@@ -64,12 +65,12 @@ public final class PlayerInventoryGui extends InventoryGui {
         right.top().padTop(36).padLeft(32).left();
         left.top().padTop(52).padLeft(84);
 
-        itemNameHeader = new TypingLabel(StringUtils.EMPTY, guiManager.style().getLargeBlack());
+        itemNameHeader = new TypingLabel(StringUtils.EMPTY, Styles.getLargeBlack());
         itemNameHeader.setVisible(true);
         itemNameHeader.setWrap(true);
         itemNameHeader.setWidth(150);
 
-        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
+        itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhiteMipMapped());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
         itemDescriptionHeader.setWidth(175);
@@ -106,7 +107,7 @@ public final class PlayerInventoryGui extends InventoryGui {
             final VisImage icon = new VisImage();
             final Tooltip tooltip = new Tooltip.Builder(StringUtils.EMPTY)
                     .target(icon)
-                    .style(guiManager.style().getTooltipStyle())
+                    .style(Styles.getTooltipStyle())
                     .build();
 
             final ItemInformationContainer container = new ItemInformationContainer(icon, tooltip);
@@ -124,7 +125,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         buttonTable.left();
 
         // Init use item buttons and styles
-        itemActionButton = new VisImageTextButton(StringUtils.EMPTY, guiManager.style().getImageTextButtonStyle());
+        itemActionButton = new VisImageTextButton(StringUtils.EMPTY, Styles.getImageTextButtonStyle());
         itemActionButton.setVisible(false);
 
         buttonTable.add(itemActionButton);
@@ -328,7 +329,7 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param index     current index, should not exceed 2
      */
     private void populateAttributeInformation(Attribute attribute, int index) {
-        fadeIn(informationContainers.get(index).updateAttribute(guiManager, attribute), 1.5f);
+        fadeIn(informationContainers.get(index).updateAttribute(attribute), 1.5f);
     }
 
     /**
@@ -337,9 +338,9 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the item
      */
     private void populateItemStats(ItemWeapon item) {
-        fadeIn(informationContainers.get(0).updateRange(guiManager, item), 1.5f);
-        fadeIn(informationContainers.get(1).updateDamage(guiManager, item), 1.5f);
-        fadeIn(informationContainers.get(2).updateCriticalChance(guiManager, item), 1.5f);
+        fadeIn(informationContainers.get(0).updateRange(item), 1.5f);
+        fadeIn(informationContainers.get(1).updateDamage(item), 1.5f);
+        fadeIn(informationContainers.get(2).updateCriticalChance(item), 1.5f);
     }
 
     /**

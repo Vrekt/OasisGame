@@ -1,62 +1,60 @@
 package me.vrekt.oasis.gui.guis.inventory.style;
 
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.Item;
 
 public enum ItemSlotStyle {
 
     NORMAL {
         @Override
-        public Drawable get(GuiManager manager) {
-            return manager.style().slots().normal();
+        public Drawable get() {
+            return Styles.slots().normal();
         }
 
         @Override
-        public Drawable down(GuiManager manager) {
-            return manager.style().slots().normalDown();
+        public Drawable down() {
+            return Styles.slots().normalDown();
         }
     },
 
     COMMON {
         @Override
-        public Drawable get(GuiManager manager) {
-            return manager.style().slots().common();
+        public Drawable get() {
+            return Styles.slots().common();
         }
 
         @Override
-        public Drawable down(GuiManager manager) {
-            return manager.style().slots().commonDown();
+        public Drawable down() {
+            return Styles.slots().commonDown();
         }
     },
 
     COSMIC {
         @Override
-        public Drawable get(GuiManager manager) {
-            return manager.style().slots().cosmic();
+        public Drawable get() {
+            return Styles.slots().cosmic();
         }
 
         @Override
-        public Drawable down(GuiManager manager) {
-            return manager.style().slots().cosmicDown();
+        public Drawable down() {
+            return Styles.slots().cosmicDown();
         }
     };
 
     /**
      * Get the default slot style
      *
-     * @param manager manager
      * @return the drawable
      */
-    public abstract Drawable get(GuiManager manager);
+    public abstract Drawable get();
 
     /**
      * Get the mouse over style
      *
-     * @param manager manager
      * @return the drawable
      */
-    public abstract Drawable down(GuiManager manager);
+    public abstract Drawable down();
 
     /**
      * Convert an item rarity to this

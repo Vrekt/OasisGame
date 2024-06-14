@@ -15,6 +15,7 @@ import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotSource;
 import me.vrekt.oasis.gui.guis.inventory.actions.InventorySlotTarget;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
@@ -73,7 +74,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             dragAndDrop.addTarget(target);
         }
 
-        final VisImageTextButton takeAllButton = new VisImageTextButton("Take All", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton takeAllButton = new VisImageTextButton("Take All", Styles.getImageTextButtonStyle());
         handleMoveAllButton(takeAllButton);
 
         final VisTable buttonTable = new VisTable();
@@ -234,7 +235,7 @@ public final class ContainerInventoryGui extends InventoryGui {
             if (selectedPlayerSlot != null && isShiftPressed) {
                 // transfer instantly since the player shift clicked this slot
                 transferAllFromSlot(player.getInventory(), activeContainerInventory, selectedPlayerSlot.getSlotNumber(), false);
-                selectedContainerSlot = null;
+                selectedPlayerSlot = null;
             }
             selectedContainerSlot = null;
             isOnContainer = false;

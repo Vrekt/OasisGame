@@ -11,6 +11,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 
 public final class PauseWindowGui extends Gui {
 
@@ -27,11 +28,11 @@ public final class PauseWindowGui extends Gui {
 
         final VisImage logoImage = new VisImage(guiManager.getGame().getLogoTexture());
 
-        final VisImageTextButton resume = new VisImageTextButton("Resume", guiManager.style().getImageTextButtonStyle());
-        final VisImageTextButton settings = new VisImageTextButton("Settings", guiManager.style().getImageTextButtonStyle());
-        final VisImageTextButton saveGame = new VisImageTextButton("Save Game", guiManager.style().getImageTextButtonStyle());
-        final VisImageTextButton backToMenu = new VisImageTextButton("Back to Main Menu", guiManager.style().getImageTextButtonStyle());
-        final VisImageTextButton exit = new VisImageTextButton("Exit Game", guiManager.style().getImageTextButtonStyle());
+        final VisImageTextButton resume = new VisImageTextButton("Resume", Styles.getImageTextButtonStyle());
+        final VisImageTextButton settings = new VisImageTextButton("Settings", Styles.getImageTextButtonStyle());
+        final VisImageTextButton saveGame = new VisImageTextButton("Save Game", Styles.getImageTextButtonStyle());
+        final VisImageTextButton backToMenu = new VisImageTextButton("Back to Main Menu", Styles.getImageTextButtonStyle());
+        final VisImageTextButton exit = new VisImageTextButton("Exit Game", Styles.getImageTextButtonStyle());
 
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
         addHoverComponents(resume, Color.LIGHT_GRAY, Color.WHITE, this::handleResumeGameComponentAction);
@@ -44,7 +45,7 @@ public final class PauseWindowGui extends Gui {
         table.add(logoImage);
         table.row();
 
-        final TypingLabel header = new TypingLabel("Game Paused", guiManager.style().getLargeWhite());
+        final TypingLabel header = new TypingLabel("Game Paused", Styles.getLargeWhite());
         table.add(header);
         table.row().padTop(16);
         table.add(resume).fillX();

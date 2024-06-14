@@ -12,6 +12,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.gui.guis.inventory.utility.InventoryGuiSlot;
 import org.apache.commons.lang3.StringUtils;
 
@@ -105,7 +106,7 @@ public abstract class InventoryGui extends Gui {
      * @param forContainer if this component is for a container
      */
     protected InventoryUiComponent createSlotComponents(GuiManager manager, int slot, boolean hotbar, boolean forContainer) {
-        final VisImage background = new VisImage(manager.style().slots().normal());
+        final VisImage background = new VisImage(Styles.slots().normal());
 
         final VisImage item = new VisImage();
         item.setOrigin(16 / 2f, 16 / 2f);
@@ -114,7 +115,7 @@ public abstract class InventoryGui extends Gui {
         itemContainer.add(item).size(32, 32);
 
         final VisTable amountContainer = new VisTable(true);
-        final VisLabel amountLabel = new VisLabel(StringUtils.EMPTY, manager.style().getSmallBlack());
+        final VisLabel amountLabel = new VisLabel(StringUtils.EMPTY, Styles.getSmallBlack());
         amountLabel.setVisible(false);
 
         amountContainer.bottom().right();
@@ -125,7 +126,7 @@ public abstract class InventoryGui extends Gui {
 
         if (hotbar) {
             final VisTable hotbarContainer = new VisTable(true);
-            final VisLabel hotbarSlot = new VisLabel(Integer.toString(slot + 1), manager.style().getSmallBlack());
+            final VisLabel hotbarSlot = new VisLabel(Integer.toString(slot + 1), Styles.getSmallBlack());
 
             hotbarContainer.top().left();
             hotbarContainer.add(hotbarSlot).top().left().padLeft(3);
@@ -149,9 +150,9 @@ public abstract class InventoryGui extends Gui {
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 if (!drawableChanged) {
                     if (forContainer) {
-                        background.setDrawable(getContainerSlot(index).getSlotStyle(guiManager, true));
+                        background.setDrawable(getContainerSlot(index).getSlotStyle(true));
                     } else {
-                        background.setDrawable(getPlayerSlot(index).getSlotStyle(guiManager, true));
+                        background.setDrawable(getPlayerSlot(index).getSlotStyle(true));
                     }
 
                     drawableChanged = true;
@@ -162,9 +163,9 @@ public abstract class InventoryGui extends Gui {
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 if (drawableChanged) {
                     if (forContainer) {
-                        background.setDrawable(getContainerSlot(index).getSlotStyle(guiManager, false));
+                        background.setDrawable(getContainerSlot(index).getSlotStyle(false));
                     } else {
-                        background.setDrawable(getPlayerSlot(index).getSlotStyle(guiManager, false));
+                        background.setDrawable(getPlayerSlot(index).getSlotStyle(false));
                     }
                 }
                 drawableChanged = false;

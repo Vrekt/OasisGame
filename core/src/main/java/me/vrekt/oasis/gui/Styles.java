@@ -20,28 +20,28 @@ import me.vrekt.oasis.utility.EmptyDrawable;
 /**
  * Various UI styles and configurations
  */
-public class Styles {
+public final class Styles {
 
-    private final NinePatch themePatchPadded;
-    private final NinePatchDrawable theme, themePadded;
-    private final Tooltip.TooltipStyle tooltipStyle;
-    private final VisTextField.VisTextFieldStyle fieldStyle;
-    private final VisTextField.VisTextFieldStyle transparentFieldStyle;
+    private static NinePatch themePatchPadded;
+    private static NinePatchDrawable theme, themePadded;
+    private static Tooltip.TooltipStyle tooltipStyle;
+    private static VisTextField.VisTextFieldStyle fieldStyle;
+    private static VisTextField.VisTextFieldStyle transparentFieldStyle;
 
-    private final Label.LabelStyle smallWhite, mediumWhite, largeWhite,
+    private static Label.LabelStyle smallWhite, mediumWhite, largeWhite,
             smallBlack, mediumBlack, largeBlack, smallerWhite, mediumWhiteMipMapped;
 
-    private final VisImageTextButton.VisImageTextButtonStyle imageTextButtonStyle;
-    private final Texture defaultCursorTexture;
+    private static VisImageTextButton.VisImageTextButtonStyle imageTextButtonStyle;
+    private static Texture defaultCursorTexture;
 
-    private final VisCheckBox.VisCheckBoxStyle checkBoxStyle;
+    private static VisCheckBox.VisCheckBoxStyle checkBoxStyle;
 
-    private final TextureRegionDrawable weaponDamageIcon, weaponRangeIcon, weaponCriticalIcon;
-    private final TextureRegionDrawable satisfactionAttributeIcon, healingAttributeIcon;
+    private static TextureRegionDrawable weaponDamageIcon, weaponRangeIcon, weaponCriticalIcon;
+    private static TextureRegionDrawable satisfactionAttributeIcon, healingAttributeIcon;
 
-    private final ItemSlotStyles slotStyles;
+    private static ItemSlotStyles slotStyles;
 
-    public Styles(Asset asset) {
+    public static void load(Asset asset) {
         final NinePatch themePatch = new NinePatch(asset.get("theme"), 4, 4, 4, 4);
         themePatchPadded = new NinePatch(asset.get("theme"), 6, 6, 6, 6);
 
@@ -103,107 +103,106 @@ public class Styles {
         healingAttributeIcon = new TextureRegionDrawable(asset.get("healing_attribute2"));
 
         slotStyles = new ItemSlotStyles(asset);
-
     }
 
     /**
      * @return the padded theme patch.
      */
-    public NinePatch paddedTheme() {
+    public static NinePatch paddedTheme() {
         return themePatchPadded;
     }
 
-    public NinePatchDrawable getTheme() {
+    public static NinePatchDrawable getTheme() {
         return theme;
     }
 
-    public NinePatchDrawable getThemePadded() {
+    public static NinePatchDrawable getThemePadded() {
         return themePadded;
     }
 
-    public Texture getDefaultCursorTexture() {
+    public static Texture getDefaultCursorTexture() {
         return defaultCursorTexture;
     }
 
-    public Tooltip.TooltipStyle getTooltipStyle() {
+    public static Tooltip.TooltipStyle getTooltipStyle() {
         return tooltipStyle;
     }
 
-    public VisTextField.VisTextFieldStyle getFieldStyle() {
+    public static VisTextField.VisTextFieldStyle getFieldStyle() {
         return fieldStyle;
     }
 
-    public VisTextField.VisTextFieldStyle getTransparentFieldStyle() {
+    public static VisTextField.VisTextFieldStyle getTransparentFieldStyle() {
         return transparentFieldStyle;
     }
 
-    public VisCheckBox.VisCheckBoxStyle getCheckBoxStyle() {
+    public static VisCheckBox.VisCheckBoxStyle getCheckBoxStyle() {
         return checkBoxStyle;
     }
 
-    public Label.LabelStyle getSmallWhite() {
+    public static Label.LabelStyle getSmallWhite() {
         return smallWhite;
     }
 
-    public Label.LabelStyle getSmallerWhite() {
+    public static Label.LabelStyle getSmallerWhite() {
         return smallerWhite;
     }
 
-    public Label.LabelStyle getMediumWhite() {
+    public static Label.LabelStyle getMediumWhite() {
         return mediumWhite;
     }
 
     /**
      * @return less blocky, weird looking font for dialogs, slightly blurry.
      */
-    public Label.LabelStyle getMediumWhiteMipMapped() {
+    public static Label.LabelStyle getMediumWhiteMipMapped() {
         return mediumWhiteMipMapped;
     }
 
-    public Label.LabelStyle getLargeWhite() {
+    public static Label.LabelStyle getLargeWhite() {
         return largeWhite;
     }
 
-    public Label.LabelStyle getSmallBlack() {
+    public static Label.LabelStyle getSmallBlack() {
         return smallBlack;
     }
 
-    public Label.LabelStyle getMediumBlack() {
+    public static Label.LabelStyle getMediumBlack() {
         return mediumBlack;
     }
 
-    public Label.LabelStyle getLargeBlack() {
+    public static Label.LabelStyle getLargeBlack() {
         return largeBlack;
     }
 
-    public VisImageTextButton.VisImageTextButtonStyle getImageTextButtonStyle() {
+    public static VisImageTextButton.VisImageTextButtonStyle getImageTextButtonStyle() {
         return imageTextButtonStyle;
     }
 
-    public TextureRegionDrawable getWeaponRangeIcon() {
+    public static TextureRegionDrawable getWeaponRangeIcon() {
         return weaponRangeIcon;
     }
 
-    public TextureRegionDrawable getWeaponDamageIcon() {
+    public static TextureRegionDrawable getWeaponDamageIcon() {
         return weaponDamageIcon;
     }
 
-    public TextureRegionDrawable getWeaponCriticalIcon() {
+    public static TextureRegionDrawable getWeaponCriticalIcon() {
         return weaponCriticalIcon;
     }
 
-    public TextureRegionDrawable getSatisfactionAttributeIcon() {
+    public static TextureRegionDrawable getSatisfactionAttributeIcon() {
         return satisfactionAttributeIcon;
     }
 
-    public TextureRegionDrawable getHealingAttributeIcon() {
+    public static TextureRegionDrawable getHealingAttributeIcon() {
         return healingAttributeIcon;
     }
 
     /**
      * @return slot styles
      */
-    public ItemSlotStyles slots() {
+    public static ItemSlotStyles slots() {
         return slotStyles;
     }
 }

@@ -23,6 +23,7 @@ import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
@@ -87,9 +88,9 @@ public final class GameHudGui extends Gui {
         performanceMetricsContext = new MathContext(2, RoundingMode.FLOOR);
 
         debugComponentText = new VisLabel();
-        debugComponentText.setStyle(guiManager.style().getSmallBlack());
+        debugComponentText.setStyle(Styles.getSmallBlack());
 
-        hintComponentText = new TypingLabel(StringUtils.EMPTY, guiManager.style().getMediumWhiteMipMapped());
+        hintComponentText = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhiteMipMapped());
 
         initializeDebugComponent();
         artifactComponent = initializeArtifactComponent();
@@ -319,7 +320,7 @@ public final class GameHudGui extends Gui {
         table.top();
 
         final VisTable hint = new VisTable();
-        hint.setBackground(guiManager.style().getTheme());
+        hint.setBackground(Styles.getTheme());
         hint.add(new VisImage(guiManager.getAsset().get("hint_icon"))).padLeft(4f).padRight(4f).padBottom(1f);
         hint.add(hintComponentText)
                 .width(448)
@@ -346,7 +347,7 @@ public final class GameHudGui extends Gui {
 
         for (int i = 0; i < 6; i++) {
             // adapter from InventoryGui class
-            final VisImage slot = new VisImage(guiManager.style().getTheme());
+            final VisImage slot = new VisImage(Styles.getTheme());
             final VisImage item = new VisImage();
             item.setOrigin(16 / 2f, 16 / 2f);
 
@@ -444,7 +445,7 @@ public final class GameHudGui extends Gui {
 
         final VisImage keyImage = new VisImage(guiManager.getAsset().get(Resource.NORMAL, "ekey"));
 
-        final VisImage slot = new VisImage(guiManager.style().getTheme());
+        final VisImage slot = new VisImage(Styles.getTheme());
         itemHintImage = new VisImage();
         itemHintImage.setOrigin(16 / 2f, 16 / 2f);
 
@@ -588,7 +589,7 @@ public final class GameHudGui extends Gui {
             this.artifactImageComponent = artifactImageComponent;
             this.tooltip = new Tooltip.Builder(StringUtils.EMPTY)
                     .target(artifactImageComponent)
-                    .style(GameHudGui.this.guiManager.style().getTooltipStyle())
+                    .style(Styles.getTooltipStyle())
                     .build();
         }
 
@@ -631,7 +632,7 @@ public final class GameHudGui extends Gui {
 
             icon.getColor().a = 0.0f;
             icon.addAction(Actions.fadeIn(1.0f));
-            icon.setDrawable(activeAttribute.subType().get(guiManager));
+            icon.setDrawable(activeAttribute.subType().get());
             icon.setVisible(true);
             isActive = true;
         }

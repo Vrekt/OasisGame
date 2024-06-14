@@ -15,6 +15,7 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import org.apache.commons.lang3.StringUtils;
 
@@ -55,13 +56,13 @@ public final class GameChatGui extends Gui {
         final VisTable parent = new VisTable();
         parent.setFillParent(false);
 
-        parent.setBackground(guiManager.style().getTheme());
+        parent.setBackground(Styles.getTheme());
 
         parent.bottom().left();
         parent.getColor().a = 0.88f;
 
         log = new VisTable();
-        chatInput = new VisTextField(StringUtils.EMPTY, guiManager.style().getTransparentFieldStyle());
+        chatInput = new VisTextField(StringUtils.EMPTY, Styles.getTransparentFieldStyle());
         chatInput.setMaxLength(MAX_CHAT_LENGTH);
 
         parent.add(log).left().padLeft(3f);
@@ -178,7 +179,7 @@ public final class GameChatGui extends Gui {
      */
     private ChatMessageContainer obtain(String name, String message) {
         final ChatMessageContainer container = containerPool.obtain();
-        container.label = new VisLabel(name + ": " + message, guiManager.style().getSmallWhite());
+        container.label = new VisLabel(name + ": " + message, Styles.getSmallWhite());
         return container;
     }
 
@@ -212,7 +213,7 @@ public final class GameChatGui extends Gui {
         float added;
 
         public ChatMessageContainer() {
-            label = new VisLabel(StringUtils.EMPTY, guiManager.style().getSmallWhite());
+            label = new VisLabel(StringUtils.EMPTY, Styles.getSmallWhite());
         }
 
         void add(VisTable parent) {

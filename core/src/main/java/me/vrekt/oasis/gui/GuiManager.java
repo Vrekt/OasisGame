@@ -46,7 +46,6 @@ public final class GuiManager implements Disposable {
 
     private final OasisGame game;
     private final Asset asset;
-    private final Styles styles;
     private final PlayerSP player;
 
     private final Stage stage;
@@ -72,7 +71,6 @@ public final class GuiManager implements Disposable {
     public GuiManager(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.game = game;
         this.asset = asset;
-        this.styles = game.getStyle();
         this.player = game.getPlayer();
         this.layout = new GlyphLayout();
 
@@ -113,10 +111,6 @@ public final class GuiManager implements Disposable {
 
     public Asset getAsset() {
         return asset;
-    }
-
-    public Styles style() {
-        return styles;
     }
 
     public Stage getStage() {
@@ -203,7 +197,7 @@ public final class GuiManager implements Disposable {
      */
     public void resetCursor() {
         if (cursorState == Cursor.DEFAULT) return;
-        final Texture texture = styles.getDefaultCursorTexture();
+        final Texture texture = Styles.getDefaultCursorTexture();
 
         if (!texture.getTextureData().isPrepared())
             texture.getTextureData().prepare();
@@ -308,7 +302,7 @@ public final class GuiManager implements Disposable {
     public void renderWorldObjectComponents(AbstractInteractableWorldObject worldObject, Camera camera, SpriteBatch batch) {
         worldPosition.set(camera.project(worldPosition.set(worldObject.getPosition().x, worldObject.getPosition().y + 0.55f, 0)));
         screenPosition.set(getCamera().project(worldPosition));
-        worldObject.renderUiComponents(batch, styles, this, asset.getSmall(), screenPosition);
+        worldObject.renderUiComponents(batch, this, asset.getSmall(), screenPosition);
     }
 
     /**

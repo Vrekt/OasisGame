@@ -7,6 +7,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ public final class QuestGui extends Gui {
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
 
-        final VisLabel label = new VisLabel("Active Quests", guiManager.style().getLargeBlack());
+        final VisLabel label = new VisLabel("Active Quests", Styles.getLargeBlack());
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest"));
 
         rootTable.setBackground(drawable);
@@ -55,8 +56,8 @@ public final class QuestGui extends Gui {
         int index = 0;
         for (Quest quest : manager.getActiveQuests().values()) {
             final VisTable parent = new VisTable();
-            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), guiManager.style().getMediumBlack());
-            final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", guiManager.style().getSmallWhite());
+            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), Styles.getMediumBlack());
+            final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", Styles.getSmallWhite());
             completeness.setColor(Color.LIGHT_GRAY);
 
             parent.add(label).left();

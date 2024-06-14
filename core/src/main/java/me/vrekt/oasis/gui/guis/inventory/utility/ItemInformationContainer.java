@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
-import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
@@ -28,12 +28,11 @@ public final class ItemInformationContainer {
     /**
      * Update this information container with attribute information
      *
-     * @param manager   manager
      * @param attribute attribute
      * @return the actor
      */
-    public VisImage updateAttribute(GuiManager manager, Attribute attribute) {
-        icon.setDrawable(attribute.subType().get(manager));
+    public VisImage updateAttribute(Attribute attribute) {
+        icon.setDrawable(attribute.subType().get());
         icon.setVisible(true);
 
         tooltip.setText(attribute.name() + StringUtils.LF + attribute.description());
@@ -62,12 +61,11 @@ public final class ItemInformationContainer {
     /**
      * Update a weapon's range information
      *
-     * @param manager manager
-     * @param weapon  weapon
+     * @param weapon weapon
      * @return the actor
      */
-    public VisImage updateRange(GuiManager manager, ItemWeapon weapon) {
-        icon.setDrawable(manager.style().getWeaponRangeIcon());
+    public VisImage updateRange(ItemWeapon weapon) {
+        icon.setDrawable(Styles.getWeaponRangeIcon());
         icon.setVisible(true);
 
         tooltip.setText("Range ~= " + weapon.getRange());
@@ -78,12 +76,11 @@ public final class ItemInformationContainer {
     /**
      * Update a weapon's damage information
      *
-     * @param manager manager
-     * @param weapon  weapon
+     * @param weapon weapon
      * @return the actor
      */
-    public VisImage updateDamage(GuiManager manager, ItemWeapon weapon) {
-        icon.setDrawable(manager.style().getWeaponDamageIcon());
+    public VisImage updateDamage(ItemWeapon weapon) {
+        icon.setDrawable(Styles.getWeaponDamageIcon());
         icon.setVisible(true);
 
         tooltip.setText("Damage ~= " + weapon.getBaseDamage());
@@ -94,12 +91,11 @@ public final class ItemInformationContainer {
     /**
      * Update a weapon's critical hit chance information
      *
-     * @param manager manager
-     * @param weapon  weapon
+     * @param weapon weapon
      * @return the actor
      */
-    public VisImage updateCriticalChance(GuiManager manager, ItemWeapon weapon) {
-        icon.setDrawable(manager.style().getWeaponCriticalIcon());
+    public VisImage updateCriticalChance(ItemWeapon weapon) {
+        icon.setDrawable(Styles.getWeaponCriticalIcon());
         icon.setVisible(true);
 
         tooltip.setText("Critical chance ~= " + weapon.getCriticalHitChance());
