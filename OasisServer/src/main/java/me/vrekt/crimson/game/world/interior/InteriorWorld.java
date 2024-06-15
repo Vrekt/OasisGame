@@ -2,13 +2,25 @@ package me.vrekt.crimson.game.world.interior;
 
 import me.vrekt.crimson.game.entity.ServerPlayerEntity;
 import me.vrekt.crimson.game.world.World;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.packet.server.player.S2CNetworkPlayer;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayersInWorld;
+import me.vrekt.shared.packet.server.player.S2CPacketPlayers;
 
 public abstract class InteriorWorld extends World {
 
+    private final InteriorWorldType type;
+
     public InteriorWorld(String worldName) {
         super(worldName);
+
+        this.type = InteriorWorldType.WRYNN_HOUSE;
+    }
+
+    /**
+     * @return the type
+     */
+    public InteriorWorldType type() {
+        return type;
     }
 
     @Override
@@ -16,7 +28,7 @@ public abstract class InteriorWorld extends World {
         player.setWorldIn(this);
 
         if (players.isEmpty()) {
-            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld());
+            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName));
         } else {
             final S2CNetworkPlayer[] serverPlayers = new S2CNetworkPlayer[players.size()];
 
@@ -26,7 +38,7 @@ public abstract class InteriorWorld extends World {
                 index++;
             }
 
-            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld(serverPlayers));
+            player.getConnection().sendImmediately(new S2CPacketPlayers(type.name(), true, serverPlayers));
         }
 
         players.put(player.entityId(), player);

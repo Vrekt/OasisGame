@@ -2,8 +2,8 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
-import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.S2CPacketHandler;
+import me.vrekt.shared.packet.GamePacket;
 
 /**
  * Notify clients to construct a new player within their game instance

@@ -20,10 +20,10 @@ public class ProtocolPacketEncoder extends MessageToByteEncoder<GamePacket> {
             final int length = packet.getBuffer().readableBytes();
             out.writeInt(length);
             out.writeBytes(packet.getBuffer());
+
+            packet.release();
         } catch (Exception any) {
             ctx.fireExceptionCaught(any);
-        } finally {
-            packet.release();
         }
     }
 

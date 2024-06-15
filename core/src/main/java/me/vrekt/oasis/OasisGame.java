@@ -33,6 +33,7 @@ import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.management.WorldManager;
+import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
 import me.vrekt.shared.protocol.GameProtocol;
 import me.vrekt.shared.protocol.ProtocolDefaults;
@@ -44,7 +45,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240614-0216-5105";
+    public static final String GAME_VERSION = "20240615-0141-5213";
 
     private Asset asset;
 
@@ -62,6 +63,7 @@ public final class OasisGame extends Game {
     private GameClientServer clientServer;
 
     private PlayerConnection handler;
+    private WorldNetworkHandler networkHandler;
 
     private ExecutorService virtualAsyncService;
     private boolean isNewGame;
@@ -357,6 +359,9 @@ public final class OasisGame extends Game {
         handler = clientServer.getConnection();
         player.connection(handler);
 
+        networkHandler = new WorldNetworkHandler(this);
+        networkHandler.attach();
+
         GameLogging.info(this, "Connection successful, Attempting to join TutorialWorld");
         handler.joinWorld("TutorialWorld", player.name());
     }
@@ -375,6 +380,7 @@ public final class OasisGame extends Game {
      * @param world the world
      */
     public void loadIntoWorldLocal(GameWorld world) {
+        world.loadWorld(false);
         world.enter();
         setScreen(world);
     }

@@ -1,5 +1,7 @@
 package me.vrekt.oasis.entity.player.mp;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,12 +15,19 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.utility.ResourceLoader;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
  * Represents any player over the network
  */
 public final class NetworkPlayer extends AbstractNetworkPlayer implements ResourceLoader {
+
+    private boolean enteringInterior;
+    private InteriorWorldType interiorEntering;
+    private float fadingAnimationEnteringAlpha = 1.0f;
 
     private EntityAnimationComponent animationComponent;
     private TextureRegion activeTexture;
@@ -26,15 +35,8 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     private float nametagRenderWidth;
     private boolean renderNametag;
 
-    private EntityRotation lastRotation = EntityRotation.UP;
-    private EntityRotation entityRotation = EntityRotation.UP;
-
     public NetworkPlayer(GameWorld world) {
         super(world);
-
-        setInterpolatePosition(true);
-        setSnapToPositionIfDesynced(false);
-        setDesyncDistanceToInterpolate(2.5f);
 
         disableCollision();
         dynamicSize = false;
@@ -46,6 +48,32 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
 
     public boolean shouldRenderNametag() {
         return renderNametag;
+    }
+
+    /**
+     * Start transferring this player into another interior
+     *
+     * @param type the type interior
+     */
+    public void beginPlayerTransfer(InteriorWorldType type) {
+        enteringInterior = true;
+        interiorEntering = type;
+    }
+
+    private void transfer() {
+        final GameWorldInterior interior = worldIn.findInteriorByType(interiorEntering);
+        if (interior != null) {
+            // destroy our previous body and create a new one for this interior
+            worldIn.removePlayerTemporarily(this);
+
+            setPosition(interior.worldOrigin().x, interior.worldOrigin().y, false);
+            createBoxBody(interior.boxWorld());
+
+            interior.spawnPlayerInWorld(this);
+            this.worldIn = interior;
+        } else {
+            GameLogging.warn(this, "No interior a network player joined by type %s", type);
+        }
     }
 
     @Override
@@ -82,33 +110,49 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     public void update(float delta) {
         super.update(delta);
 
-        if (lastRotation != entityRotation) {
-            setIdleRegionState();
-        }
-
-        lastRotation = entityRotation;
+        if (previousRotation != rotation) setIdleRegionState();
+        previousRotation = rotation;
     }
 
     @Override
-    public void updatePositionFromNetwork(float x, float y, float angle) {
-        super.updatePositionFromNetwork(x, y, angle);
-        entityRotation = EntityRotation.values()[(int) angle];
+    public void updateNetworkPosition(float x, float y, float angle) {
+        super.updateNetworkPosition(x, y, angle);
+        rotation = EntityRotation.values()[(int) angle];
     }
 
     @Override
-    public void updateVelocityFromNetwork(float x, float y, float angle) {
-        super.updateVelocityFromNetwork(x, y, angle);
-        entityRotation = EntityRotation.values()[(int) angle];
+    public void updateNetworkVelocity(float x, float y, float angle) {
+        super.updateNetworkVelocity(x, y, angle);
+        rotation = EntityRotation.values()[(int) angle];
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (!getVelocity().isZero()) {
-            draw(batch, animationComponent.animateMoving(entityRotation, delta), getScaledWidth(), getScaledHeight());
+            draw(batch, animationComponent.animateMoving(rotation, delta), getScaledWidth(), getScaledHeight());
         } else {
             if (activeTexture != null) {
                 draw(batch, activeTexture, getScaledWidth(), getScaledHeight());
             }
+        }
+    }
+
+    private void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
+        if (enteringInterior) {
+            batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
+            fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
+
+            // we are ready to be transferred since the visual animation completed
+            if (fadingAnimationEnteringAlpha <= 0.0f) transfer();
+        }
+
+        if (body != null) {
+            batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, width, height);
+        }
+
+        if (enteringInterior) {
+            if (fadingAnimationEnteringAlpha <= 0.0f) enteringInterior = false;
+            batch.setColor(Color.WHITE);
         }
     }
 
@@ -124,7 +168,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     }
 
     private void setIdleRegionState() {
-        switch (entityRotation) {
+        switch (rotation) {
             case UP:
                 activeTexture = getTextureComponent().get("character_a_walking_up_idle");
                 break;

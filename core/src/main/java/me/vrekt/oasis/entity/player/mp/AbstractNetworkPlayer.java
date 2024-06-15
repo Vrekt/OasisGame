@@ -1,13 +1,6 @@
 package me.vrekt.oasis.entity.player.mp;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
@@ -19,25 +12,8 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Viewable, Drawable {
 
-    private static final float INTERACTION_DISTANCE = 4.0f;
-
-    protected boolean interpolatePosition, doPositionInterpolation;
-    protected float interpolateToX, interpolateToY;
-
-    // snap player to the correct position if distance >= interpolateDesyncDistance
-    protected boolean snapToPositionIfDesync;
-    // Default distance that player will interpolate to if they are too far away from server position.
-    protected float interpolateDesyncDistance = 3.0f;
-
-    protected boolean enteringInterior;
-    protected float fadingAnimationEnteringAlpha = 1.0f;
-
     public AbstractNetworkPlayer(GameWorld world) {
         this.worldIn = world;
-    }
-
-    public void transferIntoInterior() {
-        enteringInterior = true;
     }
 
     @Override
@@ -46,57 +22,14 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
     }
 
     /**
-     * Enable or disable interpolating of a network players position
+     * Update position from the network
      *
-     * @param interpolatePosition the state
+     * @param x     x
+     * @param y     y
+     * @param angle rotation
      */
-    public void setInterpolatePosition(boolean interpolatePosition) {
-        this.interpolatePosition = interpolatePosition;
-    }
-
-    /**
-     * If {@code true} once a certain threshold is met of de-sync between positions
-     * This player will be snapped to back to its intended position
-     *
-     * @param snap the state
-     */
-    public void setSnapToPositionIfDesynced(boolean snap) {
-        this.snapToPositionIfDesync = snap;
-    }
-
-    /**
-     * Set the distance required for de-sync between positions for the player to
-     * snap-back to its intended or server position
-     * Only required if {@code setSnapToPositionIfDesynced} if {@code true}
-     * Usual values of this would be between 1.0 (harsh) and 3.0 (more lenient)
-     *
-     * @param distance the distance
-     */
-    public void setDesyncDistanceToInterpolate(float distance) {
-        this.interpolateDesyncDistance = distance;
-    }
-
-    /**
-     * Update position of this player from the server
-     *
-     * @param x     the X
-     * @param y     the Y
-     * @param angle angle or rotation
-     */
-    public void updatePositionFromNetwork(float x, float y, float angle) {
-        final float dst = getPosition().dst2(x, y);
-
-        // interpolate to position if too far away (de sync)
-        if (dst >= interpolateDesyncDistance) {
-            if (snapToPositionIfDesync) {
-                setAngle(angle);
-                setPosition(x, y, true);
-            } else {
-                doPositionInterpolation = true;
-                interpolateToX = x;
-                interpolateToY = y;
-            }
-        }
+    public void updateNetworkPosition(float x, float y, float angle) {
+        setPosition(x, y, false);
         setAngle(angle);
     }
 
@@ -107,71 +40,27 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
      * @param y     the Y
      * @param angle angle or rotation
      */
-    public void updateVelocityFromNetwork(float x, float y, float angle) {
+    public void updateNetworkVelocity(float x, float y, float angle) {
         getVelocity().set(x, y);
         setAngle(angle);
     }
 
     @Override
     public void update(float delta) {
-        if (interpolatePosition && doPositionInterpolation) {
-            final Vector2 interpolated = getInterpolatedPosition();
+        body.setLinearVelocity(getVelocity());
 
-            interpolated.x = Interpolation.linear.apply(getPosition().x, interpolateToX, 1.0f);
-            interpolated.y = Interpolation.linear.apply(getPosition().y, interpolateToY, 1.0f);
-
-            // update body position.
-            final float diffX = getPosition().x - interpolateToX;
-            final float diffY = getPosition().y - interpolateToY;
-
-            body.setLinearVelocity(diffX * 1.0f, diffY * 1.0f);
-            setPosition(body.getPosition().x, body.getPosition().y, false);
-
-            doPositionInterpolation = false;
-            return;
+        final float difference = getPosition().dst2(body.getPosition());
+        if (difference > 3.0f) {
+            // de-sync, basic fix.
+            body.setTransform(getPosition().x, getPosition().y, getAngle());
         }
 
-        // update velocity and set player position.
-        body.setLinearVelocity(getVelocity());
         setPosition(body.getPosition().x, body.getPosition().y, false);
     }
 
     @Override
     public boolean isInView(Camera camera) {
         return true;
-    }
-
-    /**
-     * Check if this entity was clicked on
-     *
-     * @param clicked the vector3 click
-     * @return {@code  true} if so
-     */
-    public boolean isMouseInEntityBounds(Vector3 clicked) {
-        return clicked.x > getX() && clicked.x < (getX() + getScaledWidth()) && clicked.y > getY() && clicked.y < (getY() + getScaledHeight());
-    }
-
-    public boolean isWithinInteractionDistance(Vector2 other) {
-        return other.dst2(getPosition()) <= INTERACTION_DISTANCE;
-    }
-
-    protected void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
-        if (enteringInterior) {
-            batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
-            fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
-            if (fadingAnimationEnteringAlpha <= 0.0f) {
-                // remove the player after they have faded out
-                // do not destroy this player, we still need them
-                getWorldState().removePlayerInWorld(entityId(), false);
-            }
-        }
-
-        batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, width, height);
-
-        if (enteringInterior) {
-            if (fadingAnimationEnteringAlpha <= 0.0f) enteringInterior = false;
-            batch.setColor(Color.WHITE);
-        }
     }
 
 }

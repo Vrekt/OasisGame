@@ -8,7 +8,7 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
-import me.vrekt.oasis.world.network.NetworkUtility;
+import me.vrekt.oasis.world.network.NetworkValidation;
 import me.vrekt.shared.packet.client.C2SKeepAlive;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
 import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;
@@ -128,7 +128,7 @@ public class PlayerConnection extends AbstractConnection {
      * @param packet packet
      */
     private void handleChatMessage(S2CChatMessage packet) {
-        if (!NetworkUtility.ensureWorldState(player, packet)) return;
+        if (!NetworkValidation.ensureInWorld(player, packet)) return;
 
         if (packet.message() == null || packet.message().length() > 150) {
             GameLogging.warn(this, "Received invalid message packet! n=, m=",

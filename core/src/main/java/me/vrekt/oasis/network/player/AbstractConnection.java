@@ -3,7 +3,6 @@ package me.vrekt.oasis.network.player;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.Queue;
 import com.google.common.util.concurrent.Runnables;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -46,7 +45,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
     protected float lastPingTime;
 
     protected final ConcurrentLinkedQueue<GamePacket> sendQueue = new ConcurrentLinkedQueue<>();
-    protected final Queue<AttachmentHandleResult> handlingQueue = new Queue<>();
+    protected final ConcurrentLinkedQueue<AttachmentHandleResult> handlingQueue = new ConcurrentLinkedQueue<>();
 
     protected final ExecutorService virtual = Executors.newVirtualThreadPerTaskExecutor();
     protected final IntMap<AttachmentHandle> handlers = new IntMap<>();
@@ -365,7 +364,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
             }
 
             if (isSync) {
-                handlingQueue.addLast(new AttachmentHandleResult(handler, packet));
+                handlingQueue.offer(new AttachmentHandleResult(handler, packet));
             } else {
                 virtual.execute(() -> handler.accept(packet));
             }

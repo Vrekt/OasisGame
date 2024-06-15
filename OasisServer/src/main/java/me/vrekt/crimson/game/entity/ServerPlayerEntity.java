@@ -21,7 +21,7 @@ public abstract class ServerPlayerEntity extends ServerEntity {
 
     public void transfer(InteriorWorld to) {
         world.removePlayerTemporarily(this);
-        world.broadcastNowWithExclusion(entityId, new S2CPlayerEnteredInterior(entityId));
+        world.broadcastNowWithExclusion(entityId, new S2CPlayerEnteredInterior(to.type(), entityId));
 
         to.spawnPlayerInWorld(this);
     }

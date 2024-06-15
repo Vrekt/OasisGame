@@ -136,7 +136,7 @@ public abstract class World implements Disposable {
         player.setWorldIn(this);
         if (players.isEmpty()) {
             // no players, send empty start game
-            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld());
+            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName));
         } else {
             final S2CNetworkPlayer[] serverPlayers = new S2CNetworkPlayer[players.size()];
             // first, notify other players a new player as joined
@@ -150,7 +150,7 @@ public abstract class World implements Disposable {
             }
 
             // send!
-            player.getConnection().sendImmediately(new S2CPacketPlayersInWorld(serverPlayers));
+            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName, serverPlayers));
         }
 
         // add this new player to the list
@@ -175,7 +175,7 @@ public abstract class World implements Disposable {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
 
-        broadcastNowWithExclusion(player.entityId(), new S2CPacketRemovePlayer(player.entityId()));
+        broadcastNowWithExclusion(player.entityId(), new S2CPacketRemovePlayer(player.entityId(), player.name()));
     }
 
     /**

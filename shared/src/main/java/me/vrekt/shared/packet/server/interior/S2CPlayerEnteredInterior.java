@@ -1,6 +1,7 @@
 package me.vrekt.shared.packet.server.interior;
 
 import io.netty.buffer.ByteBuf;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 
@@ -8,6 +9,7 @@ public final class S2CPlayerEnteredInterior extends GamePacket {
 
     public static final int ID = 3000_4;
 
+    private InteriorWorldType type;
     private int entityId;
 
     public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
@@ -18,12 +20,17 @@ public final class S2CPlayerEnteredInterior extends GamePacket {
         super(buffer);
     }
 
-    public S2CPlayerEnteredInterior(int entityId) {
+    public S2CPlayerEnteredInterior(InteriorWorldType type, int entityId) {
+        this.type = type;
         this.entityId = entityId;
     }
 
     public int entityId() {
         return entityId;
+    }
+
+    public InteriorWorldType type() {
+        return type;
     }
 
     @Override
@@ -35,10 +42,12 @@ public final class S2CPlayerEnteredInterior extends GamePacket {
     public void encode() {
         writeId();
         buffer.writeInt(entityId);
+        buffer.writeInt(type.ordinal());
     }
 
     @Override
     public void decode() {
         entityId = buffer.readInt();
+        type = InteriorWorldType.values()[buffer.readInt()];
     }
 }

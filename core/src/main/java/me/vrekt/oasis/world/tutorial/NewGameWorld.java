@@ -31,13 +31,6 @@ public final class NewGameWorld extends GameWorld {
     }
 
     @Override
-    protected void loadNetworkComponents() {
-        networkHandler.registerStartGameHandler();
-        networkHandler.registerPlayerHandlers();
-        networkHandler.registerInteriorHandlers();
-    }
-
-    @Override
     public void loadWorld(boolean isGameSave) {
         super.loadWorld(isGameSave);
 

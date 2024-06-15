@@ -173,6 +173,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
 
     public void handleEnterInterior(C2SEnterInteriorWorld packet) {
         Crimson.log("Player %d entered interior %s", packet.entityId(), packet.type());
+
         // TODO: WRONG ENTITY ID FIX
         if (hasJoined && player.isInWorld()) {
             player.transfer(server.getWorldManager().getInteriorWorld(packet.type()));

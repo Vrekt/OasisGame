@@ -6,7 +6,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.Optional;
 
@@ -37,6 +36,10 @@ public abstract class Box2dGameWorld {
 
     public World boxWorld() {
         return world;
+    }
+
+    public Vector2 worldOrigin() {
+        return worldOrigin;
     }
 
     /**
@@ -73,23 +76,12 @@ public abstract class Box2dGameWorld {
     }
 
     /**
-     * Spawn a player in this world at the position
-     *
-     * @param player   player
-     * @param position position
-     */
-    public void spawnPlayerInWorld(NetworkPlayer player, Vector2 position) {
-        addPlayer(player);
-        player.setPosition(position, true);
-    }
-
-    /**
-     * Spawn a player in this world at the world origin
+     * Spawn a player in this world
      *
      * @param player player
      */
     public void spawnPlayerInWorld(NetworkPlayer player) {
-        spawnPlayerInWorld(player, worldOrigin);
+        addPlayer(player);
     }
 
     /**
@@ -106,6 +98,17 @@ public abstract class Box2dGameWorld {
 
             if (destroy) player.dispose();
         }
+    }
+
+    /**
+     * Player transferred to an interior, handle that.
+     * Temporarily remove them from the players list and destroy their body.
+     *
+     * @param player the player
+     */
+    public void removePlayerTemporarily(NetworkPlayer player) {
+        players.remove(player.entityId());
+        world.destroyBody(player.getBody());
     }
 
     public IntMap<NetworkPlayer> players() {
@@ -128,11 +131,6 @@ public abstract class Box2dGameWorld {
         stepPhysicsSimulation(capped);
         engine.update(capped);
 
-        for (NetworkPlayer player : players().values()) {
-            player.interpolatePosition();
-            player.update(delta);
-        }
-
         return capped;
     }
 
@@ -145,12 +143,6 @@ public abstract class Box2dGameWorld {
         accumulator += delta;
 
         while (accumulator >= STEP_TIME) {
-            // update the previous position of these players
-            // for interpolation later, if enabled.
-            for (NetworkPlayer player : players().values()) {
-                player.getPreviousPosition().set(player.getPosition());
-            }
-
             world.step(STEP_TIME, VELOCITY_ITERATIONS, POSITION_ITERATIONS);
             accumulator -= STEP_TIME;
         }
@@ -165,7 +157,7 @@ public abstract class Box2dGameWorld {
      * @param angle    angle/rotation
      */
     public void updatePlayerPositionInWorld(int entityId, float x, float y, float angle) {
-        player(entityId).ifPresentOrElse(p -> p.updatePositionFromNetwork(x, y, angle), () -> GameLogging.warn(this, "No player (pos)! %d", entityId));
+        player(entityId).ifPresent(p -> p.updateNetworkPosition(x, y, angle));
     }
 
     /**
@@ -177,7 +169,7 @@ public abstract class Box2dGameWorld {
      * @param angle    angle/rotation
      */
     public void updatePlayerVelocityInWorld(int entityId, float x, float y, float angle) {
-        player(entityId).ifPresentOrElse(p -> p.updateVelocityFromNetwork(x, y, angle), () -> GameLogging.warn(this, "No player (vel)! %d", entityId));
+        player(entityId).ifPresent(p -> p.updateNetworkVelocity(x, y, angle));
     }
 
 }
