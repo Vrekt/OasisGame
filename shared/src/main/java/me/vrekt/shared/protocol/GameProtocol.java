@@ -102,7 +102,7 @@ public final class GameProtocol {
         client.put(C2SPacketPing.PACKET_ID, (buf, handler) -> C2SPacketPing.handle(handler, buf));
         client.put(C2SPacketPlayerPosition.PACKET_ID, (buf, handler) -> C2SPacketPlayerPosition.handle(handler, buf));
         client.put(C2SPacketPlayerVelocity.PACKET_ID, (buf, handler) -> C2SPacketPlayerVelocity.handle(handler, buf));
-        client.put(C2SPacketWorldLoaded.PACKET_ID, (buf, handler) -> C2SPacketWorldLoaded.handle(handler, buf));
+        client.put(C2SPacketClientLoaded.PACKET_ID, (buf, handler) -> C2SPacketClientLoaded.handle(handler, buf));
         client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> C2SKeepAlive.handle(handler, buf));
         client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> C2SEnterInteriorWorld.handle(handler, buf));
         client.put(C2SChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new C2SChatMessage(buf)));

@@ -3,6 +3,7 @@ package me.vrekt.crimson.game.world.interior;
 import me.vrekt.crimson.game.entity.ServerPlayerEntity;
 import me.vrekt.crimson.game.world.World;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 import me.vrekt.shared.packet.server.player.S2CNetworkPlayer;
 import me.vrekt.shared.packet.server.player.S2CPacketPlayers;
 
@@ -28,7 +29,7 @@ public abstract class InteriorWorld extends World {
         player.setWorldIn(this);
 
         if (players.isEmpty()) {
-            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName));
+            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName, true));
         } else {
             final S2CNetworkPlayer[] serverPlayers = new S2CNetworkPlayer[players.size()];
 
@@ -36,6 +37,8 @@ public abstract class InteriorWorld extends World {
             for (ServerPlayerEntity other : players.values()) {
                 serverPlayers[index] = new S2CNetworkPlayer(other.entityId(), other.name(), other.getPosition());
                 index++;
+
+                other.getConnection().sendImmediately(new S2CPlayerEnteredInterior(type, player.entityId()));
             }
 
             player.getConnection().sendImmediately(new S2CPacketPlayers(type.name(), true, serverPlayers));

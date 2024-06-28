@@ -35,7 +35,7 @@ public final class NetworkValidation {
      */
     public static boolean ensureWorldContext(PlayerSP playerSP, S2CPacketPlayers packet) {
         final boolean world = playerSP.isInWorld();
-        final boolean interior = playerSP.getInteriorWorldIn() != null;
+        final boolean interior = playerSP.isInInteriorWorld();
 
         final boolean result = world && (interior
                 ? playerSP.getInteriorWorldIn().type().name().equals(packet.worldKey())
@@ -48,6 +48,13 @@ public final class NetworkValidation {
         return result;
     }
 
+    /**
+     * Ensure the entity ID sent is not ourselves, this indicates a server side bug
+     *
+     * @param player   player
+     * @param entityId entity  ID
+     * @return {@code true} if the entity ID is not ours.
+     */
     public static boolean ensureValidEntityId(PlayerSP player, int entityId) {
         final boolean result = player.entityId() != entityId;
         if (!result) {

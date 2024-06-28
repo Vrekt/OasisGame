@@ -246,6 +246,8 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         isExiting = false;
         isWorldActive = true;
         isWorldLoaded = true;
+
+        if (game.isMultiplayer()) player.getConnection().updateInteriorHasLoaded();
     }
 
     /**

@@ -84,6 +84,7 @@ public final class WorldNetworkHandler {
         networkPlayer.setProperties(username, entityId);
         networkPlayer.createBoxBody(player.getWorldState().boxWorld());
 
+        player.getConnection().addPlayer(entityId, networkPlayer);
         player.getWorldState().spawnPlayerInWorld(networkPlayer);
     }
 
@@ -95,6 +96,8 @@ public final class WorldNetworkHandler {
      */
     private void handleRemovePlayer(S2CPacketRemovePlayer packet) {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
+
+        player.getConnection().removePlayer(packet.getEntityId());
         player.getWorldState().removePlayerInWorld(packet.getEntityId(), true);
 
         GameLogging.info(this, "Player (%d) (%s) left.", packet.getEntityId(), packet.getUsername());
@@ -131,9 +134,12 @@ public final class WorldNetworkHandler {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
         if (!NetworkValidation.ensureValidEntityId(player, packet.entityId())) return;
 
-        player.getWorldState()
-                .player(packet.entityId())
-                .ifPresent(player -> player.beginPlayerTransfer(packet.type()));
+        final NetworkPlayer mp = player.getConnection().getPlayer(packet.entityId());
+        if (mp != null) {
+            mp.transferNow(packet.type());
+        } else {
+            GameLogging.warn(this, "Failed to find a player %d", packet.entityId());
+        }
 
         GameLogging.info(this, "Player %d entered interior: %s", packet.entityId(), packet.type());
     }

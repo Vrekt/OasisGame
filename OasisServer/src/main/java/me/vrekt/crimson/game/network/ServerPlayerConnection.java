@@ -55,7 +55,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             case C2SPacketAuthenticate.PACKET_ID -> handleAuthentication((C2SPacketAuthenticate) packet);
             case C2SPacketPing.PACKET_ID -> handlePing((C2SPacketPing) packet);
             case C2SPacketJoinWorld.PACKET_ID -> handleJoinWorld((C2SPacketJoinWorld) packet);
-            case C2SPacketWorldLoaded.PACKET_ID -> handleWorldLoaded((C2SPacketWorldLoaded) packet);
+            case C2SPacketClientLoaded.PACKET_ID -> handleClientLoaded((C2SPacketClientLoaded) packet);
             case C2SPacketDisconnected.PACKET_ID -> handleDisconnected((C2SPacketDisconnected) packet);
             case C2SPacketPlayerPosition.PACKET_ID -> handlePlayerPosition((C2SPacketPlayerPosition) packet);
             case C2SPacketPlayerVelocity.PACKET_ID -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet);
@@ -142,10 +142,14 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      *
      * @param packet packet
      */
-    public void handleWorldLoaded(C2SPacketWorldLoaded packet) {
+    public void handleClientLoaded(C2SPacketClientLoaded packet) {
         if (hasJoined) {
-            player.setLoaded(true);
-            player.world().spawnPlayerInWorld(player);
+            if(packet.loadedType() == C2SPacketClientLoaded.ClientLoadedType.WORLD) {
+                player.setLoaded(true);
+                player.world().spawnPlayerInWorld(player);
+            } else {
+                player.finalizeTransfer();
+            }
         }
     }
 
@@ -176,7 +180,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
 
         // TODO: WRONG ENTITY ID FIX
         if (hasJoined && player.isInWorld()) {
-            player.transfer(server.getWorldManager().getInteriorWorld(packet.type()));
+            player.prepareTransfer(server.getWorldManager().getInteriorWorld(packet.type()));
         }
     }
 

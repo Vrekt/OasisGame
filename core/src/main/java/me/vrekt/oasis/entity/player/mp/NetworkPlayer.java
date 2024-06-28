@@ -60,7 +60,12 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         interiorEntering = type;
     }
 
-    private void transfer() {
+    public void transferNow(InteriorWorldType type) {
+        this.interiorEntering = type;
+        transfer();
+    }
+
+    public void transfer() {
         final GameWorldInterior interior = worldIn.findInteriorByType(interiorEntering);
         if (interior != null) {
             // destroy our previous body and create a new one for this interior

@@ -13,7 +13,7 @@ import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.C2SPacketDisconnected;
 import me.vrekt.shared.packet.client.C2SPacketPing;
-import me.vrekt.shared.packet.client.C2SPacketWorldLoaded;
+import me.vrekt.shared.packet.client.C2SPacketClientLoaded;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.protocol.GameProtocol;
@@ -250,7 +250,14 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      * Notify the server this clients world has loaded
      */
     public void updateWorldHasLoaded() {
-        this.sendImmediately(new C2SPacketWorldLoaded());
+        this.sendImmediately(new C2SPacketClientLoaded(C2SPacketClientLoaded.ClientLoadedType.WORLD));
+    }
+
+    /**
+     * Notify the server interior as loaded
+     */
+    public void updateInteriorHasLoaded() {
+        this.sendImmediately(new C2SPacketClientLoaded(C2SPacketClientLoaded.ClientLoadedType.INTERIOR));
     }
 
     /**

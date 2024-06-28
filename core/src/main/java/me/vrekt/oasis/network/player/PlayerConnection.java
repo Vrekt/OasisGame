@@ -1,8 +1,10 @@
 package me.vrekt.oasis.network.player;
 
+import com.badlogic.gdx.utils.IntMap;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
@@ -34,6 +36,9 @@ public class PlayerConnection extends AbstractConnection {
     // technically not MS
     private float pingMs;
 
+    // map of all global players
+    private final IntMap<NetworkPlayer> allPlayers = new IntMap<>();
+
     public PlayerConnection(Channel channel, GameProtocol protocol, OasisGame game, PlayerSP player) {
         super(channel, protocol, player);
         this.game = game;
@@ -44,6 +49,18 @@ public class PlayerConnection extends AbstractConnection {
         attach(S2CPacketAuthenticate.PACKET_ID, packet -> handleAuthenticationResult((S2CPacketAuthenticate) packet));
         attach(S2CPacketDisconnected.PACKET_ID, packet -> handleServerDisconnect((S2CPacketDisconnected) packet));
         attach(S2CChatMessage.PACKET_ID, packet -> handleChatMessage((S2CChatMessage) packet));
+    }
+
+    public void removePlayer(int entityId) {
+        allPlayers.remove(entityId);
+    }
+
+    public void addPlayer(int entityId, NetworkPlayer player) {
+        allPlayers.put(entityId, player);
+    }
+
+    public NetworkPlayer getPlayer(int entityId) {
+        return allPlayers.get(entityId);
     }
 
     public PlayerConnection() {

@@ -115,6 +115,11 @@ public class DummyConnection extends PlayerConnection {
     }
 
     @Override
+    public void updateInteriorHasLoaded() {
+
+    }
+
+    @Override
     public boolean isConnected() {
         return false;
     }
