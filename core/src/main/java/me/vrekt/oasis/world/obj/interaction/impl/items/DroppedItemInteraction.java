@@ -19,14 +19,14 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
 /**
  * An interaction that is an item that can be picked up
  */
-public final class ItemWorldInteraction extends AbstractInteractableWorldObject {
+public final class DroppedItemInteraction extends AbstractInteractableWorldObject {
 
     private static final float PATCH_PADDING = 12f;
     private Item item;
 
     private ParticleEffectPool.PooledEffect effect;
 
-    public ItemWorldInteraction(GameWorld world, Item item, Vector2 position) {
+    public DroppedItemInteraction(GameWorld world, Item item, Vector2 position) {
         super(WorldInteractionType.ITEM_DROP, item.key());
 
         setWorldIn(world);

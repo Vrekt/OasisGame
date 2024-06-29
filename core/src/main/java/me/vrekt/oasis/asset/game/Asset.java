@@ -36,12 +36,9 @@ public final class Asset implements Disposable {
     public void load() {
         final long now = System.currentTimeMillis();
 
-        final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
-        assetManager.setLoader(TiledMap.class, mapLoader);
-
         assetManager.load(ASSETS, TextureAtlas.class);
-        assetManager.load(UI, TextureAtlas.class);
-        assetManager.load(LP, TextureAtlas.class);
+        // assetManager.load(UI, TextureAtlas.class);
+        //  assetManager.load(LP, TextureAtlas.class);
 
         loadFonts();
         loadWorlds();
@@ -49,8 +46,8 @@ public final class Asset implements Disposable {
         assetManager.finishLoading();
 
         normal = assetManager.get(ASSETS);
-        lp = assetManager.get(LP);
-        ui = assetManager.get(UI);
+      //  ui = assetManager.get(UI);
+       // lp = assetManager.get(LP);
 
         final long time = System.currentTimeMillis() - now;
         GameLogging.info("AssetManager", "Finished loading assets in %sms", time);
@@ -60,6 +57,9 @@ public final class Asset implements Disposable {
      * TODO: (TODO-8/Maybe) Load on contact
      */
     private void loadWorlds() {
+        final TmxMapLoader mapLoader = new TmxMapLoader(new InternalFileHandleResolver());
+        assetManager.setLoader(TiledMap.class, mapLoader);
+
         assetManager.load(TUTORIAL_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(WRYNN_BASEMENT, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(WRYNN_OFFICE, TiledMap.class, new TmxMapLoader.Parameters());
@@ -164,11 +164,7 @@ public final class Asset implements Disposable {
      * @return the resource
      */
     public TextureRegion get(Resource resource, String name, int index) {
-        return switch (resource) {
-            case NORMAL -> normal.findRegion(name, index);
-            case UI -> ui.findRegion(name, index);
-            case LP -> lp.findRegion(name, index);
-        };
+        return normal.findRegion(name, index);
     }
 
     /**
@@ -179,11 +175,7 @@ public final class Asset implements Disposable {
      * @return the resource
      */
     public TextureRegion get(Resource resource, String name) {
-        return switch (resource) {
-            case NORMAL -> normal.findRegion(name);
-            case UI -> ui.findRegion(name);
-            case LP -> lp.findRegion(name);
-        };
+        return normal.findRegion(name);
     }
 
     /**

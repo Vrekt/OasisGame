@@ -22,6 +22,8 @@ public final class LockpickUiComponent {
     private final float min, max;
     private boolean inRange, successful, skip;
 
+    private int activeFrame = -1;
+
     public LockpickUiComponent(VisImage parent, Asset asset,
                                String resource,
                                String success,
@@ -83,7 +85,12 @@ public final class LockpickUiComponent {
         }
 
         if (!successful && !skip) {
-            parent.setDrawable(new TextureRegionDrawable(progressAnimation.getKeyFrame(animationTime)));
+            // EM-106: Do not update drawable every frame
+            int index = progressAnimation.getKeyFrameIndex(animationTime);
+            if (index != activeFrame) {
+                activeFrame = index;
+                parent.setDrawable(new TextureRegionDrawable(progressAnimation.getKeyFrame(animationTime)));
+            }
         } else if (!successful) {
             // skip to the last frame, if the timings are a little bit off.
             parent.setDrawable(new TextureRegionDrawable(progressAnimation.getKeyFrames()[progressAnimation.getKeyFrames().length - 1]));

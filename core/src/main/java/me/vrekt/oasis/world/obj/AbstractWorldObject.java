@@ -3,6 +3,7 @@ package me.vrekt.oasis.world.obj;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -28,6 +29,8 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
 
     protected String key;
     protected Body body;
+
+    protected MapObject object;
 
     /**
      * @return the key of this object
@@ -120,6 +123,15 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public boolean isMouseOver(Vector3 mouse) {
         return mouse.x > position.x && mouse.x < (position.x + size.x) && mouse.y > position.y && mouse.y < (position.y + size.y);
+    }
+
+    /**
+     * Set the map object
+     *
+     * @param object object
+     */
+    public void setObject(MapObject object) {
+        this.object = object;
     }
 
     /**

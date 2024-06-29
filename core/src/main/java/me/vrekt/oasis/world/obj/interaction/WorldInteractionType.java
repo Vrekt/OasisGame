@@ -7,7 +7,7 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
  */
 public enum WorldInteractionType {
 
-    READABLE_SIGN("readable_sign"), CONTAINER("container"), ITEM_DROP("item_drop");
+    READABLE_SIGN("readable_sign"), CONTAINER("container"), ITEM_DROP("item_drop"), MAP_ITEM("map_item");
 
     private final String type;
 

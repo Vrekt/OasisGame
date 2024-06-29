@@ -64,7 +64,7 @@ import me.vrekt.oasis.world.obj.SimpleWorldObject;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
-import me.vrekt.oasis.world.obj.interaction.impl.items.ItemWorldInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.DroppedItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
@@ -249,7 +249,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
-
         debugRenderer = new ShapeRenderer();
 
         init();
@@ -568,15 +567,25 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 final String key = TiledMapLoader.ofString(object, "key");
                 final String type = TiledMapLoader.ofString(object, "interaction_type");
 
+                final float sizeX = TiledMapLoader.ofFloat(object, "size_x", 1.0f);
+                final float sizeY = TiledMapLoader.ofFloat(object, "size_y", 1.0f);
+                final boolean offsetX = TiledMapLoader.ofBoolean(object, "offset_x");
+                final boolean offsetY = TiledMapLoader.ofBoolean(object, "offset_y");
+
                 if (interactable) {
                     // find interaction and create world object either from key or type
                     final WorldInteractionType interactionType = WorldInteractionType.of(type);
+                    // TODO: Keyless world objects
                     final AbstractInteractableWorldObject worldObject = interactionType.get(key, interactionManager);
 
+                    final float positionX = offsetX ? rectangle.x - (sizeX * worldScale) : rectangle.x;
+                    final float positionY = offsetY ? rectangle.y - (sizeY * worldScale) : rectangle.y;
+
                     worldObject.setWorldIn(this);
-                    worldObject.setPosition(rectangle.x, rectangle.y);
+                    worldObject.setPosition(positionX, positionY);
                     worldObject.setSize(rectangle.width, rectangle.height);
                     worldObject.setInteractionRange(range);
+                    worldObject.setObject(object);
                     worldObject.load(asset);
 
                     createObjectParticles(worldObject, object, asset);
@@ -591,32 +600,23 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
                     worldObject.load(asset);
                     worldObject.setWorldIn(this);
+                    worldObject.setObject(object);
 
                     // find texture of this object
                     final String textureKey = TiledMapLoader.ofString(object, "texture");
                     final TextureRegion texture = asset.get(textureKey);
+                    final boolean drawable = texture != null;
 
+                    final float positionX = offsetX ? (drawable ? rectangle.x - (texture.getRegionWidth() * worldScale) : rectangle.x - (sizeX * worldScale)) : rectangle.x;
+                    final float positionY = offsetY ? (drawable ? rectangle.y - (texture.getRegionHeight() * worldScale) : rectangle.y - (sizeY * worldScale)) : rectangle.y;
 
-                    if (texture != null) {
+                    if (hasCollision && drawable)
+                        createObjectCollisionBodyFromTexture(worldObject, rectangle, texture, positionX, positionY);
 
-                        // check if this object needs to be offset
-                        // depends on the case of the object, the position and texture size
-                        final float x = TiledMapLoader.ofBoolean(object, "offset_x")
-                                ? rectangle.x - (texture.getRegionWidth() * worldScale)
-                                : rectangle.x;
-
-                        final float y = TiledMapLoader.ofBoolean(object, "offset_y")
-                                ? rectangle.y - (texture.getRegionHeight() * worldScale)
-                                : rectangle.y;
-
-                        // TODO: Will not activate if object does not have texture
-                        if (hasCollision)
-                            createObjectCollisionBodyFromTexture(worldObject, rectangle, texture, x, y);
-
-                        worldObject.setTexture(texture);
-                        worldObject.setPosition(x, y);
+                    worldObject.setTexture(texture);
+                    worldObject.setPosition(positionX, positionY);
+                    if (drawable)
                         worldObject.setSize(texture.getRegionWidth() * worldScale, texture.getRegionHeight() * worldScale);
-                    }
 
                     createObjectParticles(worldObject, object, asset);
                     worldObjects.put(key, worldObject);
@@ -638,7 +638,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void spawnWorldDrop(Items type, int amount, Vector2 position) {
         final Item item = ItemRegistry.createItem(type, amount);
-        final ItemWorldInteraction interaction = new ItemWorldInteraction(this, item, position);
+        final DroppedItemInteraction interaction = new DroppedItemInteraction(this, item, position);
         interaction.load(game.getAsset());
         interactableWorldObjects.add(interaction);
     }
@@ -933,6 +933,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // render local player next
         player.render(batch, delta);
+
         endRender();
     }
 
