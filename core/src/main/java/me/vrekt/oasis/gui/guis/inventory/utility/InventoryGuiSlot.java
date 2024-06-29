@@ -171,6 +171,9 @@ public final class InventoryGuiSlot {
         this.item.setDrawable(new TextureRegionDrawable(item.sprite()));
         this.item.setScale(item.scale());
 
+        // EM-103, items that are smaller that require scaling to look right will be offset out of the slot
+        this.item.setOrigin(item.sprite().getRegionWidth() / 2f, item.sprite().getRegionHeight() / 2f);
+
         updateBackground();
 
         if (item.isStackable()) {

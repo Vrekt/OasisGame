@@ -258,7 +258,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
 
         isWorldActive = false;
         game.getMultiplexer().removeProcessor(this);
-        GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transfer(player, this, parentWorld));
+        GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transferOut(player, this, parentWorld));
     }
 
     /**

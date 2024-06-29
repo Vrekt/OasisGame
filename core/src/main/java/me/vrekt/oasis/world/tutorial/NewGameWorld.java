@@ -40,6 +40,7 @@ public final class NewGameWorld extends GameWorld {
             player.getInventory().add(Items.LOCK_PICK, 1);
             player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
             player.getInventory().add(Items.TEMPERED_BLADE, 1);
+            player.getInventory().add(Items.RING_OF_MYCELIA, 1);
         }
     }
 

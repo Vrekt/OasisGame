@@ -4,6 +4,7 @@ import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
 import me.vrekt.oasis.item.misc.LockpickItem;
+import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 
@@ -19,7 +20,8 @@ public enum Items {
     QUICKSTEP_ARTIFACT(QuickStepItemArtifact.KEY),
     PIG_HEART(PigHeartConsumable.KEY),
     WRYNN_RECIPE_BOOK(WrynnRecipeBookItem.KEY),
-    LOCK_PICK(LockpickItem.KEY);
+    LOCK_PICK(LockpickItem.KEY),
+    RING_OF_MYCELIA(RingOfMyceliaItem.KEY);
 
     private final String key;
 

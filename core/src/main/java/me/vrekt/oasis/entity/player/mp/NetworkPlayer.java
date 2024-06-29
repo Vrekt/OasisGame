@@ -51,20 +51,30 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     }
 
     /**
-     * Start transferring this player into another interior
+     * Transfer this player to another world, while they are visible.
+     * This in turn will render a "special" effect while the player is entering
+     * Otherwise if not visible, transfer now.
      *
-     * @param type the type interior
+     * @param into into interior
      */
-    public void beginPlayerTransfer(InteriorWorldType type) {
+    public void transferPlayerToWorldVisible(InteriorWorldType into) {
         enteringInterior = true;
-        interiorEntering = type;
+        interiorEntering = into;
     }
 
-    public void transferNow(InteriorWorldType type) {
+    /**
+     * Transfer this player immediately
+     *
+     * @param type type
+     */
+    public void transferImmediately(InteriorWorldType type) {
         this.interiorEntering = type;
         transfer();
     }
 
+    /**
+     * Transfer this player into the interior
+     */
     public void transfer() {
         final GameWorldInterior interior = worldIn.findInteriorByType(interiorEntering);
         if (interior != null) {
@@ -77,7 +87,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
             interior.spawnPlayerInWorld(this);
             this.worldIn = interior;
         } else {
-            GameLogging.warn(this, "No interior a network player joined by type %s", type);
+            GameLogging.warn(this, "Failed to find the interior a player joined! type=%s", type);
         }
     }
 

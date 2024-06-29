@@ -10,6 +10,7 @@ import com.kotcrab.vis.ui.widget.Tooltip;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -54,11 +55,11 @@ public final class QuestEntryGui extends Gui {
         parent = GuiType.QUEST;
         inheritParentBehaviour = true;
 
-        final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest_entry"));
+        final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "quest_entry", 2));
         rootTable.setBackground(drawable);
 
         questNameLabel = new VisLabel(StringUtils.EMPTY, Styles.getLargeBlack());
-        completeness = new TypingLabel("(25% complete)", Styles.getSmallWhite());
+        completeness = new TypingLabel("(25% complete)", Styles.getMediumWhiteMipMapped());
         completeness.setColor(44 / 255f, 61 / 255f, 66 / 255f, 1.0f);
 
         questDifficultyIcon = new VisImage();
@@ -86,7 +87,7 @@ public final class QuestEntryGui extends Gui {
         components.add(questNameLabel).left();
         components.add(questDifficultyIcon).size(36, 36).padLeft(-24).padTop(8);
         components.row();
-        components.add(completeness).left().padTop(-12);
+        components.add(completeness).left().padTop(-8);
 
         components.row();
         components.add(objectivesTable);
@@ -175,7 +176,7 @@ public final class QuestEntryGui extends Gui {
             label = questObjectiveLabels.get(i);
             wasExistingLabel = true;
         } else {
-            label = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhite());
+            label = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhiteMipMapped());
             questObjectiveLabels.put(i, label);
         }
 
@@ -183,7 +184,7 @@ public final class QuestEntryGui extends Gui {
         if (objective.isCompleted()) {
             label.setText("[#2c3d42][~]" + (i + 1) + ". " + objective.getDescription());
         } else {
-            label.setText("[#2c3d42]" + (i + 1) + ". " + objective.getDescription() + "[%50][RED] (!)");
+            label.setText("[BLACK]" + (i + 1) + ". " + objective.getDescription() + "[%50][RED] (!)");
         }
 
         if (wasExistingLabel) label.restart();

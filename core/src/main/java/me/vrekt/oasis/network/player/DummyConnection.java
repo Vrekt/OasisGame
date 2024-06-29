@@ -2,11 +2,11 @@ package me.vrekt.oasis.network.player;
 
 import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBufAllocator;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.client.animation.NetworkAnimation;
 
 import java.util.function.Consumer;
 
@@ -30,7 +30,17 @@ public class DummyConnection extends PlayerConnection {
     }
 
     @Override
-    public void updateNetworkSwingAnimation(NetworkAnimation animation, float animationTime) {
+    public NetworkPlayer getPlayer(int entityId) {
+        return null;
+    }
+
+    @Override
+    public void addPlayer(int entityId, NetworkPlayer player) {
+
+    }
+
+    @Override
+    public void removePlayer(int entityId) {
 
     }
 

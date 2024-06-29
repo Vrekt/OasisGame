@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -31,7 +32,7 @@ public final class QuestGui extends Gui {
         rootTable.setVisible(false);
 
         final VisLabel label = new VisLabel("Active Quests", Styles.getLargeBlack());
-        final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get("quest"));
+        final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "quest", 2));
 
         rootTable.setBackground(drawable);
         left = new VisTable(true);
@@ -56,9 +57,11 @@ public final class QuestGui extends Gui {
         int index = 0;
         for (Quest quest : manager.getActiveQuests().values()) {
             final VisTable parent = new VisTable();
-            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), Styles.getMediumBlack());
+            final VisLabel label = new VisLabel((index + 1) + ". " + StringUtils.EMPTY + quest.getName(), Styles.getMediumWhiteMipMapped());
+            label.setColor(Color.DARK_GRAY);
+
             final VisLabel completeness = new VisLabel("(" + quest.getCompleteness() + "% complete)", Styles.getSmallWhite());
-            completeness.setColor(Color.LIGHT_GRAY);
+            completeness.setColor(Color.DARK_GRAY);
 
             parent.add(label).left();
             parent.add(completeness).padLeft(8f);
@@ -67,7 +70,7 @@ public final class QuestGui extends Gui {
             left.row();
             index++;
 
-            addHoverComponents(label, Color.GRAY, Color.BLACK, () -> handleQuestComponentClicked(quest));
+            addHoverComponents(label, Color.BLACK, Color.DARK_GRAY, () -> handleQuestComponentClicked(quest));
         }
     }
 

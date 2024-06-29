@@ -12,7 +12,7 @@ public final class AreaEffectUpdateSystem extends WorldSystem {
 
     public AreaEffectUpdateSystem(AreaEffectCloudManager manager) {
         super(SYSTEM_ID, 0.25f);
-        this.manager = new AreaEffectCloudManager();
+        this.manager = manager;
     }
 
     @Override

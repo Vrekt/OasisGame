@@ -1,0 +1,219 @@
+{
+  "name": "AutoSave",
+  "progress": 0.0,
+  "date": "14-06-24 02:17 AM",
+  "multiplayer": false,
+  "slot": 0,
+  "settings": {
+    "entity_update_distance": 100.0,
+    "show_fps": true,
+    "mp_lan": false,
+    "v_sync": true,
+    "auto_save": true,
+    "auto_save_interval": 1.0,
+    "keybinding_quest": 45,
+    "keybinding_inventory": 37,
+    "keybinding_skip_dialog": 34,
+    "keybinding_chat": 48,
+    "keybinding_map": 41,
+    "sfx_volume": 1.0
+  },
+  "player": {
+    "name": "Player49",
+    "position": {
+      "x": 17.62507,
+      "y": 14.005153
+    },
+    "inventory": {
+      "type": "PLAYER",
+      "size": 18,
+      "contents": [
+        {
+          "slot": 0,
+          "name": "Lockpick",
+          "type": "LOCK_PICK",
+          "amount": 1
+        },
+        {
+          "slot": 2,
+          "name": "Tempered Blade",
+          "type": "TEMPERED_BLADE",
+          "amount": 1
+        },
+        {
+          "slot": 1,
+          "name": "Quickstep Artifact",
+          "type": "QUICKSTEP_ARTIFACT",
+          "amount": 1
+        }
+      ]
+    },
+    "all_worlds_and_state": {
+      "world_in_name": "WRYNN_HOUSE",
+      "parent_world_name": "TutorialWorld",
+      "is_in_interior": true,
+      "interior_type": "WRYNN_HOUSE",
+      "current_world_in": {
+        "type": "WRYNN_HOUSE",
+        "enterable": true,
+        "entered_position": {
+          "x": 43.369465,
+          "y": 33.138027
+        },
+        "is_locked": false,
+        "map": "world/interiors/Office.tmx",
+        "name": "WRYNN_HOUSE",
+        "interior": true,
+        "entities": [
+          {
+            "dialogueStageIndex": 1,
+            "dialogueEntryKey": "wrynn:dialog_stage_0",
+            "type": "WRYNN",
+            "name": "Wrynn",
+            "entityId": 1,
+            "position": {
+              "x": 17.975368,
+              "y": 15.778578
+            },
+            "size": {
+              "x": 18.0,
+              "y": 26.0,
+              "z": 0.0625
+            },
+            "health": 100.0,
+            "rotation": "DOWN",
+            "move_speed": 0.0
+          }
+        ],
+        "objects": [
+          {
+            "container_inventory": {
+              "type": "CONTAINER",
+              "size": 16,
+              "contents": [
+                {
+                  "slot": 0,
+                  "name": "Tempered Blade",
+                  "type": "TEMPERED_BLADE",
+                  "amount": 1
+                },
+                {
+                  "slot": 2,
+                  "name": "Lockpick",
+                  "type": "LOCK_PICK",
+                  "amount": 2
+                },
+                {
+                  "slot": 1,
+                  "name": "Pigs Heart",
+                  "type": "PIG_HEART",
+                  "amount": 3
+                }
+              ]
+            },
+            "enabled": false,
+            "type": "CONTAINER",
+            "key": "wrynn:container",
+            "interactable": true,
+            "destroyed": false
+          }
+        ]
+      },
+      "visited_worlds": {
+        "TutorialWorld": {
+          "map": "world/worlds/TutorialWorld.tmx",
+          "name": "TutorialWorld",
+          "interior": false,
+          "entities": [
+            {
+              "dialogueStageIndex": 1,
+              "dialogueEntryKey": "thalia:dialog_stage_0",
+              "type": "THALIA",
+              "name": "Thalia",
+              "entityId": 2,
+              "position": {
+                "x": 12.90625,
+                "y": 55.354187
+              },
+              "size": {
+                "x": 48.0,
+                "y": 48.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "DOWN",
+              "move_speed": 0.0
+            },
+            {
+              "dialogueStageIndex": 1,
+              "dialogueEntryKey": "lyra:dialog_stage_0",
+              "type": "LYRA",
+              "name": "Lyra",
+              "entityId": 1,
+              "position": {
+                "x": 22.489416,
+                "y": 37.78053
+              },
+              "size": {
+                "x": 12.0,
+                "y": 29.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "UP",
+              "move_speed": 0.0
+            }
+          ],
+          "interiors": [],
+          "objects": [
+            {
+              "key": "oasis:basement_gate",
+              "interactable": false,
+              "destroyed": false
+            },
+            {
+              "enabled": true,
+              "type": "READABLE_SIGN",
+              "key": "oasis:basement_sign",
+              "interactable": true,
+              "destroyed": false
+            }
+          ]
+        }
+      }
+    },
+    "active_quests": [
+      {
+        "type": "A_NEW_HORIZON",
+        "objectives": [
+          {
+            "description": "Explore the island village and see who\u0027s around.",
+            "completed": true,
+            "unlocked": true
+          },
+          {
+            "description": "Speak to Wrynn.",
+            "completed": false,
+            "unlocked": true
+          },
+          {
+            "description": "Check the container for some weapons",
+            "completed": false,
+            "unlocked": false
+          },
+          {
+            "description": "Go outside and enter the basement.",
+            "completed": false,
+            "unlocked": false
+          },
+          {
+            "description": "Find the cookbook.",
+            "completed": false,
+            "unlocked": false
+          }
+        ],
+        "objectiveIndex": 1
+      }
+    ]
+  }
+}

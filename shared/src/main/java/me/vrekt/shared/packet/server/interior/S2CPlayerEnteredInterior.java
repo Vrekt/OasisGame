@@ -1,6 +1,7 @@
 package me.vrekt.shared.packet.server.interior;
 
 import io.netty.buffer.ByteBuf;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
@@ -48,6 +49,12 @@ public final class S2CPlayerEnteredInterior extends GamePacket {
     @Override
     public void decode() {
         entityId = buffer.readInt();
-        type = InteriorWorldType.values()[buffer.readInt()];
+        final int of = buffer.readInt();
+        try {
+            type = InteriorWorldType.values()[of];
+        } catch (IndexOutOfBoundsException exception) {
+            type = InteriorWorldType.NONE;
+            GameLogging.exceptionThrown(this, "Failed to decode packet, type was %d", exception, of);
+        }
     }
 }

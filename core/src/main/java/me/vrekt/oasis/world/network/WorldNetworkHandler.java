@@ -4,6 +4,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 import me.vrekt.shared.packet.server.player.*;
 
@@ -133,10 +134,15 @@ public final class WorldNetworkHandler {
     private void handlePlayerEnteredInterior(S2CPlayerEnteredInterior packet) {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
         if (!NetworkValidation.ensureValidEntityId(player, packet.entityId())) return;
+        if (packet.type() == InteriorWorldType.NONE) return;
 
         final NetworkPlayer mp = player.getConnection().getPlayer(packet.entityId());
         if (mp != null) {
-            mp.transferNow(packet.type());
+            if (player.getWorldState().isPlayerVisible(mp)) {
+                mp.transferPlayerToWorldVisible(packet.type());
+            } else {
+                mp.transferImmediately(packet.type());
+            }
         } else {
             GameLogging.warn(this, "Failed to find a player %d", packet.entityId());
         }

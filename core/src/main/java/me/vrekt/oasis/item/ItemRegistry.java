@@ -5,6 +5,7 @@ import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
 import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
 import me.vrekt.oasis.item.misc.LockpickItem;
+import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
@@ -29,6 +30,7 @@ public final class ItemRegistry {
         registry.put(Items.PIG_HEART, PigHeartConsumable::new);
         registry.put(Items.WRYNN_RECIPE_BOOK, WrynnRecipeBookItem::new);
         registry.put(Items.LOCK_PICK, LockpickItem::new);
+        registry.put(Items.RING_OF_MYCELIA, RingOfMyceliaItem::new);
         registry.put(Items.NO_ITEM, () -> {
             throw new UnsupportedOperationException("NO ITEM");
         });

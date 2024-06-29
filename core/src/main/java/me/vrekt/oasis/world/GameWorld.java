@@ -37,6 +37,7 @@ import me.vrekt.oasis.entity.enemy.projectile.ProjectileManager;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileResult;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.system.EntityUpdateSystem;
@@ -202,6 +203,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Check if a player is visible
+     *
+     * @param player player
+     * @return {@code true} if the player is visible and in this world
+     */
+    public boolean isPlayerVisible(NetworkPlayer player) {
+        return players.containsKey(player.entityId()) && player.isInView(getRenderer().getCamera());
+    }
+
+    /**
      * Initialize before loading
      */
     protected void init() {
@@ -297,7 +308,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void enterInterior(GameWorldInterior interior) {
         player.getConnection().updateNetworkInteriorWorldEntered(interior);
-        GameManager.getWorldManager().transfer(player, this, interior);
+        GameManager.getWorldManager().transferIn(player, this, interior);
+    }
+
+    /**
+     * Enter an interior
+     *
+     * @param interior the type
+     */
+    public void enterInterior(InteriorWorldType interior) {
+        enterInterior(interiorWorlds.get(interior));
     }
 
     /**

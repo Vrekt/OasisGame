@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -47,7 +48,7 @@ public final class ContainerInventoryGui extends InventoryGui {
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
 
-        rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("container")));
+        rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "container", 2)));
         final VisTable topTable = new VisTable(true), bottomTable = new VisTable(true);
 
         bottomTable.top();

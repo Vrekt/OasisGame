@@ -605,6 +605,8 @@ public final class GameHudGui extends Gui {
             itemIcon.setDrawable(new TextureRegionDrawable(item.sprite()));
             itemIcon.setScale(item.scale());
 
+            itemIcon.setOrigin(item.sprite().getRegionWidth() / 2f, item.sprite().getRegionHeight() / 2f);
+
             this.item = item;
         }
 

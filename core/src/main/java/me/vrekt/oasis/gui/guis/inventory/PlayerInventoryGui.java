@@ -1,5 +1,6 @@
 package me.vrekt.oasis.gui.guis.inventory;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
+import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.GuiManager;
@@ -24,6 +26,7 @@ import me.vrekt.oasis.item.ItemEquippable;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.consumables.ItemConsumable;
+import me.vrekt.oasis.item.usable.ItemUsable;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,7 +61,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
 
-        rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get("inventory")));
+        rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "inventory", 2)));
         final VisTable left = new VisTable(true);
         final VisTable right = new VisTable(true);
 
@@ -73,6 +76,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemDescriptionHeader = new TypingLabel(StringUtils.EMPTY, Styles.getMediumWhiteMipMapped());
         itemDescriptionHeader.setVisible(true);
         itemDescriptionHeader.setWrap(true);
+        itemDescriptionHeader.setColor(Color.DARK_GRAY);
         itemDescriptionHeader.setWidth(175);
 
         // add name + rarity icon
@@ -242,6 +246,11 @@ public final class PlayerInventoryGui extends InventoryGui {
                         // TODO: De-activate maybe.
                         itemActionButton.setVisible(false);
                     }
+                } else if (selectedItem instanceof ItemUsable itemUsable) {
+                    // button should not be visible anyway, but just in case
+                    if (itemUsable.isUsable(player)) {
+                        itemUsable.use(player);
+                    }
                 }
             }
         });
@@ -297,6 +306,11 @@ public final class PlayerInventoryGui extends InventoryGui {
         } else if (item instanceof ItemArtifact) {
             itemActionButton.setVisible(true);
             itemActionButton.setText("Activate");
+        } else if (item instanceof ItemUsable usable) {
+            if (usable.isUsable(player)) {
+                itemActionButton.setVisible(true);
+                itemActionButton.setText("Use");
+            }
         }
 
         if (itemActionButton.isVisible()) fadeIn(itemActionButton, 1.0f);

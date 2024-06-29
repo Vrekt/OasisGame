@@ -51,7 +51,7 @@ public final class WorldManager implements Disposable {
      * @param parent   the parent world
      * @param interior the interior world
      */
-    public void transfer(PlayerSP player, GameWorld parent, GameWorldInterior interior) {
+    public void transferIn(PlayerSP player, GameWorld parent, GameWorldInterior interior) {
         parentWorldPosition.set(player.getBody().getPosition());
 
         GameManager.transitionScreen(parent, interior, () -> {
@@ -67,7 +67,7 @@ public final class WorldManager implements Disposable {
      * @param from   the from interior
      * @param parent the parent world
      */
-    public void transfer(PlayerSP player, GameWorldInterior from, GameWorld parent) {
+    public void transferOut(PlayerSP player, GameWorldInterior from, GameWorld parent) {
         player.removeFromInteriorWorld();
         // FIXME:  manageInteriorMemoryState(from);
 
