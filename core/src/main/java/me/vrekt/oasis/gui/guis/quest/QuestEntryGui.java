@@ -138,12 +138,8 @@ public final class QuestEntryGui extends Gui {
         completeness.setText(quest.getCompleteness() + "% complete");
         completeness.restart();
 
-        // FIXME: When I figure out quest difficulty icons EM-23
         final TextureRegion difficultyIconAsset = guiManager.getAsset().get(quest.getDifficulty().getAsset());
-        if (difficultyIconAsset != null) {
-            questDifficultyIcon.setDrawable(new TextureRegionDrawable(difficultyIconAsset));
-        }
-
+        questDifficultyIcon.setDrawable(new TextureRegionDrawable(difficultyIconAsset));
         questDifficultyTooltip.setText(quest.getDifficulty().getPrettyName());
 
         // populate each individual quest objective

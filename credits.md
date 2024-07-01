@@ -10,6 +10,8 @@ Roach enemy: https://opengameart.org/content/roach-pixel-sheet
 
 Modified by me
 
+Quest difficulty icons: https://opengameart.org/content/16x16-assorted-rpg-icons
+
 # Sounds
 Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 
