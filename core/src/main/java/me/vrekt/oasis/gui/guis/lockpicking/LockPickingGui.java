@@ -34,13 +34,8 @@ public final class LockPickingGui extends Gui {
         final VisTable parentTable = new VisTable();
         rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, "pause")));
 
-        System.err.println(rootTable.getBackground() == null);
-
         locked = new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, "lock"));
         unlocked = new TextureRegionDrawable(guiManager.getAsset().get(Resource.NORMAL, "unlocked"));
-
-        System.err.println(locked.getRegion() == null);
-        System.err.println(unlocked.getRegion() == null);
 
         lockState = new VisImage(locked);
         lockState.scaleBy(2.0f);

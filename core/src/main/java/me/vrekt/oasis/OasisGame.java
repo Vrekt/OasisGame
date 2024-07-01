@@ -45,7 +45,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240701-0109-5337";
+    public static final String GAME_VERSION = "20240701-0114-5340";
 
     private Asset asset;
 
@@ -382,7 +382,6 @@ public final class OasisGame extends Game {
     public void loadIntoWorldLocal(GameWorld world) {
         world.loadWorld(false);
         world.enter();
-        setScreen(world);
     }
 
     /**
