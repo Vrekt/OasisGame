@@ -639,8 +639,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public void spawnWorldDrop(Items type, int amount, Vector2 position) {
         final Item item = ItemRegistry.createItem(type, amount);
         final DroppedItemInteraction interaction = new DroppedItemInteraction(this, item, position);
+
         interaction.load(game.getAsset());
         interactableWorldObjects.add(interaction);
+
+        mouseListeners.put(interaction, false);
     }
 
     /**
@@ -657,6 +660,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         object.destroyCollision();
         object.dispose();
 
+        // TODO: Regular world objects remove from mouse listeners
         worldObjects.remove(key);
     }
 
@@ -675,7 +679,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         object.destroyCollision();
         object.dispose();
-        worldObjects.remove(key);
     }
 
     /**
@@ -687,6 +690,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void removeInteraction(AbstractInteractableWorldObject object) {
         interactableWorldObjects.removeValue(object, true);
+        mouseListeners.remove(object);
     }
 
     /**
@@ -1150,6 +1154,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 return entry.getKey().clicked(cursorInWorld);
             }
         }
+
         return false;
     }
 

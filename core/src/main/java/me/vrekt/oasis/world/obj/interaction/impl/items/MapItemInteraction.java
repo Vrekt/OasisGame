@@ -1,11 +1,13 @@
 package me.vrekt.oasis.world.obj.interaction.impl.items;
 
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.utility.Pooling;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
@@ -17,6 +19,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
     private static final String KEY = "oasis:map_item";
 
+    private ParticleEffectPool.PooledEffect itemEffect;
     private Item item;
 
     public MapItemInteraction() {
@@ -38,6 +41,10 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
                 );
                 setInteractionRange(4.0f);
 
+                itemEffect = Pooling.hint();
+                itemEffect.setPosition(position.x + (size.x / 2f), position.y + (size.y / 2f));
+                itemEffect.scaleEffect(0.5f);
+                itemEffect.start();
             } catch (IllegalArgumentException exception) {
                 GameLogging.exceptionThrown(this, "Failed to find the correct item for a map item object, item=%s", exception, item);
                 this.isEnabled = false;
@@ -50,12 +57,20 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
         world.player().getInventory().add(item);
         world.removeInteraction(this);
         item = null;
+
+        Pooling.freeHint(itemEffect);
+        itemEffect = null;
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (this.item == null) return;
+
         batch.draw(item.sprite(), position.x, position.y, size.x, size.y);
+        if (itemEffect != null) {
+            itemEffect.update(delta);
+            itemEffect.draw(batch);
+        }
     }
 
 }

@@ -59,7 +59,7 @@
   <object id="1" name="Spawn" x="256.334" y="352.667">
    <point/>
   </object>
-  <object id="24" name="Exit" x="241.5" y="368.667" width="30.5" height="24.8333"/>
+  <object id="24" name="Exit" x="241.833" y="376.667" width="30.5" height="24.8333"/>
  </objectgroup>
  <objectgroup id="6" name="Entities">
   <object id="3" name="Wrynn" x="291.151" y="203.242">

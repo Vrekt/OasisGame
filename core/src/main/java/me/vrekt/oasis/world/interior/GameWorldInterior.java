@@ -211,7 +211,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     @Override
     public float update(float delta) {
         // check if the player entered the exit bounds
-        if (!isExiting && exit.contains(player.getPosition())) {
+        if (!isExiting && exit.overlaps(player.getBounds())) {
             isExiting = true;
             exit();
         }

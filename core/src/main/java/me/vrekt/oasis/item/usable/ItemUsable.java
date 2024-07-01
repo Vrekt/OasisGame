@@ -9,6 +9,9 @@ import me.vrekt.oasis.item.Items;
  */
 public abstract class ItemUsable extends Item {
 
+    // inventory tag, "use", "rub", etc.
+    protected String inventoryTag = "Use";
+
     public ItemUsable(Items itemType, String key, String name, String description) {
         super(itemType, key, name, description);
     }
@@ -28,4 +31,10 @@ public abstract class ItemUsable extends Item {
         return true;
     }
 
+    /**
+     * @return inventory tag
+     */
+    public String inventoryTag() {
+        return inventoryTag;
+    }
 }

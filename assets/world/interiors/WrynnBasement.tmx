@@ -117,10 +117,10 @@
 </data>
  </layer>
  <objectgroup id="5" name="Actions">
-  <object id="1" name="WorldSpawn" x="199.75" y="134.576">
+  <object id="1" name="WorldSpawn" x="200.083" y="141.243">
    <point/>
   </object>
-  <object id="2" name="Exit" x="186.341" y="80.5" width="27.25" height="36.1364"/>
+  <object id="2" name="Exit" x="186.341" y="80.5" width="27.25" height="17.8031"/>
  </objectgroup>
  <objectgroup id="7" name="Entities">
   <object id="5" x="192" y="240">

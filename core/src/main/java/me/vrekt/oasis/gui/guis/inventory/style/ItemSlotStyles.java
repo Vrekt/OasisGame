@@ -12,6 +12,7 @@ public final class ItemSlotStyles {
 
     private final NinePatchDrawable normal, normalDown;
     private final NinePatchDrawable common, commonDown, cosmic, cosmicDown;
+    private final NinePatchDrawable vd, voidDown;
 
     public ItemSlotStyles(Asset asset) {
         final NinePatch normalPatch = new NinePatch(asset.get(Resource.UI, "theme"), 4, 4, 4, 4);
@@ -25,10 +26,15 @@ public final class ItemSlotStyles {
         final NinePatch cosmicPatch = new NinePatch(asset.get(Resource.UI, "cosmic_slot_rarity"), 4, 4, 4, 4);
         final NinePatch cosmicDownPatch = new NinePatch(asset.get(Resource.UI, "cosmic_slot_rarity_down"), 4, 4, 4, 4);
 
+        final NinePatch vd = new NinePatch(asset.get(Resource.UI, "void_slot_rarity"), 4, 4, 4, 4);
+        final NinePatch vdDown = new NinePatch(asset.get(Resource.UI, "void_slot_rarity_down"), 4, 4, 4, 4);
+
         this.common = new NinePatchDrawable(commonPatch);
         this.commonDown = new NinePatchDrawable(commonDownPatch);
         this.cosmic = new NinePatchDrawable(cosmicPatch);
         this.cosmicDown = new NinePatchDrawable(cosmicDownPatch);
+        this.vd = new NinePatchDrawable(vd);
+        this.voidDown = new NinePatchDrawable(vdDown);
     }
 
     /**
@@ -73,4 +79,17 @@ public final class ItemSlotStyles {
         return cosmicDown;
     }
 
+    /**
+     * @return void rarity normal
+     */
+    public NinePatchDrawable vd() {
+        return vd;
+    }
+
+    /**
+     * @return mouse over style
+     */
+    public NinePatchDrawable voidDown() {
+        return voidDown;
+    }
 }

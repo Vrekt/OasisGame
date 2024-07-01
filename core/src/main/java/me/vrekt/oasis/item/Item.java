@@ -124,6 +124,10 @@ public abstract class Item implements ResourceLoader {
         return attributes.containsKey(attribute);
     }
 
+    public boolean hasAttributes() {
+        return !attributes.isEmpty();
+    }
+
     public Attribute getAttribute(String attribute) {
         return attributes.get(attribute);
     }

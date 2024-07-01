@@ -487,6 +487,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         return inInteriorWorld ? interiorWorldIn : worldIn;
     }
 
+    public void resize(float w, float h) {
+        setSize(w, h, OasisGameSettings.SCALE);
+    }
+
     /**
      * @return activate equipped item
      */

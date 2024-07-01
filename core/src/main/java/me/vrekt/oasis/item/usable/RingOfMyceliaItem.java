@@ -1,7 +1,9 @@
 package me.vrekt.oasis.item.usable;
 
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
@@ -25,6 +27,7 @@ public final class RingOfMyceliaItem extends ItemUsable {
         this.isStackable = false;
         this.rarity = ItemRarity.VOID;
         this.scaleSize = 2.0f;
+        this.inventoryTag = "Teleport";
     }
 
     @Override
@@ -39,6 +42,8 @@ public final class RingOfMyceliaItem extends ItemUsable {
 
     @Override
     public void use(PlayerSP player) {
+        GameManager.getGuiManager().hideGui(GuiType.INVENTORY);
+        player.resize(16,16);
         player.getWorldState().enterInterior(InteriorWorldType.MYCELIA_WORLD);
     }
 }

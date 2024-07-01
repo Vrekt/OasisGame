@@ -109,7 +109,7 @@
   <object id="12" name="WorldSpawn" x="219.667" y="274.667">
    <point/>
   </object>
-  <object id="13" name="Exit" x="210.667" y="303.333" width="27.6667" height="17.6667"/>
+  <object id="13" name="Exit" x="211" y="306.666" width="27.6667" height="17.6667"/>
  </objectgroup>
  <objectgroup id="6" name="WorldObjects">
   <object id="15" x="96" y="192">

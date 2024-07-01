@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.other.House2;
+import me.vrekt.oasis.world.interior.other.LyraHouse;
 import me.vrekt.oasis.world.interior.other.MyceliaWorld;
 import me.vrekt.oasis.world.interior.wrynn.WrynnBasementInterior;
 import me.vrekt.oasis.world.interior.wrynn.WrynnHouseInterior;
@@ -41,7 +41,7 @@ public enum InteriorWorldType {
     HOUSE2 {
         @Override
         public GameWorldInterior createInterior(GameWorld world, String asset, Cursor cursor, Rectangle bounds) {
-            return new House2(world, asset, HOUSE2, cursor, bounds);
+            return new LyraHouse(world, asset, HOUSE2, cursor, bounds);
         }
     };
 

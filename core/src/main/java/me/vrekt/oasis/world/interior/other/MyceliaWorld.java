@@ -18,11 +18,17 @@ public final class MyceliaWorld extends GameWorldInterior {
         this.worldMap = Asset.WRYNN_BASEMENT;
     }
 
-
     @Override
     public void loadWorld(boolean isGameSave) {
         super.loadWorld(isGameSave);
 
         renderer.getCamera().zoom = 0.8f;
+    }
+
+    @Override
+    protected void exit() {
+        super.exit();
+
+        renderer.getCamera().zoom = 1.0f;
     }
 }

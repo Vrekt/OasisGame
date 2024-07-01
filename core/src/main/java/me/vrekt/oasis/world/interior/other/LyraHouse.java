@@ -9,9 +9,12 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 
-public final class House2 extends GameWorldInterior {
+/**
+ * Lyra house
+ */
+public final class LyraHouse extends GameWorldInterior {
 
-    public House2(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
+    public LyraHouse(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
         this.worldMap = Asset.HOUSE_2;
     }

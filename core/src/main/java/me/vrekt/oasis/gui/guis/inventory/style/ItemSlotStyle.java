@@ -40,6 +40,17 @@ public enum ItemSlotStyle {
         public Drawable down() {
             return Styles.slots().cosmicDown();
         }
+    },
+    VOID {
+        @Override
+        public Drawable get() {
+            return Styles.slots().vd();
+        }
+
+        @Override
+        public Drawable down() {
+            return Styles.slots().voidDown();
+        }
     };
 
     /**
@@ -66,7 +77,7 @@ public enum ItemSlotStyle {
         return switch (item.rarity()) {
             case COMMON -> COMMON;
             case COSMIC -> COSMIC;
-            case VOID, DIVINE -> COSMIC;
+            case VOID -> VOID;
         };
     }
 

@@ -2,10 +2,9 @@ package me.vrekt.oasis.item;
 
 public enum ItemRarity {
 
-    COMMON("Common", "[#d2a993]", "common_rarity"),
-    COSMIC("Cosmic", "[azure]", null),
-    VOID("Void", "[PURPLE]", "void_rarity"),
-    DIVINE("Divine", "[butter]", null);
+    COMMON("Common", "[#472B08]", "common_rarity"),
+    COSMIC("Cosmic", "[#10334A]", null),
+    VOID("Void", "[PURPLE]", "void_rarity");
 
     private final String rarityName, colorName, texture;
 
