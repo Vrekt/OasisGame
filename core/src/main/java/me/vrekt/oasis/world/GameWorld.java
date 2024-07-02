@@ -62,10 +62,11 @@ import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.network.WorldNetworkRenderer;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
+import me.vrekt.oasis.world.obj.TiledWorldObjectProperties;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
-import me.vrekt.oasis.world.obj.interaction.impl.items.DroppedItemInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
@@ -564,65 +565,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected void createWorldObjects(TiledMap worldMap, Asset asset, float worldScale) {
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "WorldObjects", (object, rectangle) -> {
             try {
-                final boolean hasCollision = TiledMapLoader.ofBoolean(object, "hasCollision");
-                final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
-                final float range = TiledMapLoader.ofFloat(object, "interaction_range", 3.5f);
-                final String key = TiledMapLoader.ofString(object, "key");
-                final String type = TiledMapLoader.ofString(object, "interaction_type");
-
-                final float sizeX = TiledMapLoader.ofFloat(object, "size_x", 1.0f);
-                final float sizeY = TiledMapLoader.ofFloat(object, "size_y", 1.0f);
-                final boolean offsetX = TiledMapLoader.ofBoolean(object, "offset_x");
-                final boolean offsetY = TiledMapLoader.ofBoolean(object, "offset_y");
-
-                if (interactable) {
-                    // find interaction and create world object either from key or type
-                    final WorldInteractionType interactionType = WorldInteractionType.of(type);
-                    // TODO: Keyless world objects
-                    final AbstractInteractableWorldObject worldObject = interactionType.get(key, interactionManager);
-
-                    final float positionX = offsetX ? rectangle.x - (sizeX * worldScale) : rectangle.x;
-                    final float positionY = offsetY ? rectangle.y - (sizeY * worldScale) : rectangle.y;
-
-                    worldObject.setWorldIn(this);
-                    worldObject.setPosition(positionX, positionY);
-                    worldObject.setSize(rectangle.width, rectangle.height);
-                    worldObject.setInteractionRange(range);
-                    worldObject.setObject(object);
-                    worldObject.load(asset);
-
-                    createObjectParticles(worldObject, object, asset);
-
-                    // load collision for this object
-                    if (hasCollision) createObjectCollisionBody(worldObject, rectangle);
-                    interactableWorldObjects.add(worldObject);
-                    mouseListeners.put(worldObject, false);
+                final TiledWorldObjectProperties properties = new TiledWorldObjectProperties(object);
+                if (properties.interactable) {
+                    createInteractableObject(properties, object, rectangle, worldScale, asset);
                 } else {
-                    // load base object
-                    final AbstractWorldObject worldObject = new SimpleWorldObject(key);
-
-                    worldObject.load(asset);
-                    worldObject.setWorldIn(this);
-                    worldObject.setObject(object);
-
-                    // find texture of this object
-                    final String textureKey = TiledMapLoader.ofString(object, "texture");
-                    final TextureRegion texture = asset.get(textureKey);
-                    final boolean drawable = texture != null;
-
-                    final float positionX = offsetX ? (drawable ? rectangle.x - (texture.getRegionWidth() * worldScale) : rectangle.x - (sizeX * worldScale)) : rectangle.x;
-                    final float positionY = offsetY ? (drawable ? rectangle.y - (texture.getRegionHeight() * worldScale) : rectangle.y - (sizeY * worldScale)) : rectangle.y;
-
-                    if (hasCollision && drawable)
-                        createObjectCollisionBodyFromTexture(worldObject, rectangle, texture, positionX, positionY);
-
-                    worldObject.setTexture(texture);
-                    worldObject.setPosition(positionX, positionY);
-                    if (drawable)
-                        worldObject.setSize(texture.getRegionWidth() * worldScale, texture.getRegionHeight() * worldScale);
-
-                    createObjectParticles(worldObject, object, asset);
-                    worldObjects.put(key, worldObject);
+                    createRegularObject(properties, object, rectangle, worldScale, asset);
                 }
 
             } catch (Exception any) {
@@ -635,13 +582,106 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Create an interactable world object
+     *
+     * @param properties properties
+     * @param object     map object
+     * @param rectangle  rectangle bounds
+     * @param worldScale scale
+     * @param asset      asset
+     */
+    private void createInteractableObject(TiledWorldObjectProperties properties,
+                                          MapObject object,
+                                          Rectangle rectangle,
+                                          float worldScale,
+                                          Asset asset) {
+        final boolean isKeyed = properties.key != null;
+        final AbstractInteractableWorldObject worldObject = isKeyed
+                ? properties.interactionType.getKeyed(properties.key, interactionManager)
+                : properties.interactionType.getKeyless(this, object);
+
+        // calculate position based on offsets
+        final float positionX = properties.offsetX ? rectangle.x - (properties.sizeX * worldScale) : rectangle.x;
+        final float positionY = properties.offsetY ? rectangle.y - (properties.sizeY * worldScale) : rectangle.y;
+
+        worldObject.setWorldIn(this);
+        worldObject.setPosition(positionX, positionY);
+        worldObject.setSize(rectangle.width, rectangle.height);
+        worldObject.setInteractionRange(properties.interactionRange);
+        worldObject.setObject(object);
+
+        if (properties.texture != null) {
+            worldObject.setTextureAndSize(asset.get(properties.texture));
+        }
+
+        worldObject.load(asset);
+
+        createObjectParticles(worldObject, object, asset);
+
+        // load collision for this object
+        // In the future: collision body from texture?
+        if (properties.hasCollision) createObjectCollisionBody(worldObject, rectangle);
+        interactableWorldObjects.add(worldObject);
+        mouseListeners.put(worldObject, false);
+    }
+
+    /**
+     * Create a regular world object
+     *
+     * @param properties properties
+     * @param object     map object
+     * @param rectangle  rectangle bounds
+     * @param worldScale scale
+     * @param asset      asset
+     */
+    private void createRegularObject(TiledWorldObjectProperties properties,
+                                     MapObject object,
+                                     Rectangle rectangle,
+                                     float worldScale,
+                                     Asset asset) {
+        // load base object
+        final AbstractWorldObject worldObject = new SimpleWorldObject(properties.key);
+
+        worldObject.load(asset);
+        worldObject.setWorldIn(this);
+        worldObject.setObject(object);
+
+        // find texture of this object
+        final TextureRegion texture = asset.get(properties.texture);
+        final boolean drawable = texture != null;
+
+        final float positionX = properties.offsetX ? (drawable
+                ? rectangle.x - (texture.getRegionWidth() * worldScale)
+                : rectangle.x - (properties.sizeX * worldScale))
+                : rectangle.x;
+        final float positionY = properties.offsetY ? (drawable
+                ? rectangle.y - (texture.getRegionHeight() * worldScale)
+                : rectangle.y - (properties.sizeY * worldScale))
+                : rectangle.y;
+
+        if (properties.hasCollision && drawable) {
+            createObjectCollisionBodyFromTexture(worldObject, rectangle, texture, positionX, positionY);
+        } else if (properties.hasCollision) {
+            createObjectCollisionBody(worldObject, rectangle);
+        }
+
+        if (drawable) worldObject.setTexture(texture);
+        worldObject.setPosition(positionX, positionY);
+        if (drawable)
+            worldObject.setSize(texture.getRegionWidth() * worldScale, texture.getRegionHeight() * worldScale);
+
+        createObjectParticles(worldObject, object, asset);
+        worldObjects.put(properties.key, worldObject);
+    }
+
+    /**
      * Spawn a world drop interaction
      *
      * @param type item
      */
     public void spawnWorldDrop(Items type, int amount, Vector2 position) {
         final Item item = ItemRegistry.createItem(type, amount);
-        final DroppedItemInteraction interaction = new DroppedItemInteraction(this, item, position);
+        final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
 
         interaction.load(game.getAsset());
         interactableWorldObjects.add(interaction);
@@ -729,7 +769,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param wb        wb
      * @param rectangle the rectangle shape
      */
-    protected void createObjectCollisionBody(AbstractInteractableWorldObject wb, Rectangle rectangle) {
+    protected void createObjectCollisionBody(AbstractWorldObject wb, Rectangle rectangle) {
         final Body body = CollisionShapeCreator
                 .createPolygonShapeInWorld(
                         rectangle.x,
@@ -830,7 +870,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "EntityGoals", (object, bounds) -> {
             final String e = TiledMapLoader.ofString(object, "entity");
             if (e != null) {
-                // TODO: Will not work with multiple entities
+                // TODO EM-117: Will not work with multiple entities
                 final EntityType type = EntityType.valueOf(e);
 
                 final String g = TiledMapLoader.ofString(object, "goal");
@@ -842,6 +882,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         });
 
         if (result) GameLogging.info(this, "Loaded entity goals.");
+    }
+
+    protected void createWorldGroves(TiledMap worldMap, float worldScale) {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Groves", (object, bounds) -> {
+
+        });
     }
 
     /**

@@ -197,6 +197,9 @@ public final class PlayerInventoryGui extends InventoryGui {
             final InventoryGuiSlot slot = guiSlots.get(entry.key);
             if (!entry.value.compare(slot.getLastItemKey())) {
                 slot.setOccupiedItem(entry.value);
+            } else if (entry.value.amount() != slot.itemTextAmount()) {
+                // EM-119: Update item amounts
+                slot.updateItem(entry.value);
             }
         }
     }

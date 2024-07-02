@@ -333,9 +333,14 @@ public abstract class AbstractInventory implements Disposable {
      */
     public int add(Item item) {
         if (isFull()) return -1;
-        final int slot = findEmptySlot();
-        items.put(slot, item);
-        return slot;
+
+        if (item.isStackable() && containsItem(item.type())) {
+            return mergeItemStack(item);
+        } else {
+            final int slot = findEmptySlot();
+            items.put(slot, item);
+            return slot;
+        }
     }
 
     /**

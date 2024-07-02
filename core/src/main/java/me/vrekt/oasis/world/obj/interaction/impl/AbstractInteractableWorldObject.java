@@ -31,6 +31,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         this.interactionPoint = new Vector2();
     }
 
+    public AbstractInteractableWorldObject(WorldInteractionType type) {
+        this.type = type;
+        this.interactionPoint = new Vector2();
+    }
+
     /**
      * @return the type of this interaction
      */

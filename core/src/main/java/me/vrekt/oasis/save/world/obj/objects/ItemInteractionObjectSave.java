@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.save.inventory.ItemSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.world.obj.interaction.impl.items.DroppedItemInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 
 /**
  * Saves world drops
@@ -20,7 +20,7 @@ public final class ItemInteractionObjectSave extends InteractableWorldObjectSave
     @SerializedName("position")
     private Vector2 position;
 
-    public ItemInteractionObjectSave(DroppedItemInteraction interaction) {
+    public ItemInteractionObjectSave(MapItemInteraction interaction) {
         this.key = interaction.getKey();
         this.enabled = interaction.isEnabled();
         this.type = interaction.getType();

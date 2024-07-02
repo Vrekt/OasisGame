@@ -119,4 +119,8 @@ public final class TiledMapLoader {
         return object.getProperties().get(key, defaultValue, Float.class);
     }
 
+    public static int ofInt(MapObject object, String key, int defaultValue) {
+        return object.getProperties().get(key, defaultValue, Integer.class);
+    }
+
 }

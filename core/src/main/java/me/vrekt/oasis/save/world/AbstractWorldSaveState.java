@@ -18,7 +18,7 @@ import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
-import me.vrekt.oasis.world.obj.interaction.impl.items.DroppedItemInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,8 +140,8 @@ public abstract class AbstractWorldSaveState {
             if (object.getType() == WorldInteractionType.CONTAINER) {
                 final ContainerWorldObjectSave container = new ContainerWorldObjectSave(world, object, ((OpenableContainerInteraction) object).inventory());
                 objects.add(container);
-            } else if (object.getType() == WorldInteractionType.ITEM_DROP) {
-                final ItemInteractionObjectSave itemDrop = new ItemInteractionObjectSave((DroppedItemInteraction) object);
+            } else if (object.getType() == WorldInteractionType.MAP_ITEM) {
+                final ItemInteractionObjectSave itemDrop = new ItemInteractionObjectSave((MapItemInteraction) object);
                 objects.add(itemDrop);
             } else {
                 final InteractableWorldObjectSave save = new InteractableWorldObjectSave(world, object);

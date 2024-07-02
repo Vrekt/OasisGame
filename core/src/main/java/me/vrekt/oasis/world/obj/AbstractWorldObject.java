@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
@@ -89,6 +90,16 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public void setTexture(TextureRegion texture) {
         this.texture = texture;
+    }
+
+    /**
+     * Set the texture + size of this object
+     *
+     * @param texture the texture
+     */
+    public void setTextureAndSize(TextureRegion texture) {
+        this.texture = texture;
+        this.size.set(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
     /**

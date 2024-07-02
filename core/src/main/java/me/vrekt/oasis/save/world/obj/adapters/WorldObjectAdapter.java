@@ -24,10 +24,10 @@ public final class WorldObjectAdapter implements JsonDeserializer<AbstractWorldO
 
         final String type = src.get("type").getAsString();
         try {
-            final WorldInteractionType of = WorldInteractionType.of(type);
+            final WorldInteractionType of = WorldInteractionType.ofOrNone(type);
             if (of == WorldInteractionType.CONTAINER) {
                 return context.deserialize(json, ContainerWorldObjectSave.class);
-            } else if (of == WorldInteractionType.ITEM_DROP) {
+            } else if (of == WorldInteractionType.MAP_ITEM) {
                 return context.deserialize(json, ItemInteractionObjectSave.class);
             } else {
                 GameLogging.warn(this, "Did not register deserializer for: %s", of);

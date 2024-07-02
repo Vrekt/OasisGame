@@ -38,6 +38,8 @@ public final class InventoryGuiSlot {
     private InventorySlotTarget target;
     private ItemSlotStyle slotStyle = ItemSlotStyle.NORMAL;
 
+    private int itemTextAmount;
+
     /**
      * Initialize
      *
@@ -133,6 +135,13 @@ public final class InventoryGuiSlot {
     }
 
     /**
+     * @return text amount
+     */
+    public int itemTextAmount() {
+        return itemTextAmount;
+    }
+
+    /**
      * Update this slot when a transfer has occurred
      *
      * @param owner the owner inventory
@@ -150,6 +159,16 @@ public final class InventoryGuiSlot {
             return;
         }
 
+        amountText.setText(item.amount());
+    }
+
+    /**
+     * Update this item
+     *
+     * @param item item
+     */
+    public void updateItem(Item item) {
+        itemTextAmount = item.amount();
         amountText.setText(item.amount());
     }
 
@@ -173,7 +192,7 @@ public final class InventoryGuiSlot {
 
         // EM-103, items that are smaller that require scaling to look right will be offset out of the slot
         this.item.setOrigin(item.sprite().getRegionWidth() / 2f, item.sprite().getRegionHeight() / 2f);
-
+        this.itemTextAmount = item.amount();
         updateBackground();
 
         if (item.isStackable()) {

@@ -116,9 +116,9 @@
    <properties>
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="map_item"/>
+    <property name="interaction_type" value="MAP_ITEM"/>
     <property name="item" value="RING_OF_MYCELIA"/>
-    <property name="key" value="oasis:map_item"/>
+    <property name="item_amount" type="int" value="1"/>
     <property name="offset_x" type="bool" value="true"/>
     <property name="offset_y" type="bool" value="false"/>
     <property name="size_x" type="float" value="16"/>

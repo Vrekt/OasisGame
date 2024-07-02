@@ -129,7 +129,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
     private void loadInteractableObject(InteractableWorldObjectSave save) {
         if (save.type() == WorldInteractionType.CONTAINER) {
             loadContainer((ContainerWorldObjectSave) save);
-        } else if (save.type() == WorldInteractionType.ITEM_DROP) {
+        } else if (save.type() == WorldInteractionType.MAP_ITEM) {
             final ItemInteractionObjectSave drop = (ItemInteractionObjectSave) save;
             world.spawnWorldDrop(drop.item().type(), drop.item().amount(), drop.position());
         } else {
