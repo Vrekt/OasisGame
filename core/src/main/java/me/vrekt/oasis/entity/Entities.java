@@ -5,6 +5,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.easy.roach.GrungyRoachEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.npc.chick.ChickEntity;
 import me.vrekt.oasis.entity.npc.tutorial.BasicFishEntity;
 import me.vrekt.oasis.entity.npc.tutorial.LyraEntity;
 import me.vrekt.oasis.entity.npc.tutorial.ThaliaEntity;
@@ -27,6 +28,7 @@ public final class Entities {
         ENTITIES.put(LyraEntity.ENTITY_KEY, LyraEntity::new);
         ENTITIES.put(BasicFishEntity.ENTITY_KEY, BasicFishEntity::new);
         ENTITIES.put(GrungyRoachEnemy.ENTITY_KEY, GrungyRoachEnemy::new);
+        ENTITIES.put(ChickEntity.ENTITY_KEY, ChickEntity::new);
     }
 
     /**

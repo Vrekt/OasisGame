@@ -35,6 +35,8 @@ public final class BasicEntityCollisionHandler implements ContactListener {
                 contact.setEnabled(false);
             } else if (a instanceof GameEntity && b instanceof PlayerSP) {
                 contact.setEnabled(false);
+            } else if (a instanceof GameEntity && b instanceof GameEntity) {
+                contact.setEnabled(false);
             }
 
             // ignore player collisions

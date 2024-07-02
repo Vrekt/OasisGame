@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.ai.goals.EntityGoal;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
@@ -260,6 +261,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
+        createEntityGoals(worldMap, worldScale);
 
         updateRendererMap();
         game.getMultiplexer().addProcessor(this);
@@ -429,6 +431,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
             final boolean enemy = TiledMapLoader.ofBoolean(object, "enemy");
             final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
+            final boolean goals = TiledMapLoader.ofBoolean(object, "has_goals");
 
             if (enemy) {
                 createEnemy(key, rectangle, asset);
@@ -818,6 +821,30 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Register/create goals for an entity
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     */
+    protected void createEntityGoals(TiledMap worldMap, float worldScale) {
+        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "EntityGoals", (object, bounds) -> {
+            final String e = TiledMapLoader.ofString(object, "entity");
+            if (e != null) {
+                // TODO: Will not work with multiple entities
+                final EntityType type = EntityType.valueOf(e);
+
+                final String g = TiledMapLoader.ofString(object, "goal");
+                final EntityGoal goal = EntityGoal.valueOf(g);
+
+                final GameEntity entity = findEntity(type);
+                entity.registerGoal(goal, new Vector2(bounds.x, bounds.y));
+            }
+        });
+
+        if (result) GameLogging.info(this, "Loaded entity goals.");
+    }
+
+    /**
      * Find and create the entity paths for their AI
      *
      * @param worldMap   map
@@ -997,7 +1024,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param type the type
      * @return the {@link EntityInteractable} or {@code  null} if not found
      */
-    public EntityInteractable getEntityByKey(EntityType type) {
+    public EntityInteractable findInteractableEntity(EntityType type) {
         for (GameEntity entity : entities.values()) {
             if (entity.asInteractable().type() == type) {
                 return entity.asInteractable();
@@ -1006,10 +1033,31 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         return null;
     }
 
-    public EntityEnemy getEnemyByType(EntityType type) {
+    /**
+     * Find an enemy
+     *
+     * @param type type
+     * @return the enemy or {@code null} if not found
+     */
+    public EntityEnemy findEnemy(EntityType type) {
         for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy && enemy.type() == type) {
                 return enemy;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find a regular entity
+     *
+     * @param type type
+     * @return the entity or {@code null} if not found
+     */
+    public GameEntity findEntity(EntityType type) {
+        for (GameEntity entity : entities.values()) {
+            if (entity.type() == type) {
+                return entity;
             }
         }
         return null;

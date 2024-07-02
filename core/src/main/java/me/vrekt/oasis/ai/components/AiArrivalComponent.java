@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
-import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,7 +17,7 @@ public final class AiArrivalComponent extends AiComponent {
 
     private static final float TIME_TO_TARGET = 0.1f;
     private static final float ARRIVE_TOLERANCE = 0.01f;
-    private static final float DECELERATION_RADIUS = 2f;
+    private static final float DECELERATION_RADIUS = 0.1f;
 
     // points where the entity can walk to
     private final Array<Vector2> points = new Array<>();
@@ -26,7 +26,7 @@ public final class AiArrivalComponent extends AiComponent {
     private boolean isWalkingToPath;
     private float lastPointTick, pathingInterval, arrivalTolerance;
 
-    public AiArrivalComponent(EntityInteractable entity) {
+    public AiArrivalComponent(GameEntity entity) {
         super(entity, AiComponentType.ARRIVE, ApplyBehavior.DEFAULT);
 
         arrive = new Arrive<>(steering, location);
@@ -69,6 +69,7 @@ public final class AiArrivalComponent extends AiComponent {
      */
     public void setTargetArrivalTolerance(float tolerance) {
         this.arrivalTolerance = tolerance;
+        arrive.setArrivalTolerance(tolerance);
     }
 
     /**
@@ -82,7 +83,6 @@ public final class AiArrivalComponent extends AiComponent {
 
     @Override
     public void update(float delta) {
-
         if (!isWalkingToPath && (lastPointTick == 0
                 || (GameManager.getTick() - lastPointTick) >= pathingInterval)) {
             isWalkingToPath = true;

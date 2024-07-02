@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.components.AiComponent;
+import me.vrekt.oasis.ai.goals.EntityGoal;
+import me.vrekt.oasis.ai.goals.EntityMapGoal;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
@@ -22,6 +24,7 @@ import me.vrekt.oasis.entity.component.*;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.component.status.EntityStatus;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
+import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
@@ -62,6 +65,8 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected GameWorld parentWorld;
     protected boolean isInParentWorld;
 
+    protected Array<EntityMapGoal> goals = new Array<>();
+
     protected Array<AiComponent> aiComponents = new Array<>();
     protected boolean isPaused;
     protected float pauseTime, pauseForTime;
@@ -71,6 +76,8 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     protected AreaEffectCloud cloudApartOf;
     protected EntityStatus status;
+
+    protected EntityStateMachine stateMachine;
 
     public GameEntity() {
         entity = new Entity();
@@ -99,6 +106,32 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         entity.add(new EntityPropertiesComponent());
         entity.add(new EntityTransformComponent());
         entity.add(new EntityTextureComponent());
+    }
+
+    /**
+     * Register a goal for this entity
+     *
+     * @param goal     goal
+     * @param position position
+     */
+    public EntityMapGoal registerGoal(EntityGoal goal, Vector2 position) {
+        final EntityMapGoal g = new EntityMapGoal(goal, position);
+        goals.add(g);
+        return g;
+    }
+
+    public void finalizeGoals() {
+
+    }
+
+    /**
+     * Update active texture based on entity rotation
+     */
+    protected void updateRotationTextureState() {
+        if (previousRotation != rotation) {
+            if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation.name());
+            previousRotation = rotation;
+        }
     }
 
     /**

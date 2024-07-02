@@ -36,6 +36,11 @@ public final class EntityStateMachine {
         this.state = state;
     }
 
+    public void exit() {
+        if (this.state != null) state.exit();
+        this.state = null;
+    }
+
     /**
      * Update current state
      *
@@ -52,7 +57,11 @@ public final class EntityStateMachine {
      * @return {@code true} if so
      */
     public boolean isInSameState(int other) {
-        return state.processingStateId == other;
+        return state != null && state.processingStateId == other;
+    }
+
+    public boolean isInState(ProcessingState state) {
+        return this.state != null && this.state.processingStateId == state.processingStateId;
     }
 
     public ProcessingState state() {

@@ -28,6 +28,13 @@ public abstract class AiComponent {
         location = new SimpleVectorLocation().set(entity.getPosition());
     }
 
+    /**
+     * @return steering provider
+     */
+    public EntitySteerable steering() {
+        return steering;
+    }
+
     public void setMaxLinearSpeed(float value) {
         steering.setMaxLinearSpeed(value);
     }

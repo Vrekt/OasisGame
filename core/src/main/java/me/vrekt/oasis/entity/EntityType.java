@@ -9,7 +9,8 @@ public enum EntityType {
     THALIA(Type.INTERACTABLE),
     LYRA(Type.INTERACTABLE),
     ROACH(Type.ENEMY),
-    FISH(Type.GENERIC);
+    FISH(Type.GENERIC),
+    CHICK(Type.GENERIC);
 
     private final Type type;
 

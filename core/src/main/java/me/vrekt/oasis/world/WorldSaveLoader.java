@@ -65,17 +65,17 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
         for (AbstractEntitySaveState entitySave : worldSave.entities()) {
             if (entitySave.type().interactable()) {
                 final InteractableEntitySave ies = (InteractableEntitySave) entitySave;
-                world.getEntityByKey(ies.type()).load(ies);
+                world.findInteractableEntity(ies.type()).load(ies);
 
                 interactable++;
             } else if (entitySave.type().enemy()) {
                 final EnemyEntitySave ees = (EnemyEntitySave) entitySave;
                 if (ees.isDead()) {
-                    final EntityEnemy e = world.getEnemyByType(ees.type());
+                    final EntityEnemy e = world.findEnemy(ees.type());
                     world.entities.remove(e.entityId());
                     world.removeDeadEntityNow(e);
                 } else {
-                    world.getEnemyByType(ees.type()).load(ees);
+                    world.findEnemy(ees.type()).load(ees);
                 }
 
                 enemy++;

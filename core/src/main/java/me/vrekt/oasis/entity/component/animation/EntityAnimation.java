@@ -3,28 +3,43 @@ package me.vrekt.oasis.entity.component.animation;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public final class EntityAnimation {
+/**
+ * A general animation
+ */
+public class EntityAnimation {
 
-    private Animation<TextureRegion> moving;
-    private float movingAnimationTime;
-    private TextureRegion[] hurting;
+    // ID of this animation
+    protected final AnimationType type;
+    protected float animationTime;
 
-    void moving(Animation<TextureRegion> animation) {
-        this.moving = animation;
-        this.moving.setPlayMode(Animation.PlayMode.LOOP);
+    protected Animation<TextureRegion> animation;
+
+    public EntityAnimation(AnimationType type) {
+        this.type = type;
     }
 
-    public void setHurting(TextureRegion[] hurting) {
-        this.hurting = hurting;
+    public EntityAnimation(AnimationType type, Animation<TextureRegion> animation) {
+        this.type = type;
+        this.animation = animation;
     }
 
-    TextureRegion animateMoving(float deltaTime) {
-        movingAnimationTime += deltaTime;
-        return moving.getKeyFrame(movingAnimationTime);
+    public TextureRegion animate(float delta) {
+        animationTime += delta;
+        return animation.getKeyFrame(animationTime);
     }
 
-    TextureRegion animateHurting() {
-        return hurting[moving.getKeyFrameIndex(movingAnimationTime)];
+    /**
+     * @return {@code true} if this animation is finished
+     */
+    public boolean isFinished() {
+        return animation.isAnimationFinished(animationTime);
+    }
+
+    /**
+     * Reset
+     */
+    public void reset() {
+        animationTime = 0.0f;
     }
 
 }

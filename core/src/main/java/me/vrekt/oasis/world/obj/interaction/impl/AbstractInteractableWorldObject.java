@@ -121,8 +121,6 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public boolean clicked(Vector3 mouse) {
-        System.err.println("HELLO");
-
         if (isEnabled && isInInteractionRange() && !wasInteractedWith) {
             interact();
             return true;

@@ -71,17 +71,18 @@ public final class GrungyRoachEnemy extends EntityEnemy {
     public void load(Asset asset) {
         entity.add(animationComponent);
 
+        // automatically add to animation component because we chained the moving + hurting
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
-                .moving(EntityRotation.RIGHT, 0.25f, "roach_walking_right", 3)
+                .moving(EntityRotation.RIGHT, 0.25f, "roach_walking_right", 3, animationComponent)
                 .hurting("roach_walking_right_hit", 3)
                 .add(animationComponent)
-                .moving(EntityRotation.LEFT, 0.25f, "roach_walking_left", 2)
+                .moving(EntityRotation.LEFT, 0.25f, "roach_walking_left", 2, animationComponent)
                 .hurting("roach_walking_left_hit", 2)
                 .add(animationComponent)
-                .moving(EntityRotation.DOWN, 0.25f, "roach_walking_down", 2)
+                .moving(EntityRotation.DOWN, 0.25f, "roach_walking_down", 2, animationComponent)
                 .hurting("roach_walking_down_hit", 2)
                 .add(animationComponent)
-                .moving(EntityRotation.UP, 0.25f, "roach_walking_up", 2)
+                .moving(EntityRotation.UP, 0.25f, "roach_walking_up", 2, animationComponent)
                 .hurting("roach_walking_up_hit", 2)
                 .add(animationComponent);
 

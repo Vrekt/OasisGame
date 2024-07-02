@@ -44,6 +44,9 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private EntityRotation direction;
     private float last;
 
+    private boolean handleMovementTolerance;
+    private float toleranceX, toleranceY;
+
     public EntitySteerable(GameEntity owner, Body body, AiComponent parent, ApplyBehavior applyBehavior) {
         this.owner = owner;
         this.body = body;
@@ -75,6 +78,12 @@ public final class EntitySteerable implements Steerable<Vector2> {
         this.direction = direction;
     }
 
+    public void setMovementTolerance(float x, float y) {
+        this.handleMovementTolerance = true;
+        this.toleranceX = x;
+        this.toleranceY = y;
+    }
+
     public void update(float delta) {
         if (behavior != null) {
             behavior.calculateSteering(output);
@@ -103,8 +112,22 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private void applyDefault() {
         boolean hasAcceleration = false;
 
-        if (!output.linear.isZero()) {
-            body.applyForceToCenter(output.linear, true);
+        Vector2 linear = output.linear;
+        if (handleMovementTolerance && !linear.isZero()) {
+            final float leny = linear.y * linear.y;
+            final float lenx = linear.x * linear.x;
+
+            final boolean isZeroY = leny < toleranceX;
+            final boolean isZeroX = lenx < toleranceY;
+
+            // prevent small corrections
+            // stops weird bobbing movement
+            if (isZeroY) linear.y = 0.0f;
+            if (isZeroX) linear.x = 0.0f;
+        }
+
+        if (!linear.isZero()) {
+            body.applyForceToCenter(linear, true);
             hasAcceleration = true;
         }
 

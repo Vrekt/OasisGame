@@ -11,10 +11,30 @@ import java.util.EnumMap;
  */
 public final class EntityAnimationComponent implements Component {
 
-    private final EnumMap<EntityRotation, EntityAnimation> moveAnimations = new EnumMap<>(EntityRotation.class);
+    private final EnumMap<EntityRotation, EntityMovingAnimation> moveAnimations = new EnumMap<>(EntityRotation.class);
+    private final EnumMap<AnimationType, EntityAnimation> otherAnimations = new EnumMap<>(AnimationType.class);
 
-    public void add(EntityAnimation animation, EntityRotation rotation) {
+    public void add(EntityMovingAnimation animation, EntityRotation rotation) {
         moveAnimations.put(rotation, animation);
+    }
+
+    public void add(EntityAnimation animation) {
+        otherAnimations.put(animation.type, animation);
+    }
+
+    /**
+     * Animate
+     *
+     * @param type  type
+     * @param delta delta
+     * @return the frame
+     */
+    public TextureRegion animate(AnimationType type, float delta) {
+        return otherAnimations.get(type).animate(delta);
+    }
+
+    public TextureRegion animateHurting(EntityRotation rotation) {
+        return ((EntityHurtingAnimation) otherAnimations.get(AnimationType.HURTING)).animateFromMoveState(moveAnimations.get(rotation));
     }
 
     /**
@@ -25,17 +45,16 @@ public final class EntityAnimationComponent implements Component {
      * @return the frame
      */
     public TextureRegion animateMoving(EntityRotation rotation, float deltaTime) {
-        return moveAnimations.get(rotation).animateMoving(deltaTime);
+        return moveAnimations.get(rotation).animate(deltaTime);
     }
 
-    /**
-     * Get hurting frame
-     *
-     * @param rotation rotation
-     * @return the frame
-     */
-    public TextureRegion animateHurting(EntityRotation rotation) {
-        return moveAnimations.get(rotation).animateHurting();
+    public boolean isFinished(AnimationType type) {
+        return otherAnimations.get(type).isFinished();
     }
+
+    public void reset(AnimationType type) {
+         otherAnimations.get(type).reset();
+    }
+
 
 }

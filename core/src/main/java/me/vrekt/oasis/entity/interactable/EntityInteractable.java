@@ -37,16 +37,6 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
             setActiveEntry(dialogue.setStageAndUpdate(save.dialogueStage(), save.dialogueStageIndex()));
     }
 
-    /**
-     * Update active texture based on entity rotation
-     */
-    protected void updateRotationTextureState() {
-        if (previousRotation != rotation) {
-            if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation.name());
-            previousRotation = rotation;
-        }
-    }
-
     @Override
     public EntityInteractable asInteractable() {
         return this;

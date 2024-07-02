@@ -35,8 +35,6 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
     protected boolean isDying;
     protected boolean isProcessingImpulse;
 
-    protected final EntityStateMachine stateMachine;
-
     protected boolean hurt;
     protected float hurtTime;
 

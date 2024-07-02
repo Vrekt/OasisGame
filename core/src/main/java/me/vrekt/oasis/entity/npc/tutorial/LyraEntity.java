@@ -51,7 +51,6 @@ public final class LyraEntity extends EntityInteractable {
 
         activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
 
-        // FIXME: add other walking animations
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
                 .moving(EntityRotation.LEFT, 0.4f, "lyra_walking_left", 2)
                 .add(animationComponent)
