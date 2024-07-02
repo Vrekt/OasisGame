@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="99">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="101">
  <tileset firstgid="1" source="../asset/data/1.tsx"/>
  <tileset firstgid="1441" source="../asset/data/3.tsx"/>
  <tileset firstgid="1681" source="../asset/data/Boats.tsx"/>
@@ -723,6 +723,20 @@
    <properties>
     <property name="entity" value="CHICK"/>
     <property name="goal" value="PECKING"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="99" name="Drink0" x="323.5" y="760">
+   <properties>
+    <property name="entity" value="CHICK"/>
+    <property name="goal" value="DRINK"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="100" name="Drink1" x="160" y="592">
+   <properties>
+    <property name="entity" value="CHICK"/>
+    <property name="goal" value="DRINK"/>
    </properties>
    <point/>
   </object>

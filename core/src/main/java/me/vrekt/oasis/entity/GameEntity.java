@@ -521,6 +521,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         return body;
     }
 
+    public Vector2 bodyPosition() {
+        return body.getPosition();
+    }
+
     /**
      * Set the body
      *

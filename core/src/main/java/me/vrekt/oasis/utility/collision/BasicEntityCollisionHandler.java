@@ -1,6 +1,7 @@
 package me.vrekt.oasis.utility.collision;
 
 import com.badlogic.gdx.physics.box2d.*;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -24,6 +25,14 @@ public final class BasicEntityCollisionHandler implements ContactListener {
     public void preSolve(Contact contact, Manifold oldManifold) {
         Fixture fixtureA = contact.getFixtureA();
         Fixture fixtureB = contact.getFixtureB();
+
+        // chick ignore collision with map bounds
+        // TODO: EM-115
+        if (fixtureB.getBody().getUserData() != null
+                && ((GameEntity) fixtureB.getBody().getUserData()).type() == EntityType.CHICK
+                && fixtureA.getBody().getType() == BodyDef.BodyType.StaticBody) {
+            contact.setEnabled(false);
+        }
 
         if (fixtureA.getBody().getUserData() != null
                 && fixtureB.getBody().getUserData() != null) {

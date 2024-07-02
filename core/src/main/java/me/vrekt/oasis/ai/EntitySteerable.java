@@ -4,6 +4,7 @@ import com.badlogic.gdx.ai.steer.Steerable;
 import com.badlogic.gdx.ai.steer.SteeringAcceleration;
 import com.badlogic.gdx.ai.steer.SteeringBehavior;
 import com.badlogic.gdx.ai.utils.Location;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import me.vrekt.oasis.GameManager;
@@ -43,6 +44,9 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
     private EntityRotation direction;
     private float last;
+
+    // interpolation for default behaviour
+    private final Vector2 lastVelocity = new Vector2(0, 0);
 
     private boolean handleMovementTolerance;
     private float toleranceX, toleranceY;
@@ -114,6 +118,8 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
         Vector2 linear = output.linear;
         if (handleMovementTolerance && !linear.isZero()) {
+            System.err.println(linear);
+
             final float leny = linear.y * linear.y;
             final float lenx = linear.x * linear.x;
 
@@ -126,7 +132,16 @@ public final class EntitySteerable implements Steerable<Vector2> {
             if (isZeroX) linear.x = 0.0f;
         }
 
+        if (lastVelocity.isZero()) {
+            lastVelocity.set(linear);
+        } else {
+            // TODO: Ok for now, fix in future EM-116;
+            linear.x = Interpolation.linear.apply(lastVelocity.x, linear.x, 0.25f);
+            linear.y = Interpolation.linear.apply(lastVelocity.y, linear.y, 0.25f);
+        }
+
         if (!linear.isZero()) {
+            lastVelocity.set(linear);
             body.applyForceToCenter(linear, true);
             hasAcceleration = true;
         }

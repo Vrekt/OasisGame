@@ -7,7 +7,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.goals.EntityMapGoal;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -107,8 +106,6 @@ public final class AiWalkToGoalsComponent extends AiComponent {
 
         activeGoal = goals.get(r);
         location.getPosition().set(activeGoal.goal.position());
-
-        GameLogging.info(this, "%s is walking to a new point: %s", entity.name(), location.getPosition());
     }
 
     private record MappedGoal(EntityMapGoal goal, Consumer<EntityMapGoal> executor) {

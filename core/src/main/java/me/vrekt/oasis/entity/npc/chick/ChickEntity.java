@@ -1,6 +1,8 @@
 package me.vrekt.oasis.entity.npc.chick;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
@@ -16,7 +18,7 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
-import me.vrekt.oasis.entity.npc.chick.states.ChickPeckingState;
+import me.vrekt.oasis.entity.npc.chick.states.ChickDrinkAndPeckState;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -24,14 +26,14 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public final class ChickEntity extends GameEntity {
 
-    private static final float PECKING_CHANCE = 0.5f;
+    private static final float GOAL_CHANCE = 0.5f;
     public static final String ENTITY_KEY = "oasis:chick";
     public static final String NAME = "Chick";
 
     private EntityAnimationComponent animationComponent;
     private AiWalkToGoalsComponent component;
 
-    private ChickPeckingState peckingState;
+    private ChickDrinkAndPeckState state;
 
     public ChickEntity(GameWorld world, Vector2 position, OasisGame game) {
         this.worldIn = world;
@@ -85,12 +87,20 @@ public final class ChickEntity extends GameEntity {
         component.setMaxLinearSpeed(1.0f);
         component.setMaxLinearAcceleration(1.0f);
         // attempt to stop weird bobbing movement, incomplete still WIP
-        component.steering().setMovementTolerance(0.001f, 0.001f);
+        component.steering().setMovementTolerance(0.01f, 0.01f);
         addAiComponent(component);
 
-        peckingState = new ChickPeckingState(this);
+        // splashing animation when chick is drinking
+        final Animation<TextureRegion> splash = new Animation<>(0.1f,
+                asset.get("chick_drink_splash", 1),
+                asset.get("chick_drink_splash", 2),
+                asset.get("chick_drink_splash", 3));
+        splash.setPlayMode(Animation.PlayMode.LOOP);
+
+        state = new ChickDrinkAndPeckState(this);
+        state.setSplashAnimation(splash);
         // the pecking state lasts for 4.5 seconds
-        peckingState.setStateTime(4.5f);
+        state.setStateTime(4.5f);
     }
 
     @Override
@@ -100,9 +110,9 @@ public final class ChickEntity extends GameEntity {
         // register the general goal point for pecking
         component.addGoalPoint(g, gp -> {
             // random chance to peck, or just sit there.
-            if (MathUtils.randomBoolean(PECKING_CHANCE)) {
-                peckingState.setActiveAnimation(getPeckingAnimation());
-                stateMachine.enter(peckingState);
+            if (MathUtils.randomBoolean(GOAL_CHANCE)) {
+                state.setActiveAnimation(getPeckingAnimation(), gp.goal());
+                stateMachine.enter(state);
             }
         });
         return g;
@@ -124,8 +134,8 @@ public final class ChickEntity extends GameEntity {
 
     @Override
     public void update(float delta) {
-        if (stateMachine.isInState(peckingState)) {
-            if (peckingState.isFinished()) {
+        if (stateMachine.isInState(state)) {
+            if (state.isFinished()) {
                 // assign a new goal immediately
                 component.resume();
                 stateMachine.exit();
@@ -150,8 +160,8 @@ public final class ChickEntity extends GameEntity {
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (stateMachine.isInState(peckingState) && peckingState.isActive()) {
-            peckingState.render(batch, delta);
+        if (stateMachine.isInState(state) && state.isActive()) {
+            state.render(batch, delta);
         } else {
             if (!isMoving()) {
                 drawCurrentPosition(batch, activeEntityTexture);
