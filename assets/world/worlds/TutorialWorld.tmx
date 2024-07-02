@@ -698,45 +698,31 @@
   </object>
  </objectgroup>
  <objectgroup id="17" name="EntityGoals">
-  <object id="92" name="Peck0" x="352" y="640">
+  <object id="92" name="Peck0" x="368" y="640">
    <properties>
     <property name="entity" value="CHICK"/>
     <property name="goal" value="PECKING"/>
    </properties>
    <point/>
   </object>
-  <object id="93" name="Peck1" x="400" y="640">
+  <object id="93" name="Peck1" x="456.5" y="653.5">
    <properties>
     <property name="entity" value="CHICK"/>
     <property name="goal" value="PECKING"/>
    </properties>
    <point/>
   </object>
-  <object id="94" name="Peck3" x="336" y="608">
+  <object id="94" name="Peck3" x="280" y="597">
    <properties>
     <property name="entity" value="CHICK"/>
     <property name="goal" value="PECKING"/>
    </properties>
    <point/>
   </object>
-  <object id="95" name="Peck4" x="384" y="720">
+  <object id="95" name="Peck4" x="400" y="720">
    <properties>
     <property name="entity" value="CHICK"/>
     <property name="goal" value="PECKING"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="96" name="Drink1" x="176" y="592">
-   <properties>
-    <property name="entity" value="CHICK"/>
-    <property name="goal" value="DRINK"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="97" name="Drink2" x="416" y="752">
-   <properties>
-    <property name="entity" value="CHICK"/>
-    <property name="goal" value="DRINK"/>
    </properties>
    <point/>
   </object>

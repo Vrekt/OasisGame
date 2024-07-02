@@ -22,6 +22,10 @@ public final class EntityAnimationComponent implements Component {
         otherAnimations.put(animation.type, animation);
     }
 
+    public EntityAnimation get(AnimationType type) {
+        return otherAnimations.get(type);
+    }
+
     /**
      * Animate
      *
@@ -53,7 +57,7 @@ public final class EntityAnimationComponent implements Component {
     }
 
     public void reset(AnimationType type) {
-         otherAnimations.get(type).reset();
+        otherAnimations.get(type).reset();
     }
 
 

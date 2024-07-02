@@ -1,6 +1,7 @@
 package me.vrekt.oasis.entity.npc.chick;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiWalkToGoalsComponent;
@@ -23,6 +24,7 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public final class ChickEntity extends GameEntity {
 
+    private static final float PECKING_CHANCE = 0.5f;
     public static final String ENTITY_KEY = "oasis:chick";
     public static final String NAME = "Chick";
 
@@ -65,7 +67,14 @@ public final class ChickEntity extends GameEntity {
                 .moving(EntityRotation.UP, 0.4f, "chick_walking_up", 2)
                 .add(animationComponent);
 
-        final EntityAnimation peckingAnimation = builder.animation(AnimationType.PECKING, 0.15f, "chick_pecking_down", 3).get();
+        builder.animation(AnimationType.PECKING_DOWN, 0.15f, "chick_pecking_down", 3)
+                .add(animationComponent)
+                .animation(AnimationType.PECKING_UP, 0.15f, "chick_pecking_up", 3)
+                .add(animationComponent)
+                .animation(AnimationType.PECKING_LEFT, 0.15f, "chick_pecking_left", 3)
+                .add(animationComponent)
+                .animation(AnimationType.PECKING_RIGHT, 0.15f, "chick_pecking_right", 3)
+                .add(animationComponent);
 
         builder.dispose();
 
@@ -79,7 +88,7 @@ public final class ChickEntity extends GameEntity {
         component.steering().setMovementTolerance(0.001f, 0.001f);
         addAiComponent(component);
 
-        peckingState = new ChickPeckingState(this, peckingAnimation);
+        peckingState = new ChickPeckingState(this);
         // the pecking state lasts for 4.5 seconds
         peckingState.setStateTime(4.5f);
     }
@@ -89,8 +98,28 @@ public final class ChickEntity extends GameEntity {
         final EntityMapGoal g = super.registerGoal(goal, position);
 
         // register the general goal point for pecking
-        component.addGoalPoint(g, goal1 -> stateMachine.enter(peckingState));
+        component.addGoalPoint(g, gp -> {
+            // random chance to peck, or just sit there.
+            if (MathUtils.randomBoolean(PECKING_CHANCE)) {
+                peckingState.setActiveAnimation(getPeckingAnimation());
+                stateMachine.enter(peckingState);
+            }
+        });
         return g;
+    }
+
+    /**
+     * Get the right pecking animation from the current entity rotation
+     *
+     * @return animation
+     */
+    private EntityAnimation getPeckingAnimation() {
+        return switch (rotation) {
+            case UP -> animationComponent.get(AnimationType.PECKING_UP);
+            case DOWN -> animationComponent.get(AnimationType.PECKING_DOWN);
+            case LEFT -> animationComponent.get(AnimationType.PECKING_LEFT);
+            case RIGHT -> animationComponent.get(AnimationType.PECKING_RIGHT);
+        };
     }
 
     @Override

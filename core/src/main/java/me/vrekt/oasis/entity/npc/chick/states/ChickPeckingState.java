@@ -14,21 +14,24 @@ public final class ChickPeckingState extends ProcessingState {
     public static final int STATE_ID = 2;
 
     private final ChickEntity entity;
-    private final EntityAnimation peckingAnimation;
+    private  EntityAnimation peckingAnimation;
 
     private boolean shouldPeck = true;
 
     private float entered, stateTime;
     private float last = 0;
 
-    public ChickPeckingState(ChickEntity entity, EntityAnimation animation) {
+    public ChickPeckingState(ChickEntity entity) {
         super(STATE_ID);
         this.entity = entity;
-        this.peckingAnimation = animation;
     }
 
     public void setStateTime(float time) {
         this.stateTime = time;
+    }
+
+    public void setActiveAnimation(EntityAnimation animation) {
+        this.peckingAnimation = animation;
     }
 
     public boolean isActive() {
