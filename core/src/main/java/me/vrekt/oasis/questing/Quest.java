@@ -17,7 +17,7 @@ public abstract class Quest {
     // quest objectives
     protected final LinkedList<QuestObjective> objectives = new LinkedList<>();
     protected final LinkedList<ItemDescriptor> itemsRequired = new LinkedList<>();
-    protected final LinkedList<ItemDescriptor> rewards = new LinkedList<>();
+    protected final LinkedList<QuestReward> rewards = new LinkedList<>();
 
     protected int currentObjectiveStep = 0;
 
@@ -73,7 +73,7 @@ public abstract class Quest {
     /**
      * @return {@link  ItemDescriptor} basic items that could be rewards.
      */
-    public LinkedList<ItemDescriptor> getRewards() {
+    public LinkedList<QuestReward> getRewards() {
         return rewards;
     }
 

@@ -5,6 +5,7 @@ public enum GuiType {
     DIALOG,
     QUEST,
     QUEST_ENTRY,
+    QUEST_COMPLETED,
     INVENTORY,
     HUD,
     CLASS,

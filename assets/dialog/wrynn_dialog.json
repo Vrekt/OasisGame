@@ -107,6 +107,7 @@
       "content": "You come back sometime if you need anything, I'll always be around.",
       "nextEntry": "wrynn:dialog_stage_8",
       "locked": true,
+      "task": "wrynn:complete_quest",
       "skippable": false
     }
   }

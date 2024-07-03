@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.goals.EntityFollowPathGoal;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
@@ -33,6 +34,8 @@ public final class WrynnEntity extends EntityInteractable {
     private boolean hintShown;
     private EntityAnimationComponent animationComponent;
     private EntityFollowPathGoal pathComponent;
+
+    private boolean completeQuest;
 
     public WrynnEntity(GameWorld world, Vector2 position, OasisGame game) {
         super(NAME, position, game.getPlayer(), world, game);
@@ -79,6 +82,9 @@ public final class WrynnEntity extends EntityInteractable {
         dialogue.addEntryCondition("wrynn:dialog_stage_6", this::checkPlayerHasBook);
         // take the book
         dialogue.addTaskHandler("wrynn:take_item", () -> player.getInventory().removeFirst(Items.WRYNN_RECIPE_BOOK));
+        dialogue.addTaskHandler("wrynn:complete_quest", () -> {
+            this.completeQuest = true;
+        });
 
         dialogue.addTaskHandler("wrynn:unlock_container", () -> {
             worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
@@ -98,6 +104,15 @@ public final class WrynnEntity extends EntityInteractable {
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         addAiComponent(pathComponent);
+    }
+
+    @Override
+    protected void stoppedSpeaking() {
+        // once the player leaves, complete the quest a few seconds later.
+        if (completeQuest) {
+            completeQuest = false;
+            GameManager.getTaskManager().schedule(() -> player.getQuestManager().completeQuest(QuestType.A_NEW_HORIZON), 20);
+        }
     }
 
     @Override

@@ -16,9 +16,7 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
-import me.vrekt.oasis.questing.PlayerQuestManager;
-import me.vrekt.oasis.questing.Quest;
-import me.vrekt.oasis.questing.QuestObjective;
+import me.vrekt.oasis.questing.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -54,6 +52,7 @@ public final class QuestEntryGui extends Gui {
         hasParent = true;
         parent = GuiType.QUEST;
         inheritParentBehaviour = true;
+        disablePlayerMovement = true;
 
         final TextureRegionDrawable drawable = new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "quest_entry", 2));
         rootTable.setBackground(drawable);
@@ -153,8 +152,8 @@ public final class QuestEntryGui extends Gui {
 
         // populate items required table
         if (quest.hasItemRequirements())
-            populateQuestItemComponents(itemsRequiredTable, quest.getItemsRequired(), itemsRequiredLabel);
-        if (quest.hasRewards()) populateQuestItemComponents(questRewardsTable, quest.getRewards(), questRewardsLabel);
+            populateQuestItemsRequired(itemsRequiredTable, quest.getItemsRequired(), itemsRequiredLabel);
+        if (quest.hasRewards()) populateQuestRewards(questRewardsTable, quest.getRewards(), questRewardsLabel);
     }
 
     private void updateExistingObjectiveComponent(QuestObjective objective, int i) {
@@ -193,12 +192,12 @@ public final class QuestEntryGui extends Gui {
     }
 
     /**
-     * Populate items required/rewards components
+     * Populate items required
      *
      * @param owner       the table owner
      * @param descriptors the list of items
      */
-    private void populateQuestItemComponents(Table owner, LinkedList<ItemDescriptor> descriptors, VisLabel labelOwner) {
+    private void populateQuestItemsRequired(Table owner, LinkedList<ItemDescriptor> descriptors, VisLabel labelOwner) {
         for (ItemDescriptor itemDescriptor : descriptors) {
             final Stack stack = new Stack();
             final VisImage background = new VisImage(Styles.getTheme());
@@ -207,6 +206,35 @@ public final class QuestEntryGui extends Gui {
             stack.add(icon);
 
             new Tooltip.Builder(itemDescriptor.name())
+                    .target(stack)
+                    .style(Styles.getTooltipStyle())
+                    .build()
+                    .setAppearDelayTime(0.1f);
+
+            owner.add(stack).padRight(6);
+        }
+
+        labelOwner.setVisible(true);
+    }
+
+    /**
+     * Populate items required/rewards components
+     *
+     * @param owner   the table owner
+     * @param rewards the list of rewards
+     */
+    private void populateQuestRewards(Table owner, LinkedList<QuestReward> rewards, VisLabel labelOwner) {
+        for (QuestReward reward : rewards) {
+            final Stack stack = new Stack();
+            final VisImage background = new VisImage(Styles.getTheme());
+
+            final VisImage icon = new VisImage(new TextureRegionDrawable(guiManager.getAsset().get(reward.descriptor().texture())));
+            final String text = reward.descriptor().name();
+
+            stack.add(background);
+            stack.add(icon);
+
+            new Tooltip.Builder(text)
                     .target(stack)
                     .style(Styles.getTooltipStyle())
                     .build()

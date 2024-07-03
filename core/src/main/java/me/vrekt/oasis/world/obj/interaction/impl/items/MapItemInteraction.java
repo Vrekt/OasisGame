@@ -104,7 +104,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
     @Override
     public void interact() {
-        world.player().getInventory().add(item);
+        item.addToPlayer(world.player());
         Pooling.freeHint(effect);
 
         world.removeInteraction(this);

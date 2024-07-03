@@ -54,7 +54,6 @@ public final class EntityAnimationBuilder implements Disposable {
      * @return this
      */
     public EntityAnimationBuilder moving(EntityRotation rotation, float ft, String template, int frames, EntityAnimationComponent component) {
-        this.rotation = rotation;
         final TextureRegion[] assets = new TextureRegion[frames];
 
         for (int i = 0; i < frames; i++) {
@@ -64,7 +63,7 @@ public final class EntityAnimationBuilder implements Disposable {
         final Animation<TextureRegion> a = new Animation<>(ft, assets);
         a.setPlayMode(Animation.PlayMode.LOOP);
 
-        component.add((EntityMovingAnimation) animation, rotation);
+        component.add(new EntityMovingAnimation(a), rotation);
         return this;
     }
 
@@ -76,6 +75,8 @@ public final class EntityAnimationBuilder implements Disposable {
      * @return this
      */
     public EntityAnimationBuilder hurting(String template, int frames) {
+        this.rotation = null;
+
         final TextureRegion[] assets = new TextureRegion[frames];
 
         for (int i = 0; i < frames; i++) {

@@ -44,6 +44,7 @@ public final class ContainerInventoryGui extends InventoryGui {
         this.player = guiManager.getGame().getPlayer();
 
         hideWhenVisible.add(GuiType.HUD);
+        disablePlayerMovement = true;
 
         rootTable.setFillParent(true);
         rootTable.setVisible(false);

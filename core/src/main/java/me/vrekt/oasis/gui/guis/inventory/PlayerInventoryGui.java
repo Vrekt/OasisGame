@@ -55,6 +55,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         this.player = guiManager.getGame().getPlayer();
 
         hideWhenVisible.add(GuiType.HUD);
+        disablePlayerMovement = true;
 
         initializeRarityIcons();
 

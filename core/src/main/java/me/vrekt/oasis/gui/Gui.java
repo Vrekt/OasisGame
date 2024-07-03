@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Disposable;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.GameManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public abstract class Gui implements Disposable {
     protected boolean hasParent;
     // if this gui should also for example, hide the same GUIs
     protected boolean inheritParentBehaviour;
+    protected boolean disablePlayerMovement;
     protected GuiType parent;
 
     protected List<GuiType> hideWhenVisible = new ArrayList<>();
@@ -67,6 +69,10 @@ public abstract class Gui implements Disposable {
         isShowing = true;
         hideRelatedGuis();
         hideWhenVisible.forEach(guiManager::hideGui);
+
+        if (disablePlayerMovement) {
+            GameManager.getPlayer().disableMovement();
+        }
     }
 
     /**
@@ -75,6 +81,10 @@ public abstract class Gui implements Disposable {
     public void hide() {
         isShowing = false;
         hideWhenVisible.forEach(guiManager::showGui);
+
+        if (disablePlayerMovement) {
+            GameManager.getPlayer().enableMovement();
+        }
     }
 
     public void hiddenForChild() {

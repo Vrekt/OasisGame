@@ -166,6 +166,16 @@ public abstract class Item implements ResourceLoader {
         return scaleSize;
     }
 
+    /**
+     * Add this item to the players inventory
+     * Used for when an item being picked up advances a quest
+     *
+     * @param player player
+     */
+    public void addToPlayer(PlayerSP player) {
+        player.getInventory().add(this);
+    }
+
     public Item split(int amount) {
         decrease(amount);
         return ItemRegistry.createItem(itemType, amount);

@@ -20,6 +20,7 @@ import me.vrekt.oasis.entity.enemy.fsm.states.AnimationProcessingState;
 import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.Effect;
 import me.vrekt.oasis.world.effects.EffectType;
@@ -185,6 +186,10 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         stateMachine.update(delta);
 
         if (isDead() && !stateMachine.isInSameState(AnimationProcessingState.STATE_ID)) {
+            // advance the quest, this enemy drops the recipe book.
+            if (player.getQuestManager().isQuestActive(QuestType.A_NEW_HORIZON))
+                player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
+
             // enter dead animation state
             stateMachine.enter(dyingState);
             this.isDying = true;

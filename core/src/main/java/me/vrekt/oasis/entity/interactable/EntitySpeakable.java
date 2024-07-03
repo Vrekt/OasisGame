@@ -88,8 +88,17 @@ public abstract class EntitySpeakable extends GameEntity {
                 GameManager.getGuiManager().hideGui(GuiType.DIALOG);
                 GameManager.getGuiManager().resetCursor();
                 speakingTo = false;
+
+                stoppedSpeaking();
             }
         }
+    }
+
+    /**
+     * When the player stops speaking to this entity
+     */
+    protected void stoppedSpeaking() {
+
     }
 
     @Override
@@ -129,8 +138,11 @@ public abstract class EntitySpeakable extends GameEntity {
      * @param speakingTo state
      */
     public void speak(boolean speakingTo) {
-        this.speakingTo = speakingTo;
+        if (!speakingTo && this.speakingTo) {
+            stoppedSpeaking();
+        }
 
+        this.speakingTo = speakingTo;
         player.speak(this, speakingTo);
         interactionPoint.set(player.getPosition());
     }

@@ -63,9 +63,6 @@ public class GameManager {
         KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
         KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
-        KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            game().getGuiManager().showGui(GuiType.LOCK_PICKING);
-        });
     }
 
     private static void registerGlobalKeyActions() {

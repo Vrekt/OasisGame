@@ -28,6 +28,7 @@ import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.guis.lockpicking.LockPickingGui;
 import me.vrekt.oasis.gui.guis.map.WorldMapGui;
+import me.vrekt.oasis.gui.guis.quest.QuestCompletedGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
 import me.vrekt.oasis.gui.guis.sign.ReadableSignGui;
@@ -60,6 +61,7 @@ public final class GuiManager implements Disposable {
     private final ContainerInventoryGui containerGui;
     private final GameChatGui chatGui;
     private final LockPickingGui lockPickingGui;
+    private final QuestCompletedGui completedGui;
 
     private Cursor cursorState;
     private boolean wasCursorChanged;
@@ -94,6 +96,7 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
         guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
         guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockPickingGui(this));
+        guis.put(GuiType.QUEST_COMPLETED, completedGui = new QuestCompletedGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -159,6 +162,10 @@ public final class GuiManager implements Disposable {
 
     public LockPickingGui getLockpickingComponent() {
         return lockPickingGui;
+    }
+
+    public QuestCompletedGui getCompletedQuestComponent() {
+        return completedGui;
     }
 
     /**
