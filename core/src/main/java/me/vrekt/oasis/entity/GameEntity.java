@@ -113,9 +113,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      *
      * @param goal     goal
      * @param position position
+     * @param rotation rotation entity should be to execute this goal
      */
-    public EntityMapGoal registerGoal(EntityGoal goal, Vector2 position) {
-        final EntityMapGoal g = new EntityMapGoal(goal, position);
+    public EntityMapGoal registerGoal(EntityGoal goal, Vector2 position, EntityRotation rotation) {
+        final EntityMapGoal g = new EntityMapGoal(goal, position, rotation);
         goals.add(g);
         return g;
     }

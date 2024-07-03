@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 public final class AiWalkToGoalsComponent extends AiComponent {
 
     private static final float TIME_TO_TARGET = 0.1f;
-    private static final float ARRIVE_TOLERANCE = 0.1f;
+    private static final float ARRIVE_TOLERANCE = 0.01f;
     private static final float DECELERATION_RADIUS = 0.1f;
 
     // points where the entity can walk to

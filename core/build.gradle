@@ -10,6 +10,7 @@ dependencies {
     api "com.kotcrab.vis:vis-ui:1.5.3"
     api "com.github.tommyettinger:textratypist:0.10.0"
     api group: 'com.badlogicgames.gdx', name: 'gdx-ai', version: '1.8.2'
+    api group: 'com.badlogicgames.box2dlights', name: 'box2dlights', version: '1.6-SNAPSHOT'
     api "org.bouncycastle:bcprov-jdk18on:1.77"
     api "org.bouncycastle:bcpkix-jdk18on:1.77"
 

@@ -5,7 +5,7 @@ import com.badlogic.ashley.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.GdxAI;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,10 +19,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.IntMap;
-import com.badlogic.gdx.utils.PerformanceCounter;
+import com.badlogic.gdx.utils.*;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.goals.EntityGoal;
@@ -33,6 +30,7 @@ import me.vrekt.oasis.combat.EntityDamageAnimator;
 import me.vrekt.oasis.entity.Entities;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileManager;
 import me.vrekt.oasis.entity.enemy.projectile.ProjectileResult;
@@ -432,7 +430,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
             final boolean enemy = TiledMapLoader.ofBoolean(object, "enemy");
             final boolean interactable = TiledMapLoader.ofBoolean(object, "interactable");
-            final boolean goals = TiledMapLoader.ofBoolean(object, "has_goals");
 
             if (enemy) {
                 createEnemy(key, rectangle, asset);
@@ -874,20 +871,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 final EntityType type = EntityType.valueOf(e);
 
                 final String g = TiledMapLoader.ofString(object, "goal");
+                final String r = TiledMapLoader.ofString(object, "rotation");
                 final EntityGoal goal = EntityGoal.valueOf(g);
+                final EntityRotation goalRotation = r != null ? EntityRotation.valueOf(r) : null;
 
                 final GameEntity entity = findEntity(type);
-                entity.registerGoal(goal, new Vector2(bounds.x, bounds.y));
+                entity.registerGoal(goal, new Vector2(bounds.x, bounds.y), goalRotation);
             }
         });
 
         if (result) GameLogging.info(this, "Loaded entity goals.");
-    }
-
-    protected void createWorldGroves(TiledMap worldMap, float worldScale) {
-        final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "Groves", (object, bounds) -> {
-
-        });
     }
 
     /**
@@ -922,7 +915,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        ScreenUtils.clear(Color.BLACK);
 
         if (paused) {
             // render, no update

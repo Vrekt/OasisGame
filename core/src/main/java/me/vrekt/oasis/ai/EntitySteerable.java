@@ -116,9 +116,9 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private void applyDefault() {
         boolean hasAcceleration = false;
 
+        // TODO: Do not create a new object
         Vector2 linear = output.linear;
         if (handleMovementTolerance && !linear.isZero()) {
-            System.err.println(linear);
 
             final float leny = linear.y * linear.y;
             final float lenx = linear.x * linear.x;

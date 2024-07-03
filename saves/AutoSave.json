@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "02-07-24 01:17 AM",
+  "date": "02-07-24 22:55 PM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player23",
+    "name": "Player39",
     "position": {
-      "x": 30.661554,
-      "y": 22.041716
+      "x": 22.991695,
+      "y": 21.82524
     },
     "inventory": {
       "type": "PLAYER",
@@ -32,6 +32,24 @@
           "slot": 0,
           "name": "Lockpick",
           "type": "LOCK_PICK",
+          "amount": 1
+        },
+        {
+          "slot": 2,
+          "name": "Tempered Blade",
+          "type": "TEMPERED_BLADE",
+          "amount": 1
+        },
+        {
+          "slot": 1,
+          "name": "Quickstep Artifact",
+          "type": "QUICKSTEP_ARTIFACT",
+          "amount": 1
+        },
+        {
+          "slot": 3,
+          "name": "Ring Of Mycelia",
+          "type": "RING_OF_MYCELIA",
           "amount": 1
         }
       ]
@@ -70,8 +88,8 @@
             "name": "Lyra",
             "entityId": 1,
             "position": {
-              "x": 16.0,
-              "y": 29.0
+              "x": 22.489416,
+              "y": 31.833353
             },
             "size": {
               "x": 12.0,
@@ -79,7 +97,7 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "UP",
             "move_speed": 0.0
           }
         ],
@@ -94,6 +112,57 @@
             "enabled": true,
             "type": "READABLE_SIGN",
             "key": "oasis:basement_sign",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
+            "container_inventory": {
+              "type": "CONTAINER",
+              "size": 16,
+              "contents": [
+                {
+                  "slot": 0,
+                  "name": "Tempered Blade",
+                  "type": "TEMPERED_BLADE",
+                  "amount": 1
+                }
+              ]
+            },
+            "enabled": true,
+            "type": "CONTAINER",
+            "key": "GroveContainer1-container",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
+            "dropped_item": {
+              "slot": 0,
+              "name": "Lockpick",
+              "type": "LOCK_PICK",
+              "amount": 3
+            },
+            "position": {
+              "x": 55.8125,
+              "y": 46.5
+            },
+            "enabled": true,
+            "type": "MAP_ITEM",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
+            "dropped_item": {
+              "slot": 0,
+              "name": "Pigs Heart",
+              "type": "PIG_HEART",
+              "amount": 1
+            },
+            "position": {
+              "x": 53.6875,
+              "y": 46.53125
+            },
+            "enabled": true,
+            "type": "MAP_ITEM",
             "interactable": true,
             "destroyed": false
           }

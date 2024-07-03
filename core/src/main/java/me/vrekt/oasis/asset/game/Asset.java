@@ -26,7 +26,7 @@ public final class Asset implements Disposable {
 
     private final AssetManager assetManager = new AssetManager();
 
-    private TextureAtlas normal, lp, ui;
+    private TextureAtlas normal;
 
     private BitmapFont smaller, small, medium, large, boxy, mediumMipMapped;
 
@@ -37,17 +37,12 @@ public final class Asset implements Disposable {
         final long now = System.currentTimeMillis();
 
         assetManager.load(ASSETS, TextureAtlas.class);
-        // assetManager.load(UI, TextureAtlas.class);
-        //  assetManager.load(LP, TextureAtlas.class);
-
         loadFonts();
         loadWorlds();
 
         assetManager.finishLoading();
 
         normal = assetManager.get(ASSETS);
-      //  ui = assetManager.get(UI);
-       // lp = assetManager.get(LP);
 
         final long time = System.currentTimeMillis() - now;
         GameLogging.info("AssetManager", "Finished loading assets in %sms", time);

@@ -60,7 +60,7 @@ public final class ChickEntity extends GameEntity {
         entity.add(animationComponent);
 
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
-                .moving(EntityRotation.LEFT, 0.4f, "chick_walking_left", 2)
+                .moving(EntityRotation.LEFT, 0.4f, "chick_walking_left", 3)
                 .add(animationComponent)
                 .moving(EntityRotation.DOWN, 0.4f, "chick_walking_down", 2)
                 .add(animationComponent)
@@ -86,8 +86,6 @@ public final class ChickEntity extends GameEntity {
         component.setPathingInterval(120);
         component.setMaxLinearSpeed(1.0f);
         component.setMaxLinearAcceleration(1.0f);
-        // attempt to stop weird bobbing movement, incomplete still WIP
-        component.steering().setMovementTolerance(0.01f, 0.01f);
         addAiComponent(component);
 
         // splashing animation when chick is drinking
@@ -99,24 +97,29 @@ public final class ChickEntity extends GameEntity {
 
         state = new ChickDrinkAndPeckState(this);
         state.setSplashAnimation(splash);
-        // the pecking state lasts for 4.5 seconds
-        state.setStateTime(4.5f);
     }
 
     @Override
-    public EntityMapGoal registerGoal(EntityGoal goal, Vector2 position) {
-        final EntityMapGoal g = super.registerGoal(goal, position);
+    public EntityMapGoal registerGoal(EntityGoal goal, Vector2 position, EntityRotation rotation) {
+        final EntityMapGoal g = super.registerGoal(goal, position, rotation);
 
         // register the general goal point for pecking
         component.addGoalPoint(g, gp -> {
             // random chance to peck, or just sit there.
             if (MathUtils.randomBoolean(GOAL_CHANCE)) {
                 state.setActiveAnimation(getPeckingAnimation(), gp.goal());
+                // randomize a bit
+                state.setStateTime(MathUtils.random(2.5f, 4.5f));
+
                 stateMachine.enter(state);
+
+                // face goal rotation
+                if (rotation != null) setRotation(rotation);
             }
         });
         return g;
     }
+
 
     /**
      * Get the right pecking animation from the current entity rotation
@@ -148,10 +151,8 @@ public final class ChickEntity extends GameEntity {
             updateAi(delta);
             if (component.isAtGoal()) {
                 // full-stop
-                body.setLinearVelocity(0, 0);
+                setVelocity(0, 0, true);
             }
-            // TODO: Remove this, better velocity updating
-            setVelocity(body.getLinearVelocity(), false);
         }
 
         rotation = component.getFacingDirection();
