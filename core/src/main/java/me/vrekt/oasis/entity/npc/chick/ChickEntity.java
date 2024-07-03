@@ -19,6 +19,7 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.npc.chick.states.ChickDrinkAndPeckState;
+import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -27,6 +28,9 @@ import me.vrekt.oasis.world.GameWorld;
 public final class ChickEntity extends GameEntity {
 
     private static final float GOAL_CHANCE = 0.5f;
+    private static final float REWARD_CHANCE = 0.1f;
+    private static final int MAX_REWARDS = 2;
+
     public static final String ENTITY_KEY = "oasis:chick";
     public static final String NAME = "Chick";
 
@@ -34,6 +38,7 @@ public final class ChickEntity extends GameEntity {
     private AiWalkToGoalsComponent component;
 
     private ChickDrinkAndPeckState state;
+    private int rewardsGiven;
 
     public ChickEntity(GameWorld world, Vector2 position, OasisGame game) {
         this.worldIn = world;
@@ -95,7 +100,15 @@ public final class ChickEntity extends GameEntity {
                 asset.get("chick_drink_splash", 3));
         splash.setPlayMode(Animation.PlayMode.LOOP);
 
+        // pecking grass animation
+        final Animation<TextureRegion> peck = new Animation<>(0.15f,
+                asset.get("chick_peck", 1),
+                asset.get("chick_peck", 2),
+                asset.get("chick_peck", 3));
+        peck.setPlayMode(Animation.PlayMode.LOOP);
+
         state = new ChickDrinkAndPeckState(this);
+        state.setPeckAnimation(peck);
         state.setSplashAnimation(splash);
     }
 
@@ -105,16 +118,21 @@ public final class ChickEntity extends GameEntity {
 
         // register the general goal point for pecking
         component.addGoalPoint(g, gp -> {
+            // face goal rotation
+            if (rotation != null) setRotation(rotation);
+
             // random chance to peck, or just sit there.
             if (MathUtils.randomBoolean(GOAL_CHANCE)) {
                 state.setActiveAnimation(getPeckingAnimation(), gp.goal());
                 // randomize a bit
                 state.setStateTime(MathUtils.random(2.5f, 4.5f));
-
                 stateMachine.enter(state);
 
-                // face goal rotation
-                if (rotation != null) setRotation(rotation);
+                // random chance for the player to get a reward
+                if (goal != EntityGoal.DRINK && MathUtils.randomBoolean(REWARD_CHANCE) && rewardsGiven <= MAX_REWARDS) {
+                    worldIn.spawnWorldDrop(pickRandomReward(), 1, getPosition().cpy().add(0.25f, 0.25f));
+                    rewardsGiven++;
+                }
             }
         });
         return g;
@@ -171,4 +189,18 @@ public final class ChickEntity extends GameEntity {
             }
         }
     }
+
+    /**
+     * Pick a random award
+     */
+    private Items pickRandomReward() {
+        final int reward = MathUtils.random(0, 2);
+        return switch (reward) {
+            case 0 -> Items.LOCK_PICK;
+            case 1 -> Items.PIG_HEART;
+            case 2 -> Items.QUICKSTEP_ARTIFACT;
+            default -> Items.NO_ITEM;
+        };
+    }
+
 }

@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "02-07-24 22:55 PM",
+  "date": "03-07-24 00:15 AM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player39",
+    "name": "Player70",
     "position": {
-      "x": 22.991695,
-      "y": 21.82524
+      "x": 13.197787,
+      "y": 24.091446
     },
     "inventory": {
       "type": "PLAYER",
@@ -89,7 +89,7 @@
             "entityId": 1,
             "position": {
               "x": 22.489416,
-              "y": 31.833353
+              "y": 34.546543
             },
             "size": {
               "x": 12.0,

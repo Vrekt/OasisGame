@@ -1,6 +1,7 @@
 package me.vrekt.oasis.item;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.utility.ResourceLoader;
@@ -25,6 +26,9 @@ public abstract class Item implements ResourceLoader {
     // map of all attributes on this item
     protected Map<String, Attribute> attributes = new HashMap<>();
     protected float scaleSize = 1.0f;
+
+    protected boolean dropScale;
+    protected float itemDropScale;
 
     public Item(Items itemType, String key, String name, String description) {
         this.itemType = itemType;
@@ -76,6 +80,18 @@ public abstract class Item implements ResourceLoader {
      */
     public TextureRegion sprite() {
         return sprite;
+    }
+
+    public boolean dropScale() {
+        return dropScale;
+    }
+
+    public float itemWidthDropped() {
+        return sprite.getRegionWidth() * OasisGameSettings.SCALE / itemDropScale;
+    }
+
+    public float itemHeightDropped() {
+        return sprite.getRegionHeight() * OasisGameSettings.SCALE / itemDropScale;
     }
 
     /**

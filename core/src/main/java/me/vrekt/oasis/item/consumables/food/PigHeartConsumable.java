@@ -27,6 +27,10 @@ public final class PigHeartConsumable extends ItemConsumable {
         addAttribute(new PlayerHealingAttribute(GameManager.secondsToTicks(2.5f)));
         addAttribute(new PlayerSatisfactionAttribute(GameManager.secondsToTicks(5.5f), 1.5f));
 
+        // this item is large, scale it down for item drops
+        this.dropScale = true;
+        this.itemDropScale = 1.25f;
+
         this.scaleSize = 1f;
         this.rarity = ItemRarity.COMMON;
         this.isStackable = true;

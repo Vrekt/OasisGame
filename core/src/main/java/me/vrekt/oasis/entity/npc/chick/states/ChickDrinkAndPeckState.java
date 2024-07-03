@@ -7,6 +7,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.goals.EntityGoal;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.animation.EntityAnimation;
+import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.fsm.ProcessingState;
 import me.vrekt.oasis.entity.npc.chick.ChickEntity;
 
@@ -21,7 +22,8 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
     private EntityAnimation animation;
 
     private Animation<TextureRegion> splashAnimation;
-    private float splashAnimationTime;
+    private Animation<TextureRegion> peckAnimation;
+    private float splashAnimationTime, peckAnimationTime;
 
     private boolean animate = true;
     private EntityGoal goal;
@@ -36,6 +38,10 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
 
     public void setSplashAnimation(Animation<TextureRegion> splashAnimation) {
         this.splashAnimation = splashAnimation;
+    }
+
+    public void setPeckAnimation(Animation<TextureRegion> peckAnimation) {
+        this.peckAnimation = peckAnimation;
     }
 
     public void setStateTime(float time) {
@@ -65,6 +71,7 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
     @Override
     public void exit() {
         animate = true;
+        peckAnimationTime = 0.0f;
         splashAnimationTime = 0.0f;
     }
 
@@ -82,17 +89,25 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
 
     @Override
     public void render(SpriteBatch batch, float delta) {
+
+        final float offsetX = entity.rotation() == EntityRotation.RIGHT ? -0.2f : 0.1f;
+        final float offsetY = entity.rotation() == EntityRotation.DOWN ? -0.2f : 0.1f;
+
+        TextureRegion frame = null;
         if (goal == EntityGoal.DRINK) {
             // play particle drink effect
             splashAnimationTime += delta;
-            final TextureRegion frame = splashAnimation.getKeyFrame(splashAnimationTime);
-
-            batch.draw(frame,
-                    entity.bodyPosition().x + 0.1f,
-                    entity.bodyPosition().y - 0.2f,
-                    frame.getRegionWidth() * OasisGameSettings.SCALE,
-                    frame.getRegionHeight() * OasisGameSettings.SCALE);
+            frame = splashAnimation.getKeyFrame(splashAnimationTime);
+        } else if (goal == EntityGoal.PECKING) {
+            peckAnimationTime += delta;
+            frame = peckAnimation.getKeyFrame(peckAnimationTime);
         }
+
+        if (frame != null) batch.draw(frame,
+                entity.bodyPosition().x + offsetX,
+                entity.bodyPosition().y - offsetY,
+                frame.getRegionWidth() * OasisGameSettings.SCALE,
+                frame.getRegionHeight() * OasisGameSettings.SCALE);
 
         if (animate) entity.drawCurrentPosition(batch, animation.animate(delta));
     }

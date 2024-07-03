@@ -36,10 +36,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
         setWorldIn(world);
         setPosition(position.x, position.y);
-        setSize(
-                item.sprite().getRegionWidth() * OasisGameSettings.SCALE,
-                item.sprite().getRegionHeight() * OasisGameSettings.SCALE
-        );
+        calculateSize(item);
         setInteractionRange(2.5f);
         enable();
 
@@ -55,6 +52,15 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
         this.isMapObject = true;
         this.handleMouseState = false;
         this.isUiComponent = true;
+    }
+
+    private void calculateSize(Item item) {
+        if (item.dropScale()) {
+            setSize(item.itemWidthDropped(), item.itemHeightDropped());
+        } else {
+            setSize(item.sprite().getRegionWidth() * OasisGameSettings.SCALE,
+                    item.sprite().getRegionHeight() * OasisGameSettings.SCALE);
+        }
     }
 
     /**
@@ -87,8 +93,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
                 final int amount = TiledMapLoader.ofInt(object, "item_amount", 1);
                 this.item = ItemRegistry.createItem(items, amount);
 
-                setSize(this.item.sprite().getRegionWidth() * OasisGameSettings.SCALE,
-                        this.item.sprite().getRegionHeight() * OasisGameSettings.SCALE);
+                calculateSize(this.item);
                 setInteractionRange(4.0f);
             } catch (IllegalArgumentException exception) {
                 GameLogging.exceptionThrown(this, "Failed to find the correct item for a map item object, item=%s", exception, item);

@@ -976,13 +976,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             networkRenderer.render(this, batch, delta);
         }
 
-        for (GameEntity entity : entities.values()) {
-            if (entity.isInView(renderer.getCamera())) {
-                entity.render(batch, delta);
-                entity.renderHealthBar(batch);
-            }
-        }
-
         // general world objects
         for (AbstractWorldObject object : worldObjects.values()) object.render(batch, delta);
 
@@ -990,6 +983,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
             if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
             worldObject.render(batch, delta);
+        }
+
+        for (GameEntity entity : entities.values()) {
+            if (entity.isInView(renderer.getCamera())) {
+                entity.render(batch, delta);
+                entity.renderHealthBar(batch);
+            }
         }
 
         // render particles
