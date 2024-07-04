@@ -76,7 +76,7 @@ public final class Asset implements Disposable {
 
         mediumMipMapped = ofMipMapped(generator, parameter, Math.ceil(640 * 0.04));
 
-        small = of(generator, parameter, Math.ceil(640 * 0.033));
+        small = ofMipMapped(generator, parameter, Math.ceil(640 * 0.033));
         smaller = of(generator, parameter, Math.ceil(640 * 0.02));
         generator.dispose();
 

@@ -3,6 +3,7 @@ package me.vrekt.oasis.item;
 public enum ItemRarity {
 
     COMMON("Common", "[#472B08]", "common_rarity"),
+    UN_COMMON("Uncommon", "[#00540D]", "uncommon_rarity"),
     COSMIC("Cosmic", "[#10334A]", null),
     VOID("Void", "[PURPLE]", "void_rarity");
 

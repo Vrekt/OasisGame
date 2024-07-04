@@ -37,10 +37,19 @@ public final class NewGameWorld extends GameWorld {
         if (!isWorldLoaded) loadTiledMap(game.getAsset().getWorldMap(Asset.TUTORIAL_WORLD), OasisGameSettings.SCALE);
         if (!isGameSave) {
             player.getQuestManager().addActiveQuest(QuestType.A_NEW_HORIZON, new ANewHorizonQuest());
+
             player.getInventory().add(Items.LOCK_PICK, 1);
             player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
             player.getInventory().add(Items.TEMPERED_BLADE, 1);
             player.getInventory().add(Items.RING_OF_MYCELIA, 1);
+
+            player.getInventory().add(Items.CRIMSON_CAP, 1);
+            player.getInventory().add(Items.SILVER_SPORE, 1);
+            player.getInventory().add(Items.VERDANT_FUNGUS, 1);
+
+            player.getInventory().add(Items.STAFF_OF_EARTH, 1);
+            player.getInventory().add(Items.STAFF_OF_OBSIDIAN, 1);
+
         }
     }
 

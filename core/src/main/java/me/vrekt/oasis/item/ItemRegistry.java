@@ -2,13 +2,14 @@ package me.vrekt.oasis.item;
 
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
-import me.vrekt.oasis.item.consumables.food.LucidTreeFruitItem;
-import me.vrekt.oasis.item.consumables.food.PigHeartConsumable;
+import me.vrekt.oasis.item.consumables.food.*;
 import me.vrekt.oasis.item.misc.LockpickItem;
 import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
+import me.vrekt.oasis.item.weapons.magic.StaffOfEarthItem;
+import me.vrekt.oasis.item.weapons.magic.StaffOfObsidian;
 
 import java.util.EnumMap;
 
@@ -31,6 +32,11 @@ public final class ItemRegistry {
         registry.put(Items.WRYNN_RECIPE_BOOK, WrynnRecipeBookItem::new);
         registry.put(Items.LOCK_PICK, LockpickItem::new);
         registry.put(Items.RING_OF_MYCELIA, RingOfMyceliaItem::new);
+        registry.put(Items.CRIMSON_CAP, CrimsonCapItem::new);
+        registry.put(Items.SILVER_SPORE, SilverSporeItem::new);
+        registry.put(Items.VERDANT_FUNGUS, VerdantFungusItem::new);
+        registry.put(Items.STAFF_OF_EARTH, StaffOfEarthItem::new);
+        registry.put(Items.STAFF_OF_OBSIDIAN, StaffOfObsidian::new);
         registry.put(Items.NO_ITEM, () -> {
             throw new UnsupportedOperationException("NO ITEM");
         });

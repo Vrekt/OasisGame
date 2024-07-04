@@ -30,6 +30,18 @@ public enum ItemSlotStyle {
         }
     },
 
+    UN_COMMON {
+        @Override
+        public Drawable get() {
+            return Styles.slots().uncommon();
+        }
+
+        @Override
+        public Drawable down() {
+            return Styles.slots().uncommonDown();
+        }
+    },
+
     COSMIC {
         @Override
         public Drawable get() {
@@ -76,6 +88,7 @@ public enum ItemSlotStyle {
     public static ItemSlotStyle of(Item item) {
         return switch (item.rarity()) {
             case COMMON -> COMMON;
+            case UN_COMMON -> UN_COMMON;
             case COSMIC -> COSMIC;
             case VOID -> VOID;
         };

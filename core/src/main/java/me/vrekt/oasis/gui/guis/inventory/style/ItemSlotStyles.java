@@ -13,6 +13,7 @@ public final class ItemSlotStyles {
     private final NinePatchDrawable normal, normalDown;
     private final NinePatchDrawable common, commonDown, cosmic, cosmicDown;
     private final NinePatchDrawable vd, voidDown;
+    private final NinePatchDrawable uncommon, uncommonDown;
 
     public ItemSlotStyles(Asset asset) {
         final NinePatch normalPatch = new NinePatch(asset.get(Resource.UI, "theme"), 4, 4, 4, 4);
@@ -29,12 +30,17 @@ public final class ItemSlotStyles {
         final NinePatch vd = new NinePatch(asset.get(Resource.UI, "void_slot_rarity"), 4, 4, 4, 4);
         final NinePatch vdDown = new NinePatch(asset.get(Resource.UI, "void_slot_rarity_down"), 4, 4, 4, 4);
 
+        final NinePatch uncommon = new NinePatch(asset.get(Resource.UI, "uncommon_slot_rarity"), 4, 4, 4, 4);
+        final NinePatch uncommonDown = new NinePatch(asset.get(Resource.UI, "uncommon_slot_rarity_down"), 4, 4, 4, 4);
+
         this.common = new NinePatchDrawable(commonPatch);
         this.commonDown = new NinePatchDrawable(commonDownPatch);
         this.cosmic = new NinePatchDrawable(cosmicPatch);
         this.cosmicDown = new NinePatchDrawable(cosmicDownPatch);
         this.vd = new NinePatchDrawable(vd);
         this.voidDown = new NinePatchDrawable(vdDown);
+        this.uncommon = new NinePatchDrawable(uncommon);
+        this.uncommonDown = new NinePatchDrawable(uncommonDown);
     }
 
     /**
@@ -91,5 +97,19 @@ public final class ItemSlotStyles {
      */
     public NinePatchDrawable voidDown() {
         return voidDown;
+    }
+
+    /**
+     * @return uncommon
+     */
+    public NinePatchDrawable uncommon() {
+        return uncommon;
+    }
+
+    /**
+     * @return uncommon down
+     */
+    public NinePatchDrawable uncommonDown() {
+        return uncommonDown;
     }
 }

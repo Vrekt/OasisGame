@@ -45,7 +45,13 @@ public final class PlayerInventoryGui extends InventoryGui {
     private final Array<ItemInformationContainer> informationContainers = new Array<>();
 
     private final VisImage itemRarityIcon;
+    private final VisLabel itemRarityText;
     private final VisImageTextButton itemActionButton;
+
+    private final VisTable rarityIconContainer;
+    private final VisTable parentItemInformationContainer;
+    private final VisTable itemInformationComponents;
+    private final VisTable buttonTable;
 
     // currently selected item
     private Item selectedItem;
@@ -80,16 +86,17 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemDescriptionHeader.setColor(Color.DARK_GRAY);
         itemDescriptionHeader.setWidth(175);
 
+        rarityIconContainer = new VisTable();
+        rarityIconContainer.left();
+
+        rarityIconContainer.setBackground(Styles.getThemePadded());
+        rarityIconContainer.add(itemRarityIcon = new VisImage()).size(36, 36);
+        rarityIconContainer.add(itemRarityText = new VisLabel(StringUtils.EMPTY, Styles.getMediumWhiteMipMapped())).padLeft(8);
+
         // add name + rarity icon
         final VisTable headerTable = new VisTable();
         headerTable.left();
         headerTable.add(itemNameHeader).width(150).left();
-        headerTable.row();
-        headerTable.add(itemRarityIcon = new VisImage())
-                .size(36, 36)
-                .bottom()
-                .left()
-                .padTop(10);
 
         // add header table + description
         right.add(headerTable).left();
@@ -101,8 +108,8 @@ public final class PlayerInventoryGui extends InventoryGui {
         right.row().padTop(16);
 
         // Item info: Info and stats
-        final VisTable parentItemInformationContainer = new VisTable();
-        final VisTable itemInformationComponents = new VisTable();
+        parentItemInformationContainer = new VisTable();
+        itemInformationComponents = new VisTable();
 
         parentItemInformationContainer.left();
         itemInformationComponents.left();
@@ -118,15 +125,18 @@ public final class PlayerInventoryGui extends InventoryGui {
             final ItemInformationContainer container = new ItemInformationContainer(icon, tooltip);
             informationContainers.add(container);
 
-            itemInformationComponents.add(icon).size(36, 36).padRight(4);
+            itemInformationComponents.add(icon).size(36, 36).padRight(4).left();
         }
 
         // Item info: add to table
-        parentItemInformationContainer.add(itemInformationComponents).left();
-        parentItemInformationContainer.row();
+        // parentItemInformationContainer.add(itemInformationComponents).left();
+        // parentItemInformationContainer.row();
+
+        //   parentItemInformationContainer.add(rarityIconContainer).padTop(8).left();
+        //   parentItemInformationContainer.row();
 
         // Use item button
-        final VisTable buttonTable = new VisTable();
+        buttonTable = new VisTable();
         buttonTable.left();
 
         // Init use item buttons and styles
@@ -134,11 +144,10 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemActionButton.setVisible(false);
 
         buttonTable.add(itemActionButton);
-        parentItemInformationContainer.add(buttonTable).padTop(16).left();
+        //     parentItemInformationContainer.add(buttonTable).padTop(16).left();
 
         // Finally, add item information to right table
         right.add(parentItemInformationContainer).left();
-        right.row();
 
         addItemActionButtonListener();
 
@@ -285,6 +294,9 @@ public final class PlayerInventoryGui extends InventoryGui {
      */
     private void updateItemRarityIcon() {
         final ItemRarity rarity = selectedItem.rarity();
+        itemRarityText.setText(rarity.getRarityName());
+        populateRarityComponents();
+
         if (rarityIcons.containsKey(rarity)) {
             itemRarityIcon.setVisible(true);
             itemRarityIcon.setDrawable(rarityIcons.get(rarity));
@@ -292,6 +304,18 @@ public final class PlayerInventoryGui extends InventoryGui {
             itemRarityIcon.setDrawable((Drawable) null);
             itemRarityIcon.setVisible(false);
         }
+    }
+
+    private void populateItemAttributeComponents() {
+        parentItemInformationContainer.row().padTop(-16);
+        parentItemInformationContainer.add(itemInformationComponents).left();
+    }
+
+    private void populateRarityComponents() {
+        parentItemInformationContainer.row();
+        parentItemInformationContainer.add(rarityIconContainer).padTop(6).left();
+        parentItemInformationContainer.row();
+        parentItemInformationContainer.add(buttonTable).padTop(8).left();
     }
 
     /**
@@ -347,6 +371,8 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param index     current index, should not exceed 2
      */
     private void populateAttributeInformation(Attribute attribute, int index) {
+        populateItemAttributeComponents();
+
         fadeIn(informationContainers.get(index).updateAttribute(attribute), 1.5f);
     }
 
@@ -356,6 +382,8 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the item
      */
     private void populateItemStats(ItemWeapon item) {
+        populateItemAttributeComponents();
+
         fadeIn(informationContainers.get(0).updateRange(item), 1.5f);
         fadeIn(informationContainers.get(1).updateDamage(item), 1.5f);
         fadeIn(informationContainers.get(2).updateCriticalChance(item), 1.5f);
@@ -367,6 +395,8 @@ public final class PlayerInventoryGui extends InventoryGui {
      * @param item the artifact
      */
     private void populateArtifactStats(ItemArtifact item) {
+        populateItemAttributeComponents();
+
         fadeIn(informationContainers.get(0).updateArtifact(item), 1.5f);
     }
 
@@ -376,6 +406,7 @@ public final class PlayerInventoryGui extends InventoryGui {
     private void hideItemInformation() {
         itemActionButton.setVisible(false);
         informationContainers.forEach(ItemInformationContainer::hide);
+        parentItemInformationContainer.clear();
     }
 
     /**
