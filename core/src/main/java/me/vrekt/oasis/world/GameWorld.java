@@ -554,7 +554,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             if (grove == null) {
                 GameLogging.warn(this, "Failed to find a registered root-grove by key %s", childKey);
             } else {
-                registry.get(childKey).addRewardPoint(new Vector2(rectangle.x, rectangle.y));
+                final float offsetX = TiledMapLoader.ofFloat(object, "offset_x", 0.0f) * OasisGameSettings.SCALE;
+                registry.get(childKey).addRewardPoint(new Vector2(rectangle.x - offsetX, rectangle.y));
             }
         });
 

@@ -72,7 +72,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         final VisTable left = new VisTable(true);
         final VisTable right = new VisTable(true);
 
-        right.top().padTop(36).padLeft(32).left();
+        right.top().padTop(36).padLeft(36).left();
         left.top().padTop(52).padLeft(84);
 
         itemNameHeader = new TypingLabel(StringUtils.EMPTY, Styles.getLargeBlack());
@@ -99,7 +99,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         headerTable.add(itemNameHeader).width(150).left();
 
         // add header table + description
-        right.add(headerTable).left();
+        right.add(headerTable).padTop(6).left();
         right.row();
         right.add(itemDescriptionHeader)
                 .width(175)
@@ -127,14 +127,6 @@ public final class PlayerInventoryGui extends InventoryGui {
 
             itemInformationComponents.add(icon).size(36, 36).padRight(4).left();
         }
-
-        // Item info: add to table
-        // parentItemInformationContainer.add(itemInformationComponents).left();
-        // parentItemInformationContainer.row();
-
-        //   parentItemInformationContainer.add(rarityIconContainer).padTop(8).left();
-        //   parentItemInformationContainer.row();
-
         // Use item button
         buttonTable = new VisTable();
         buttonTable.left();
@@ -144,7 +136,6 @@ public final class PlayerInventoryGui extends InventoryGui {
         itemActionButton.setVisible(false);
 
         buttonTable.add(itemActionButton);
-        //     parentItemInformationContainer.add(buttonTable).padTop(16).left();
 
         // Finally, add item information to right table
         right.add(parentItemInformationContainer).left();

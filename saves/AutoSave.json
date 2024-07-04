@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "03-07-24 21:36 PM",
+  "date": "04-07-24 02:45 AM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player18",
+    "name": "Player33",
     "position": {
-      "x": 31.937025,
-      "y": 11.50925
+      "x": 45.671535,
+      "y": 51.082874
     },
     "inventory": {
       "type": "PLAYER",
@@ -43,6 +43,12 @@
         {
           "slot": 2,
           "name": "Tempered Blade",
+          "type": "TEMPERED_BLADE",
+          "amount": 1
+        },
+        {
+          "slot": 7,
+          "name": "Staff of Earth",
           "type": "TEMPERED_BLADE",
           "amount": 1
         },
@@ -68,6 +74,12 @@
           "slot": 3,
           "name": "Ring Of Mycelia",
           "type": "RING_OF_MYCELIA",
+          "amount": 1
+        },
+        {
+          "slot": 8,
+          "name": "Staff of Obsidian",
+          "type": "TEMPERED_BLADE",
           "amount": 1
         }
       ]
@@ -106,8 +118,8 @@
             "name": "Lyra",
             "entityId": 1,
             "position": {
-              "x": 16.0,
-              "y": 29.0
+              "x": 22.489416,
+              "y": 42.602108
             },
             "size": {
               "x": 12.0,
@@ -115,7 +127,7 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "UP",
             "move_speed": 0.0
           }
         ],
@@ -134,21 +146,19 @@
             "destroyed": false
           },
           {
-            "container_inventory": {
-              "type": "CONTAINER",
-              "size": 16,
-              "contents": [
-                {
-                  "slot": 0,
-                  "name": "Tempered Blade",
-                  "type": "TEMPERED_BLADE",
-                  "amount": 1
-                }
-              ]
+            "dropped_item": {
+              "slot": 0,
+              "name": "Lockpick",
+              "type": "LOCK_PICK",
+              "amount": 1
+            },
+            "position": {
+              "x": 51.0,
+              "y": 53.0
             },
             "enabled": true,
-            "type": "CONTAINER",
-            "key": "GroveContainer1-container",
+            "type": "MAP_ITEM",
+            "key": "oasis:lock_pick",
             "interactable": true,
             "destroyed": false
           },
@@ -157,30 +167,32 @@
               "slot": 0,
               "name": "Lockpick",
               "type": "LOCK_PICK",
-              "amount": 3
+              "amount": 1
             },
             "position": {
-              "x": 55.8125,
-              "y": 46.5
+              "x": 53.5,
+              "y": 49.0
             },
             "enabled": true,
             "type": "MAP_ITEM",
+            "key": "oasis:lock_pick",
             "interactable": true,
             "destroyed": false
           },
           {
             "dropped_item": {
               "slot": 0,
-              "name": "Pigs Heart",
-              "type": "PIG_HEART",
+              "name": "Lockpick",
+              "type": "LOCK_PICK",
               "amount": 1
             },
             "position": {
-              "x": 53.6875,
-              "y": 46.53125
+              "x": 53.5,
+              "y": 47.0
             },
             "enabled": true,
             "type": "MAP_ITEM",
+            "key": "oasis:lock_pick",
             "interactable": true,
             "destroyed": false
           }

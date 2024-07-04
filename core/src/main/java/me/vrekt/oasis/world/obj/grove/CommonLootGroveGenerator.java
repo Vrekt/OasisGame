@@ -48,7 +48,7 @@ public final class CommonLootGroveGenerator extends LootGroveGenerator {
             inventory.add(generateRandomItem(CONTAINER_MULTIPLE_ITEMS_CHANCE));
         }
 
-        world.spawnWorldObject(interaction, "container_crate", point);
+        world.spawnWorldObject(interaction, "barrel", point);
     }
 
     /**
