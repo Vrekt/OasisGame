@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="114">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="121">
  <tileset firstgid="1" source="../asset/data/1.tsx"/>
  <tileset firstgid="1441" source="../asset/data/3.tsx"/>
  <tileset firstgid="1681" source="../asset/data/Boats.tsx"/>
@@ -689,41 +689,42 @@
     <property name="offset_y" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="107" name="GroveContainer1" x="912" y="240">
-   <properties>
-    <property name="hasCollision" type="bool" value="false"/>
-    <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="container"/>
-    <property name="item" value="TEMPERED_BLADE"/>
-    <property name="texture" value="container_crate"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="110" name="LOCKPICKGROVE_2" x="893" y="280">
-   <properties>
-    <property name="hasCollision" type="bool" value="false"/>
-    <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="MAP_ITEM"/>
-    <property name="item" value="LOCK_PICK"/>
-    <property name="item_amount" type="int" value="3"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="111" name="PIGHEARTGROVE_1" x="859" y="279.5">
-   <properties>
-    <property name="hasCollision" type="bool" value="false"/>
-    <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="MAP_ITEM"/>
-    <property name="item" value="PIG_HEART"/>
-    <property name="item_amount" type="int" value="1"/>
-   </properties>
-   <point/>
-  </object>
   <object id="113" x="752" y="832">
    <properties>
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
     <property name="interaction_type" value="BREAKABLE_POT"/>
+    <property name="items" type="object" value="0"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="19" name="LootGroveChildren">
+  <object id="116" name="LootGrove0Child0" x="912" y="224">
+   <properties>
+    <property name="child_key" value="loot_grove_0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="117" name="LootGrove0Child1" x="864" y="272">
+   <properties>
+    <property name="child_key" value="loot_grove_0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="119" name="LootGrove0Child2" x="912" y="272">
+   <properties>
+    <property name="child_key" value="loot_grove_0"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="20" name="LootGroves">
+  <object id="120" name="LootGrove0Parent" x="896" y="176">
+   <properties>
+    <property name="children" value="loot_grove_0"/>
+    <property name="rarity" value="COMMON"/>
+    <property name="rewards" type="int" value="3"/>
    </properties>
    <point/>
   </object>
@@ -837,7 +838,7 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Actions">
-  <object id="1" name="WorldSpawn" x="511" y="840.667">
+  <object id="1" name="WorldSpawn" x="797" y="208">
    <point/>
   </object>
  </objectgroup>

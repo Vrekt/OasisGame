@@ -4,8 +4,8 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.*;
 import me.vrekt.oasis.item.misc.LockpickItem;
-import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
+import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
 import me.vrekt.oasis.item.weapons.magic.StaffOfEarthItem;
@@ -25,7 +25,6 @@ public final class ItemRegistry {
      * Register all items within the game
      */
     public static void registerItems() {
-        registry.put(Items.LUCID_FRUIT_TREE_ITEM, LucidTreeFruitItem::new);
         registry.put(Items.TEMPERED_BLADE, TemperedBladeItem::new);
         registry.put(Items.QUICKSTEP_ARTIFACT, QuickStepItemArtifact::new);
         registry.put(Items.PIG_HEART, PigHeartConsumable::new);
@@ -67,6 +66,12 @@ public final class ItemRegistry {
         newItem.setAmount(1);
         newItem.load(GameManager.asset());
         return newItem;
+    }
+
+    public static Item createRandomItemWithRarity(ItemRarity rarity, int amount) {
+        Items random = Items.random();
+        while (random.rarity() != rarity) random = Items.random();
+        return createItem(random, amount);
     }
 
 }

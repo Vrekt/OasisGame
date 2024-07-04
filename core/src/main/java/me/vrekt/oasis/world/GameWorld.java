@@ -46,6 +46,7 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
@@ -61,6 +62,7 @@ import me.vrekt.oasis.world.network.WorldNetworkRenderer;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
 import me.vrekt.oasis.world.obj.TiledWorldObjectProperties;
+import me.vrekt.oasis.world.obj.grove.LootGrove;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
@@ -261,6 +263,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
         createEntityGoals(worldMap, worldScale);
+        generateLootGroves(worldMap, game.getAsset(), worldScale);
 
         updateRendererMap();
         game.getMultiplexer().addProcessor(this);
@@ -536,6 +539,57 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Generate rewards within all loot-groves
+     *
+     * @param worldMap   map
+     * @param asset      asset
+     * @param worldScale scale
+     */
+    protected void generateLootGroves(TiledMap worldMap, Asset asset, float worldScale) {
+        final Map<String, LootGrove> registry = loadLootGroveParents(worldMap, worldScale);
+
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "LootGroveChildren", (object, rectangle) -> {
+            final String childKey = TiledMapLoader.ofString(object, "child_key");
+            final LootGrove grove = registry.get(childKey);
+            if (grove == null) {
+                GameLogging.warn(this, "Failed to find a registered root-grove by key %s", childKey);
+            } else {
+                registry.get(childKey).addRewardPoint(new Vector2(rectangle.x, rectangle.y));
+            }
+        });
+
+        registry.values().forEach(lg -> lg.generate(this, asset));
+        GameLogging.info(this, "Generated a total of %d loot-groves", registry.values().size());
+    }
+
+    /**
+     * Load the parents/owners of all loot-groves
+     *
+     * @param worldMap   map
+     * @param worldScale scale
+     * @return all loot groves
+     */
+    protected Map<String, LootGrove> loadLootGroveParents(TiledMap worldMap, float worldScale) {
+        final Map<String, LootGrove> registry = new HashMap<>();
+
+        TiledMapLoader.loadMapObjects(worldMap, worldScale, "LootGroves", (object, rectangle) -> {
+            final String key = TiledMapLoader.ofString(object, "children");
+            if (key == null || registry.containsKey(key)) {
+                GameLogging.warn(this, "Invalid map data for a loot grove! obj-name=%s, key=%s", object.getName(), key);
+            } else {
+                final String rarity = TiledMapLoader.ofString(object, "rarity");
+                final int rewardsAmount = TiledMapLoader.ofInt(object, "rewards", 0);
+                final LootGrove grove = new LootGrove(key, ItemRarity.valueOf(rarity), rewardsAmount);
+
+                registry.put(key, grove);
+
+                GameLogging.info(this, "Found loot-grove %s with %d rewards", key, rewardsAmount);
+            }
+        });
+        return registry;
+    }
+
+    /**
      * Load particles
      *
      * @param worldMap   the map of the world
@@ -674,7 +728,24 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     /**
      * Spawn a world drop interaction
      *
-     * @param type item
+     * @param item     the item
+     * @param position the position
+     */
+    public void spawnWorldDrop(Item item, Vector2 position) {
+        final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
+
+        interaction.load(game.getAsset());
+        interactableWorldObjects.add(interaction);
+
+        mouseListeners.put(interaction, false);
+    }
+
+    /**
+     * Spawn a world drop interaction
+     *
+     * @param type     item
+     * @param amount   the amount
+     * @param position position
      */
     public void spawnWorldDrop(Items type, int amount, Vector2 position) {
         final Item item = ItemRegistry.createItem(type, amount);
@@ -738,6 +809,27 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public Bag<String> destroyedWorldObjects() {
         return destroyedWorldObjects;
+    }
+
+    /**
+     * Spawn a world object
+     *
+     * @param object   object
+     * @param texture  texture
+     * @param position position
+     */
+    public void spawnWorldObject(AbstractInteractableWorldObject object, String texture, Vector2 position) {
+        object.setWorldIn(this);
+        object.setPosition(position.x, position.y);
+
+        if (texture != null) {
+            object.setTextureAndSize(game.getAsset().get(texture));
+        }
+
+        object.load(game.getAsset());
+
+        interactableWorldObjects.add(object);
+        mouseListeners.put(object, false);
     }
 
     /**

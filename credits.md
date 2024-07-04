@@ -12,6 +12,12 @@ Modified by me
 
 Quest difficulty icons: https://opengameart.org/content/16x16-assorted-rpg-icons
 
+Mushrooms, Staff, Other: https://opengameart.org/content/pixel-art-fantasy-icons
+
+Potions: https://opengameart.org/content/16-by-16-item-icons
+
+Books rarity icons: https://opengameart.org/content/roguelikerpg-items
+
 # Sounds
 Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 

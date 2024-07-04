@@ -40,7 +40,11 @@ public class OpenableContainerInteraction extends AbstractInteractableWorldObjec
         } else {
             GameLogging.warn(this, "Container object %s has no item!", object.getName());
         }
+    }
 
+    public OpenableContainerInteraction(ContainerInventory inventory) {
+        super(WorldInteractionType.CONTAINER);
+        this.inventory = inventory;
     }
 
     public ContainerInventory inventory() {
