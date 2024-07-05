@@ -66,7 +66,7 @@ import me.vrekt.oasis.world.obj.grove.LootGrove;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
-import me.vrekt.oasis.world.obj.interaction.impl.items.BreakablePotInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
@@ -1285,9 +1285,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param item item
      * @return {@code null} if no object was hit
      */
-    public BreakablePotInteraction hitInteractableObject(ItemWeapon item) {
+    public BreakableObjectInteraction hitInteractableObject(ItemWeapon item) {
         for (AbstractInteractableWorldObject obj : interactableWorldObjects) {
-            if (obj instanceof BreakablePotInteraction interaction) {
+            if (obj instanceof BreakableObjectInteraction interaction) {
                 if (interaction.playerHit(item)) {
                     return interaction;
                 }

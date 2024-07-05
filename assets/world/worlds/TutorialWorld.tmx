@@ -698,10 +698,11 @@
     <property name="animation_frames" type="int" value="3"/>
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="BREAKABLE_POT"/>
+    <property name="interaction_type" value="BREAKABLE_OBJECT"/>
     <property name="offset_y" type="bool" value="true"/>
     <property name="rarity" value="COMMON"/>
     <property name="size_y" type="float" value="32"/>
+    <property name="sound" value="POT_BREAKING"/>
     <property name="texture" value="yellow_flower_pot"/>
    </properties>
    <point/>
@@ -712,10 +713,11 @@
     <property name="animation_frames" type="int" value="3"/>
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
-    <property name="interaction_type" value="BREAKABLE_POT"/>
+    <property name="interaction_type" value="BREAKABLE_OBJECT"/>
     <property name="offset_y" type="bool" value="true"/>
     <property name="rarity" value="UN_COMMON"/>
     <property name="size_y" type="float" value="32"/>
+    <property name="sound" value="POT_BREAKING"/>
     <property name="texture" value="yellow_flower_pot"/>
    </properties>
    <point/>

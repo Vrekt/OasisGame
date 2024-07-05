@@ -23,7 +23,7 @@ Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 
 Pot breaking: https://opengameart.org/content/ice-breakingshattering
 Quest completed: https://opengameart.org/content/epic-amulet-item
-
+Barrel breaking: https://freesound.org/people/kevinkace/sounds/66769/
 # References, sources, tutorials
 TBA
 

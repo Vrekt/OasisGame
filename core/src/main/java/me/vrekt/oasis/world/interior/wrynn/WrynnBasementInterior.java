@@ -17,4 +17,16 @@ public final class WrynnBasementInterior extends GameWorldInterior {
 
         this.worldMap = Asset.WRYNN_BASEMENT;
     }
+
+    @Override
+    public void enter() {
+        super.enter();
+        game.getRenderer().getCamera().zoom = 0.8f;
+    }
+
+    @Override
+    protected void exit() {
+        super.exit();
+        game.getRenderer().getCamera().zoom = 1.0f;
+    }
 }

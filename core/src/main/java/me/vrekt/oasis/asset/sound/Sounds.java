@@ -13,7 +13,8 @@ public enum Sounds {
     DOOR_LOCKED("door_locked.wav"),
     LOCKPICK_BREAK("lockpick_break.wav"),
     QUEST_COMPLETED("quest_completed.wav"),
-    POT_BREAKING("pot_breaking.ogg");
+    POT_BREAKING("pot_breaking.ogg"),
+    BARREL_BREAKING("barrel_breaking.wav");
 
     private final String resource;
     Sounds(String resource) {

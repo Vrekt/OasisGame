@@ -82,6 +82,18 @@ back_button
 bounds:1929,251,39,37
 barrel
 bounds:916,90,16,16
+barrel_break
+index:1
+bounds:898,37,10,15
+barrel_break
+index:3
+bounds:916,55,10,15
+barrel_break
+index:2
+bounds:880,3,10,15
+barrel_break
+index:4
+bounds:898,20,10,15
 basement_gate
 bounds:775,210,64,32
 beetle_down_dead_explode
@@ -250,6 +262,8 @@ dialog_picture
 bounds:1025,134,24,24
 dialog_start_empty
 bounds:999,134,24,24
+dungeon_barrel
+bounds:934,75,10,15
 easy_quest_difficulty
 bounds:1571,142,16,16
 ekey
