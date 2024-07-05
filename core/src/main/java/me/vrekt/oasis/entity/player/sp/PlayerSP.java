@@ -102,6 +102,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private final PlayerCombatAnimator combatAnimator;
     private final Rectangle itemBounds = new Rectangle();
 
+    private float playerScaling = 1.0f;
+
     public PlayerSP(OasisGame game) {
         this.game = game;
         create();
@@ -324,6 +326,14 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     public void enableMovementAfter(float seconds) {
         GameManager.getTaskManager().schedule(this::enableMovement, seconds);
+    }
+
+    /**
+     * Scale up or down this player
+     * @param scale scale
+     */
+    public void scalePlayerBy(float scale) {
+        this.playerScaling = scale;
     }
 
     /**
@@ -744,8 +754,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         batch.draw(region,
                 getInterpolatedPosition().x,
                 getInterpolatedPosition().y,
-                region.getRegionWidth() * OasisGameSettings.SCALE,
-                region.getRegionHeight() * OasisGameSettings.SCALE);
+                (region.getRegionWidth() * OasisGameSettings.SCALE) * playerScaling,
+                (region.getRegionHeight() * OasisGameSettings.SCALE) * playerScaling);
     }
 
     public void drawDamage(SpriteBatch batch, Camera worldCamera, Camera guiCamera) {

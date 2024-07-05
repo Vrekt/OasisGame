@@ -27,6 +27,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
     private final ItemRarity rarity;
     private final Sounds breakSound;
     private final float volume;
+    private final float offset;
 
     private Animation<TextureRegion> breakingAnimation;
     private float animationTime;
@@ -44,6 +45,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
         final String anim = TiledMapLoader.ofString(object, "animation");
         breakSound = Sounds.valueOf(TiledMapLoader.ofString(object, "sound"));
         volume = TiledMapLoader.ofFloat(object, "volume", 1.0f);
+        offset = TiledMapLoader.ofFloat(object, "item_drop_offset", 0.25f);
 
         if (anim != null) {
             final float animationTime = TiledMapLoader.ofFloat(object, "animation_time", 0.1335f);
@@ -91,7 +93,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
 
         final int amount = MathUtils.randomBoolean(MULTIPLE_ITEM_CHANCE) ? MathUtils.random(1, 3) : 1;
         final Item item = ItemRegistry.createRandomItemWithRarity(rarity, amount);
-        world.spawnWorldDrop(item, position.cpy().add(0.25f, 0.25f));
+        world.spawnWorldDrop(item, position.cpy().add(offset, offset));
     }
 
     /**

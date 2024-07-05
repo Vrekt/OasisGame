@@ -145,6 +145,7 @@
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
     <property name="interaction_type" value="BREAKABLE_OBJECT"/>
+    <property name="item_drop_offset" type="float" value="-0.2"/>
     <property name="rarity" value="UN_COMMON"/>
     <property name="sound" value="BARREL_BREAKING"/>
     <property name="texture" value="dungeon_barrel"/>
@@ -160,6 +161,7 @@
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
     <property name="interaction_type" value="BREAKABLE_OBJECT"/>
+    <property name="item_drop_offset" type="float" value="-0.2"/>
     <property name="rarity" value="UN_COMMON"/>
     <property name="sound" value="BARREL_BREAKING"/>
     <property name="texture" value="dungeon_barrel"/>

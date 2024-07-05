@@ -21,12 +21,16 @@ public final class WrynnBasementInterior extends GameWorldInterior {
     @Override
     public void enter() {
         super.enter();
-        game.getRenderer().getCamera().zoom = 0.8f;
+
+        player.scalePlayerBy(0.8f);
+        getRenderer().getCamera().zoom = 0.8f;
     }
 
     @Override
     protected void exit() {
         super.exit();
-        game.getRenderer().getCamera().zoom = 1.0f;
+
+        player.scalePlayerBy(1.0f);
+        getRenderer().getCamera().zoom = 1.0f;
     }
 }
