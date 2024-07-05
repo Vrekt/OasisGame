@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="123">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="128">
  <tileset firstgid="1" source="../asset/data/1.tsx"/>
  <tileset firstgid="1441" source="../asset/data/3.tsx"/>
  <tileset firstgid="1681" source="../asset/data/Boats.tsx"/>
@@ -341,8 +341,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5181,5182,5181,5182,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5201,5202,5201,5202,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610614418,1610614420,1610614422,1610614424,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610614417,1610614419,1610614421,1610614423,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -692,12 +692,31 @@
     <property name="offset_y" type="bool" value="false"/>
    </properties>
   </object>
-  <object id="113" x="752" y="832">
+  <object id="126" x="736" y="816">
    <properties>
+    <property name="animation" value="yellow_flower_pot_break"/>
+    <property name="animation_frames" type="int" value="3"/>
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
     <property name="interaction_type" value="BREAKABLE_POT"/>
-    <property name="items" type="object" value="0"/>
+    <property name="offset_y" type="bool" value="true"/>
+    <property name="rarity" value="COMMON"/>
+    <property name="size_y" type="float" value="32"/>
+    <property name="texture" value="yellow_flower_pot"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="127" x="768" y="816">
+   <properties>
+    <property name="animation" value="yellow_flower_pot_break"/>
+    <property name="animation_frames" type="int" value="3"/>
+    <property name="hasCollision" type="bool" value="false"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="interaction_type" value="BREAKABLE_POT"/>
+    <property name="offset_y" type="bool" value="true"/>
+    <property name="rarity" value="UN_COMMON"/>
+    <property name="size_y" type="float" value="32"/>
+    <property name="texture" value="yellow_flower_pot"/>
    </properties>
    <point/>
   </object>

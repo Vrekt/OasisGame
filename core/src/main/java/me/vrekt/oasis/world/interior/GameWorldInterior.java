@@ -204,7 +204,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         setLocked(false);
         invalidatePlayerNearbyState();
 
-        GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.55f, 1.0f, 1.0f);
+        GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.5f, 1.0f, 0.0f);
         player.getInventory().removeFirst(Items.LOCK_PICK);
     }
 
@@ -332,7 +332,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         if (isWithinEnteringDistance(player.getPosition()) && enterable) {
             if (locked()) {
                 game.guiManager.getHintComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
-                GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 1.0f);
+                GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 0.0f);
             } else {
                 parentWorld.enterInterior(this);
             }

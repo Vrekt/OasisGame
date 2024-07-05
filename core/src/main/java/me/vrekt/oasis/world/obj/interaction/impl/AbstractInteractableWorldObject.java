@@ -25,6 +25,8 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected boolean isUiComponent;
     protected boolean handleMouseState = true;
 
+    protected boolean isCombatInteraction;
+
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
         this.type = type;
         this.key = key;
@@ -126,7 +128,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public boolean clicked(Vector3 mouse) {
-        if (isEnabled && isInInteractionRange() && !wasInteractedWith) {
+        if (isEnabled && isInInteractionRange() && !wasInteractedWith && !isCombatInteraction) {
             interact();
             return true;
         }

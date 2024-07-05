@@ -29,7 +29,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
     private Item item;
 
     private ParticleEffectPool.PooledEffect effect;
-    private boolean isMapObject;
+    private final boolean isMapObject;
 
     public MapItemInteraction(GameWorld world, Item item, Vector2 position) {
         super(WorldInteractionType.MAP_ITEM, item.key());

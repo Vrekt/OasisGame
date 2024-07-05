@@ -5,6 +5,7 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakablePotInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 
 /**
@@ -25,6 +26,13 @@ public enum WorldInteractionType {
         @Override
         public AbstractInteractableWorldObject create(GameWorld world, MapObject object) {
             return new MapItemInteraction();
+        }
+    },
+
+    BREAKABLE_POT("breakable_pot") {
+        @Override
+        public AbstractInteractableWorldObject create(GameWorld world, MapObject object) {
+            return new BreakablePotInteraction(world, object);
         }
     },
 

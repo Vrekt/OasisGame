@@ -76,6 +76,9 @@ public final class WrynnEntity extends EntityInteractable {
 
         activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
 
+        // TODO: "SPeak to wrynn before leaving"
+        // TODO: Dialog stage is not skipped if not speaking afterwards
+
         // dialog will be set to complete once the player has the items
         dialogue.addEntryCondition("wrynn:dialog_stage_4", this::checkPlayerHasItems);
         // if the player has the tutorial book continue
@@ -111,7 +114,7 @@ public final class WrynnEntity extends EntityInteractable {
         // once the player leaves, complete the quest a few seconds later.
         if (completeQuest) {
             completeQuest = false;
-            GameManager.getTaskManager().schedule(() -> player.getQuestManager().completeQuest(QuestType.A_NEW_HORIZON), 20);
+            GameManager.getTaskManager().schedule(() -> player.getQuestManager().completeQuest(QuestType.A_NEW_HORIZON), 2.2f);
         }
     }
 
@@ -183,7 +186,7 @@ public final class WrynnEntity extends EntityInteractable {
      * @return the result
      */
     public boolean checkPlayerHasItems() {
-        return player.getInventory().containsItem(Items.PIG_HEART);
+        return player.getInventory().containsItem(Items.PIG_HEART) && player.getInventory().containsItem(Items.TEMPERED_BLADE);
     }
 
     public boolean checkPlayerHasBook() {

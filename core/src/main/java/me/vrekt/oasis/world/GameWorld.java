@@ -66,6 +66,7 @@ import me.vrekt.oasis.world.obj.grove.LootGrove;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakablePotInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
@@ -667,7 +668,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         worldObject.load(asset);
-
         createObjectParticles(worldObject, object, asset);
 
         // load collision for this object
@@ -675,6 +675,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (properties.hasCollision) createObjectCollisionBody(worldObject, rectangle);
         interactableWorldObjects.add(worldObject);
         mouseListeners.put(worldObject, false);
+
+        GameLogging.info(this, "Loaded interaction object %s", properties.interactionType);
     }
 
     /**
@@ -1270,8 +1272,24 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         for (GameEntity entity : entities.values()) {
             if (entity instanceof EntityEnemy enemy) {
                 if (enemy.bb().overlaps(item.getBounds())) {
-                    GameLogging.info(this, "Hit entity " + enemy.type());
                     return enemy;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the player hit a breakable object
+     *
+     * @param item item
+     * @return {@code null} if no object was hit
+     */
+    public BreakablePotInteraction hitInteractableObject(ItemWeapon item) {
+        for (AbstractInteractableWorldObject obj : interactableWorldObjects) {
+            if (obj instanceof BreakablePotInteraction interaction) {
+                if (interaction.playerHit(item)) {
+                    return interaction;
                 }
             }
         }

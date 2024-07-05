@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -25,6 +26,8 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     protected GameWorld world;
 
     protected TextureRegion texture;
+
+    protected final Rectangle bounds = new Rectangle();
     protected final Vector2 position = new Vector2();
     protected final Vector2 size = new Vector2();
 
@@ -74,6 +77,8 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public void setSize(float width, float height) {
         size.set(width, height);
+
+        bounds.set(position.x, position.y, width, height);
     }
 
     /**
@@ -100,6 +105,8 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     public void setTextureAndSize(TextureRegion texture) {
         this.texture = texture;
         this.size.set(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
+
+        bounds.set(position.x, position.y, size.x, size.y);
     }
 
     /**

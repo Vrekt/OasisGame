@@ -32,7 +32,7 @@ public abstract class BreakableItem extends Item {
      * @param player player
      */
     public void destroy(PlayerSP player) {
-        GameManager.playSound(breakSound, 0.5f, 1.0f, 1.0f);
+        GameManager.playSound(breakSound, 0.5f, 1.0f, 0.0f);
         player.getInventory().remove(this);
     }
 

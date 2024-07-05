@@ -21,6 +21,9 @@ Books rarity icons: https://opengameart.org/content/roguelikerpg-items
 # Sounds
 Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 
+Pot breaking: https://opengameart.org/content/ice-breakingshattering
+Quest completed: https://opengameart.org/content/epic-amulet-item
+
 # References, sources, tutorials
 TBA
 

@@ -1,6 +1,7 @@
 package me.vrekt.oasis.questing;
 
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.questing.quests.QuestType;
 
@@ -47,6 +48,7 @@ public final class PlayerQuestManager {
         if (quest != null) {
             GameManager.getGuiManager().hideGui(GuiType.DIALOG);
             GameManager.getGuiManager().getCompletedQuestComponent().showQuestCompleted(quest);
+            GameManager.playSound(Sounds.QUEST_COMPLETED, 0.2f, 1.0f, 0.0f);
         }
     }
 

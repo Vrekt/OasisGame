@@ -49,6 +49,7 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.Effect;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakablePotInteraction;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -723,6 +724,11 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
         if (equippedItem.canSwing()) {
             equippedItem.swingItem();
+
+            final BreakablePotInteraction objectHit = worldIn.hitInteractableObject(equippedItem);
+            if (objectHit != null) {
+                objectHit.interact();
+            }
         }
 
         final boolean critical = equippedItem.isCriticalHit();

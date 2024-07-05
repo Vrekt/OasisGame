@@ -11,7 +11,9 @@ public enum Sounds {
     LOCK_SUCCESS("lock_success.wav"),
     LOCKPICK_UNLOCK("lockpick_unlocked.wav"),
     DOOR_LOCKED("door_locked.wav"),
-    LOCKPICK_BREAK("lockpick_break.wav");
+    LOCKPICK_BREAK("lockpick_break.wav"),
+    QUEST_COMPLETED("quest_completed.wav"),
+    POT_BREAKING("pot_breaking.ogg");
 
     private final String resource;
     Sounds(String resource) {
