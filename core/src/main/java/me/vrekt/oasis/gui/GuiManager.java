@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
@@ -24,6 +25,8 @@ import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
+import me.vrekt.oasis.gui.guis.hud.HudComponentType;
+import me.vrekt.oasis.gui.guis.hud.components.*;
 import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.guis.lockpicking.LockPickingGui;
@@ -77,7 +80,10 @@ public final class GuiManager implements Disposable {
         this.layout = new GlyphLayout();
 
         // fit this stage to always respect the general constraints we want
-        stage = new Stage(new FitViewport(640, 480));
+        final FitViewport viewport = new FitViewport(640, 480);
+        viewport.setScaling(Scaling.contain);
+
+        stage = new Stage(viewport);
         stack = new Stack();
 
         stack.setFillParent(true);
@@ -168,6 +174,30 @@ public final class GuiManager implements Disposable {
         return completedGui;
     }
 
+    public HudArtifactComponent getArtifactComponent() {
+        return hudGui.getComponent(HudComponentType.ARTIFACT);
+    }
+
+    public HudAttributeComponent getAttributeComponent() {
+        return hudGui.getComponent(HudComponentType.ATTRIBUTE);
+    }
+
+    public HudGameActionComponent getGameActionComponent() {
+        return hudGui.getComponent(HudComponentType.GAME_ACTION);
+    }
+
+    public HudHotbarComponent getHotbarComponent() {
+        return hudGui.getComponent(HudComponentType.HOT_BAR);
+    }
+
+    public HudItemHintComponent getItemHintComponent() {
+        return hudGui.getComponent(HudComponentType.ITEM_HINT);
+    }
+
+    public HudPlayerHintComponent getHintComponent() {
+        return hudGui.getComponent(HudComponentType.HINT);
+    }
+
     /**
      * Set the cursor to something different
      *
@@ -234,8 +264,8 @@ public final class GuiManager implements Disposable {
             if (!value.updateWhileHidden && !value.isShowing) continue;
 
             value.update();
-            if (value.updateInterval != 0
-                    && GameManager.hasTimeElapsed(value.lastUpdate, value.updateInterval)) {
+            if (value.timedUpdateInterval != 0
+                    && GameManager.hasTimeElapsed(value.lastUpdate, value.timedUpdateInterval)) {
                 value.lastUpdate = GameManager.getTick();
                 value.timedUpdate(value.lastUpdate);
             }
@@ -257,7 +287,6 @@ public final class GuiManager implements Disposable {
      */
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
-        stage.getCamera().update();
 
         guis.values().forEach(gui -> gui.resize(width, height));
     }

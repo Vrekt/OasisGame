@@ -156,7 +156,7 @@ public final class LockpickingActivity {
 
         // if the player has no more lockpicks, then stop this activity
         if (!player.getInventory().containsItem(Items.LOCK_PICK)) {
-            GameManager.getGuiManager().getHudComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
+            GameManager.getGuiManager().getHintComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
             failure.run();
             gui.hide();
         } else {

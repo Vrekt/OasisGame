@@ -170,7 +170,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         if (speakingTo && !hintShown) {
             // show player hint about how to interact with the dialog system
-            game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, 10, 0.0f);
+            game.guiManager.getHintComponent().showPlayerHint(PlayerHints.DIALOG_TUTORIAL_HINT, 10, 0.0f);
             hintShown = true;
         }
 

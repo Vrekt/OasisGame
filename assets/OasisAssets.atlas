@@ -286,6 +286,9 @@ hard_quest_difficulty
 bounds:1025,124,16,16
 healing_attribute2
 bounds:500,26,36,36
+heart
+index:1
+bounds:1410,147,12,11
 hint_icon
 bounds:1419,160,32,32
 inventory

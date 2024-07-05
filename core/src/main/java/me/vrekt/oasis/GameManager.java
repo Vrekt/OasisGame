@@ -57,12 +57,12 @@ public class GameManager {
     }
 
     private static void registerHotBarKeys() {
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> guiManager.getHudComponent().hotbarItemSelected(0));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_2, () -> guiManager.getHudComponent().hotbarItemSelected(1));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_3, () -> guiManager.getHudComponent().hotbarItemSelected(2));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHudComponent().hotbarItemSelected(3));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHudComponent().hotbarItemSelected(4));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHudComponent().hotbarItemSelected(5));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> guiManager.getHotbarComponent().hotbarItemSelected(0));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_2, () -> guiManager.getHotbarComponent().hotbarItemSelected(1));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_3, () -> guiManager.getHotbarComponent().hotbarItemSelected(2));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHotbarComponent().hotbarItemSelected(3));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHotbarComponent().hotbarItemSelected(4));
+        KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHotbarComponent().hotbarItemSelected(5));
     }
 
     private static void registerGlobalKeyActions() {

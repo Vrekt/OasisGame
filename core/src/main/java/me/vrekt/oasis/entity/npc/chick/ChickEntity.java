@@ -20,6 +20,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.npc.chick.states.ChickDrinkAndPeckState;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -54,6 +55,10 @@ public final class ChickEntity extends GameEntity {
     @Override
     public void load(Asset asset) {
         this.parentWorld = worldIn;
+
+        disableCollisionFor(CollisionType.MAP_BOUNDS);
+        disableCollisionFor(CollisionType.PLAYER);
+        disableCollisionFor(CollisionType.OTHER_ENTITY);
 
         addTexturePart(EntityRotation.UP, asset.get("chick_walking_up_idle"), false);
         addTexturePart(EntityRotation.DOWN, asset.get("chick_walking_down_idle"), false);

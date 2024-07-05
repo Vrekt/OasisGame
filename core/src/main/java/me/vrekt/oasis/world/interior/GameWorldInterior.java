@@ -169,12 +169,12 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     public void updateWhilePlayerIsNear() {
         if (locked() && !lockpickHint && player.getInventory().containsItem(Items.LOCK_PICK)) {
             // show the hint the player can use a lockpick on this interior
-            guiManager.getHudComponent().showItemHint(LockpickItem.DESCRIPTOR);
+            guiManager.getItemHintComponent().showItemHint(LockpickItem.DESCRIPTOR);
             lockpickHint = true;
         } else if (lockpickHint && !lockpickUsed && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             // use the lockpick
             ActivityManager.lockpicking(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
-            guiManager.getHudComponent().removeItemHint();
+            guiManager.getItemHintComponent().removeItemHint();
             lockpickUsed = true;
         }
     }
@@ -186,7 +186,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         lockpickHint = false;
         lockpickUsed = false;
 
-        guiManager.getHudComponent().removeItemHint();
+        guiManager.getItemHintComponent().removeItemHint();
     }
 
     /**
@@ -331,7 +331,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     public boolean clicked(Vector3 mouse) {
         if (isWithinEnteringDistance(player.getPosition()) && enterable) {
             if (locked()) {
-                game.guiManager.getHudComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
+                game.guiManager.getHintComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
                 GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 1.0f);
             } else {
                 parentWorld.enterInterior(this);

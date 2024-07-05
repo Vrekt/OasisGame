@@ -894,6 +894,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 true,
                 world);
 
+
         wb.setBody(body);
     }
 

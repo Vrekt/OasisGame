@@ -17,6 +17,6 @@ public final class PlayerInventory extends AbstractInventory {
     @Override
     protected void removed(Item item, int slot) {
         GameManager.getGuiManager().getInventoryComponent().removeItemFromSlot(slot);
-        if (isHotbar(slot)) GameManager.getGuiManager().getHudComponent().hotbarItemRemoved(slot);
+        if (isHotbar(slot)) GameManager.getGuiManager().getHotbarComponent().hotbarItemRemoved(slot);
     }
 }

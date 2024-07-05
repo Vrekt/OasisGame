@@ -33,7 +33,8 @@ public final class CollisionShapeCreator {
         switch (object) {
             case PolylineMapObject polylineMapObject -> createPolylineShapeInWorld(polylineMapObject, scale, bw);
             case PolygonMapObject polygonMapObject -> createPolygonShapeInWorld(polygonMapObject, scale, bw);
-            case RectangleMapObject rectangleMapObject -> createPolygonShapeInWorld(rectangleMapObject, scale, true, bw);
+            case RectangleMapObject rectangleMapObject ->
+                    createPolygonShapeInWorld(rectangleMapObject, scale, true, bw);
             default -> throw new IllegalStateException("Unexpected value: " + object);
         }
     }
@@ -85,6 +86,8 @@ public final class CollisionShapeCreator {
 
         final Body body = bw.createBody(STATIC_BODY);
         body.createFixture(shape, 1.0f);
+        body.setUserData(CollisionType.MAP_BOUNDS);
+
         shape.dispose();
         return body;
     }
@@ -132,9 +135,10 @@ public final class CollisionShapeCreator {
         final Vector2 center = new Vector2(rectangle.x + rectangle.width / 2f, rectangle.y + rectangle.height / 2f);
         shape.setAsBox(rectangle.width / 2, rectangle.height / 2, center, 0.0f);
 
-        final Body body = bw.createBody(new BodyDef());
-
+        final Body body = bw.createBody(STATIC_BODY);
         body.createFixture(shape, 1.0f);
+        body.setUserData(CollisionType.MAP_BOUNDS);
+
         shape.dispose();
         return body;
     }
@@ -152,6 +156,8 @@ public final class CollisionShapeCreator {
 
         final Body body = bw.createBody(STATIC_BODY);
         body.createFixture(shape, 1.0f);
+        body.setUserData(CollisionType.MAP_BOUNDS);
+
         shape.dispose();
         return body;
     }

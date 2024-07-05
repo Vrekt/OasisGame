@@ -1,6 +1,7 @@
 package me.vrekt.oasis.entity;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.Bag;
 import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
@@ -32,6 +33,7 @@ import me.vrekt.oasis.graphics.Viewable;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
+import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
 
@@ -66,6 +68,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected boolean isInParentWorld;
 
     protected Array<EntityMapGoal> goals = new Array<>();
+    protected Bag<CollisionType> collisionTypes = new Bag<>();
 
     protected Array<AiComponent> aiComponents = new Array<>();
     protected boolean isPaused;
@@ -121,8 +124,23 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         return g;
     }
 
-    public void finalizeGoals() {
+    /**
+     * Disable collision with another entity or object
+     *
+     * @param type type
+     */
+    public void disableCollisionFor(CollisionType type) {
+        collisionTypes.add(type);
+    }
 
+    /**
+     * Check if collision with the type is disabled
+     *
+     * @param type type
+     * @return {@code true} if so
+     */
+    public boolean isCollisionDisabled(CollisionType type) {
+        return collisionTypes.contains(type);
     }
 
     /**

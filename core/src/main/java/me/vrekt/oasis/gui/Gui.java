@@ -22,7 +22,7 @@ public abstract class Gui implements Disposable {
 
     protected final GuiManager guiManager;
     protected boolean isShowing;
-    protected float updateInterval, lastUpdate;
+    protected float timedUpdateInterval, lastUpdate;
 
     protected final VisTable rootTable;
     protected final GuiType type;

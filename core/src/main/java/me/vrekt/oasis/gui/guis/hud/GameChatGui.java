@@ -51,7 +51,7 @@ public final class GameChatGui extends Gui {
         rootTable.bottom().left();
 
         // half a second
-        this.updateInterval = 0.1f;
+        this.timedUpdateInterval = 0.1f;
 
         final VisTable parent = new VisTable();
         parent.setFillParent(false);

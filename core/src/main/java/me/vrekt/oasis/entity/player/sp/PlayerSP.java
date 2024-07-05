@@ -282,7 +282,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             // this attribute expires and has other special functionality.
             attribute.apply(this);
 
-            game.getGuiManager().getHudComponent().showAttribute(attribute);
+            game.getGuiManager().getAttributeComponent().showAttribute(attribute);
             attributes.computeIfAbsent(attribute.type(), a -> new Attributes()).add(attribute);
         }
     }
@@ -344,7 +344,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
         if (game.isAnyMultiplayer()) connection.updateArtifactActivated(artifact);
         artifact.apply(this, GameManager.getTick());
-        game.getGuiManager().getHudComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
+        game.getGuiManager().getArtifactComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
 
     /**

@@ -194,13 +194,13 @@ public abstract class InventoryGui extends Gui {
     @Override
     public void show() {
         super.show();
-        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().pauseCurrentHint();
+        if (guiManager.getHintComponent().isHintActive()) guiManager.getHintComponent().pauseCurrentHint();
     }
 
     @Override
     public void hide() {
         super.hide();
-        if (guiManager.getHudComponent().isHintActive()) guiManager.getHudComponent().resumeCurrentHint();
+        if (guiManager.getHintComponent().isHintActive()) guiManager.getHintComponent().resumeCurrentHint();
     }
 
     @Override

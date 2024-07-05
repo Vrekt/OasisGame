@@ -34,7 +34,7 @@ public final class WrynnHouseInterior extends GameWorldInterior {
         super.enter();
 
         player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
-        guiManager.getHudComponent().clearHints();
+        guiManager.getHintComponent().clearHints();
     }
 
 }
