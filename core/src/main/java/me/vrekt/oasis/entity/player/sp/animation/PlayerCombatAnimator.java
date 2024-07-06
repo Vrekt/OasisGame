@@ -79,11 +79,12 @@ public final class PlayerCombatAnimator implements ResourceLoader {
                                            EntityRotation rotation,
                                            float x,
                                            float y,
+                                           float scaling,
                                            float delta,
                                            ItemWeapon item) {
         final CombatAnimation animation = animations[rotation.ordinal()];
         animation.update(delta);
-        animation.draw(batch, x, y, item);
+        animation.draw(batch, x, y, scaling, item);
         final boolean fin = animation.isFinished();
         if (fin) {
             animation.reset();

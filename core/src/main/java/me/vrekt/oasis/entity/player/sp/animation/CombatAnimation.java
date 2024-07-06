@@ -71,8 +71,8 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
         animationTime += delta;
     }
 
-    public void draw(SpriteBatch batch, float x, float y, ItemWeapon item) {
-        getKeyFrame(animationTime).draw(batch, x, y, item);
+    public void draw(SpriteBatch batch, float x, float y, float scaling, ItemWeapon item) {
+        getKeyFrame(animationTime).draw(batch, x, y, scaling, item);
     }
 
     public boolean isFinished() {
@@ -100,15 +100,15 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
             this.yOffset = yOffset;
         }
 
-        void draw(SpriteBatch batch, float x, float y, ItemWeapon item) {
-            final float nx = calculatePositionX(x);
-            final float ny = calculatePositionY(y);
+        void draw(SpriteBatch batch, float x, float y, float scaling, ItemWeapon item) {
+            final float nx = calculatePositionX(x, scaling);
+            final float ny = calculatePositionY(y, scaling);
             item.updateItemPosition(nx, ny);
 
             batch.draw(frame, nx, ny, 0.0f, 0.0f,
                     frame.getRegionWidth() * OasisGameSettings.SCALE,
                     frame.getRegionHeight() * OasisGameSettings.SCALE,
-                    1.0f, 1.0f,
+                    scaling, scaling,
                     0.0f);
         }
 
@@ -118,8 +118,8 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
          * @param y X
          * @return the position
          */
-        float calculatePositionY(float y) {
-            return offsetY ? y - ((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) + yOffset : y;
+        float calculatePositionY(float y, float scaling) {
+            return offsetY ? y - (((frame.getRegionHeight() * OasisGameSettings.SCALE) / 2f) * scaling) + yOffset : y;
         }
 
         /**
@@ -128,8 +128,8 @@ public final class CombatAnimation extends Animation<CombatAnimation.SingleAnima
          * @param x X
          * @return the position
          */
-        float calculatePositionX(float x) {
-            return offsetX ? x - ((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f) : x;
+        float calculatePositionX(float x, float scaling) {
+            return offsetX ? x - (((frame.getRegionWidth() * OasisGameSettings.SCALE) / 2f) * scaling) : x;
         }
 
     }

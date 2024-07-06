@@ -32,6 +32,7 @@ import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
+import me.vrekt.oasis.save.world.entity.GenericEntitySave;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
@@ -86,6 +87,18 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         entity = new Entity();
         addComponents();
         setHealth(100.0f);
+    }
+
+    /**
+     * Load this saved generic entity
+     *
+     * @param save save
+     */
+    public void loadSavedEntity(GenericEntitySave save) {
+        setPosition(save.position(), true);
+        setHealth(save.health());
+        setMoveSpeed(save.moveSpeed());
+        rotation = save.rotation();
     }
 
     /**
@@ -813,6 +826,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public EntityInteractable asInteractable() {
         return null;
+    }
+
+    public boolean isInteractableEntity() {
+        return this instanceof EntityInteractable;
     }
 
     public EntityEnemy asEnemy() {

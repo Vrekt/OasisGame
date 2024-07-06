@@ -5,6 +5,7 @@ import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
+import me.vrekt.oasis.save.world.entity.GenericEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
@@ -82,7 +83,7 @@ public abstract class AbstractWorldSaveState {
             } else if (entity.type().enemy()) {
                 entities.add(new EnemyEntitySave(entity.asEnemy()));
             } else if (entity.type().generic()) {
-                // TODO: Generic entities
+                entities.add(new GenericEntitySave(entity));
             }
         }
 

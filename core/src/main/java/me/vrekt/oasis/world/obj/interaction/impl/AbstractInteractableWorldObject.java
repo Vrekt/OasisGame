@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -26,6 +27,9 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected boolean handleMouseState = true;
 
     protected boolean isCombatInteraction;
+
+    protected float lastInteraction;
+    protected float interactionDelay;
 
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
         this.type = type;
@@ -128,7 +132,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public boolean clicked(Vector3 mouse) {
-        if (isEnabled && isInInteractionRange() && !wasInteractedWith && !isCombatInteraction) {
+        if (isEnabled
+                && isInInteractionRange()
+                && !wasInteractedWith
+                && !isCombatInteraction
+                && (lastInteraction == 0.0f || GameManager.hasTimeElapsed(lastInteraction, interactionDelay))) {
             interact();
             return true;
         }
@@ -142,10 +150,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         world.getGame().getGuiManager().resetCursor();
         world.player().notifyIfMoved();
 
+        lastInteraction = GameManager.getTick();
+
         wasInteractedWith = true;
         isEnabled = false;
         interactionPoint.set(world.player().getPosition());
     }
+
 
     /**
      * Check if the provided values match this interaction

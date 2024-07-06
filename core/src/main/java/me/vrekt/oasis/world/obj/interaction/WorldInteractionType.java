@@ -36,6 +36,7 @@ public enum WorldInteractionType {
         }
     },
 
+    WRYNN_LEVER("wrynn_lever"),
     NONE("none");
 
     private final String type;

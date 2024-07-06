@@ -20,7 +20,6 @@ import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
 /**
@@ -91,13 +90,6 @@ public final class WrynnEntity extends EntityInteractable {
 
         dialogue.addTaskHandler("wrynn:unlock_container", () -> {
             worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
-            player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
-        });
-
-        dialogue.addTaskHandler("wrynn:unlock_basement", () -> {
-            parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
-            parentWorld.removeSimpleObject("oasis:basement_gate");
-
             player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         });
 

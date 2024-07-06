@@ -7,6 +7,7 @@ import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.save.world.InteriorWorldSave;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
+import me.vrekt.oasis.save.world.entity.GenericEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
@@ -80,7 +81,8 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
 
                 enemy++;
             } else if (entitySave.type().generic()) {
-                // TODO: Generic entities
+                final GenericEntitySave save = (GenericEntitySave) entitySave;
+                world.findEntity(save.type()).loadSavedEntity(save);
             }
         }
 

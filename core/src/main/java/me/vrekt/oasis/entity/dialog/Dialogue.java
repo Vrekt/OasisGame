@@ -7,6 +7,7 @@ import me.vrekt.oasis.entity.dialog.utility.DialogueEntryCondition;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.dialog.utility.DialogueState;
 import me.vrekt.oasis.entity.interactable.EntitySpeakable;
+import me.vrekt.oasis.utility.logging.GameLogging;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public final class Dialogue implements Disposable {
     /**
      * Set the active dialogue index and set the entry
      *
-     * @param key key
+     * @param key   key
      * @param index index
      */
     public DialogueEntry setStageAndUpdate(String key, int index) {
@@ -74,8 +75,14 @@ public final class Dialogue implements Disposable {
         activeEntry = (activeEntry == null || key != null) ? entries.get(key) : entries.get(activeEntry.getNextKey());
 
         // run actions
-        if (activeEntry.hasTask())
-            dialogueTaskHandlers.get(activeEntry.getTask()).run();
+        if (activeEntry.hasTask()) {
+            final Runnable task = dialogueTaskHandlers.get(activeEntry.getTask());
+            if (task == null) {
+                GameLogging.error(this, "Failed to find a task for entry %s", activeEntry.getKey());
+            } else {
+                task.run();
+            }
+        }
 
         index++;
         return result.of(activeEntry, DialogueState.CONTINUED);

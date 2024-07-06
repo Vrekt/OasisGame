@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="9">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="10">
  <tileset firstgid="1" source="../asset/data/Dungeon1.tsx"/>
  <tileset firstgid="1051" source="../asset/data/Interior2.tsx"/>
  <tileset firstgid="2075" source="../asset/data/Objects.tsx"/>
@@ -52,7 +52,7 @@
 0,0,0,0,0,0,0,0,2283,2283,2284,0,0,0,0,2285,2286,2284,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,2316,2316,2317,0,0,0,0,2318,2319,2317,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,2283,2284,2284,0,0,0,2316,2317,0,0,0,0,0,0,0,
-0,0,0,0,0,0,1325,1326,0,2316,2317,2317,0,1321,1322,0,0,1133,1134,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,2316,2317,2317,0,1321,1322,0,0,1133,1134,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -132,8 +132,8 @@
   </object>
  </objectgroup>
  <objectgroup id="6" name="Collision">
-  <object id="4" x="93.75" y="108.5">
-   <polyline points="0,0 83.9177,-0.677215 84.7025,-30.4051 120.187,-30.7753 130.206,-1.12658 208,-1.5 210.5,194.5 3.5,195.5 4,-28"/>
+  <object id="4" x="88.75" y="109.361">
+   <polyline points="0,0 85.911,-0.69617 86.7144,-31.2561 123.042,-31.6367 133.299,-1.15811 212.941,-1.54198 215.5,199.944 3.58314,200.972 4.09501,-28.7837"/>
   </object>
  </objectgroup>
  <objectgroup id="8" name="WorldObjects">
@@ -166,6 +166,24 @@
     <property name="sound" value="BARREL_BREAKING"/>
     <property name="texture" value="dungeon_barrel"/>
     <property name="volume" type="float" value="0.33"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="9" x="96" y="288">
+   <properties>
+    <property name="animation" value="glass_bottles_breaking"/>
+    <property name="animation_frames" type="int" value="3"/>
+    <property name="animation_time" type="float" value="0.1"/>
+    <property name="hasCollision" type="bool" value="false"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="interaction_type" value="BREAKABLE_OBJECT"/>
+    <property name="item_drop_offset" type="float" value="0.4"/>
+    <property name="offset_y" type="bool" value="true"/>
+    <property name="rarity" value="UN_COMMON"/>
+    <property name="size_y" type="float" value="16"/>
+    <property name="sound" value="GLASS_BREAKING"/>
+    <property name="texture" value="glass_bottles"/>
+    <property name="volume" type="float" value="0.45"/>
    </properties>
    <point/>
   </object>

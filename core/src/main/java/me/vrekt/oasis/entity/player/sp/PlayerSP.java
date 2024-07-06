@@ -692,6 +692,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
                     rotation,
                     getInterpolatedPosition().x,
                     getInterpolatedPosition().y,
+                    playerScaling,
                     delta,
                     equippedItem);
 

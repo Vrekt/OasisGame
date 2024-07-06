@@ -761,6 +761,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Check if this world has a simple object
+     *
+     * @param key key
+     * @return {@code true} if so
+     */
+    public boolean hasSimpleObject(String key) {
+        return worldObjects.containsKey(key);
+    }
+
+    /**
      * Remove an object from the map
      *
      * @param key the key
@@ -1161,7 +1171,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public EntityInteractable findInteractableEntity(EntityType type) {
         for (GameEntity entity : entities.values()) {
-            if (entity.asInteractable().type() == type) {
+            if (entity.isInteractableEntity() && entity.asInteractable().type() == type) {
                 return entity.asInteractable();
             }
         }

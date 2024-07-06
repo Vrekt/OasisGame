@@ -81,9 +81,8 @@
     },
     "wrynn:dialog_stage_5": {
       "key": "wrynn:dialog_stage_5",
-      "content": "You got them? Good! The cellar is right outside, in the side of the hill, kinda looks like a cave! Come back when you've found it, good luck!",
+      "content": "You got them? Good! The cellar is right outside, before you go make sure the pull the lever over there to release the gate.",
       "nextEntry": "wrynn:dialog_stage_6",
-      "task": "wrynn:unlock_basement",
       "exit": true,
       "skippable": true
     },

@@ -18,6 +18,7 @@ public final class WrynnOfficeContainerInteraction extends OpenableContainerInte
         inventory.add(Items.TEMPERED_BLADE, 1);
         inventory.add(Items.PIG_HEART, 3);
         inventory.add(Items.LOCK_PICK, 2);
+        this.interactionRange = 10.0f;
     }
 
 }
