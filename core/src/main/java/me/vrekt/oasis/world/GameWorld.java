@@ -506,18 +506,48 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Transfer this entity to an interior
+     *
+     * @param entity the entity
+     * @param other  the interior
+     */
+    public void transferEntityTo(EntityInteractable entity, GameWorldInterior other) {
+        removeEntity(entity, false);
+        world.destroyBody(entity.getBody());
+
+        entity.createBoxBody(other.world);
+        entity.setWorldIn(other);
+        other.populateEntity(entity);
+    }
+
+    /**
      * Remove a dead entity now.
      * Should be removed from the {@code entities} list from whoever calls the function
      * Usually, via iterator.
      *
      * @param entity entity
      */
-    public void removeDeadEntityNow(GameEntity entity) {
+    public void removeAndDestroyDeadEntityNow(GameEntity entity) {
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         deadEnemies.add(entity.type());
         mouseListeners.remove(entity);
         entity.dispose();
+    }
+
+    /**
+     * Remove the entity
+     *
+     * @param entity  entity
+     * @param destroy if {@code true} entity will be disposed of.
+     */
+    public void removeEntity(GameEntity entity, boolean destroy) {
+        engine.removeEntity(entity.getEntity());
+        nearbyEntities.remove(entity.entityId());
+        entities.remove(entity.entityId());
+        mouseListeners.remove(entity);
+
+        if (destroy) entity.dispose();
     }
 
     /**
@@ -1149,11 +1179,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         // update all mouse listeners, if found one then break
         // later: task: (TODO-28) priority
         for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
-            if (!entry.getValue() && entry.getKey().within(cursorInWorld)) {
+            if (!entry.getValue() && entry.getKey().ready() && entry.getKey().within(cursorInWorld)) {
                 guiManager.setCursorInGame(entry.getKey().enter(cursorInWorld));
                 entry.setValue(true);
                 break;
-            } else if (entry.getValue() && !entry.getKey().within(cursorInWorld)) {
+            } else if (entry.getValue() && entry.getKey().ready() && !entry.getKey().within(cursorInWorld)) {
                 entry.getKey().exit(cursorInWorld);
 
                 guiManager.resetCursor();

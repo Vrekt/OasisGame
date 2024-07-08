@@ -16,6 +16,7 @@ import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 /**
  * Base implementation of a world object
@@ -23,7 +24,9 @@ import me.vrekt.oasis.world.GameWorld;
 public abstract class AbstractWorldObject implements MouseListener, ResourceLoader, Disposable {
 
     protected final Array<ParticleEffect> effects = new Array<>();
+
     protected GameWorld world;
+    protected GameWorld parentWorld;
 
     protected TextureRegion texture;
 
@@ -50,6 +53,9 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public void setWorldIn(GameWorld world) {
         this.world = world;
+        if (world instanceof GameWorldInterior interior) {
+            this.parentWorld = interior.getParentWorld();
+        }
     }
 
     /**
@@ -167,6 +173,11 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     @Override
     public boolean within(Vector3 mouse) {
         return isMouseOver(mouse);
+    }
+
+    @Override
+    public boolean ready() {
+        return true;
     }
 
     @Override

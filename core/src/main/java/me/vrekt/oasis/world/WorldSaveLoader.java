@@ -74,7 +74,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
                 if (ees.isDead()) {
                     final EntityEnemy e = world.findEnemy(ees.type());
                     world.entities.remove(e.entityId());
-                    world.removeDeadEntityNow(e);
+                    world.removeAndDestroyDeadEntityNow(e);
                 } else {
                     world.findEnemy(ees.type()).load(ees);
                 }

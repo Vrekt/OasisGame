@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.questing.quests.QuestType;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
@@ -21,6 +20,7 @@ public final class WrynnLeverInteraction extends AbstractInteractableWorldObject
     public WrynnLeverInteraction() {
         super(WorldInteractionType.NONE, KEY);
         this.interactionDelay = 0.5f;
+        disable();
     }
 
     @Override
@@ -33,12 +33,8 @@ public final class WrynnLeverInteraction extends AbstractInteractableWorldObject
         setTextureAndSize(region);
 
         if (!pressed) {
-            ((GameWorldInterior) world).getParentWorld()
-                    .findInteriorByType(InteriorWorldType.WRYNN_BASEMENT)
-                    .setEnterable(true);
-
-            ((GameWorldInterior) world).getParentWorld()
-                    .removeSimpleObject("oasis:basement_gate");
+            parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
+            parentWorld.removeSimpleObject("oasis:basement_gate");
 
             world.player().getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
             pressed = true;

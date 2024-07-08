@@ -90,6 +90,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         dialogue.addTaskHandler("wrynn:unlock_container", () -> {
             worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
+            worldIn.enableWorldInteraction(WorldInteractionType.WRYNN_LEVER, "wrynn:lever");
             player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         });
 

@@ -23,6 +23,87 @@
       "nextEntry": "lyra:dialog_stage_2",
       "locked": true,
       "skippable": false
+    },
+    "lyra:dialog2_stage_1": {
+      "key": "lyra:dialog2_stage_1",
+      "content": "What are you doing in my house? Did you break in? That may just be unforgivable, you can't violate the safety of a home.",
+      "nextEntry": "lyra:dialog2_stage_2",
+      "locked": false,
+      "skippable": false,
+      "options": {
+        "Just looking around!": "lyra:dialog2_stage_2",
+        "I'm sorry": "lyra:dialog2_stage_2",
+        "What's this ring?": "lyra:dialog2_stage_3"
+      }
+    },
+    "lyra:dialog2_stage_2": {
+      "key": "lyra:dialog2_stage_2",
+      "content": "Right, right. I see, this is not gonna work, the lying. Tell me what you took.",
+      "nextEntry": "lyra:dialog2_stage_1_1",
+      "locked": false,
+      "skippable": false,
+      "options": {
+        "Nothing... yet.": "lyra:dialog2_stage_1_1",
+        "I wanted the ring.": "lyra:dialog2_stage_1_1",
+        "I was thinking about it.": "lyra:dialog2_stage_1_1"
+      }
+    },
+    "lyra:dialog2_stage_3": {
+      "key": "lyra:dialog2_stage_3",
+      "content": "Oh great! Straight to the point, at least you didn't lie to me... I guess...",
+      "nextEntry": "lyra:dialog2_stage_4",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_4": {
+      "key": "lyra:dialog2_stage_4",
+      "content": "It's a special ring, it teleports you to someplace magical, nothing like you've ever seen before.",
+      "nextEntry": "lyra:dialog2_stage_5",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_5": {
+      "key": "lyra:dialog2_stage_5",
+      "content": "You're trying to leave this place right? Probably not a good idea to break in since I know somebody who could get you off the island.",
+      "nextEntry": "lyra:dialog2_stage_6",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_6": {
+      "key": "lyra:dialog2_stage_6",
+      "content": "I'll make you a deal. I'm not in good standing with these so called mushroom people.",
+      "nextEntry": "lyra:dialog2_stage_7",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_7": {
+      "key": "lyra:dialog2_stage_7",
+      "content": "You go there, make friends, be nice and retrieve something for me I'll put in a good word for you.",
+      "nextEntry": "lyra:dialog2_stage_8",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_8": {
+      "key": "lyra:dialog2_stage_8",
+      "content": "It won't be easy, you'll have to ask around, you come back to me with it I'll get you off this place.",
+      "nextEntry": "lyra:dialog2_stage_9",
+      "locked": false,
+      "skippable": true
+    },
+    "lyra:dialog2_stage_9": {
+      "key": "lyra:dialog2_stage_9",
+      "content": "Put the ring on and use this spell book, it will teleport you directly there, good luck.",
+      "nextEntry": "lyra:dialog2_stage_9",
+      "locked": false,
+      "skippable": true,
+      "finished": true
+    },
+    "lyra:dialog2_stage_1_1": {
+      "key": "lyra:dialog2_stage_1_1",
+      "content": "I can't say I blame you, it is a pretty nice ring, but it does something special the others don't.",
+      "nextEntry": "lyra:dialog2_stage_5",
+      "locked": false,
+      "skippable": true
     }
   }
 }

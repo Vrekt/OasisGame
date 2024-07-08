@@ -44,7 +44,7 @@ public final class GameHudGui extends Gui {
         performanceMetricsContext = new MathContext(2, RoundingMode.FLOOR);
 
         debugComponentText = new VisLabel();
-        debugComponentText.setStyle(Styles.getSmallBlack());
+        debugComponentText.setStyle(Styles.getSmallWhite());
 
         components.put(HudComponentType.ARTIFACT, new HudArtifactComponent(guiManager));
         components.put(HudComponentType.HINT, new HudPlayerHintComponent(guiManager));

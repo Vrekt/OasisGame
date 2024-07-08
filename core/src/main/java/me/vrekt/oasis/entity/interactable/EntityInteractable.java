@@ -7,6 +7,7 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
 
 /**
  * Represents an NPC within the game
@@ -41,4 +42,14 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
     public EntityInteractable asInteractable() {
         return this;
     }
+
+    /**
+     * Transfer this entity
+     *
+     * @param interior interior
+     */
+    public void transfer(GameWorldInterior interior) {
+        worldIn.transferEntityTo(this, interior);
+    }
+
 }

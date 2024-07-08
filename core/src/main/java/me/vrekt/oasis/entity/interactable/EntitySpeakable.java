@@ -61,10 +61,6 @@ public abstract class EntitySpeakable extends GameEntity {
     public boolean clicked(Vector3 mouse) {
         if (!speakingTo && speakable) {
             speak(true);
-
-            worldIn.getGame().guiManager.showGui(GuiType.DIALOG, true);
-            worldIn.getGame().guiManager.getDialogComponent().showEntityDialog(this);
-            player.setRotation(AiVectorUtility.faceEntity(this, player));
         }
         return true;
     }
@@ -142,9 +138,20 @@ public abstract class EntitySpeakable extends GameEntity {
             stoppedSpeaking();
         }
 
+        if (speakingTo) {
+            worldIn.getGame().guiManager.showGui(GuiType.DIALOG, true);
+            worldIn.getGame().guiManager.getDialogComponent().showEntityDialog(this);
+            player.setRotation(AiVectorUtility.faceEntity(this, player));
+        }
+
         this.speakingTo = speakingTo;
         player.speak(this, speakingTo);
         interactionPoint.set(player.getPosition());
+    }
+
+    public void endSpeak() {
+        this.speakingTo = false;
+        stoppedSpeaking();
     }
 
     /**

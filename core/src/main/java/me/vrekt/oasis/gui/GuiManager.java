@@ -424,7 +424,7 @@ public final class GuiManager implements Disposable {
         if (isGuiVisible(gui)) {
             hideGui(gui);
         } else {
-            showGui(gui);
+            showGui(gui, true);
         }
     }
 

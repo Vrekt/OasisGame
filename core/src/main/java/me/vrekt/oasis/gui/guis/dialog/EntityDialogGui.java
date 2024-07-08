@@ -87,6 +87,7 @@ public final class EntityDialogGui extends Gui {
             final VisLabel label = new VisLabel(StringUtils.EMPTY, Styles.getSmallWhite());
             final VisTable table = createTextContainerComponent(label, start, middle, end);
             final DialogOptionContainer container = new DialogOptionContainer(table, label);
+
             table.setVisible(false);
 
             dialogOptionContainers.add(container);
@@ -149,6 +150,7 @@ public final class EntityDialogGui extends Gui {
      */
     public void showEntityDialog(EntitySpeakable entity) {
         this.entity = entity;
+        guiManager.resetCursor();
 
         entityNameLabel.setText(entity.name());
         entityPreview.setDrawable(new TextureRegionDrawable(entity.getDialogFace()));
@@ -167,6 +169,7 @@ public final class EntityDialogGui extends Gui {
             // enable suggestions input box
             userInputField.setVisible(true);
         } else {
+            optionTracker = 0;
             hideSuggestionComponents();
 
             // Otherwise: populate any options we may have
@@ -343,6 +346,8 @@ public final class EntityDialogGui extends Gui {
     private void handleInputSimilarities(VisTextField field, char character) {
         final String text = field.getText();
 
+        System.err.println(entity.getEntry().getSuggestions());
+
         // reset our suggestions if the space was cleared (backspace)
         if (text.isEmpty()) {
             // remove all actors from container wrapper table
@@ -352,6 +357,7 @@ public final class EntityDialogGui extends Gui {
             dialogOptionContainers.forEach(DialogOptionContainer::reset);
             return;
         }
+
 
         // may or may not need the second statement
         if (entity != null && entity.getEntry().suggestions()) {
@@ -386,6 +392,7 @@ public final class EntityDialogGui extends Gui {
     public void hide() {
         super.hide();
         rootTable.setVisible(false);
+        if (entity != null) entity.endSpeak();
 
         // give control back to player if this GUI was unexpectedly closed.
         if (hasAnyFocus) guiManager.player().enableMovement();

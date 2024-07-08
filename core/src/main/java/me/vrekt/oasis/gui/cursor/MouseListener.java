@@ -24,6 +24,15 @@ public interface MouseListener {
     boolean clicked(Vector3 mouse);
 
     /**
+     * If this mouse listener is ready to accept input or changes
+     *
+     * @return {@code true} if so
+     */
+    default boolean ready() {
+        return true;
+    }
+
+    /**
      * The mouse entered this listener
      *
      * @param mouse mouse coordinates

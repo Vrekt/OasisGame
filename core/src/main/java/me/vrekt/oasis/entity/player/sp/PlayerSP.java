@@ -330,6 +330,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
     /**
      * Scale up or down this player
+     *
      * @param scale scale
      */
     public void scalePlayerBy(float scale) {
@@ -416,11 +417,18 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             //  waiting to pick an option
             if (entry.suggestions() || !entry.isSkippable()) return;
 
+            System.err.println(speakable == null);
+
             // advance this dialog after we close the GUI
             // Basically the dialog is 'finished' but if we go back
             // and speak to the entity they will show a message reminding them what to do
             // So we only show that afterwards.
+            // End speak is called when the dialog GUI is hidden
             if (speakable.advance()) {
+                game.getGuiManager().hideGui(GuiType.DIALOG);
+                game.guiManager.resetCursor();
+                return;
+            } else if (entry.finished()) {
                 game.getGuiManager().hideGui(GuiType.DIALOG);
                 game.guiManager.resetCursor();
                 return;

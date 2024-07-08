@@ -30,7 +30,7 @@ public final class EntityUpdateSystem extends EntitySystem {
         for (Iterator<GameEntity> it = world.entities().values().iterator(); it.hasNext(); ) {
             final GameEntity entity = it.next();
             if (entity.queuedForRemoval()) {
-                world.removeDeadEntityNow(entity);
+                world.removeAndDestroyDeadEntityNow(entity);
                 it.remove();
                 continue;
             }

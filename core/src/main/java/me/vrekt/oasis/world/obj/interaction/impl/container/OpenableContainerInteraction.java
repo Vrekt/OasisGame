@@ -3,6 +3,7 @@ package me.vrekt.oasis.world.obj.interaction.impl.container;
 import com.badlogic.gdx.maps.MapObject;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.gui.GuiType;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
@@ -61,6 +62,11 @@ public class OpenableContainerInteraction extends AbstractInteractableWorldObjec
     public void interact() {
         super.interact();
         world.getGame().getGuiManager().getContainerComponent().populateContainerItemsAndShow(inventory);
+    }
+
+    @Override
+    public Cursor getCursor() {
+        return Cursor.OPEN_CHEST;
     }
 
     @Override

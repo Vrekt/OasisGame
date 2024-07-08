@@ -100,6 +100,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         return updatable;
     }
 
+    @Override
+    public boolean ready() {
+        return isEnabled;
+    }
+
     /**
      * Update this object
      */

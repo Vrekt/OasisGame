@@ -89,6 +89,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         setHealth(100.0f);
     }
 
+    public void setWorldIn(GameWorld worldIn) {
+        this.worldIn = worldIn;
+    }
+
     /**
      * Load this saved generic entity
      *
@@ -122,6 +126,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         entity.add(new EntityPropertiesComponent());
         entity.add(new EntityTransformComponent());
         entity.add(new EntityTextureComponent());
+    }
+
+    public void destroyBody() {
+
     }
 
     /**
@@ -443,6 +451,9 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public void setPosition(float x, float y, boolean transform) {
         getPosition().set(x, y);
+
+        System.err.println(x + ":" + y + ":" + transform);
+
         if (transform && body != null) body.setTransform(x, y, getAngle());
     }
 

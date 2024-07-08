@@ -3,6 +3,7 @@ package me.vrekt.oasis.gui.guis.lockpicking;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.VisImage;
 import me.vrekt.oasis.asset.game.Asset;
@@ -21,6 +22,7 @@ public final class LockpickUiComponent {
     private float animationTime;
     private final float min, max;
     private boolean inRange, successful, skip;
+    private boolean earlyFail;
 
     private int activeFrame = -1;
 
@@ -82,6 +84,10 @@ public final class LockpickUiComponent {
                 activity.click();
                 inRange = true;
             }
+        } else {
+            if (Gdx.input.isKeyJustPressed(key)) {
+                earlyFail = MathUtils.randomBoolean(0.75f);
+            }
         }
 
         if (!successful && !skip) {
@@ -113,6 +119,7 @@ public final class LockpickUiComponent {
         skip = false;
         successful = false;
         inRange = false;
+        earlyFail = false;
     }
 
     /**
@@ -122,7 +129,7 @@ public final class LockpickUiComponent {
      * @return {@code true} if progress has passed the window to complete
      */
     public boolean failed(float progress) {
-        return progress >= max - 2.0f;
+        return earlyFail || progress >= max - 2.0f;
     }
 
 }
