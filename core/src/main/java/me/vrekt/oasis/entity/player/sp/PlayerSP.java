@@ -417,8 +417,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             //  waiting to pick an option
             if (entry.suggestions() || !entry.isSkippable()) return;
 
-            System.err.println(speakable == null);
-
             // advance this dialog after we close the GUI
             // Basically the dialog is 'finished' but if we go back
             // and speak to the entity they will show a message reminding them what to do

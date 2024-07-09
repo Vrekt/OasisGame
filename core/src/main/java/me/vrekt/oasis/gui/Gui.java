@@ -47,6 +47,10 @@ public abstract class Gui implements Disposable {
 
     }
 
+    public void preDraw(Batch batch) {
+
+    }
+
     public void draw(Batch batch) {
 
     }

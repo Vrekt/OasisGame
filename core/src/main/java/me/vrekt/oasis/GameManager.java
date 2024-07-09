@@ -148,7 +148,7 @@ public class GameManager {
      * @param action the action
      * @param delay  the delay
      */
-    public static void executeTaskLater(Runnable action, long delay) {
+    public static void executeTaskLater(Runnable action, float delay) {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {

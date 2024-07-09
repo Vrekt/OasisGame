@@ -346,8 +346,6 @@ public final class EntityDialogGui extends Gui {
     private void handleInputSimilarities(VisTextField field, char character) {
         final String text = field.getText();
 
-        System.err.println(entity.getEntry().getSuggestions());
-
         // reset our suggestions if the space was cleared (backspace)
         if (text.isEmpty()) {
             // remove all actors from container wrapper table

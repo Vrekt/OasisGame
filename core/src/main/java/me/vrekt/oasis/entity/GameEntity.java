@@ -451,9 +451,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public void setPosition(float x, float y, boolean transform) {
         getPosition().set(x, y);
-
-        System.err.println(x + ":" + y + ":" + transform);
-
         if (transform && body != null) body.setTransform(x, y, getAngle());
     }
 

@@ -1,7 +1,7 @@
 package me.vrekt.oasis.world.lp;
 
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.gui.guis.lockpicking.LockPickingGui;
+import me.vrekt.oasis.gui.guis.lockpicking.LockpickingGui;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 
 /**
@@ -16,12 +16,13 @@ public final class ActivityManager {
      * @param success    successful callback
      * @param failure    failure callback
      */
-    public static LockpickingActivity lockpicking(LockDifficulty difficulty, Runnable success, Runnable failure) {
-        final LockpickingActivity activity = new LockpickingActivity();
-        final LockPickingGui gui = GameManager.getGuiManager().getLockpickingComponent();
+    public static LockpickActivity lockpicking(LockDifficulty difficulty, Runnable success, Runnable failure) {
+        final LockpickingGui gui = GameManager.getGuiManager().getLockpickingComponent();
+        final LockpickActivity activity = new LockpickActivity(gui, GameManager.getPlayer());
 
-        activity.start(gui, success, failure);
-        gui.playActivity(activity);
+        gui.setActiveActivity(activity);
+        activity.start(success, failure);
+
         return activity;
     }
 

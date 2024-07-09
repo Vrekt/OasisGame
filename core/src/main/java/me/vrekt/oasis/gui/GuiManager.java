@@ -29,7 +29,7 @@ import me.vrekt.oasis.gui.guis.hud.HudComponentType;
 import me.vrekt.oasis.gui.guis.hud.components.*;
 import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
-import me.vrekt.oasis.gui.guis.lockpicking.LockPickingGui;
+import me.vrekt.oasis.gui.guis.lockpicking.LockpickingGui;
 import me.vrekt.oasis.gui.guis.map.WorldMapGui;
 import me.vrekt.oasis.gui.guis.quest.QuestCompletedGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
@@ -63,7 +63,7 @@ public final class GuiManager implements Disposable {
     private final ReadableSignGui signGui;
     private final ContainerInventoryGui containerGui;
     private final GameChatGui chatGui;
-    private final LockPickingGui lockPickingGui;
+    private final LockpickingGui lockPickingGui;
     private final QuestCompletedGui completedGui;
 
     private Cursor cursorState;
@@ -101,7 +101,7 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.CONTAINER, containerGui = new ContainerInventoryGui(this));
         guis.put(GuiType.CHAT, chatGui = new GameChatGui(this));
         guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
-        guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockPickingGui(this));
+        guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockpickingGui(this));
         guis.put(GuiType.QUEST_COMPLETED, completedGui = new QuestCompletedGui(this));
 
         multiplexer.addProcessor(stage);
@@ -166,7 +166,7 @@ public final class GuiManager implements Disposable {
         return chatGui;
     }
 
-    public LockPickingGui getLockpickingComponent() {
+    public LockpickingGui getLockpickingComponent() {
         return lockPickingGui;
     }
 
@@ -260,7 +260,12 @@ public final class GuiManager implements Disposable {
         stage.getViewport().apply();
         stage.act(Gdx.graphics.getDeltaTime());
 
+
         for (Gui value : guis.values()) {
+            if (value.isShowing) {
+                value.preDraw(stage.getBatch());
+            }
+
             if (!value.updateWhileHidden && !value.isShowing) continue;
 
             value.update();
@@ -269,6 +274,8 @@ public final class GuiManager implements Disposable {
                 value.lastUpdate = GameManager.getTick();
                 value.timedUpdate(value.lastUpdate);
             }
+
+
         }
 
         stage.getViewport().getCamera().update();
@@ -277,6 +284,7 @@ public final class GuiManager implements Disposable {
         stage.getRoot().draw(stage.getBatch(), 1);
         for (Gui gui : guis.values()) if (gui.isGuiVisible()) gui.draw(stage.getBatch());
         stage.getBatch().end();
+
     }
 
     /**
