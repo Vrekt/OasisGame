@@ -18,6 +18,7 @@ public enum GuiType {
     SIGN,
     CHAT,
     WORLD_MAP,
-    LOCK_PICKING
+    LOCK_PICKING,
+    MAGIC_BOOK
 
 }

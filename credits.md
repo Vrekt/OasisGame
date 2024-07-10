@@ -18,13 +18,28 @@ Potions: https://opengameart.org/content/16-by-16-item-icons
 
 Books rarity icons: https://opengameart.org/content/roguelikerpg-items
 
+Keys: https://opengameart.org/content/geralds-keys-0
+
 # Sounds
+
 Button hover: https://freesound.org/people/GameDevC/sounds/422836/
 
 Pot breaking: https://opengameart.org/content/ice-breakingshattering
+
 Quest completed: https://opengameart.org/content/epic-amulet-item
+
 Barrel breaking: https://freesound.org/people/kevinkace/sounds/66769/
+
+Lockpicking sounds: https://freesound.org/people/iainmccurdy/sounds/726830/
+
+Arcanas Codex: https://opengameart.org/content/items
+
+Inventory/Book sounds:  https://opengameart.org/content/inventory-sound-effects
+
+Teleport sound: https://opengameart.org/content/teleport-spell
+
 # References, sources, tutorials
+
 TBA
 
 ````
@@ -34,6 +49,59 @@ if (GlobalSettings.antiAliasing) config.setBackBufferConfig(8,8,8,8,32,0,4);
 ```
 
 # Art
+
+
+```
+Spellbook
+https://opengameart.org/content/4-color-dawnbringer-icons-for-adventurerpg
+
+CREDITS CONTAINER:
+```
+- Wooden Stick and Spellbook icons from Heroine Dusk https://github.com/clintbellanger/heroine-dusk
++ Heroine Dusk is created by Clint Bellanger http://clintbellanger.net
++ The visual art for Heroine Dusk is released under CC-BY-SA 3.0, with later versions permitted.
+
+- Keys and wooden planks by Eric Duhamel https://opengameart.org/users/optimusdu
++ these icons are released under CC0
+
+- Acorn, arrow, axe, bottle, bow, bread, fire, mirror, torch, and spyglass icons by 7Soul1 https://www.deviantart.com/7soul1/art/129892453
++ released in a set of 420 icons at DeviantArt, free for commercial use
++ Public Domain. This work is free of known copyright restrictions..
++ modified for a 4-color palette
+
+- Shovel by AntumDeluge https://opengameart.org/content/shovel-1
++ released under CC0 at OpenGameArt
++ modified for a 4-color palette
+
+- Mushroom by Redshrike https://opengameart.org/content/16x16-16x24-32x32-rpg-enemies-updated
++ released under CC-BY 3.0 or OGA-BY 3.0 at OpenGameArt
++ modified for a 4-color palette
+
+- Clover by BizmasterStudios https://opengameart.org/content/random-objects-from-pixeltime-videos
++ released under CC-BY 3.0 at OpenGameArt
++ modified for a 4-color palette
+
+- Glove, ring, rock, shield, and whip from Dungeon Crawl Stone Soup https://opengameart.org/node/12210
++ released under CC0 at OpenGameArt
++ modified for a 4-color palette
+
+- Bomb by thekingphoenix https://opengameart.org/node/77305
++ released under CC0 at OpenGameArt
++ modified for a 4-color palette
+
+- Parchment by Jerom https://opengameart.org/content/32x32-fantasy-tileset
++ released under CC-BY-SA 3.0 at OpenGameArt
++ recolored with DawnBringer palette
+
+- Flask, ice crystal, and lightning bolt by Meway, Len Pabin, Auran, Silviyius https://opengameart.org/content/whispers-of-avalon-item-icons
++ released under GPL 2.0 or GPL 3.0 or CC-BY 3.0 at OpenGameArt
++ modified for a 4-color palette
+
+- Pouch from [LPC] Containers by bluecarrot16, Lanea Zimmerman (Sharm), William Thompson, Tuomo Untinen (Reemax), Evert, Buch, Blarumyrran, n2liquid, Jetrel, Guido Bos, Hyptosis, Bonsaiheldin, NaRNeRZz, PriorBlue, Jerom, 7Soul, and Wolthera van Hövell tot Westerflier (TheraHedwig). See CREDITS-container.txt. You MUST include all information in this file.
++ https://opengameart.org/content/lpc-containers
++ released under CC-BY-SA 3.0 at OpenGameArt
++ modified for a 4-color palette
+```
 
 # Parallax main menu background
 ```

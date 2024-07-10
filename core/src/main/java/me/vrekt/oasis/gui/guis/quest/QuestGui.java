@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisTable;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Resource;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -89,12 +91,15 @@ public final class QuestGui extends Gui {
      * @param quest the active quest to set
      */
     private void handleQuestComponentClicked(Quest quest) {
+        GameManager.playSound(Sounds.TURN_PAGE, .25f, -1.0f, 0.0f);
         ((QuestEntryGui) guiManager.showChildGui(this, GuiType.QUEST_ENTRY)).populateQuestComponent(quest);
     }
 
     @Override
     public void show() {
         super.show();
+
+        GameManager.playSound(Sounds.TURN_PAGE, .25f, -1.0f, 0.0f);
 
         updateAndPopulateQuestComponents();
         rootTable.setVisible(true);

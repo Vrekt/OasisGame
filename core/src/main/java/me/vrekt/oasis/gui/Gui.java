@@ -2,15 +2,18 @@ package me.vrekt.oasis.gui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.game.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,6 +155,18 @@ public abstract class Gui implements Disposable {
     protected void fadeIn(Actor actor, float duration) {
         actor.getColor().a = 0.0f;
         actor.addAction(Actions.fadeIn(duration));
+    }
+
+    protected TextureRegionDrawable drawable(String resource) {
+        return new TextureRegionDrawable(asset(resource));
+    }
+
+    protected TextureRegion asset(String resource) {
+        return guiManager.getAsset().get(Resource.UI, resource);
+    }
+
+    protected TextureRegion asset(String resource, int index) {
+        return guiManager.getAsset().get(Resource.UI, resource, index);
     }
 
     @Override

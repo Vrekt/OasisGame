@@ -18,6 +18,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -70,10 +71,17 @@ public final class WrynnEntity extends EntityInteractable {
                 .add(animationComponent);
         builder.dispose();
 
-        dialogue = EntityDialogueLoader.load("assets/dialog/wrynn_dialog.json");
-        dialogue.setOwner(this);
 
-        activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
+        EntityDialogueLoader.loadAsync("assets/dialog/wrynn_dialog.json").whenComplete((dialogue, error) -> {
+            if (error != null) {
+                GameLogging.exceptionThrown("AsyncDialogService", "Failed to load wrynn dialog!", error);
+            } else {
+                this.dialogue = dialogue;
+                this.dialogue.setOwner(this);
+
+                activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
+            }
+        });
 
         // TODO: "SPeak to wrynn before leaving"
         // TODO: Dialog stage is not skipped if not speaking afterwards
@@ -96,7 +104,7 @@ public final class WrynnEntity extends EntityInteractable {
 
         createBoxBody(worldIn.boxWorld());
 
-        pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths());
+        pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths(), true);
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         addAiComponent(pathComponent);

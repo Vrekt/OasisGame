@@ -20,8 +20,8 @@ public final class EntityFollowPathGoal extends AiFollowPathComponent {
     private int reversingDirectionSegment;
     private boolean reversingDirection;
 
-    public EntityFollowPathGoal(GameEntity entity, Array<Vector2> waypoints) {
-        super(entity, waypoints);
+    public EntityFollowPathGoal(GameEntity entity, Array<Vector2> waypoints, boolean teleportToFirst) {
+        super(entity, waypoints, teleportToFirst);
     }
 
     @Override

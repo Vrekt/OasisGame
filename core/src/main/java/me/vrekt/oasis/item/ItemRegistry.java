@@ -5,6 +5,7 @@ import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.*;
 import me.vrekt.oasis.item.misc.LockpickItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
+import me.vrekt.oasis.item.usable.ArcanaCodexItem;
 import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.utility.InstanceFactory;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
@@ -36,6 +37,7 @@ public final class ItemRegistry {
         registry.put(Items.VERDANT_FUNGUS, VerdantFungusItem::new);
         registry.put(Items.STAFF_OF_EARTH, StaffOfEarthItem::new);
         registry.put(Items.STAFF_OF_OBSIDIAN, StaffOfObsidian::new);
+        registry.put(Items.ARCANA_CODEX, ArcanaCodexItem::new);
         registry.put(Items.NO_ITEM, () -> {
             throw new UnsupportedOperationException("NO ITEM");
         });

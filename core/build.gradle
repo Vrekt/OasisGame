@@ -14,8 +14,6 @@ dependencies {
     api "org.bouncycastle:bcprov-jdk18on:1.77"
     api "org.bouncycastle:bcpkix-jdk18on:1.77"
 
-    api "com.github.tommyettinger:libgdx-utils:0.13.7"
-
     // Game utilities
     api group: 'io.netty', name: 'netty-all', version: '4.1.100.Final'
     api group: 'com.google.code.gson', name: 'gson', version: '2.9.0'

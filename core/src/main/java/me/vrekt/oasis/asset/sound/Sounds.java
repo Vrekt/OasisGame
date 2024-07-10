@@ -16,7 +16,11 @@ public enum Sounds {
     POT_BREAKING("pot_breaking.ogg"),
     BARREL_BREAKING("barrel_breaking.wav"),
     GLASS_BREAKING("glass_breaking.ogg"),
-    LEVER_CLICK("click_sound_1.mp3");
+    LEVER_CLICK("click_sound_1.mp3"),
+    LOCKPICK_FAIL("lockpick_fail.wav"),
+    OPEN_INVENTORY("open_inventory.wav"),
+    TURN_PAGE("turn_page.wav"),
+    TELEPORT("teleport.wav");
 
     private final String resource;
     Sounds(String resource) {

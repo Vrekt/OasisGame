@@ -12,8 +12,12 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.component.status.EntityAlertedStatus;
+import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
+import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.utility.collision.CollisionType;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
@@ -43,6 +47,9 @@ public final class LyraEntity extends EntityInteractable {
         super.load(asset);
         this.parentWorld = worldIn;
 
+        disableCollisionFor(CollisionType.PLAYER);
+        disableCollisionFor(CollisionType.MAP_BOUNDS);
+
         addTexturePart("face", asset.get("lyra_face"));
         addTexturePart(EntityRotation.UP, asset.get("lyra_walking_up_idle"), false);
         addTexturePart(EntityRotation.DOWN, asset.get("lyra_walking_down_idle"), false);
@@ -53,10 +60,16 @@ public final class LyraEntity extends EntityInteractable {
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        dialogue = EntityDialogueLoader.load("assets/dialog/lyra_dialog.json");
-        dialogue.setOwner(this);
+        EntityDialogueLoader.loadAsync("assets/dialog/lyra_dialog.json").whenComplete((dialogue, error) -> {
+            if (error != null) {
+                GameLogging.exceptionThrown("AsyncDialogService", "Failed to load lyra dialog!", error);
+            } else {
+                this.dialogue = dialogue;
+                this.dialogue.setOwner(this);
 
-        activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
+                activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
+            }
+        });
 
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
                 .moving(EntityRotation.LEFT, 0.4f, "lyra_walking_left", 2)
@@ -70,7 +83,7 @@ public final class LyraEntity extends EntityInteractable {
         builder.dispose();
 
         createBoxBody(worldIn.boxWorld());
-        pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths());
+        pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths(), true);
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         pathComponent.setFinalRotation(EntityRotation.UP);
@@ -82,7 +95,7 @@ public final class LyraEntity extends EntityInteractable {
         super.speak(speakingTo);
         if (speakingTo) {
             // stop the player moving since this a critical dialog
-            player.disableMovement();
+            if (!isFinished) player.disableMovement();
         }
     }
 
@@ -95,7 +108,7 @@ public final class LyraEntity extends EntityInteractable {
     @Override
     public void transfer(GameWorldInterior interior) {
         super.transfer(interior);
-        resetPathing(interior);
+        resetPathingPursuePlayer(interior);
         setRotation(EntityRotation.UP);
         // lyra is alerted because we are in her house
         setStatus(new EntityAlertedStatus(this, game.getAsset()));
@@ -109,17 +122,41 @@ public final class LyraEntity extends EntityInteractable {
      *
      * @param interior interior
      */
-    private void resetPathing(GameWorldInterior interior) {
+    private void resetPathingPursuePlayer(GameWorldInterior interior) {
         pathComponent = null;
         aiComponents.clear();
 
         component = new AiHostilePursueComponent(this, player);
         component.setMaxLinearSpeed(1.8f);
         component.setMaxLinearAcceleration(2.0f);
-        component.setHostileAttackRange(3.5f);
+        component.setHostileAttackRange(1.0f);
 
         setPosition(interior.worldOrigin().x, interior.worldOrigin().y - 1.0f, true);
         addAiComponent(component);
+    }
+
+    private void resetPathingWalkPath() {
+        // do not teleport to the first waypoint, walk there instead
+        pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths(), false);
+        pathComponent.setMaxLinearSpeed(1.25f);
+        pathComponent.setMaxLinearAcceleration(1.25f);
+        pathComponent.setFinalRotation(EntityRotation.UP);
+        addAiComponent(pathComponent);
+    }
+
+    /**
+     * Reset the state of this entity after walking through the dialog
+     */
+    private void resetState() {
+        isFinished = true;
+        setStatus(new EntitySpeakableStatus(this, game.getAsset()));
+
+        aiComponents.clear();
+        resetPathingWalkPath();
+
+        // give the player the spellbook
+        player.getInventory().add(Items.ARCANA_CODEX, 1);
+
     }
 
     @Override
@@ -144,10 +181,8 @@ public final class LyraEntity extends EntityInteractable {
 
         // check for end of dialog
         if (!isFinished && activeEntry.getKey().equalsIgnoreCase("lyra:dialog2_stage_9")) {
-            isFinished = true;
-
-            aiComponents.clear();
-            component = null;
+            resetState();
+            return;
         }
 
         if (isSpeakingTo()) {
@@ -156,14 +191,14 @@ public final class LyraEntity extends EntityInteractable {
         }
 
         if (transferred) {
-            if (component != null && component.isWithinAttackRange()) {
+            if (component != null && component.isWithinPlayer(0.88f) && !isFinished) {
                 this.speak(true);
                 return;
             }
         }
 
 
-        if (!isFinished && (transferred || (pathComponent != null && !pathComponent.isFinished()))) {
+        if ((transferred || (pathComponent != null && !pathComponent.isFinished()))) {
             updateAi(delta);
             rotation = pathComponent == null ? component.getFacingDirection() : pathComponent.getFacingDirection();
         }

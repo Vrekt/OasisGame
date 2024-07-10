@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "04-07-24 02:45 AM",
+  "date": "09-07-24 19:35 PM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player33",
+    "name": "Player80",
     "position": {
-      "x": 45.671535,
-      "y": 51.082874
+      "x": 12.635438,
+      "y": 29.072876
     },
     "inventory": {
       "type": "PLAYER",
@@ -112,6 +112,23 @@
             "move_speed": 0.0
           },
           {
+            "type": "CHICK",
+            "name": "Chick",
+            "entityId": 4,
+            "position": {
+              "x": 25.0,
+              "y": 31.0
+            },
+            "size": {
+              "x": 32.0,
+              "y": 32.0,
+              "z": 0.0625
+            },
+            "health": 100.0,
+            "rotation": "DOWN",
+            "move_speed": 0.0
+          },
+          {
             "dialogueStageIndex": 1,
             "dialogueEntryKey": "lyra:dialog_stage_0",
             "type": "LYRA",
@@ -119,7 +136,7 @@
             "entityId": 1,
             "position": {
               "x": 22.489416,
-              "y": 42.602108
+              "y": 36.579334
             },
             "size": {
               "x": 12.0,
@@ -128,6 +145,23 @@
             },
             "health": 100.0,
             "rotation": "UP",
+            "move_speed": 0.0
+          },
+          {
+            "type": "FISH",
+            "name": "Fish",
+            "entityId": 3,
+            "position": {
+              "x": 15.333312,
+              "y": 57.625
+            },
+            "size": {
+              "x": 1.0,
+              "y": 1.0,
+              "z": 0.0625
+            },
+            "health": 100.0,
+            "rotation": "DOWN",
             "move_speed": 0.0
           }
         ],
@@ -146,6 +180,18 @@
             "destroyed": false
           },
           {
+            "enabled": true,
+            "type": "BREAKABLE_OBJECT",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
+            "enabled": true,
+            "type": "BREAKABLE_OBJECT",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
             "dropped_item": {
               "slot": 0,
               "name": "Lockpick",
@@ -155,40 +201,6 @@
             "position": {
               "x": 51.0,
               "y": 53.0
-            },
-            "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
-          },
-          {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
-            "position": {
-              "x": 53.5,
-              "y": 49.0
-            },
-            "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
-          },
-          {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
-            "position": {
-              "x": 53.5,
-              "y": 47.0
             },
             "enabled": true,
             "type": "MAP_ITEM",

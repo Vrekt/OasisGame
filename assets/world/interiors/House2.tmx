@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="17">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="8" nextobjectid="18">
  <tileset firstgid="1" source="../asset/data/Interior1.tsx"/>
  <tileset firstgid="257" source="../asset/data/Furniture.tsx"/>
  <tileset firstgid="2305" source="../asset/data/Interior2.tsx"/>
@@ -117,21 +117,19 @@
     <property name="hasCollision" type="bool" value="false"/>
     <property name="interactable" type="bool" value="true"/>
     <property name="interaction_type" value="MAP_ITEM"/>
-    <property name="item" value="RING_OF_MYCELIA"/>
+    <property name="item" value="arcana_codex"/>
     <property name="item_amount" type="int" value="1"/>
     <property name="offset_x" type="bool" value="true"/>
-    <property name="offset_y" type="bool" value="false"/>
-    <property name="size_x" type="float" value="16"/>
+    <property name="offset_y" type="bool" value="true"/>
+    <property name="size_x" type="float" value="8"/>
+    <property name="size_y" type="float" value="8"/>
    </properties>
    <point/>
   </object>
  </objectgroup>
  <objectgroup id="7" name="Paths">
-  <object id="16" x="225" y="294.667">
-   <properties>
-    <property name="owner" value="LYRA"/>
-   </properties>
-   <polyline points="0,0 -1,-102.667 -81,-102.667"/>
+  <object id="17" x="160" y="208">
+   <polyline points="0,0 64,0 64,-64"/>
   </object>
  </objectgroup>
 </map>

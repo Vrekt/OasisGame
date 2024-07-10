@@ -6,10 +6,13 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.questing.quests.tutorial.ANewHorizonQuest;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.sign.WrynnBasementWarningSign;
 
@@ -41,7 +44,6 @@ public final class NewGameWorld extends GameWorld {
             player.getInventory().add(Items.LOCK_PICK, 1);
             player.getInventory().add(Items.QUICKSTEP_ARTIFACT, 1);
             player.getInventory().add(Items.TEMPERED_BLADE, 1);
-            player.getInventory().add(Items.RING_OF_MYCELIA, 1);
 
             player.getInventory().add(Items.CRIMSON_CAP, 1);
             player.getInventory().add(Items.SILVER_SPORE, 1);
@@ -50,7 +52,20 @@ public final class NewGameWorld extends GameWorld {
             player.getInventory().add(Items.STAFF_OF_EARTH, 1);
             player.getInventory().add(Items.STAFF_OF_OBSIDIAN, 1);
 
+            player.getInventory().add(Items.ARCANA_CODEX, 1);
         }
+
+        loadOtherInteriors();
+    }
+
+    /**
+     * Load interiors not included in the TiledMap
+     */
+    private void loadOtherInteriors() {
+        final GameWorldInterior interior = InteriorWorldType.MYCELIA_WORLD.createInterior(this, Asset.MYCELIA_WORLD, Cursor.DEFAULT, null);
+        interior.setEnterable(true);
+
+        interiorWorlds.put(InteriorWorldType.MYCELIA_WORLD, interior);
     }
 
     @Override

@@ -45,7 +45,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240709-0540-6351";
+    public static final String GAME_VERSION = "20240709-2039-6435";
 
     private Asset asset;
 
@@ -88,6 +88,10 @@ public final class OasisGame extends Game {
 
         setScreen(new OasisSplashScreen(this));
         initialize();
+    }
+
+    public ExecutorService executor() {
+        return virtualAsyncService;
     }
 
     /**

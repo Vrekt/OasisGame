@@ -51,6 +51,8 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     protected boolean isNear;
     protected boolean lockpickHint, lockpickUsed;
 
+    protected boolean requiresNearUpdating = true;
+
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
 
@@ -103,6 +105,13 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
      */
     public boolean isWithinEnteringDistance(Vector2 position) {
         return position.dst2(entrance.x, entrance.y) <= ENTERING_DISTANCE;
+    }
+
+    /**
+     * @return {@code true} if this interior should be updated while the player is near
+     */
+    public boolean requiresNearUpdating() {
+        return requiresNearUpdating;
     }
 
     /**

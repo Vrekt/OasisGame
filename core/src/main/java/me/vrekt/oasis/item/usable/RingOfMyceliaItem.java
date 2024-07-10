@@ -12,6 +12,8 @@ import me.vrekt.oasis.world.tutorial.NewGameWorld;
 
 /**
  * Used to enter the {@link me.vrekt.oasis.world.interior.other.MyceliaWorld}
+ * <p>
+ * NOTE: UNUSED
  */
 public final class RingOfMyceliaItem extends ItemUsable {
 
@@ -43,7 +45,6 @@ public final class RingOfMyceliaItem extends ItemUsable {
     @Override
     public void use(PlayerSP player) {
         GameManager.getGuiManager().hideGui(GuiType.INVENTORY);
-        player.resize(16,16);
         player.getWorldState().enterInterior(InteriorWorldType.MYCELIA_WORLD);
     }
 }

@@ -33,7 +33,7 @@
       "options": {
         "Just looking around!": "lyra:dialog2_stage_2",
         "I'm sorry": "lyra:dialog2_stage_2",
-        "What's this ring?": "lyra:dialog2_stage_3"
+        "What's this book?": "lyra:dialog2_stage_3"
       }
     },
     "lyra:dialog2_stage_2": {
@@ -44,7 +44,7 @@
       "skippable": false,
       "options": {
         "Nothing... yet.": "lyra:dialog2_stage_1_1",
-        "I wanted the ring.": "lyra:dialog2_stage_1_1",
+        "I wanted the book.": "lyra:dialog2_stage_1_1",
         "I was thinking about it.": "lyra:dialog2_stage_1_1"
       }
     },
@@ -57,7 +57,7 @@
     },
     "lyra:dialog2_stage_4": {
       "key": "lyra:dialog2_stage_4",
-      "content": "It's a special ring, it teleports you to someplace magical, nothing like you've ever seen before.",
+      "content": "It's a spell book. It only has a few spells within it but it comes in handy sometimes.",
       "nextEntry": "lyra:dialog2_stage_5",
       "locked": false,
       "skippable": true
@@ -71,7 +71,7 @@
     },
     "lyra:dialog2_stage_6": {
       "key": "lyra:dialog2_stage_6",
-      "content": "I'll make you a deal. I'm not in good standing with these so called mushroom people.",
+      "content": "I'll make you a deal. I'm not in good standing with the people of Mycelia.",
       "nextEntry": "lyra:dialog2_stage_7",
       "locked": false,
       "skippable": true
@@ -92,8 +92,16 @@
     },
     "lyra:dialog2_stage_9": {
       "key": "lyra:dialog2_stage_9",
-      "content": "Put the ring on and use this spell book, it will teleport you directly there, good luck.",
-      "nextEntry": "lyra:dialog2_stage_9",
+      "content": "Take the spell book off the counter, open it and you'll find the spell, cast it and you'll be there before you can blink..",
+      "nextEntry": "lyra:dialog2_stage_10",
+      "locked": false,
+      "skippable": true,
+      "exit": true
+    },
+    "lyra:dialog2_stage_10": {
+      "key": "lyra:dialog2_stage_10",
+      "content": "Go on now before I change my mind.",
+      "nextEntry": "lyra:dialog2_stage_10",
       "locked": false,
       "skippable": true,
       "finished": true

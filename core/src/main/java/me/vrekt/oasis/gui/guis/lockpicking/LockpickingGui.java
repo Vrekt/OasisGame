@@ -92,6 +92,7 @@ public final class LockpickingGui extends Gui {
     public void hide() {
         super.hide();
 
+        guiManager.player().enableMovement();
         rootTable.setVisible(false);
     }
 
@@ -143,15 +144,6 @@ public final class LockpickingGui extends Gui {
      */
     public void showPressDownHint(int key) {
         resources.get(key).down();
-    }
-
-    /**
-     * Reset the press down hint
-     *
-     * @param key key
-     */
-    public void resetPressDownHint(int key) {
-        resources.get(key).normal();
     }
 
     /**

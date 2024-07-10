@@ -124,6 +124,7 @@ public final class LockpickActivity {
     private int next() {
         // play sound
         success();
+        randomize();
 
         if (activeKey == Input.Keys.D) {
             isFinished = true;
@@ -164,6 +165,7 @@ public final class LockpickActivity {
             failure.run();
             gui.hide();
         } else {
+            GameManager.playSound(Sounds.LOCKPICK_FAIL, 1.0f, 1.0f, 0.0f);
             reset();
         }
     }

@@ -11,7 +11,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Resource;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
 import me.vrekt.oasis.gui.GuiManager;
@@ -328,7 +330,7 @@ public final class PlayerInventoryGui extends InventoryGui {
         } else if (item instanceof ItemUsable usable) {
             if (usable.isUsable(player)) {
                 itemActionButton.setVisible(true);
-                itemActionButton.setText("Use");
+                itemActionButton.setText(usable.inventoryTag());
             }
         }
 
@@ -416,6 +418,7 @@ public final class PlayerInventoryGui extends InventoryGui {
     @Override
     public void show() {
         super.show();
+        GameManager.playSound(Sounds.OPEN_INVENTORY, .25f, -1.0f, 0.0f);
         rootTable.setVisible(true);
     }
 

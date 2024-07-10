@@ -15,8 +15,8 @@ public final class EntityWalkPathGoal extends AiFollowPathComponent {
     private boolean isFinished;
     private EntityRotation finalRotation;
 
-    public EntityWalkPathGoal(GameEntity entity, Array<Vector2> waypoints) {
-        super(entity, waypoints);
+    public EntityWalkPathGoal(GameEntity entity, Array<Vector2> waypoints, boolean teleportToFirst) {
+        super(entity, waypoints, teleportToFirst);
     }
 
     public void setFinalRotation(EntityRotation finalRotation) {
@@ -28,20 +28,25 @@ public final class EntityWalkPathGoal extends AiFollowPathComponent {
     }
 
     @Override
+    public EntityRotation getFacingDirection() {
+        return !isFinished ? super.getFacingDirection() : finalRotation;
+    }
+
+    @Override
     public void applyResult(Vector2 linear) {
         super.applyResult(linear);
 
-        steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));
+        if (!isFinished) steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));
     }
 
     @Override
     public void update(float delta) {
         // stop at last waypoint
-        if (currentPathSegment + 1 >= waypoints.size - 1 && !isFinished) {
+        if (currentPathSegment + 1 >= waypoints.size && !isFinished) {
             entity.setVelocity(0, 0, true);
             entity.setRotation(finalRotation);
             isFinished = true;
-        } else {
+        } else if (!isFinished) {
             super.update(delta);
         }
     }

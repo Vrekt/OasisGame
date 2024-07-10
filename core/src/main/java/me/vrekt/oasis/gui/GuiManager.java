@@ -31,6 +31,7 @@ import me.vrekt.oasis.gui.guis.inventory.ContainerInventoryGui;
 import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.guis.lockpicking.LockpickingGui;
 import me.vrekt.oasis.gui.guis.map.WorldMapGui;
+import me.vrekt.oasis.gui.guis.other.MagicBookGui;
 import me.vrekt.oasis.gui.guis.quest.QuestCompletedGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
@@ -65,6 +66,7 @@ public final class GuiManager implements Disposable {
     private final GameChatGui chatGui;
     private final LockpickingGui lockPickingGui;
     private final QuestCompletedGui completedGui;
+    private final MagicBookGui bookGui;
 
     private Cursor cursorState;
     private boolean wasCursorChanged;
@@ -103,6 +105,7 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.WORLD_MAP, new WorldMapGui(this));
         guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockpickingGui(this));
         guis.put(GuiType.QUEST_COMPLETED, completedGui = new QuestCompletedGui(this));
+        guis.put(GuiType.MAGIC_BOOK, bookGui = new MagicBookGui(this));
 
         multiplexer.addProcessor(stage);
     }
@@ -198,6 +201,10 @@ public final class GuiManager implements Disposable {
         return hudGui.getComponent(HudComponentType.HINT);
     }
 
+    public MagicBookGui getMagicBookComponent() {
+        return bookGui;
+    }
+
     /**
      * Set the cursor to something different
      *
@@ -260,7 +267,6 @@ public final class GuiManager implements Disposable {
         stage.getViewport().apply();
         stage.act(Gdx.graphics.getDeltaTime());
 
-
         for (Gui value : guis.values()) {
             if (value.isShowing) {
                 value.preDraw(stage.getBatch());
@@ -274,8 +280,6 @@ public final class GuiManager implements Disposable {
                 value.lastUpdate = GameManager.getTick();
                 value.timedUpdate(value.lastUpdate);
             }
-
-
         }
 
         stage.getViewport().getCamera().update();

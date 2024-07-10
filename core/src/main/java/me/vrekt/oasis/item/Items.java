@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import me.vrekt.oasis.item.artifact.items.QuickStepItemArtifact;
 import me.vrekt.oasis.item.consumables.food.*;
 import me.vrekt.oasis.item.misc.LockpickItem;
+import me.vrekt.oasis.item.usable.ArcanaCodexItem;
 import me.vrekt.oasis.item.usable.RingOfMyceliaItem;
 import me.vrekt.oasis.item.misc.WrynnRecipeBookItem;
 import me.vrekt.oasis.item.weapons.TemperedBladeItem;
@@ -26,7 +27,8 @@ public enum Items {
     VERDANT_FUNGUS(VerdantFungusItem.KEY, ItemRarity.UN_COMMON),
     SILVER_SPORE(SilverSporeItem.KEY, ItemRarity.VOID),
     STAFF_OF_EARTH(StaffOfEarthItem.KEY, ItemRarity.COSMIC),
-    STAFF_OF_OBSIDIAN(StaffOfObsidian.KEY, ItemRarity.VOID);
+    STAFF_OF_OBSIDIAN(StaffOfObsidian.KEY, ItemRarity.VOID),
+    ARCANA_CODEX(ArcanaCodexItem.KEY, ItemRarity.UN_COMMON);
 
     private final String key;
     private final ItemRarity rarity;
