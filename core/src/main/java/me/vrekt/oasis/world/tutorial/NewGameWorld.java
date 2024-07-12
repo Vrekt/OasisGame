@@ -54,7 +54,6 @@ public final class NewGameWorld extends GameWorld {
 
             player.getInventory().add(Items.ARCANA_CODEX, 1);
         }
-
         loadOtherInteriors();
     }
 

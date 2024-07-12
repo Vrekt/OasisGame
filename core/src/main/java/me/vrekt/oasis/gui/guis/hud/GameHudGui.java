@@ -52,6 +52,7 @@ public final class GameHudGui extends Gui {
         components.put(HudComponentType.ITEM_HINT, new HudItemHintComponent(guiManager));
         components.put(HudComponentType.GAME_ACTION, new HudGameActionComponent(guiManager));
         components.put(HudComponentType.HEALTH, new HudPlayerHealthComponent(guiManager));
+        components.put(HudComponentType.ITEM_ACQUIRED, new HudItemAcquiredComponent(guiManager));
 
         initializeDebugComponent();
         builder = new StringBuilder();
@@ -116,6 +117,7 @@ public final class GameHudGui extends Gui {
     public void show() {
         super.show();
 
+        debugComponentText.setVisible(true);
         for (HudComponent component : components.values()) {
             if (component.componentType != HudComponentType.HINT
                     && component.componentType != HudComponentType.ITEM_HINT)
@@ -127,10 +129,10 @@ public final class GameHudGui extends Gui {
     public void hide() {
         super.hide();
 
+        debugComponentText.setVisible(false);
+
         for (HudComponent component : components.values()) {
-            if (component.componentType == HudComponentType.HINT) {
-                // if (!hintVisibilityOverridden) table.setVisible(false);
-            } else {
+            if (component.componentType != HudComponentType.HINT) {
                 component.hide();
             }
         }

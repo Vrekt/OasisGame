@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.*;
 import me.vrekt.oasis.GameManager;
@@ -129,6 +130,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     protected ProjectileManager projectileManager;
     protected ShapeRenderer debugRenderer;
+
+    protected Box2DDebugRenderer boxRenderer;
 
     // indicates this world should be saved
     protected boolean hasVisited;
@@ -253,6 +256,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
         debugRenderer = new ShapeRenderer();
+        boxRenderer = new Box2DDebugRenderer();
 
         init();
 
@@ -273,10 +277,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         world.setContactListener(new BasicEntityCollisionHandler());
 
         if (isGameSave) {
-            player.createBoxBody(world);
+            player.createCircleBody(world, false);
         } else {
-            player.createBoxBody(world);
             player.setPosition(worldOrigin, true);
+            player.createCircleBody(world, false);
         }
 
         player.updateWorldState(this);
@@ -515,7 +519,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         removeEntity(entity, false);
         world.destroyBody(entity.getBody());
 
-        entity.createBoxBody(other.world);
+        entity.createRectangleBody(other.world, Vector2.Zero);
         entity.setWorldIn(other);
         other.populateEntity(entity);
     }
@@ -1168,6 +1172,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         updateMouseListeners();
         guiManager.updateAndDrawStage();
+
+        if (OasisGameSettings.DRAW_DEBUG) boxRenderer.render(world, renderer.getCamera().combined);
     }
 
     protected void updateMouseListeners() {

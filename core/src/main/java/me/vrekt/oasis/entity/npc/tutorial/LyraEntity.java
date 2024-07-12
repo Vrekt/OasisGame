@@ -29,6 +29,8 @@ public final class LyraEntity extends EntityInteractable {
     public static final String ENTITY_KEY = "oasis:lyra";
     public static final String NAME = "Lyra";
 
+    private EntitySpeakableStatus speakingStatus;
+
     private EntityAnimationComponent animationComponent;
     private EntityWalkPathGoal pathComponent;
     private AiHostilePursueComponent component;
@@ -82,12 +84,14 @@ public final class LyraEntity extends EntityInteractable {
                 .add(animationComponent);
         builder.dispose();
 
-        createBoxBody(worldIn.boxWorld());
+        createRectangleBody(worldIn.boxWorld(), new Vector2(0, 1));
         pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths(), true);
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         pathComponent.setFinalRotation(EntityRotation.UP);
         addAiComponent(pathComponent);
+
+        this.speakingStatus = (EntitySpeakableStatus) status;
     }
 
     @Override
@@ -149,7 +153,7 @@ public final class LyraEntity extends EntityInteractable {
      */
     private void resetState() {
         isFinished = true;
-        setStatus(new EntitySpeakableStatus(this, game.getAsset()));
+        setStatus(speakingStatus);
 
         aiComponents.clear();
         resetPathingWalkPath();

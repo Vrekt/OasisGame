@@ -102,8 +102,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private final PlayerCombatAnimator combatAnimator;
     private final Rectangle itemBounds = new Rectangle();
 
-    private float playerScaling = 1.0f;
-
     public PlayerSP(OasisGame game) {
         this.game = game;
         create();
@@ -334,7 +332,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @param scale scale
      */
     public void scalePlayerBy(float scale) {
-        this.playerScaling = scale;
+        this.physicsScale = scale;
     }
 
     /**
@@ -502,10 +500,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     public GameWorld getWorldState() {
         return inInteriorWorld ? interiorWorldIn : worldIn;
-    }
-
-    public void resize(float w, float h) {
-        setSize(w, h, OasisGameSettings.SCALE);
     }
 
     /**
@@ -698,7 +692,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
                     rotation,
                     getInterpolatedPosition().x,
                     getInterpolatedPosition().y,
-                    playerScaling,
+                    physicsScale,
                     delta,
                     equippedItem);
 
@@ -761,8 +755,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         batch.draw(region,
                 getInterpolatedPosition().x,
                 getInterpolatedPosition().y,
-                (region.getRegionWidth() * OasisGameSettings.SCALE) * playerScaling,
-                (region.getRegionHeight() * OasisGameSettings.SCALE) * playerScaling);
+                (region.getRegionWidth() * OasisGameSettings.SCALE) * physicsScale,
+                (region.getRegionHeight() * OasisGameSettings.SCALE) * physicsScale);
     }
 
     public void drawDamage(SpriteBatch batch, Camera worldCamera, Camera guiCamera) {
@@ -772,23 +766,9 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         // animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
     }
 
-    /**
-     * @return origin center of the player x
-     */
-    public float centerX() {
-        return getPosition().x + (getScaledWidth() / 2f);
-    }
-
-    /**
-     * @return origin center of the player y
-     */
-    public float centerY() {
-        return getPosition().y + (getScaledHeight() / 2f);
-    }
-
     @Override
-    public void createBoxBody(World world) {
-        super.createBoxBody(world);
-        this.body.setUserData(this);
+    public void createCircleBody(World world, boolean flipped) {
+        super.createCircleBody(world, flipped);
+        body.setUserData(this);
     }
 }

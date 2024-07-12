@@ -418,7 +418,7 @@ public final class PlayerInventoryGui extends InventoryGui {
     @Override
     public void show() {
         super.show();
-        GameManager.playSound(Sounds.OPEN_INVENTORY, .25f, -1.0f, 0.0f);
+        GameManager.playSound(Sounds.OPEN_INVENTORY, .15f, -1.0f, 0.0f);
         rootTable.setVisible(true);
     }
 

@@ -6,6 +6,7 @@ import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.tutorial.NewGameWorld;
 
 /**
  * Teleports the player to the {@link me.vrekt.oasis.world.interior.other.MyceliaWorld}
@@ -26,9 +27,14 @@ public final class MyceliaGatewaySpell extends MagicSpell {
     }
 
     @Override
+    public boolean isCastable(PlayerSP player) {
+        return player.getWorldState() instanceof NewGameWorld;
+    }
+
+    @Override
     public void cast(PlayerSP player) {
         GameManager.getGuiManager().hideGui(GuiType.MAGIC_BOOK);
-        GameManager.playSound(Sounds.TELEPORT, 0.15f, -1.0f, 0.0f);
+        GameManager.playSound(Sounds.TELEPORT, 0.1f, -3.0f, 0.0f);
         player.getWorldState().enterInterior(InteriorWorldType.MYCELIA_WORLD);
     }
 }

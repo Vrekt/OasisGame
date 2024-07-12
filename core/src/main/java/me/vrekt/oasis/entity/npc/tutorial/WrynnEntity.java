@@ -80,9 +80,19 @@ public final class WrynnEntity extends EntityInteractable {
                 this.dialogue.setOwner(this);
 
                 activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
+                loadDialog();
             }
         });
 
+        createRectangleBody(worldIn.boxWorld(), new Vector2(0.55f, 0.88f));
+
+        pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths(), true);
+        pathComponent.setMaxLinearSpeed(1.25f);
+        pathComponent.setMaxLinearAcceleration(1.25f);
+        addAiComponent(pathComponent);
+    }
+
+    private void loadDialog() {
         // TODO: "SPeak to wrynn before leaving"
         // TODO: Dialog stage is not skipped if not speaking afterwards
 
@@ -101,13 +111,6 @@ public final class WrynnEntity extends EntityInteractable {
             worldIn.enableWorldInteraction(WorldInteractionType.WRYNN_LEVER, "wrynn:lever");
             player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         });
-
-        createBoxBody(worldIn.boxWorld());
-
-        pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths(), true);
-        pathComponent.setMaxLinearSpeed(1.25f);
-        pathComponent.setMaxLinearAcceleration(1.25f);
-        addAiComponent(pathComponent);
     }
 
     @Override

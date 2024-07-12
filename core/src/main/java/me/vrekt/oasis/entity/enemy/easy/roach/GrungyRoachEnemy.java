@@ -107,7 +107,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         poisonEffect.start();
 
         createBB(32, 32);
-        createBoxBody(worldIn.boxWorld());
+        createRectangleBody(worldIn.boxWorld(), new Vector2(1, 1));
 
         hostilePursueComponent = new AiHostilePursueComponent(this, player);
         hostilePursueComponent.setMaxLinearSpeed(1.8f);

@@ -17,21 +17,26 @@ public final class MyceliaWorld extends GameWorldInterior {
 
         this.worldMap = Asset.MYCELIA_WORLD;
         this.requiresNearUpdating = false;
+        // this map is flipped, for whatever reason. Changes the origin of the
+        // circle collision box
+        this.isFlipped = true;
     }
 
     @Override
     public void loadWorld(boolean isGameSave) {
+        // scale this player before we create their new box body
+        player.scalePlayerBy(0.8f);
         super.loadWorld(isGameSave);
 
-        player.scalePlayerBy(0.8f);
         renderer.getCamera().zoom = 0.8f;
     }
 
     @Override
     protected void exit() {
+        // scale this player before their new box is created
+        player.scalePlayerBy(1.0f);
         super.exit();
 
-        player.scalePlayerBy(1.0f);
         renderer.getCamera().zoom = 1.0f;
     }
 }

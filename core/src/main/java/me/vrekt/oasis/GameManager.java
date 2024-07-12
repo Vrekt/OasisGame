@@ -3,6 +3,7 @@ package me.vrekt.oasis;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
@@ -12,7 +13,6 @@ import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.utility.TaskManager;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.HashMap;
@@ -71,8 +71,7 @@ public class GameManager {
         registerGlobalKeyAction(OasisKeybindings.MAP, GuiType.WORLD_MAP, true);
 
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            getPlayer().getWorldState().findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
-            getPlayer().getWorldState().removeSimpleObject("oasis:basement_gate");
+            OasisGameSettings.DRAW_DEBUG = !OasisGameSettings.DRAW_DEBUG;
         });
         KEY_ACTIONS.put(OasisKeybindings.CHAT, () -> {
             /*if(game().isMultiplayer())*/

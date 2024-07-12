@@ -13,6 +13,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
@@ -54,8 +55,10 @@ public final class BasicFishEntity extends GameEntity {
                 asset.get("fish", 4));
         fishAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        createBB(16 * OasisGameSettings.SCALE, 16 * OasisGameSettings.SCALE);
-        createBoxBody(worldIn.boxWorld());
+        disableCollisionFor(CollisionType.OTHER_ENTITY);
+
+        createBB(16, 16);
+        createRectangleBody(worldIn.boxWorld(), new Vector2(0.5f, 0.5f));
 
         wanderComponent = new AiWanderComponent(this, WANDERING_MIN_Y, WANDERING_MAX_Y);
         wanderComponent.setMaxLinearSpeed(1f);

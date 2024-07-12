@@ -71,8 +71,8 @@ public final class WorldManager implements Disposable {
         player.removeFromInteriorWorld();
         // FIXME:  manageInteriorMemoryState(from);
 
-        player.createBoxBody(parent.boxWorld());
         player.setPosition(parentWorldPosition, true);
+        player.createCircleBody(parent.boxWorld(), false);
         player.updateWorldState(parent);
 
         GameManager.game().getMultiplexer().addProcessor(parent);

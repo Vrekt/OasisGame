@@ -82,7 +82,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
             worldIn.removePlayerTemporarily(this);
 
             setPosition(interior.worldOrigin().x, interior.worldOrigin().y, false);
-            createBoxBody(interior.boxWorld());
+            createCircleBody(interior.boxWorld(), true);
 
             interior.spawnPlayerInWorld(this);
             this.worldIn = interior;
@@ -200,8 +200,9 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     }
 
     @Override
-    public void createBoxBody(World world) {
-        super.createBoxBody(world);
+    public void createCircleBody(World world, boolean flipped) {
+        super.createCircleBody(world, flipped);
         body.setUserData(this);
     }
+
 }

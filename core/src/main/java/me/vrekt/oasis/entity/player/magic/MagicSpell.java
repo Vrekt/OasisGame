@@ -58,4 +58,8 @@ public abstract class MagicSpell implements ResourceLoader {
     public boolean isUnlocked() {
         return isUnlocked;
     }
+
+    public boolean isCastable(PlayerSP player) {
+        return true;
+    }
 }

@@ -18,6 +18,7 @@ public final class OasisGameSettings {
 
     // volume of all sounds
     public static float VOLUME = 1.0f;
+    public static boolean DRAW_DEBUG = false;
 
     /**
      * Load settings from save

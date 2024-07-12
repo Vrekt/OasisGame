@@ -38,6 +38,8 @@ Inventory/Book sounds:  https://opengameart.org/content/inventory-sound-effects
 
 Teleport sound: https://opengameart.org/content/teleport-spell
 
+Open magic book sound: https://opengameart.org/content/ghost-breath
+
 # References, sources, tutorials
 
 TBA

@@ -21,4 +21,5 @@ public abstract class EntityStatus implements Drawable {
      */
     public abstract void update(float delta);
 
+
 }

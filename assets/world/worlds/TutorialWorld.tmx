@@ -636,7 +636,7 @@
   <object id="12" x="911" y="644" width="33" height="23"/>
   <object id="13" x="916" y="696" width="25" height="17"/>
   <object id="14" x="791" y="756" width="50" height="10"/>
-  <object id="23" x="599" y="422" width="213" height="54"/>
+  <object id="23" x="599" y="422" width="213" height="48"/>
   <object id="24" x="574" y="334" width="26" height="139"/>
   <object id="25" x="805" y="325" width="16" height="143"/>
   <object id="26" x="570" y="307" width="251" height="25"/>
@@ -837,7 +837,7 @@
    </properties>
    <point/>
   </object>
-  <object id="68" name="Thalia" x="206.5" y="138.333">
+  <object id="68" name="Thalia" x="208" y="150">
    <properties>
     <property name="interactable" type="bool" value="true"/>
     <property name="key" value="oasis:thalia"/>
@@ -864,7 +864,7 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Actions">
-  <object id="1" name="WorldSpawn" x="555.167" y="841.834">
+  <object id="1" name="WorldSpawn" x="564.167" y="817.334">
    <point/>
   </object>
  </objectgroup>

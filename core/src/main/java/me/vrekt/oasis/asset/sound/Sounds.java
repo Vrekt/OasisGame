@@ -20,7 +20,8 @@ public enum Sounds {
     LOCKPICK_FAIL("lockpick_fail.wav"),
     OPEN_INVENTORY("open_inventory.wav"),
     TURN_PAGE("turn_page.wav"),
-    TELEPORT("teleport.wav");
+    TELEPORT("teleport.wav"),
+    OPEN_MAGIC_BOOK("magic_book_open.wav");
 
     private final String resource;
     Sounds(String resource) {

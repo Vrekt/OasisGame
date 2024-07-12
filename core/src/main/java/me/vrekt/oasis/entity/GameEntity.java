@@ -82,6 +82,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected EntityStatus status;
 
     protected EntityStateMachine stateMachine;
+    protected float physicsScale = 1.0f;
 
     public GameEntity() {
         entity = new Entity();
@@ -128,8 +129,8 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         entity.add(new EntityTextureComponent());
     }
 
-    public void destroyBody() {
-
+    public void setPhysicsScale(float scale) {
+        this.physicsScale = scale;
     }
 
     /**
@@ -392,7 +393,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     public float getAngle() {
-        return getPropertiesComponent().angle;
+        return this instanceof PlayerSP ? getPropertiesComponent().angle : 0.0f;
     }
 
     public void setAngle(float angle) {
@@ -631,6 +632,20 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected void createBB(float w, float h) {
         bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
         setSize(w, h, OasisGameSettings.SCALE);
+    }
+
+    /**
+     * @return origin center of the player x
+     */
+    public float centerX() {
+        return getPosition().x + (getScaledWidth() / 2f);
+    }
+
+    /**
+     * @return origin center of the player y
+     */
+    public float centerY() {
+        return getPosition().y + (getScaledHeight() / 2f);
     }
 
     public EntityRotation rotation() {
@@ -904,11 +919,11 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * Create box body
+     * Create a regular rectangle collision body
      *
-     * @param world world
+     * @param world the world
      */
-    public void createBoxBody(World world) {
+    public void createRectangleBody(World world, Vector2 center) {
         final BodyDef definition = new BodyDef();
         final FixtureDef fixture = new FixtureDef();
 
@@ -917,16 +932,74 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         definition.position.set(getPosition());
 
         body = world.createBody(definition);
-        PolygonShape shape;
 
-        shape = new PolygonShape();
-        shape.setAsBox(getScaledWidth() / 2.0F, getScaledHeight() / 2.0F);
+        final PolygonShape shape = new PolygonShape();
+        shape.setAsBox(getScaledWidth() / 2.0F, getScaledHeight() / 2.0F, center, 0.0f);
+
         fixture.shape = shape;
         fixture.density = 0.1f;
 
         body.createFixture(fixture);
         body.setUserData(this);
         shape.dispose();
+    }
+
+    /**
+     * Create a circle collision body
+     *
+     * @param world   the world
+     * @param flipped if the origin of the circle should be flipped Y axis
+     */
+    public void createCircleBody(World world, boolean flipped) {
+        final BodyDef definition = new BodyDef();
+        definition.type = BodyDef.BodyType.DynamicBody;
+        definition.fixedRotation = false;
+        definition.position.set(getPosition());
+
+        final CircleShape shape = createCircleCollisionShape(flipped);
+        final FixtureDef fixture = createCircleCollisionFixture(shape);
+        if (world.isLocked()) {
+            throw new UnsupportedOperationException("Locked world! Look into this.");
+        }
+
+        body = world.createBody(definition);
+        body.createFixture(fixture);
+        body.setUserData(this);
+
+        shape.dispose();
+    }
+
+    /**
+     * Create a circle shape for the entity collision, mostly players.
+     *
+     * @param flipped if the origin of the circle is flipped Y axis
+     * @return the new shape, must be disposed of
+     */
+    protected CircleShape createCircleCollisionShape(boolean flipped) {
+        final CircleShape shape = new CircleShape();
+
+        // origin position of the circle, for certain maps we are flipped
+        final Vector2 origin = flipped ? new Vector2(0, -1) : new Vector2(0, 0);
+        origin.x += getScaledWidth() / 2f;
+        origin.y += getScaledHeight() / 2f;
+
+        shape.setRadius(((getScaledWidth() * physicsScale / 2f + getScaledHeight() * physicsScale / 2f) / 2f));
+        shape.setPosition(origin);
+        return shape;
+    }
+
+    /**
+     * Create a circle fixture for the final body
+     *
+     * @param shape the shape
+     * @return the new fixture
+     */
+    protected FixtureDef createCircleCollisionFixture(CircleShape shape) {
+        final FixtureDef fixture = new FixtureDef();
+        fixture.shape = shape;
+        fixture.density = 0.0f;
+        fixture.friction = 1.0f;
+        return fixture;
     }
 
     /**

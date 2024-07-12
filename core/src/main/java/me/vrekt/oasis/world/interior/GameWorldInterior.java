@@ -7,6 +7,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -29,7 +30,7 @@ import me.vrekt.oasis.world.lp.ActivityManager;
  */
 public abstract class GameWorldInterior extends GameWorld implements MouseListener {
 
-    private static final float ENTERING_DISTANCE = 3.5f;
+    private static final float ENTERING_DISTANCE = 5.0f;
     // unload interiors after 30 seconds
     public static final float UNLOAD_AFTER = 30.0f;
 
@@ -52,6 +53,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     protected boolean lockpickHint, lockpickUsed;
 
     protected boolean requiresNearUpdating = true;
+    protected boolean isFlipped;
 
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
@@ -280,7 +282,6 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     @Override
     public void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
-
         if (isWorldLoaded) {
             updateRendererMap();
             player.removeFromWorld();
@@ -291,6 +292,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         // if world was previously disposed
         if (debugRenderer == null) debugRenderer = new ShapeRenderer();
         if (world == null) world = new World(Vector2.Zero, true);
+        boxRenderer = new Box2DDebugRenderer();
 
         init();
 
@@ -304,6 +306,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         player.removeFromWorld();
 
         world.setContactListener(new BasicEntityCollisionHandler());
+
         setPlayerState();
         addDefaultWorldSystems();
 
@@ -314,8 +317,12 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     }
 
     private void setPlayerState() {
-        player.createBoxBody(world);
-        if (!isGameSave) player.setPosition(worldOrigin, true);
+        // circle origin is flipped for interior worlds
+        player.createCircleBody(world, isFlipped);
+
+        if (!isGameSave) {
+            player.setPosition(worldOrigin, true);
+        }
         player.updateWorldState(this);
     }
 

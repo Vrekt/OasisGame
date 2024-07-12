@@ -64,7 +64,7 @@ public final class ChickEntity extends GameEntity {
         addTexturePart(EntityRotation.DOWN, asset.get("chick_walking_down_idle"), false);
         addTexturePart(EntityRotation.LEFT, asset.get("chick_walking_left_idle"), true);
         addTexturePart(EntityRotation.RIGHT, asset.get("chick_walking_right_idle"), false);
-        createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
+        createBB(activeEntityTexture.getRegionWidth() / 2f, activeEntityTexture.getRegionHeight() / 2f);
 
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
@@ -90,7 +90,7 @@ public final class ChickEntity extends GameEntity {
 
         builder.dispose();
 
-        createBoxBody(worldIn.boxWorld());
+        createRectangleBody(worldIn.boxWorld(), new Vector2(1, 1));
         component = new AiWalkToGoalsComponent(this);
         // every 120 ticks
         component.setPathingInterval(120);

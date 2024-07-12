@@ -121,6 +121,10 @@ public final class HudPlayerHintComponent extends HudComponent {
         return rootTable.isVisible() && rootTable.getColor().a > 0.0f;
     }
 
+    public boolean isHintPaused() {
+        return hintPaused;
+    }
+
     /**
      * Pauses the current hint and hides the element.
      */

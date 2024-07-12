@@ -10,6 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
+import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.magic.MagicSpell;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
@@ -35,6 +37,7 @@ public final class MagicBookGui extends Gui {
     private final LinkedList<SpellContainer> containers = new LinkedList<>();
 
     private final VisImageTextButton castButton;
+
     private MagicSpell selectedSpell;
 
     public MagicBookGui(GuiManager guiManager) {
@@ -135,15 +138,18 @@ public final class MagicBookGui extends Gui {
         for (int i = 0; i < item.spells().size(); i++) {
             final SpellContainer container = containers.get(i);
             final MagicSpell spell = item.spells().get(i);
-            if (spell.isUnlocked()) {
+            final boolean castable = spell.isCastable(guiManager.player());
+            if (spell.isUnlocked() && castable) {
                 container.container.getColor().a = 1.0f;
                 container.container.removeActor(container.lock);
             } else {
-                container.reset();
+                if (castable) {
+                    container.reset();
+                }
             }
 
             this.selectedSpell = spell;
-            container.setSpell(spell);
+            container.setSpell(spell, castable);
             container.item.setDrawable(new TextureRegionDrawable(spell.icon()));
         }
 
@@ -161,7 +167,7 @@ public final class MagicBookGui extends Gui {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 final MagicSpell spell = containers.get(index).spell;
-                if (spell != null && spell.isUnlocked()) {
+                if (spell != null && spell.isUnlocked() && spell.isCastable(guiManager.player())) {
                     header.setVisible(true);
                     header.setText(spell.name());
                     header.restart();
@@ -169,9 +175,10 @@ public final class MagicBookGui extends Gui {
                     description.setVisible(true);
                     description.setText(spell.description());
                     description.restart();
+
+                    castButton.setVisible(true);
                 }
 
-                castButton.setVisible(true);
             }
         });
     }
@@ -185,7 +192,7 @@ public final class MagicBookGui extends Gui {
         button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (selectedSpell != null) {
+                if (selectedSpell != null && selectedSpell.isCastable(guiManager.player())) {
                     selectedSpell.cast(guiManager.player());
                 }
             }
@@ -198,11 +205,16 @@ public final class MagicBookGui extends Gui {
 
         guiManager.hideGui(GuiType.INVENTORY);
         rootTable.setVisible(true);
+
+        GameManager.playSound(Sounds.OPEN_MAGIC_BOOK, 0.11f, 1.0f, 0.0f);
     }
 
     @Override
     public void hide() {
         super.hide();
+
+        header.setVisible(false);
+        description.setVisible(false);
 
         rootTable.setVisible(false);
     }
@@ -222,6 +234,14 @@ public final class MagicBookGui extends Gui {
             this.tooltip = tooltip;
         }
 
+        /**
+         * Show feedback this spell cannot be used right now
+         */
+        private void resetNotCastable() {
+            tooltip.setText("You cannot use this spell right now.");
+            container.getColor().a = 0.55f;
+        }
+
         private void reset() {
             item.setDrawable((Drawable) null);
             spell = null;
@@ -238,9 +258,13 @@ public final class MagicBookGui extends Gui {
          *
          * @param spell spell
          */
-        public void setSpell(MagicSpell spell) {
-            tooltip.setText(spell.name());
-            this.spell = spell;
+        public void setSpell(MagicSpell spell, boolean castable) {
+            if (!castable) {
+                resetNotCastable();
+            } else {
+                tooltip.setText(spell.name());
+                this.spell = spell;
+            }
         }
     }
 

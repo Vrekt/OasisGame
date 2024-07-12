@@ -83,7 +83,7 @@ public final class WorldNetworkHandler {
         }
 
         networkPlayer.setProperties(username, entityId);
-        networkPlayer.createBoxBody(player.getWorldState().boxWorld());
+        networkPlayer.createCircleBody(player.getWorldState().boxWorld(), false);
 
         player.getConnection().addPlayer(entityId, networkPlayer);
         player.getWorldState().spawnPlayerInWorld(networkPlayer);
