@@ -24,6 +24,8 @@ public final class Styles {
 
     private static NinePatch themePatchPadded;
     private static NinePatchDrawable theme, themePadded;
+    private static NinePatchDrawable border;
+
     private static Tooltip.TooltipStyle tooltipStyle;
     private static VisTextField.VisTextFieldStyle fieldStyle;
     private static VisTextField.VisTextFieldStyle transparentFieldStyle;
@@ -48,6 +50,8 @@ public final class Styles {
         theme = new NinePatchDrawable(themePatch);
         themePadded = new NinePatchDrawable(themePatchPadded);
         tooltipStyle = new Tooltip.TooltipStyle(theme);
+
+        border = new NinePatchDrawable(new NinePatch(asset.get("border"), 6, 6, 6, 6));
 
         defaultCursorTexture = new Texture(Gdx.files.internal(Cursor.DEFAULT.getFile()));
 
@@ -118,6 +122,10 @@ public final class Styles {
 
     public static NinePatchDrawable getThemePadded() {
         return themePadded;
+    }
+
+    public static NinePatchDrawable border() {
+        return border;
     }
 
     public static Texture getDefaultCursorTexture() {

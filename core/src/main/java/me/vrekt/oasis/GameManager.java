@@ -74,8 +74,9 @@ public class GameManager {
             OasisGameSettings.DRAW_DEBUG = !OasisGameSettings.DRAW_DEBUG;
         });
         KEY_ACTIONS.put(OasisKeybindings.CHAT, () -> {
-            /*if(game().isMultiplayer())*/
-            guiManager.showGui(GuiType.CHAT);
+            if (game().isMultiplayer()) {
+                guiManager.showGui(GuiType.CHAT);
+            }
         });
         registerHotBarKeys();
 

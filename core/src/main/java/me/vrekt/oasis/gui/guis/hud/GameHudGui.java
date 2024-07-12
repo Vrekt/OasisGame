@@ -53,6 +53,7 @@ public final class GameHudGui extends Gui {
         components.put(HudComponentType.GAME_ACTION, new HudGameActionComponent(guiManager));
         components.put(HudComponentType.HEALTH, new HudPlayerHealthComponent(guiManager));
         components.put(HudComponentType.ITEM_ACQUIRED, new HudItemAcquiredComponent(guiManager));
+        components.put(HudComponentType.NEW_QUEST, new HudNewQuestComponent(guiManager));
 
         initializeDebugComponent();
         builder = new StringBuilder();

@@ -40,6 +40,10 @@ Teleport sound: https://opengameart.org/content/teleport-spell
 
 Open magic book sound: https://opengameart.org/content/ghost-breath
 
+Quest added sound: https://opengameart.org/content/win-sound-1
+
+Mud,Grass walking sounds: https://opengameart.org/content/fantozzis-footsteps-grasssand-stone
+
 # References, sources, tutorials
 
 TBA

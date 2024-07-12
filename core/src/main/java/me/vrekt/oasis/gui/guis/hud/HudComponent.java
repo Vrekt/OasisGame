@@ -1,6 +1,7 @@
 package me.vrekt.oasis.gui.guis.hud;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -58,7 +59,12 @@ public abstract class HudComponent {
 
     protected void fadeIn(Actor actor, float duration) {
         actor.getColor().a = 0.0f;
-        actor.addAction(Actions.fadeIn(duration));
+        actor.addAction(Actions.sequence(Actions.visible(true), Actions.fadeIn(duration, Interpolation.smooth)));
+    }
+
+    protected void fadeOut(Actor actor, float duration) {
+        actor.getColor().a = 1.0f;
+        actor.addAction(Actions.sequence(Actions.fadeOut(duration, Interpolation.smooth), Actions.visible(false)));
     }
 
 }

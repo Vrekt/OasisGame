@@ -15,7 +15,7 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 
 public final class Asset implements Disposable {
 
-    public static final String TUTORIAL_WORLD = "world/worlds/TutorialWorld.tmx";
+    public static final String TUTORIAL_WORLD = "world/worlds/TutorialWorld - Copy.tmx";
     public static final String WRYNN_BASEMENT = "world/interiors/WrynnBasement.tmx";
     public static final String WRYNN_OFFICE = "world/interiors/Office.tmx";
     public static final String MYCELIA_WORLD = "world/worlds/MyceliaWorld.tmx";

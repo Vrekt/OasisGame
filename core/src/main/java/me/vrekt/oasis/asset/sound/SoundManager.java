@@ -23,6 +23,7 @@ public final class SoundManager implements Disposable {
      */
     private void registerSounds() {
         for (Sounds sound : Sounds.values()) {
+            if (sound == Sounds.NONE) continue;
             final String resource = sound.resource();
             allSounds.put(sound, new GameSound(Gdx.audio.newSound(Gdx.files.internal(resource))));
         }

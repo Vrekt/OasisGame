@@ -145,6 +145,10 @@ public final class GuiManager implements Disposable {
         return asset.getMedium();
     }
 
+    public BitmapFont getMediumMipMap() {
+        return asset.getMediumMipMapped();
+    }
+
     public GameHudGui getHudComponent() {
         return hudGui;
     }

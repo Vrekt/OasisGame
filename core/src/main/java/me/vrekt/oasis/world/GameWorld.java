@@ -72,6 +72,8 @@ import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
 import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
+import me.vrekt.oasis.world.tiled.TileMaterialType;
+import me.vrekt.oasis.world.tiled.TiledMapCache;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -135,6 +137,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     // indicates this world should be saved
     protected boolean hasVisited;
+
+    protected TiledMapCache mapCache;
 
     public GameWorld(OasisGame game, PlayerSP player, World world) {
         super(world, new PooledEngine());
@@ -219,6 +223,15 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Get the correct sound at the tile position
+     *
+     * @return the sound
+     */
+    public TileMaterialType getMaterialAt() {
+        return mapCache.getMaterialAt((int) player.getPosition().x, (int) player.getPosition().y);
+    }
+
+    /**
      * Initialize before loading
      */
     protected void init() {
@@ -255,6 +268,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
+        this.mapCache = new TiledMapCache(map);
+
         debugRenderer = new ShapeRenderer();
         boxRenderer = new Box2DDebugRenderer();
 
@@ -1088,6 +1103,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         projectileManager.update(delta);
         worldDamageAnimator.update(delta);
 
+        player.setPreviousPosition(player.getPosition());
         player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);

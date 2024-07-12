@@ -40,7 +40,7 @@ public final class TiledMapLoader {
                 rectangle.height = rectangle.height * worldScale;
                 handler.accept(object, rectangle);
             } else {
-                GameLogging.warn("TiledMapLoader", "Unknown map object in layer: " + layerName + " {" + object.getName() + "}");
+                GameLogging.warn("TiledMapLoader", "Unknown map object in layer: " + layerName + " {" + object.getClass() + "}");
             }
         }
 
@@ -53,7 +53,8 @@ public final class TiledMapLoader {
      * @param worldMap   the map of the world
      * @param worldScale the scale of the world
      */
-    public static void loadMapActions(TiledMap worldMap, float worldScale, Vector2 worldSpawn, Rectangle worldExitArea) {
+    public static void loadMapActions(TiledMap worldMap, float worldScale, Vector2 worldSpawn, Rectangle
+            worldExitArea) {
         loadMapObjects(worldMap, worldScale, "Actions", (object, rectangle) -> {
             if (object.getName().equalsIgnoreCase("WorldSpawn")
                     || object.getName().equalsIgnoreCase("Spawn")) {

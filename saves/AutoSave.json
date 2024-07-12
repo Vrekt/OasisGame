@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "11-07-24 19:34 PM",
+  "date": "12-07-24 00:18 AM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player19",
+    "name": "Player16",
     "position": {
-      "x": 34.697937,
-      "y": 11.385376
+      "x": 35.260437,
+      "y": 12.916626
     },
     "inventory": {
       "type": "PLAYER",
@@ -99,12 +99,12 @@
             "name": "Thalia",
             "entityId": 2,
             "position": {
-              "x": 12.90625,
-              "y": 55.354187
+              "x": 13.0,
+              "y": 54.625
             },
             "size": {
-              "x": 48.0,
-              "y": 48.0,
+              "x": 24.0,
+              "y": 24.0,
               "z": 0.0625
             },
             "health": 100.0,
@@ -120,8 +120,8 @@
               "y": 31.0
             },
             "size": {
-              "x": 32.0,
-              "y": 32.0,
+              "x": 16.0,
+              "y": 16.0,
               "z": 0.0625
             },
             "health": 100.0,
@@ -156,8 +156,8 @@
               "y": 57.625
             },
             "size": {
-              "x": 1.0,
-              "y": 1.0,
+              "x": 16.0,
+              "y": 16.0,
               "z": 0.0625
             },
             "health": 100.0,
@@ -192,19 +192,20 @@
             "destroyed": false
           },
           {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
-            "position": {
-              "x": 51.0,
-              "y": 53.0
+            "container_inventory": {
+              "type": "CONTAINER",
+              "size": 16,
+              "contents": [
+                {
+                  "slot": 0,
+                  "name": "Lockpick",
+                  "type": "LOCK_PICK",
+                  "amount": 1
+                }
+              ]
             },
             "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
+            "type": "CONTAINER",
             "interactable": true,
             "destroyed": false
           },
@@ -222,24 +223,6 @@
             "enabled": true,
             "type": "MAP_ITEM",
             "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
-          },
-          {
-            "container_inventory": {
-              "type": "CONTAINER",
-              "size": 16,
-              "contents": [
-                {
-                  "slot": 0,
-                  "name": "Lockpick",
-                  "type": "LOCK_PICK",
-                  "amount": 1
-                }
-              ]
-            },
-            "enabled": true,
-            "type": "CONTAINER",
             "interactable": true,
             "destroyed": false
           }

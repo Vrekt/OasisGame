@@ -16,6 +16,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
@@ -102,6 +103,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private final PlayerCombatAnimator combatAnimator;
     private final Rectangle itemBounds = new Rectangle();
 
+    private final PlayerSoundManager soundManager;
+
     public PlayerSP(OasisGame game) {
         this.game = game;
         create();
@@ -109,6 +112,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         this.inventory = new PlayerInventory();
         this.questManager = new PlayerQuestManager();
         this.combatAnimator = new PlayerCombatAnimator();
+        this.soundManager = new PlayerSoundManager(this);
     }
 
     @Override
@@ -592,6 +596,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         if (game.isLocalMultiplayer() || game.isMultiplayer()) updateNetworkComponents();
         artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
 
+        if (isMoving()) soundManager.updateWhileMoving(GameManager.getTick());
         updateActiveEffect();
     }
 
