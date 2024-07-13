@@ -9,5 +9,4 @@ public final class GlobalEntityMapper {
     public static final ComponentMapper<EntityTextureComponent> texture = ComponentMapper.getFor(EntityTextureComponent.class);
     public static final ComponentMapper<EntityTransformComponent> transform = ComponentMapper.getFor(EntityTransformComponent.class);
     public static final ComponentMapper<EntityPropertiesComponent> properties = ComponentMapper.getFor(EntityPropertiesComponent.class);
-    public static final ComponentMapper<EntityDialogComponent> dialog = ComponentMapper.getFor(EntityDialogComponent.class);
 }

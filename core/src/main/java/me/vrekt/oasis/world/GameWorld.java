@@ -39,7 +39,6 @@ import me.vrekt.oasis.entity.enemy.projectile.ProjectileType;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.entity.system.EntityInteractableAnimationSystem;
 import me.vrekt.oasis.entity.system.EntityUpdateSystem;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
@@ -103,6 +102,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     protected final IntMap<GameEntity> nearbyEntities = new IntMap<>();
     protected final Array<ParticleEffect> effects = new Array<>();
+    protected final Bag<GameEntity> specialRenderingEntities = new Bag<>();
 
     protected final SystemManager systemManager;
     protected AreaEffectUpdateSystem effectUpdateSystem;
@@ -137,6 +137,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     // indicates this world should be saved
     protected boolean hasVisited;
+    protected boolean flipPlayerCollision;
 
     protected TiledMapCache mapCache;
 
@@ -292,10 +293,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         world.setContactListener(new BasicEntityCollisionHandler());
 
         if (isGameSave) {
-            player.createCircleBody(world, false);
+            player.createCircleBody(world, flipPlayerCollision);
         } else {
+            player.createCircleBody(world, flipPlayerCollision);
             player.setPosition(worldOrigin, true);
-            player.createCircleBody(world, false);
         }
 
         player.updateWorldState(this);
@@ -310,7 +311,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * Adds the default world systems
      */
     protected void addDefaultWorldSystems() {
-        engine.addSystem(new EntityInteractableAnimationSystem(engine));
         engine.addSystem(new EntityUpdateSystem(game, this));
 
         effectCloudManager = new AreaEffectCloudManager();
@@ -356,6 +356,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         guiManager.resetCursor();
         game.setScreen(this);
         game.setGameReady(true);
+    }
+
+    public void exit() {
+        game.getMultiplexer().removeProcessor(this);
     }
 
     /**
@@ -493,6 +497,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         entity.load(asset);
         populateEntity(entity);
 
+        if (entity.renderWithMap()) {
+            specialRenderingEntities.add(entity);
+        }
+
         GameLogging.info(this, "Loaded interactable entity: %s", entity.name());
     }
 
@@ -509,6 +517,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         populateEntity(entity);
 
         GameLogging.info(this, "Loaded regular entity: %s", entity.name());
+    }
+
+    /**
+     * @return get the bag of special entities that render with the map
+     */
+    public Bag<GameEntity> specialRenderingEntities() {
+        return specialRenderingEntities;
     }
 
     /**
@@ -1258,6 +1273,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             }
         }
         return null;
+    }
+
+    public GameEntity findEntityById(int id) {
+        return entities.get(id);
     }
 
     /**

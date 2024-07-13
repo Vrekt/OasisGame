@@ -7,7 +7,7 @@ import me.vrekt.oasis.utility.logging.GameLogging;
  */
 public enum TileMaterialType {
 
-    NONE, GRASS, MUD;
+    NONE, GRASS, GRASSY, DIRT, MUD, TILE;
 
     public static TileMaterialType of(String resource) {
         try {

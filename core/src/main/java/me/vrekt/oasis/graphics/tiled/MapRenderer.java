@@ -1,5 +1,6 @@
 package me.vrekt.oasis.graphics.tiled;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -10,8 +11,10 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 
 /**
@@ -29,6 +32,10 @@ public final class MapRenderer implements Disposable {
     private final ScreenViewport viewport;
 
     private int width, height;
+
+    private final ObjectMap<String, Integer> layerEntityCache = new ObjectMap<>();
+    private boolean cacheInitialized;
+    private int specialSize = -1;
 
     /**
      * Initialize a new renderer instance
@@ -62,6 +69,9 @@ public final class MapRenderer implements Disposable {
 
         this.width = map.getProperties().get("width", Integer.class) - 2;
         this.height = map.getProperties().get("height", Integer.class) - 2;
+        this.specialSize = -1;
+        this.cacheInitialized = false;
+        layerEntityCache.clear();
 
         camera.position.set(x, y, 0f);
         camera.update();
@@ -96,7 +106,35 @@ public final class MapRenderer implements Disposable {
         AnimatedTiledMapTile.updateAnimationBaseTime();
         renderer.setView(camera);
 
+        if (specialSize == -1) {
+            specialSize = thePlayer.getWorldState().specialRenderingEntities().size();
+        }
+
+        if (!cacheInitialized) {
+            for (int i = 0; i < specialSize; i++) {
+                // ideally, unique layer names
+                final GameEntity entity = thePlayer.getWorldState().specialRenderingEntities().get(i);
+                layerEntityCache.put(entity.renderAfterLayer(), entity.entityId());
+            }
+
+            cacheInitialized = true;
+        }
+
+        boolean renderAfter = false;
+        int toRender = -1;
         for (TiledMapTileLayer layer : layers) {
+            if (layerEntityCache.containsKey(layer.getName())) {
+                renderAfter = true;
+                toRender = layerEntityCache.get(layer.getName());
+            }
+
+            if (renderAfter && toRender != -1) {
+                final GameEntity entity = thePlayer.getWorldState().findEntityById(toRender);
+                entity.mapRender(batch, Gdx.graphics.getDeltaTime());
+
+                renderAfter = false;
+                toRender = -1;
+            }
             renderer.renderTileLayer(layer);
         }
     }

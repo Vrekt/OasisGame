@@ -4,10 +4,10 @@ import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.other.LyraHouse;
-import me.vrekt.oasis.world.interior.other.MyceliaWorld;
-import me.vrekt.oasis.world.interior.wrynn.WrynnBasementInterior;
-import me.vrekt.oasis.world.interior.wrynn.WrynnHouseInterior;
+import me.vrekt.oasis.world.tutorial.interior.other.LyraHouse;
+import me.vrekt.oasis.world.tutorial.interior.other.MyceliaShopInterior;
+import me.vrekt.oasis.world.tutorial.interior.wrynn.WrynnBasementInterior;
+import me.vrekt.oasis.world.tutorial.interior.wrynn.WrynnHouseInterior;
 
 /**
  * List of all interior types
@@ -32,10 +32,10 @@ public enum InteriorWorldType {
             return new WrynnBasementInterior(world, asset, WRYNN_BASEMENT, cursor, bounds);
         }
     },
-    MYCELIA_WORLD {
+    MYCELIA_SHOP {
         @Override
         public GameWorldInterior createInterior(GameWorld world, String asset, Cursor cursor, Rectangle bounds) {
-            return new MyceliaWorld(world, asset, MYCELIA_WORLD, cursor, bounds);
+            return new MyceliaShopInterior(world, asset, MYCELIA_SHOP, cursor, bounds);
         }
     },
     HOUSE2 {

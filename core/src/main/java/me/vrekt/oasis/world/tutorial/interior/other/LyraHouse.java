@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.interior.other;
+package me.vrekt.oasis.world.tutorial.interior.other;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.GameManager;

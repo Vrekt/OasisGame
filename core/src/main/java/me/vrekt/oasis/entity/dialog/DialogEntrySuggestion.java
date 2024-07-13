@@ -11,6 +11,8 @@ public final class DialogEntrySuggestion {
     private float tolerance;
     @Expose
     private String nextEntry;
+    @Expose
+    private boolean exit;
 
     public float tolerance() {
         return tolerance;
@@ -18,5 +20,9 @@ public final class DialogEntrySuggestion {
 
     public String nextEntry() {
         return nextEntry;
+    }
+
+    public boolean exit() {
+        return exit;
     }
 }

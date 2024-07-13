@@ -1,5 +1,6 @@
 package me.vrekt.oasis.world.tutorial;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.OasisGame;
@@ -55,16 +56,15 @@ public final class NewGameWorld extends GameWorld {
             player.getInventory().add(Items.ARCANA_CODEX, 1);
         }
         loadOtherInteriors();
+
     }
 
     /**
      * Load interiors not included in the TiledMap
      */
     private void loadOtherInteriors() {
-        final GameWorldInterior interior = InteriorWorldType.MYCELIA_WORLD.createInterior(this, Asset.MYCELIA_WORLD, Cursor.DEFAULT, null);
-        interior.setEnterable(true);
-
-        interiorWorlds.put(InteriorWorldType.MYCELIA_WORLD, interior);
+        final GameWorldInterior interior2 = InteriorWorldType.MYCELIA_SHOP.createInterior(this, Asset.MYCELIA_SHOP, Cursor.DEFAULT, new Rectangle(100, 100, 1, 1));
+        interiorWorlds.put(InteriorWorldType.MYCELIA_SHOP, interior2);
     }
 
     @Override

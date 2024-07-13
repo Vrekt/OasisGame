@@ -19,6 +19,7 @@ public final class Asset implements Disposable {
     public static final String WRYNN_BASEMENT = "world/interiors/WrynnBasement.tmx";
     public static final String WRYNN_OFFICE = "world/interiors/Office.tmx";
     public static final String MYCELIA_WORLD = "world/worlds/MyceliaWorld.tmx";
+    public static final String MYCELIA_SHOP = "world/interiors/MyceliaShop.tmx";
     public static final String HOUSE_2 = "world/interiors/House2.tmx";
     public static final String ASSETS = "OasisAssets.atlas";
     public static final String LP = "Lockpicking.atlas";
@@ -59,6 +60,7 @@ public final class Asset implements Disposable {
         assetManager.load(WRYNN_BASEMENT, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(WRYNN_OFFICE, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(MYCELIA_WORLD, TiledMap.class, new TmxMapLoader.Parameters());
+        assetManager.load(MYCELIA_SHOP, TiledMap.class, new TmxMapLoader.Parameters());
         assetManager.load(HOUSE_2, TiledMap.class, new TmxMapLoader.Parameters());
     }
 

@@ -29,7 +29,7 @@ public final class PigHeartConsumable extends ItemConsumable {
 
         // this item is large, scale it down for item drops
         this.dropScale = true;
-        this.itemDropScale = 1.25f;
+        this.itemDropScale = 1.5f;
 
         this.scaleSize = 1f;
         this.rarity = ItemRarity.COMMON;

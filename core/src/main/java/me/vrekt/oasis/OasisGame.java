@@ -32,6 +32,7 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
@@ -45,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240712-0311-6806";
+    public static final String GAME_VERSION = "20240713-0453-6936";
 
     private Asset asset;
 
@@ -136,6 +137,10 @@ public final class OasisGame extends Game {
 
         final NewGameWorld world = new NewGameWorld(this, player);
         worldManager.addWorld("TutorialWorld", world);
+
+        final MyceliaWorld myceliaWorld = new MyceliaWorld(this, player);
+        worldManager.addWorld("MyceliaWorld", myceliaWorld);
+
     }
 
     /**

@@ -8,6 +8,7 @@ public enum EntityType {
     WRYNN(Type.INTERACTABLE),
     THALIA(Type.INTERACTABLE),
     LYRA(Type.INTERACTABLE),
+    MIRA(Type.INTERACTABLE),
     ROACH(Type.ENEMY),
     FISH(Type.GENERIC),
     CHICK(Type.GENERIC);

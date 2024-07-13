@@ -8,7 +8,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.entity.component.EntityDialogComponent;
 import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -30,8 +29,6 @@ public abstract class EntitySpeakable extends GameEntity {
 
     public EntitySpeakable(PlayerSP player) {
         this.player = player;
-
-        entity.add(new EntityDialogComponent());
     }
 
     /**
@@ -76,8 +73,6 @@ public abstract class EntitySpeakable extends GameEntity {
 
         if (status != null) status.update(v);
 
-        entity.getComponent(EntityDialogComponent.class).isInView = inView;
-
         // stop speaking to this entity if the player moves away
         if (speakingTo) {
             if (player.getPosition().dst(interactionPoint) >= 0.1f) {
@@ -94,6 +89,10 @@ public abstract class EntitySpeakable extends GameEntity {
      * When the player stops speaking to this entity
      */
     protected void stoppedSpeaking() {
+
+    }
+
+    public void mapRender(SpriteBatch batch, float delta) {
 
     }
 

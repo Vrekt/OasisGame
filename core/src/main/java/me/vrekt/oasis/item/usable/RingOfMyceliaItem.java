@@ -7,11 +7,11 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.utility.ItemDescriptor;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
 
 /**
- * Used to enter the {@link me.vrekt.oasis.world.interior.other.MyceliaWorld}
+ * Used to enter the {@link MyceliaWorld}
  * <p>
  * NOTE: UNUSED
  */
@@ -45,6 +45,5 @@ public final class RingOfMyceliaItem extends ItemUsable {
     @Override
     public void use(PlayerSP player) {
         GameManager.getGuiManager().hideGui(GuiType.INVENTORY);
-        player.getWorldState().enterInterior(InteriorWorldType.MYCELIA_WORLD);
     }
 }

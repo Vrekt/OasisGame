@@ -121,7 +121,8 @@ public final class GameHudGui extends Gui {
         debugComponentText.setVisible(true);
         for (HudComponent component : components.values()) {
             if (component.componentType != HudComponentType.HINT
-                    && component.componentType != HudComponentType.ITEM_HINT)
+                    && component.componentType != HudComponentType.ITEM_HINT
+                    && component.componentType != HudComponentType.NEW_QUEST)
                 component.show();
         }
     }
@@ -131,9 +132,9 @@ public final class GameHudGui extends Gui {
         super.hide();
 
         debugComponentText.setVisible(false);
-
         for (HudComponent component : components.values()) {
-            if (component.componentType != HudComponentType.HINT) {
+            if (component.componentType != HudComponentType.HINT
+                    && component.componentType != HudComponentType.NEW_QUEST) {
                 component.hide();
             }
         }

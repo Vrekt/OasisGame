@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
@@ -58,6 +59,29 @@ public final class WorldManager implements Disposable {
             interior.loadWorld(false);
             interior.enter();
         });
+    }
+
+    /**
+     * Transfer to another world
+     *
+     * @param player player
+     * @param into   world name
+     */
+    public GameWorld transferTo(PlayerSP player, String into) {
+        final GameWorld to = getWorld(into);
+        if (to == null) {
+            GameLogging.error(this, "Failed to find the world %s", into);
+            return null;
+        }
+
+        GameManager.transitionScreen(player.getWorldState(), to, () -> {
+            player.getWorldState().exit();
+            player.removeFromWorld();
+
+            to.loadWorld(false);
+            to.enter();
+        });
+        return to;
     }
 
     /**

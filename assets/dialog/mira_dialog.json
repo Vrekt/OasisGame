@@ -1,0 +1,70 @@
+{
+  "entries": {
+    "mira:dialog_stage_0": {
+      "key": "mira:dialog_stage_0",
+      "content": "Hello! My name is Mira, I haven't seen you around before, what are you here for?",
+      "nextEntry": "mira:dialog_stage_1",
+      "skippable": false,
+      "options": {
+        "I'm looking for <TODO>": "mira:dialog_stage_1",
+        "Is this a shop?": "mira:dialog_stage_1_1",
+        "What are you selling?": "mira:dialog_stage_1_1_1"
+      }
+    },
+    "mira:dialog_stage_1": {
+      "key": "mira:dialog_stage_1",
+      "content": "Don't know what that is, I suggest you just leave.",
+      "nextEntry": "mira:dialog_stage_2",
+      "locked:": false,
+      "skippable": true,
+      "task": "mira:remember_me",
+      "exit": true
+    },
+    "mira:dialog_stage_1_1": {
+      "key": "mira:dialog_stage_1_1",
+      "content": "Yes it is! I have a few items in stock, would you like to see?",
+      "nextEntry": "mira:dialog_stage_1_2",
+      "hasSuggestions": true,
+      "locked": false,
+      "skippable": false,
+      "suggestions": {
+        "Yes": {
+          "tolerance": 0.4,
+          "nextEntry": "mira:dialog_stage_1_2"
+        },
+        "No": {
+          "tolerance": 0.45,
+          "nextEntry": "mira:dialog_stage_1_2",
+          "exit": true
+        }
+      }
+    },
+    "mira:dialog_stage_1_1_1": {
+      "key": "mira:dialog_stage_1_1_1",
+      "content": "A few useful tinctures, would you like to see?",
+      "nextEntry": "mira:dialog_stage_1_1_1",
+      "hasSuggestions": true,
+      "locked": false,
+      "skippable": false,
+      "suggestions": {
+        "Yes": {
+          "tolerance": 0.4,
+          "nextEntry": "mira:dialog_stage_1_2"
+        },
+        "No": {
+          "tolerance": 0.45,
+          "nextEntry": "mira:dialog_stage_1_2",
+          "exit": true
+        }
+      }
+    },
+    "mira:dialog_stage_1_2": {
+      "key": "mira:dialog_stage_1_2",
+      "content": "Great, let me get out the inventory log and show you, one second.",
+      "nextEntry": "mira:dialog_stage_1_2",
+      "locked": false,
+      "task": "mira:show_items",
+      "skippable": false
+    }
+  }
+}

@@ -54,6 +54,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     protected PlayerSP player;
     protected boolean isNearby, inView;
+    protected float distanceFromPlayer;
     protected NinePatch gradient;
     protected boolean dynamicSize;
     protected Rectangle bb;
@@ -83,6 +84,9 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     protected EntityStateMachine stateMachine;
     protected float physicsScale = 1.0f;
+
+    protected boolean renderWithMap;
+    protected String renderAfterLayer;
 
     public GameEntity() {
         entity = new Entity();
@@ -118,6 +122,20 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public EntityType type() {
         return type;
+    }
+
+    /**
+     * @return {@code true} if this entity should be rendered during the map drawing
+     */
+    public boolean renderWithMap() {
+        return renderWithMap;
+    }
+
+    /**
+     * @return the layer to render after if renderWithMap is true
+     */
+    public String renderAfterLayer() {
+        return renderAfterLayer;
     }
 
     /**
@@ -612,13 +630,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         return GlobalEntityMapper.texture.get(entity);
     }
 
-    /**
-     * @return dialog component, if this entity is interactable
-     */
-    public EntityDialogComponent getDialogComponent() {
-        return GlobalEntityMapper.dialog.get(entity);
-    }
-
     public Rectangle bb() {
         return bb;
     }
@@ -632,6 +643,16 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected void createBB(float w, float h) {
         bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
         setSize(w, h, OasisGameSettings.SCALE);
+    }
+
+    /**
+     * Create BB
+     *
+     * @param w w
+     * @param h h
+     */
+    protected void createBBNoSize(float w, float h) {
+        bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
     }
 
     /**
@@ -709,6 +730,16 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param delta delta
      */
     public void update(float delta) {
+
+    }
+
+    /**
+     * Map rendering
+     *
+     * @param batch batch
+     * @param delta delta
+     */
+    public void mapRender(SpriteBatch batch, float delta) {
 
     }
 
@@ -872,12 +903,12 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     public void setDistanceToPlayer(float distance) {
         if (this instanceof EntityInteractable) {
-            entity.getComponent(EntityDialogComponent.class).distanceFromPlayer = distance;
+           this.distanceFromPlayer = distance;
         }
     }
 
     public float getDistanceFromPlayer() {
-        return entity.getComponent(EntityDialogComponent.class).distanceFromPlayer;
+        return distanceFromPlayer;
     }
 
     /**

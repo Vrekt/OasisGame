@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.interior.wrynn;
+package me.vrekt.oasis.world.tutorial.interior.wrynn;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.asset.game.Asset;

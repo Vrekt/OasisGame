@@ -167,6 +167,7 @@ public final class EntityDialogGui extends Gui {
 
         if (entity.getEntry().suggestions()) {
             // enable suggestions input box
+            hideOptionComponents();
             userInputField.setVisible(true);
         } else {
             optionTracker = 0;
@@ -238,6 +239,11 @@ public final class EntityDialogGui extends Gui {
         // clear options container so the input field is set correctly the next time around
         dialogOptionContainers.forEach(container -> dialogOptionsWrapper.removeActor(container.parent));
         suggestionsBeingShown = 0;
+    }
+
+    private void hideOptionComponents() {
+        dialogOptionContainers.forEach(container -> dialogOptionsWrapper.removeActor(container.parent));
+        optionTracker = 0;
     }
 
     /**

@@ -354,7 +354,7 @@ public final class GuiManager implements Disposable {
     public void renderWorldObjectComponents(AbstractInteractableWorldObject worldObject, Camera camera, SpriteBatch batch) {
         worldPosition.set(camera.project(worldPosition.set(worldObject.getPosition().x, worldObject.getPosition().y + 0.55f, 0)));
         screenPosition.set(getCamera().project(worldPosition));
-        worldObject.renderUiComponents(batch, this, asset.getSmall(), screenPosition);
+        worldObject.renderUiComponents(batch, this, asset.getMediumMipMapped(), screenPosition);
     }
 
     /**

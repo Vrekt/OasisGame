@@ -2,6 +2,7 @@ package me.vrekt.oasis.entity.component.status;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.GameEntity;
@@ -18,6 +19,11 @@ public final class EntitySpeakableStatus extends EntityStatus {
     private final TextureRegion[] dialogFrames;
     private boolean drawDialogFrames;
 
+    private float offsetX = 0.15f, offsetY = 0.1f;
+
+    private float dialogAnimationTime;
+    private int currentDialogFrame = 1;
+
     public EntitySpeakableStatus(GameEntity entity, Asset asset) {
         super(entity);
 
@@ -27,18 +33,32 @@ public final class EntitySpeakableStatus extends EntityStatus {
         dialogFrames[2] = asset.get("dialog", 3);
     }
 
+    public void setOffsetX(float offsetX) {
+        this.offsetX = offsetX;
+    }
+
+    public void setOffsetY(float offsetY) {
+        this.offsetY = offsetY;
+    }
+
     @Override
     public void update(float delta) {
         // speakable
         entity.asInteractable().setSpeakable(entity.getDistanceFromPlayer() <= SPEAKING_DISTANCE);
         // rendering
         drawDialogFrames = entity.getDistanceFromPlayer() <= ANIMATION_DISTANCE;
+        if (dialogAnimationTime == 0.0f) dialogAnimationTime = GameManager.getTick();
+
+        if (GameManager.hasTimeElapsed(dialogAnimationTime, 0.33f)) {
+            dialogAnimationTime = GameManager.getTick();
+            currentDialogFrame = currentDialogFrame >= 3 ? 1 : currentDialogFrame + 1;
+        }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (drawDialogFrames) {
-            renderCurrentDialogFrame(batch, dialogFrames[getCurrentDialogFrame() - 1]);
+            renderCurrentDialogFrame(batch, dialogFrames[currentDialogFrame - 1]);
         }
     }
 
@@ -49,14 +69,7 @@ public final class EntitySpeakableStatus extends EntityStatus {
      * @param region region
      */
     private void renderCurrentDialogFrame(SpriteBatch batch, TextureRegion region) {
-        batch.draw(region, entity.getX() + 0.15f, entity.getY() + entity.getScaledHeight() + 0.1f, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
-    }
-
-    /**
-     * @return active dialog frame
-     */
-    public int getCurrentDialogFrame() {
-        return entity.getDialogComponent().currentDialogFrame;
+        batch.draw(region, entity.getX() + offsetX, entity.getY() + entity.getScaledHeight() + offsetY, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
     }
 
 }

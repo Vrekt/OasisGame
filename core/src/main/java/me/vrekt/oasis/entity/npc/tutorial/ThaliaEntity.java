@@ -8,6 +8,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.EntityType;
+import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.utility.collision.CollisionType;
@@ -45,17 +46,25 @@ public final class ThaliaEntity extends EntityInteractable {
         addTexturePart("fishing_2", asset.get("thalia_fishing", 2));
         addTexturePart("fishing_3", asset.get("thalia_fishing", 3));
 
-        createBB(activeEntityTexture.getRegionWidth() / 2f, activeEntityTexture.getRegionHeight() / 2f);
+        // don't interfere with status drawing EM-139
+        createBBNoSize(activeEntityTexture.getRegionWidth() / 2f, activeEntityTexture.getRegionHeight() / 2f);
+        setSize(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight(), OasisGameSettings.SCALE);
         createRectangleBody(worldIn.boxWorld(), new Vector2(1.5f, 1.5f));
 
         dialogue = EntityDialogueLoader.load("assets/dialog/thalia_dialog.json");
         dialogue.setOwner(this);
 
         activeEntry = dialogue.getEntry("thalia:dialog_stage_0").getEntry();
+        if (status instanceof EntitySpeakableStatus speaking) {
+            speaking.setOffsetX(1.2f);
+            speaking.setOffsetY(-0.5f);
+        }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
+        super.render(batch, delta);
+
         if (GameManager.hasTimeElapsed(lastFishFrameChange, 0.2f) && drawFishing) {
             fishingIndex++;
             lastFishFrameChange = GameManager.getTick();

@@ -25,7 +25,7 @@ public final class ArcanaCodexItem extends MagicBookItem {
         this.rarity = ItemRarity.UN_COMMON;
         this.inventoryTag = "Open";
         this.dropScale = true;
-        this.itemDropScale = 1.5f;
+        this.itemDropScale = 2.0f;
 
         spells.add(new MyceliaGatewaySpell());
     }

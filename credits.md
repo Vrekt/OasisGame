@@ -20,6 +20,12 @@ Books rarity icons: https://opengameart.org/content/roguelikerpg-items
 
 Keys: https://opengameart.org/content/geralds-keys-0
 
+Mira: https://opengameart.org/content/24x32-black-character-pack
+
+Mycelia Shop floor: https://opengameart.org/content/16x16-indoor-rpg-tileset
+
+Arcanas Codex: https://opengameart.org/content/items
+
 # Sounds
 
 Button hover: https://freesound.org/people/GameDevC/sounds/422836/
@@ -32,8 +38,6 @@ Barrel breaking: https://freesound.org/people/kevinkace/sounds/66769/
 
 Lockpicking sounds: https://freesound.org/people/iainmccurdy/sounds/726830/
 
-Arcanas Codex: https://opengameart.org/content/items
-
 Inventory/Book sounds:  https://opengameart.org/content/inventory-sound-effects
 
 Teleport sound: https://opengameart.org/content/teleport-spell
@@ -43,6 +47,10 @@ Open magic book sound: https://opengameart.org/content/ghost-breath
 Quest added sound: https://opengameart.org/content/win-sound-1
 
 Mud,Grass walking sounds: https://opengameart.org/content/fantozzis-footsteps-grasssand-stone
+
+Mushroom pot breaking: https://opengameart.org/content/glass-break
+
+Stone walk: https://freesound.org/people/kyles/sounds/637555/
 
 # References, sources, tutorials
 

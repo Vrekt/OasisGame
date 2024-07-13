@@ -164,7 +164,7 @@ public final class WrynnEntity extends EntityInteractable {
         if (isMoving()) rotation = pathComponent.getFacingDirection();
         updateRotationTextureState();
 
-        dialogue.update();
+        if (dialogue != null) dialogue.update();
     }
 
     @Override

@@ -20,10 +20,12 @@ public final class PlayerSoundManager {
     private final PlayerSP player;
     private float lastSoundPlayed;
 
+    private TileMaterialType lastSoundType;
+
     public PlayerSoundManager(PlayerSP player) {
         this.player = player;
 
-        final TileMaterialSound grassSound = new TileMaterialSound();
+        final TileMaterialSound grassSound = new TileMaterialSound(3);
         grassSound.sounds.get(Limb.LEFT)
                 .add(Sounds.WALK_ON_GRASS_LEFT_1, 1)
                 .add(Sounds.WALK_ON_GRASS_LEFT_2, 2)
@@ -35,7 +37,7 @@ public final class PlayerSoundManager {
                 .add(Sounds.WALK_ON_GRASS_RIGHT_3, 3);
         sounds.put(TileMaterialType.GRASS, grassSound);
 
-        final TileMaterialSound mudSound = new TileMaterialSound();
+        final TileMaterialSound mudSound = new TileMaterialSound(3);
         mudSound.sounds.get(Limb.LEFT)
                 .add(Sounds.WALK_ON_MUD_LEFT_1, 1)
                 .add(Sounds.WALK_ON_MUD_LEFT_2, 2)
@@ -46,6 +48,42 @@ public final class PlayerSoundManager {
                 .add(Sounds.WALK_ON_MUD_RIGHT_2, 2)
                 .add(Sounds.WALK_ON_MUD_RIGHT_3, 3);
         sounds.put(TileMaterialType.MUD, mudSound);
+
+        final TileMaterialSound dirtSound = new TileMaterialSound(4, 0.088f, -1.0f);
+        dirtSound.sounds.get(Limb.LEFT)
+                .add(Sounds.WALK_ON_DIRT_LEFT_1, 1)
+                .add(Sounds.WALK_ON_DIRT_LEFT_2, 2)
+                .add(Sounds.WALK_ON_DIRT_LEFT_3, 3)
+                .add(Sounds.WALK_ON_DIRT_LEFT_4, 4);
+
+        dirtSound.sounds.get(Limb.RIGHT)
+                .add(Sounds.WALK_ON_DIRT_RIGHT_1, 1)
+                .add(Sounds.WALK_ON_DIRT_RIGHT_2, 2)
+                .add(Sounds.WALK_ON_DIRT_RIGHT_3, 3)
+                .add(Sounds.WALK_ON_DIRT_RIGHT_4, 4);
+        sounds.put(TileMaterialType.DIRT, dirtSound);
+
+        final TileMaterialSound grassySound = new TileMaterialSound(2, .5f, -0.1f);
+        grassySound.sounds.get(Limb.LEFT)
+                .add(Sounds.GRASSY_STEP_LEFT_1, 1)
+                .add(Sounds.GRASSY_STEP_LEFT_2, 2);
+        grassySound.sounds.get(Limb.RIGHT)
+                .add(Sounds.GRASSY_STEP_RIGHT_1, 1)
+                .add(Sounds.GRASSY_STEP_RIGHT_2, 2);
+        sounds.put(TileMaterialType.GRASSY, grassySound);
+
+        final TileMaterialSound tileSound = new TileMaterialSound(2, 1.0f, 1.0f);
+        tileSound.sounds.get(Limb.LEFT)
+                .add(Sounds.WALK_ON_STONE_LEFT_1, 1)
+                .add(Sounds.WALK_ON_STONE_LEFT_2, 2);
+
+        tileSound.sounds.get(Limb.RIGHT)
+                .add(Sounds.WALK_ON_STONE_RIGHT_1, 1)
+                .add(Sounds.WALK_ON_STONE_RIGHT_2, 2);
+        // don't be so extreme with this sound
+        tileSound.easePanning = true;
+        sounds.put(TileMaterialType.TILE, tileSound);
+
     }
 
     /**
@@ -55,12 +93,19 @@ public final class PlayerSoundManager {
      */
     public void updateWhileMoving(float tick) {
         final boolean timePassed = GameManager.hasTimeElapsed(lastSoundPlayed, STEP_DELAY);
+        final TileMaterialType typeAt = player.getWorldState().getMaterialAt();
 
-        if (timePassed) {
+        // TODO: Cache results for X amount of time
+        if (timePassed || lastSoundType != typeAt) {
+            final boolean has = sounds.containsKey(typeAt);
             lastSoundPlayed = tick;
-            final TileMaterialType typeAt = player.getWorldState().getMaterialAt();
-            if (sounds.containsKey(typeAt)) {
+
+            if (has) {
                 sounds.get(typeAt).play();
+                lastSoundType = typeAt;
+            } else {
+                sounds.get(TileMaterialType.GRASS).play();
+                lastSoundType = TileMaterialType.NONE;
             }
         }
     }
@@ -71,7 +116,9 @@ public final class PlayerSoundManager {
 
     private static final class TileMaterialSound {
 
-        private static final int MAX_SOUNDS = 3;
+        private final int maxSounds;
+        private float volume, pitch;
+        private boolean easePanning;
 
         // keep track of all sounds for a certain limb
         private final EnumMap<Limb, IndexedMaterialSound> sounds = new EnumMap<>(Limb.class);
@@ -80,21 +127,36 @@ public final class PlayerSoundManager {
         // active sound index
         private int index = 1;
 
-        public TileMaterialSound() {
-            sounds.put(Limb.LEFT, new IndexedMaterialSound(MAX_SOUNDS));
-            sounds.put(Limb.RIGHT, new IndexedMaterialSound(MAX_SOUNDS));
+        public TileMaterialSound(int maxSounds) {
+            this.maxSounds = maxSounds;
+            sounds.put(Limb.LEFT, new IndexedMaterialSound(maxSounds));
+            sounds.put(Limb.RIGHT, new IndexedMaterialSound(maxSounds));
+        }
+
+        public TileMaterialSound(int maxSounds, float volume, float pitch) {
+            this.maxSounds = maxSounds;
+            this.volume = volume;
+            this.pitch = pitch;
+            sounds.put(Limb.LEFT, new IndexedMaterialSound(maxSounds));
+            sounds.put(Limb.RIGHT, new IndexedMaterialSound(maxSounds));
         }
 
         /**
          * Play the active sound for the limb
          */
         public void play() {
-            if (index >= MAX_SOUNDS + 1) {
+            if (index >= maxSounds + 1) {
                 reset();
             }
 
+            final boolean left = limb == Limb.LEFT;
+            final float panning = easePanning ? left ? -0.1f : 0.1f : left ? -1.0f : 1.0f;
+
             final IndexedMaterialSound play = sounds.get(limb);
-            GameManager.playSound(play.sounds[index], STEP_VOLUME, STEP_PITCH, limb == Limb.LEFT ? -1.0f : 1.0f);
+            GameManager.playSound(play.sounds[index],
+                    volume == 0.0f ? STEP_VOLUME : volume,
+                    pitch == 0.0f ? STEP_PITCH : pitch,
+                    panning);
             index++;
 
             limb = limb == Limb.LEFT ? Limb.RIGHT : Limb.LEFT;

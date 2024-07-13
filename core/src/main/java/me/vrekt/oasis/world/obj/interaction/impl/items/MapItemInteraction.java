@@ -25,7 +25,8 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
  */
 public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
-    private static final float PATCH_PADDING = 12f;
+    private static final float PATCH_PADDING_Y = 12f;
+    private static final float PATCH_PADDING_X = 30f;
     private Item item;
 
     private ParticleEffectPool.PooledEffect effect;
@@ -127,12 +128,12 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
         if (this.item == null) return;
 
         if (isMouseOver(world.getCursorInWorld())) {
-            final float width = manager.getStringWidth(item.name()) + PATCH_PADDING;
-            final float height = manager.getStringHeight(item.name()) + PATCH_PADDING;
+            final float width = manager.getStringWidth(item.name()) + PATCH_PADDING_X;
+            final float height = manager.getStringHeight(item.name()) + PATCH_PADDING_Y;
 
             font.setColor(Color.SKY);
-            Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING + size.x), position.y - (height + size.y * PATCH_PADDING), width, height);
-            font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING + size.x * 6f), position.y - (height + size.y * PATCH_PADDING) / 2f);
+            Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING_Y + size.x), position.y - (height + size.y * PATCH_PADDING_Y), width, height);
+            font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING_Y + size.x * 6f), position.y - (height + size.y * PATCH_PADDING_Y) / 2f);
         }
     }
 }

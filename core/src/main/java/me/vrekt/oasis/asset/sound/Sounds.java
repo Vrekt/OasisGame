@@ -18,7 +18,6 @@ public enum Sounds {
     QUEST_COMPLETED("quest_completed.wav"),
     POT_BREAKING("pot_breaking.ogg"),
     BARREL_BREAKING("barrel_breaking.wav"),
-    GLASS_BREAKING("glass_breaking.ogg"),
     LEVER_CLICK("click_sound_1.mp3"),
     LOCKPICK_FAIL("lockpick_fail.wav"),
     OPEN_INVENTORY("open_inventory.wav"),
@@ -37,7 +36,25 @@ public enum Sounds {
     WALK_ON_GRASS_LEFT_3("walk_on_grass_l3.ogg"),
     WALK_ON_GRASS_RIGHT_1("walk_on_grass_r1.ogg"),
     WALK_ON_GRASS_RIGHT_2("walk_on_grass_r2.ogg"),
-    WALK_ON_GRASS_RIGHT_3("walk_on_grass_r3.ogg");
+    WALK_ON_GRASS_RIGHT_3("walk_on_grass_r3.ogg"),
+    WALK_ON_DIRT_LEFT_1("stepdirt_1.wav"),
+    WALK_ON_DIRT_LEFT_2("stepdirt_2.wav"),
+    WALK_ON_DIRT_LEFT_3("stepdirt_3.wav"),
+    WALK_ON_DIRT_LEFT_4("stepdirt_4.wav"),
+    WALK_ON_DIRT_RIGHT_1("stepdirt_5.wav"),
+    WALK_ON_DIRT_RIGHT_2("stepdirt_6.wav"),
+    WALK_ON_DIRT_RIGHT_3("stepdirt_7.wav"),
+    WALK_ON_DIRT_RIGHT_4("stepdirt_8.wav"),
+    GRASSY_STEP_LEFT_1("grassy_step_left_1.wav"),
+    GRASSY_STEP_LEFT_2("grassy_step_left_2.wav"),
+    GRASSY_STEP_RIGHT_1("grassy_step_right_1.wav"),
+    GRASSY_STEP_RIGHT_2("grassy_step_right_2.wav"),
+    GLASS_BREAKING("glass_breaking.wav"),
+    WALK_ON_STONE_LEFT_1("stonewalk_l_1.wav"),
+    WALK_ON_STONE_LEFT_2("stonewalk_l_2.wav"),
+    WALK_ON_STONE_RIGHT_1("stonewalk_r_1.wav"),
+    WALK_ON_STONE_RIGHT_2("stonewalk_r_2.wav");
+
 
     private final String resource;
 

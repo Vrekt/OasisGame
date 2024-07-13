@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.interior.wrynn;
+package me.vrekt.oasis.world.tutorial.interior.wrynn;
 
 import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.asset.game.Asset;
@@ -27,7 +27,7 @@ public final class WrynnBasementInterior extends GameWorldInterior {
     }
 
     @Override
-    protected void exit() {
+    public void exit() {
         super.exit();
 
         player.scalePlayerBy(1.0f);

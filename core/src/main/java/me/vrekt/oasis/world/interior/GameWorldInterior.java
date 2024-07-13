@@ -24,6 +24,7 @@ import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.WorldSaveLoader;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.lp.ActivityManager;
+import me.vrekt.oasis.world.tiled.TileMaterialType;
 
 /**
  * Represents an interior within the parent world;
@@ -83,6 +84,11 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
      */
     public GameWorld getParentWorld() {
         return parentWorld;
+    }
+
+    @Override
+    public TileMaterialType getMaterialAt() {
+        return mapCache == null ? TileMaterialType.NONE : super.getMaterialAt();
     }
 
     /**
@@ -264,7 +270,8 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     /**
      * Exit
      */
-    protected void exit() {
+    @Override
+    public void exit() {
         GameLogging.info(this, "Exiting interior");
 
         isWorldActive = false;
