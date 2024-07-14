@@ -31,6 +31,7 @@ public class GameManager {
     private static final TaskManager TASK_MANAGER = new TaskManager();
     private static int autoSaveTaskId;
 
+    private static long timerTick;
 
     public static OasisGame game() {
         return oasis;
@@ -172,6 +173,14 @@ public class GameManager {
     public static boolean hasTimeElapsed(float last, float seconds, boolean handleZero) {
         if (handleZero && last == 0.0) return false;
         return last == 0 || tick - last >= secondsToTicks(seconds);
+    }
+
+    public static void startTimer() {
+        timerTick = System.currentTimeMillis();
+    }
+
+    public static long stopTimer() {
+        return System.currentTimeMillis() - timerTick;
     }
 
     public static void playSound(Sounds sound, float volume, boolean again) {

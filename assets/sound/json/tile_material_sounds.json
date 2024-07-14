@@ -1,0 +1,130 @@
+{
+  "GRASS": {
+    "maxSounds": 3,
+    "volume": 0.1,
+    "pitch": 1.0,
+    "easePanning": false,
+    "sounds": {
+      "LEFT": {
+        "sounds": [
+          null,
+          "WALK_ON_GRASS_LEFT_1",
+          "WALK_ON_GRASS_LEFT_2",
+          "WALK_ON_GRASS_LEFT_3"
+        ]
+      },
+      "RIGHT": {
+        "sounds": [
+          null,
+          "WALK_ON_GRASS_RIGHT_1",
+          "WALK_ON_GRASS_RIGHT_2",
+          "WALK_ON_GRASS_RIGHT_3"
+        ]
+      }
+    },
+    "limb": "LEFT",
+    "index": 1
+  },
+  "GRASSY": {
+    "maxSounds": 2,
+    "volume": 0.5,
+    "pitch": -0.1,
+    "easePanning": false,
+    "sounds": {
+      "LEFT": {
+        "sounds": [
+          null,
+          "GRASSY_STEP_LEFT_1",
+          "GRASSY_STEP_LEFT_2"
+        ]
+      },
+      "RIGHT": {
+        "sounds": [
+          null,
+          "GRASSY_STEP_RIGHT_1",
+          "GRASSY_STEP_RIGHT_2"
+        ]
+      }
+    },
+    "limb": "LEFT",
+    "index": 1
+  },
+  "DIRT": {
+    "maxSounds": 4,
+    "volume": 0.088,
+    "pitch": -1,
+    "easePanning": false,
+    "sounds": {
+      "LEFT": {
+        "sounds": [
+          null,
+          "WALK_ON_DIRT_LEFT_1",
+          "WALK_ON_DIRT_LEFT_2",
+          "WALK_ON_DIRT_LEFT_3",
+          "WALK_ON_DIRT_LEFT_4"
+        ]
+      },
+      "RIGHT": {
+        "sounds": [
+          null,
+          "WALK_ON_DIRT_RIGHT_1",
+          "WALK_ON_DIRT_RIGHT_2",
+          "WALK_ON_DIRT_RIGHT_3",
+          "WALK_ON_DIRT_RIGHT_4"
+        ]
+      }
+    },
+    "limb": "LEFT",
+    "index": 1
+  },
+  "MUD": {
+    "maxSounds": 3,
+    "volume": 0.1,
+    "pitch": 1.0,
+    "easePanning": false,
+    "sounds": {
+      "LEFT": {
+        "sounds": [
+          null,
+          "WALK_ON_MUD_LEFT_1",
+          "WALK_ON_MUD_LEFT_2",
+          "WALK_ON_MUD_LEFT_3"
+        ]
+      },
+      "RIGHT": {
+        "sounds": [
+          null,
+          "WALK_ON_MUD_RIGHT_1",
+          "WALK_ON_MUD_RIGHT_2",
+          "WALK_ON_MUD_RIGHT_3"
+        ]
+      }
+    },
+    "limb": "LEFT",
+    "index": 1
+  },
+  "TILE": {
+    "maxSounds": 2,
+    "volume": 1,
+    "pitch": 1,
+    "easePanning": true,
+    "sounds": {
+      "LEFT": {
+        "sounds": [
+          null,
+          "WALK_ON_STONE_LEFT_1",
+          "WALK_ON_STONE_LEFT_2"
+        ]
+      },
+      "RIGHT": {
+        "sounds": [
+          null,
+          "WALK_ON_STONE_RIGHT_1",
+          "WALK_ON_STONE_RIGHT_2"
+        ]
+      }
+    },
+    "limb": "LEFT",
+    "index": 1
+  }
+}

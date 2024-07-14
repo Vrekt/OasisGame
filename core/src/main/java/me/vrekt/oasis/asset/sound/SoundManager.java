@@ -2,9 +2,17 @@ package me.vrekt.oasis.asset.sound;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
+import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.world.tiled.TileMaterialType;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.EnumMap;
 
 /**
@@ -12,10 +20,31 @@ import java.util.EnumMap;
  */
 public final class SoundManager implements Disposable {
 
+    private static final Gson GSON = new Gson();
+
     private final EnumMap<Sounds, GameSound> allSounds = new EnumMap<>(Sounds.class);
 
     public SoundManager() {
         registerSounds();
+    }
+
+    /**
+     * Load sounds from the JSON file.
+     *
+     * @return the map or an empty map if there was an exception
+     */
+    public EnumMap<TileMaterialType, TileMaterialSound> loadSounds() {
+        final FileHandle handle = Gdx.files.internal("assets/sound/json/tile_material_sounds.json");
+        try {
+            try (FileReader reader = new FileReader(handle.file())) {
+                Type type = new TypeToken<EnumMap<TileMaterialType, TileMaterialSound>>() {
+                }.getType();
+                return GSON.fromJson(reader, type);
+            }
+        } catch (IOException exception) {
+            GameLogging.exceptionThrown("SoundManager", "Failed to load material sound file!", exception);
+        }
+        return new EnumMap<>(TileMaterialType.class);
     }
 
     /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="22" nextobjectid="132">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="64" height="64" tilewidth="16" tileheight="16" infinite="0" nextlayerid="22" nextobjectid="138">
  <tileset firstgid="1" source="../asset/data/1.tsx"/>
  <tileset firstgid="1441" source="../asset/data/3.tsx"/>
  <tileset firstgid="1681" source="../asset/data/Boats.tsx"/>
@@ -635,15 +635,11 @@
   </object>
   <object id="12" x="911" y="644" width="33" height="23"/>
   <object id="13" x="916" y="696" width="25" height="17"/>
-  <object id="14" x="791" y="756" width="50" height="10"/>
   <object id="23" x="599" y="422" width="213" height="48"/>
   <object id="24" x="574" y="334" width="26" height="139"/>
   <object id="25" x="805" y="325" width="16" height="143"/>
   <object id="26" x="570" y="307" width="251" height="25"/>
   <object id="28" x="810" y="472" width="49" height="49"/>
-  <object id="44" x="694.011" y="596.961">
-   <polyline points="-12.5115,7.54386 46.6645,6.78947 73.0401,39.0395 98.4012,36.7763 102.459,-3.96053 244.989,21.5"/>
-  </object>
   <object id="45" x="691.5" y="578.5">
    <polyline points="0,0 81,0.5 130,-55"/>
   </object>
@@ -669,6 +665,24 @@
   <object id="75" x="446.667" y="250" width="32" height="33.3333"/>
   <object id="121" x="855.667" y="141" width="16.6667" height="48.6667"/>
   <object id="122" x="900.667" y="224" width="24.6667" height="47.6667"/>
+  <object id="132" x="695" y="226.5">
+   <polyline points="0,0 -126,0.5 -150,27.5 -151,74 -207.5,120.5"/>
+  </object>
+  <object id="133" x="417.5" y="469.5" width="28" height="57">
+   <ellipse/>
+  </object>
+  <object id="134" x="419.5" y="371" width="25.5" height="58.5">
+   <ellipse/>
+  </object>
+  <object id="135" x="795" y="720.5" width="40.5" height="42">
+   <ellipse/>
+  </object>
+  <object id="136" x="694.5" y="633.5">
+   <polyline points="0,0 8.5,-35 40,-31 73,0 96,-20.5 103.5,-27.5 133,-27 157.5,-50 242,-50"/>
+  </object>
+  <object id="137" x="854.5" y="600" width="78" height="13">
+   <ellipse/>
+  </object>
  </objectgroup>
  <objectgroup id="12" name="WorldObjects">
   <object id="41" x="688" y="576">
@@ -864,7 +878,7 @@
   </object>
  </objectgroup>
  <objectgroup id="7" name="Actions">
-  <object id="1" name="WorldSpawn" x="640.667" y="200.834">
+  <object id="1" name="WorldSpawn" x="382.167" y="439.834">
    <point/>
   </object>
  </objectgroup>

@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240713-0453-6936";
+    public static final String GAME_VERSION = "20240713-2050-6953";
 
     private Asset asset;
 
@@ -526,6 +526,10 @@ public final class OasisGame extends Game {
 
     public PlayerConnection getConnectionHandler() {
         return handler;
+    }
+
+    public SoundManager soundManager() {
+        return soundManager;
     }
 
     public boolean isNewGame() {
