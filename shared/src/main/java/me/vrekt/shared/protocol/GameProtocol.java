@@ -88,11 +88,13 @@ public final class GameProtocol {
         server.put(S2CPacketPlayerVelocity.PACKET_ID, (buf, handler) -> S2CPacketPlayerVelocity.handle(handler, buf));
         server.put(S2CPacketRemovePlayer.PACKET_ID, (buf, handler) -> S2CPacketRemovePlayer.handle(handler, buf));
         server.put(S2CPacketSetEntityProperties.PACKET_ID, (buf, handler) -> S2CPacketSetEntityProperties.handle(handler, buf));
-        server.put(S2CPacketPlayers.PACKET_ID, (buf, handler) -> S2CPacketPlayers.handle(handler, buf));
+        //  server.put(S2CPacketPlayers.PACKET_ID, (buf, handler) -> S2CPacketPlayers.handle(handler, buf));
+        server.put(S2CStartGame.PACKET_ID, (buf, handler) -> S2CStartGame.handle(handler, buf));
         server.put(S2CPacketWorldInvalid.PACKET_ID, (buf, handler) -> S2CPacketWorldInvalid.handle(handler, buf));
         server.put(S2CKeepAlive.PACKET_ID, (buf, handler) -> S2CKeepAlive.handle(handler, buf));
         server.put(S2CPlayerEnteredInterior.ID, (buf, handler) -> S2CPlayerEnteredInterior.handle(handler, buf));
         server.put(S2CChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new S2CChatMessage(buf)));
+        server.put(S2CNetworkFrame.ID, (buf, handler) -> handler.handle(new S2CNetworkFrame(buf)));
     }
 
     private void initializeClientHandlers() {

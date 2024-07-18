@@ -45,4 +45,10 @@ public final class TiledMapCache {
         return tile == null ? TileMaterialType.NONE : tile.material();
     }
 
+    /**
+     * @return all tiles
+     */
+    public StaticSoundMapTile[][] tiles() {
+        return tiles;
+    }
 }

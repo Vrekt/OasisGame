@@ -90,6 +90,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     protected TiledMap map;
     protected String worldName, worldMap;
+    protected int worldId;
 
     protected final SpriteBatch batch;
     protected final MapRenderer renderer;
@@ -140,6 +141,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected boolean flipPlayerCollision;
 
     protected TiledMapCache mapCache;
+    protected boolean isNetworked;
 
     public GameWorld(OasisGame game, PlayerSP player, World world) {
         super(world, new PooledEngine());
@@ -191,6 +193,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     public PerformanceCounter getPerformanceCounter() {
         return performanceCounter;
+    }
+
+    public int worldId() {
+        return worldId;
     }
 
     public void setGameSave(boolean gameSave) {
@@ -259,6 +265,14 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void loadWorld(boolean isGameSave) {
         this.isGameSave = isGameSave;
+    }
+
+    /**
+     * Load this world from the network
+     */
+    public void loadNetworkWorld() {
+        this.isNetworked = true;
+        this.loadWorld(false);
     }
 
     /**
@@ -479,6 +493,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void createEnemy(String key, Rectangle rectangle, Asset asset) {
         final EntityEnemy enemy = Entities.enemy(key, this, new Vector2(rectangle.x, rectangle.y), game);
+        enemy.setNetworked(isNetworked);
         enemy.load(asset);
         populateEntity(enemy);
 
@@ -494,6 +509,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void createInteractableEntity(String key, Rectangle rectangle, Asset asset) {
         final EntityInteractable entity = Entities.interactable(key, this, new Vector2(rectangle.x, rectangle.y), game);
+        entity.setNetworked(isNetworked);
         entity.load(asset);
         populateEntity(entity);
 
@@ -513,6 +529,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void createRegularEntity(String key, Rectangle rectangle, Asset asset) {
         final GameEntity entity = Entities.generic(key, this, new Vector2(rectangle.x, rectangle.y), game);
+        entity.setNetworked(isNetworked);
         entity.load(asset);
         populateEntity(entity);
 
@@ -617,10 +634,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             final String childKey = TiledMapLoader.ofString(object, "child_key");
             final LootGrove grove = registry.get(childKey);
             if (grove == null) {
-                GameLogging.warn(this, "Failed to find a registered root-grove by key %s", childKey);
+                GameLogging.warn(this, "Failed to find a registered root-grove child by key %s", childKey);
             } else {
                 final float offsetX = TiledMapLoader.ofFloat(object, "offset_x", 0.0f) * OasisGameSettings.SCALE;
-                registry.get(childKey).addRewardPoint(new Vector2(rectangle.x - offsetX, rectangle.y));
+                grove.addRewardPoint(new Vector2(rectangle.x - offsetX, rectangle.y));
             }
         });
 
@@ -1034,6 +1051,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      */
     protected void createEntityGoals(TiledMap worldMap, float worldScale) {
+        // do not load goals if networked
+        if (isNetworked) return;
+
         final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "EntityGoals", (object, bounds) -> {
             final String e = TiledMapLoader.ofString(object, "entity");
             if (e != null) {
@@ -1060,6 +1080,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      */
     protected void buildEntityPathing(TiledMap worldMap, float worldScale) {
+        // do not load pathing if networked
+        if (isNetworked) return;
+
         final MapLayer layer = worldMap.getLayers().get("Paths");
         if (layer == null) return;
 
@@ -1108,6 +1131,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (elapsed >= 50) {
             lastTick = now;
             GameManager.tick++;
+
+            if (game.isLocalMultiplayer()) game.tickLocalMultiplayer();
         }
 
         performanceCounter.start();

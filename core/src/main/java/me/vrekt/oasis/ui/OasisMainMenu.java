@@ -103,6 +103,8 @@ public final class OasisMainMenu extends ScreenAdapter {
         rootTable.add(joinServerButton).width(150).padBottom(4f);
         rootTable.row();
         rootTable.add(quitGameButton).width(150);
+        rootTable.row();
+        rootTable.add(new VisLabel("MP: " + System.getProperty("mp")));
 
         assignClickAction(newGameButton, game::loadNewGame);
         assignClickAction(joinServerButton, game::hostNewGame);

@@ -16,7 +16,6 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
-import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
@@ -678,12 +677,12 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         final float now = GameManager.getTick();
 
         if (GameManager.hasTimeElapsed(lastPosition, POSITION_NETWORK_SEND_RATE)) {
-            getConnection().updatePosition(getPosition(), getAngle());
+            getConnection().updatePosition(body.getPosition(), getAngle());
             lastPosition = now;
         }
 
         if (GameManager.hasTimeElapsed(lastVelocity, VELOCITY_NETWORK_SEND_RATE)) {
-            getConnection().updateVelocity(getVelocity(), getAngle());
+            getConnection().updateVelocity(body.getLinearVelocity(), getAngle());
             lastVelocity = now;
         }
     }

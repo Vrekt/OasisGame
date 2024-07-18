@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiHostilePursueComponent;
 import me.vrekt.oasis.ai.goals.EntityWalkPathGoal;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
@@ -85,13 +86,17 @@ public final class LyraEntity extends EntityInteractable {
         builder.dispose();
 
         createRectangleBody(worldIn.boxWorld(), new Vector2(0, 1));
+        if (!isNetworked) loadAi();
+        this.speakingStatus = (EntitySpeakableStatus) status;
+    }
+
+    @Override
+    public void loadAi() {
         pathComponent = new EntityWalkPathGoal(this, worldIn.getPaths(), true);
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
         pathComponent.setFinalRotation(EntityRotation.UP);
         addAiComponent(pathComponent);
-
-        this.speakingStatus = (EntitySpeakableStatus) status;
     }
 
     @Override
@@ -182,6 +187,10 @@ public final class LyraEntity extends EntityInteractable {
     @Override
     public void update(float delta) {
         super.update(delta);
+
+        if(isNetworked) {
+            rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
+        }
 
         // check for end of dialog
         if (!isFinished && activeEntry.getKey().equalsIgnoreCase("lyra:dialog2_stage_9")) {

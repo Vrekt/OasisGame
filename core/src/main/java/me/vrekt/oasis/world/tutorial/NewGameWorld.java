@@ -18,11 +18,14 @@ import me.vrekt.oasis.world.obj.interaction.impl.sign.WrynnBasementWarningSign;
  */
 public final class NewGameWorld extends GameWorld {
 
+    public static final int WORLD_ID = 0;
+
     public NewGameWorld(OasisGame game, PlayerSP player) {
         super(game, player, new World(Vector2.Zero, true));
 
         this.worldName = "TutorialWorld";
         this.worldMap = Asset.TUTORIAL_WORLD;
+        this.worldId = WORLD_ID;
     }
 
     @Override
@@ -51,6 +54,10 @@ public final class NewGameWorld extends GameWorld {
 
             player.getInventory().add(Items.ARCANA_CODEX, 1);
         }
+
+
+        if (Boolean.parseBoolean(System.getProperty("mp"))) game.startIntegratedServerBlocking();
+
     }
 
     @Override

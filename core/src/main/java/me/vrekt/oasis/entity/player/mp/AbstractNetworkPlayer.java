@@ -1,6 +1,7 @@
 package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
@@ -12,13 +13,13 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Viewable, Drawable {
 
+    // TODO: NET-3 Fix snapping issues
+    private static final float DE_SYNC_DISTANCE = 0.25f;
+
+    protected final Vector2 incomingNetworkVelocity = new Vector2();
+
     public AbstractNetworkPlayer(GameWorld world) {
         this.worldIn = world;
-    }
-
-    @Override
-    public GameWorld getWorldState() {
-        return worldIn;
     }
 
     /**
@@ -29,7 +30,7 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
      * @param angle rotation
      */
     public void updateNetworkPosition(float x, float y, float angle) {
-        setPosition(x, y, false);
+        incomingNetworkPosition.set(x, y);
         setAngle(angle);
     }
 
@@ -41,21 +42,29 @@ public abstract class AbstractNetworkPlayer extends AbstractPlayer implements Vi
      * @param angle angle or rotation
      */
     public void updateNetworkVelocity(float x, float y, float angle) {
-        getVelocity().set(x, y);
+        incomingNetworkVelocity.set(x, y);
         setAngle(angle);
     }
 
     @Override
     public void update(float delta) {
-        body.setLinearVelocity(getVelocity());
+        final boolean moving = !incomingNetworkVelocity.isZero(0.01f);
+        if (moving) {
+            body.setLinearVelocity(incomingNetworkVelocity);
+        } else {
+            if (body.getPosition().dst2(incomingNetworkPosition) > DE_SYNC_DISTANCE) {
+                // lerp to final position
+                velocity.set(body.getLinearVelocity());
+                predicted.set(body.getPosition()).add(velocity.scl(delta));
+                lerped.set(predicted).lerp(incomingNetworkPosition, 1.0f);
+                trajectory.set(lerped).sub(body.getPosition()).scl(1f / (6.0f * delta));
+                smoothed.set(trajectory).add(velocity).scl(1.0f);
 
-        final float difference = getPosition().dst2(body.getPosition());
-        if (difference > 3.0f) {
-            // de-sync, basic fix.
-            body.setTransform(getPosition().x, getPosition().y, getAngle());
+                body.setLinearVelocity(smoothed);
+            } else {
+                body.setLinearVelocity(0, 0);
+            }
         }
-
-        setPosition(body.getPosition().x, body.getPosition().y, false);
     }
 
     @Override

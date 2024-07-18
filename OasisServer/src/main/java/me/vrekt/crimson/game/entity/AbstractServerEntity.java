@@ -4,11 +4,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.world.World;
+import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Represents a base entity
  */
-public abstract class ServerEntity implements Disposable {
+public abstract class AbstractServerEntity implements Disposable {
 
     protected CrimsonGameServer server;
     protected World world;
@@ -20,7 +21,7 @@ public abstract class ServerEntity implements Disposable {
     protected Vector2 position, velocity;
     protected float rotation;
 
-    public ServerEntity(CrimsonGameServer server) {
+    public AbstractServerEntity(CrimsonGameServer server) {
         this.server = server;
 
         this.position = new Vector2();
@@ -157,6 +158,16 @@ public abstract class ServerEntity implements Disposable {
      */
     public float getRotation() {
         return rotation;
+    }
+
+    /**
+     * Update this entity from local host state
+     *
+     * @param entity entity
+     */
+    public void updateLocal(GameEntity entity) {
+        setPosition(entity.getPosition());
+        setName(entity.name());
     }
 
     @Override

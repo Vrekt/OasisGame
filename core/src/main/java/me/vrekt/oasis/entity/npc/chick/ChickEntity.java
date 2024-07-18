@@ -9,6 +9,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiWalkToGoalsComponent;
 import me.vrekt.oasis.ai.goals.EntityGoal;
 import me.vrekt.oasis.ai.goals.EntityMapGoal;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
@@ -91,12 +92,7 @@ public final class ChickEntity extends GameEntity {
         builder.dispose();
 
         createRectangleBody(worldIn.boxWorld(), new Vector2(1, 1));
-        component = new AiWalkToGoalsComponent(this);
-        // every 120 ticks
-        component.setPathingInterval(120);
-        component.setMaxLinearSpeed(1.0f);
-        component.setMaxLinearAcceleration(1.0f);
-        addAiComponent(component);
+        if (!isNetworked) loadAi();
 
         // splashing animation when chick is drinking
         final Animation<TextureRegion> splash = new Animation<>(0.1f,
@@ -115,6 +111,16 @@ public final class ChickEntity extends GameEntity {
         state = new ChickDrinkAndPeckState(this);
         state.setPeckAnimation(peck);
         state.setSplashAnimation(splash);
+    }
+
+    @Override
+    public void loadAi() {
+        component = new AiWalkToGoalsComponent(this);
+        // every 120 ticks
+        component.setPathingInterval(120);
+        component.setMaxLinearSpeed(1.0f);
+        component.setMaxLinearAcceleration(1.0f);
+        addAiComponent(component);
     }
 
     @Override
@@ -160,6 +166,11 @@ public final class ChickEntity extends GameEntity {
 
     @Override
     public void update(float delta) {
+
+        if(isNetworked) {
+            rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
+        }
+
         if (stateMachine.isInState(state)) {
             if (state.isFinished()) {
                 // assign a new goal immediately
@@ -171,15 +182,22 @@ public final class ChickEntity extends GameEntity {
             // otherwise, update pecking state
             stateMachine.update(delta);
         } else {
-            updateAi(delta);
-            if (component.isAtGoal()) {
-                // full-stop
-                setVelocity(0, 0, true);
-            }
+            if (!isNetworked) updateAi(delta);
         }
 
-        rotation = component.getFacingDirection();
         updateRotationTextureState();
+    }
+
+    @Override
+    protected void updateAi(float delta) {
+        super.updateAi(delta);
+
+        rotation = component.getFacingDirection();
+
+        if (component.isAtGoal()) {
+            // full-stop
+            setVelocity(0, 0, true);
+        }
     }
 
     @Override

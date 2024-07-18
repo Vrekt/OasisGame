@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -21,7 +18,10 @@ import me.vrekt.oasis.ai.goals.EntityMapGoal;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
-import me.vrekt.oasis.entity.component.*;
+import me.vrekt.oasis.entity.component.EntityPropertiesComponent;
+import me.vrekt.oasis.entity.component.EntityTextureComponent;
+import me.vrekt.oasis.entity.component.EntityTransformComponent;
+import me.vrekt.oasis.entity.component.GlobalEntityMapper;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.component.status.EntityStatus;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
@@ -37,6 +37,7 @@ import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
+import me.vrekt.shared.network.state.NetworkEntityState;
 
 /**
  * Represents a basic entity within Oasis
@@ -87,6 +88,19 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     protected boolean renderWithMap;
     protected String renderAfterLayer;
+
+    protected boolean isNetworked;
+
+    // networking interpolation
+    // TODO: NET-2 less messy
+    protected final Vector2 incomingNetworkPosition = new Vector2();
+    protected final Vector2 velocity = new Vector2();
+    protected final Vector2 predicted = new Vector2();
+    protected final Vector2 lerped = new Vector2();
+    protected final Vector2 trajectory = new Vector2();
+    protected final Vector2 smoothed = new Vector2();
+
+    private float last;
 
     public GameEntity() {
         entity = new Entity();
@@ -474,6 +488,44 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
+     * Interpolate from the network, works by interpolating velocity required
+     * to reach the end destination point.
+     *
+     * @param state       the network state
+     * @param delta       gdx delta
+     * @param networkTime time since the packet was sent
+     */
+    public void networkInterpolate(NetworkEntityState state, float delta, float networkTime) {
+        velocity.set(body.getLinearVelocity());
+        // attempt to predict where the entity will be
+        predicted.set(body.getPosition()).add(velocity.scl(delta));
+        // lerp between that position and actual server position
+        incomingNetworkPosition.set(state.x(), state.y());
+        lerped.set(predicted).lerp(incomingNetworkPosition, 1.0f);
+        trajectory.set(lerped).sub(body.getPosition()).scl(1f / (networkTime * delta));
+        // final smoothing of the velocity
+        smoothed.set(trajectory).add(velocity).scl(0.25f);
+        setVelocity(smoothed, true);
+    }
+
+    /**
+     * Teleport this entity to the given position
+     *
+     * @param x x
+     * @param y y
+     */
+    public void teleport(float x, float y) {
+        body.setTransform(x, y, 0.0f);
+    }
+
+    /**
+     * Set if this entity is networked, if so, no AI components will be loaded.
+     */
+    public void setNetworked(boolean state) {
+        this.isNetworked = state;
+    }
+
+    /**
      * @return previous position of this entity used for interpolation
      */
     public Vector2 getPreviousPosition() {
@@ -571,6 +623,13 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     public void setVelocity(float x, float y, boolean updateBody) {
         getVelocity().set(x, y);
         if (updateBody && body != null) body.setLinearVelocity(x, y);
+    }
+
+    /**
+     * load the AI of this entity
+     */
+    public void loadAi() {
+
     }
 
     /**
@@ -903,7 +962,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     public void setDistanceToPlayer(float distance) {
         if (this instanceof EntityInteractable) {
-           this.distanceFromPlayer = distance;
+            this.distanceFromPlayer = distance;
         }
     }
 

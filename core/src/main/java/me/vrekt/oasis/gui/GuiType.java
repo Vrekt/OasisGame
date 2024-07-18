@@ -19,6 +19,7 @@ public enum GuiType {
     CHAT,
     WORLD_MAP,
     LOCK_PICKING,
-    MAGIC_BOOK
+    MAGIC_BOOK,
+    SHOP
 
 }

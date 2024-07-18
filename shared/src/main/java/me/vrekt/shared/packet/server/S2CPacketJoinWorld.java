@@ -11,7 +11,7 @@ public final class S2CPacketJoinWorld extends GamePacket {
 
     public static final int PACKET_ID = 1114;
 
-    private String worldName;
+    private int worldId;
     private int entityId;
     private long serverTime;
 
@@ -19,8 +19,8 @@ public final class S2CPacketJoinWorld extends GamePacket {
         handler.handle(new S2CPacketJoinWorld(buffer));
     }
 
-    public S2CPacketJoinWorld(String worldName, int entityId, long serverTime) {
-        this.worldName = worldName;
+    public S2CPacketJoinWorld(int worldId, int entityId, long serverTime) {
+        this.worldId = worldId;
         this.entityId = entityId;
         this.serverTime = serverTime;
     }
@@ -29,8 +29,8 @@ public final class S2CPacketJoinWorld extends GamePacket {
         super(buffer);
     }
 
-    public String getWorldName() {
-        return worldName;
+    public int worldId() {
+        return worldId;
     }
 
     public int getEntityId() {
@@ -49,14 +49,14 @@ public final class S2CPacketJoinWorld extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        writeString(worldName);
+        buffer.writeInt(worldId);
         buffer.writeInt(entityId);
         buffer.writeLong(serverTime);
     }
 
     @Override
     public void decode() {
-        worldName = readString();
+        worldId = buffer.readInt();
         entityId = buffer.readInt();
         serverTime = buffer.readLong();
     }

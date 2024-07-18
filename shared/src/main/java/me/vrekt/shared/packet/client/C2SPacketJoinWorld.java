@@ -13,7 +13,7 @@ public final class C2SPacketJoinWorld extends GamePacket {
 
     public static final int PACKET_ID = 2224;
 
-    private String worldName;
+    private int worldId;
     private String username;
     private long clientTime;
     // indicates to send all current players within separate packets
@@ -25,8 +25,8 @@ public final class C2SPacketJoinWorld extends GamePacket {
         handler.handle(new C2SPacketJoinWorld(buffer));
     }
 
-    public C2SPacketJoinWorld(String worldName, String username, long clientTime) {
-        this.worldName = worldName;
+    public C2SPacketJoinWorld(int worldId, String username, long clientTime) {
+        this.worldId = worldId;
         this.username = username == null ? StringUtil.EMPTY_STRING : username;
         this.clientTime = clientTime;
     }
@@ -35,8 +35,8 @@ public final class C2SPacketJoinWorld extends GamePacket {
         super(buffer);
     }
 
-    public String worldName() {
-        return worldName;
+    public int worldId() {
+        return worldId;
     }
 
     public String username() {
@@ -60,14 +60,14 @@ public final class C2SPacketJoinWorld extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        writeString(worldName);
+        buffer.writeInt(worldId);
         writeString(username);
         buffer.writeLong(clientTime);
     }
 
     @Override
     public void decode() {
-        worldName = readString();
+        worldId = buffer.readInt();
         username = readString();
         clientTime = buffer.readLong();
     }

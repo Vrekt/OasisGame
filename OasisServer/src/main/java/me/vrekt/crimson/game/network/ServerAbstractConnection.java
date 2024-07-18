@@ -18,7 +18,6 @@ public abstract class ServerAbstractConnection extends ChannelInboundHandlerAdap
     protected final Channel channel;
     protected boolean isConnected;
     protected CrimsonGameServer server;
-
     protected float lastKeepAlive;
 
     public ServerAbstractConnection(Channel channel, CrimsonGameServer server) {

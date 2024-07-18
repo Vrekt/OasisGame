@@ -28,6 +28,7 @@ public final class BasicEntityCollisionHandler implements ContactListener {
         final boolean hasB = fixtureB.getBody().getUserData() != null;
         if (!hasA || !hasB) {
             GameLogging.info(this, "Unknown collision! a=%s, b=%s", fixtureA.getType(), fixtureB.getType());
+            contact.setEnabled(false);
             return;
         }
 

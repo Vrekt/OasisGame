@@ -1,10 +1,19 @@
 package me.vrekt.crimson.game;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Disposable;
-import me.vrekt.crimson.game.entity.ServerPlayerEntity;
-import me.vrekt.crimson.game.network.ServerAbstractConnection;
+import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.crimson.Crimson;
-import me.vrekt.crimson.game.world.WorldManager;
+import me.vrekt.crimson.game.entity.ServerEntityPlayer;
+import me.vrekt.crimson.game.entity.adapter.ServerEntity;
+import me.vrekt.crimson.game.network.ServerAbstractConnection;
+import me.vrekt.crimson.game.world.World;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.network.WorldNetworkHandler;
+import me.vrekt.shared.network.state.NetworkEntityState;
+import me.vrekt.shared.network.state.NetworkState;
+import me.vrekt.shared.packet.server.S2CPacketDisconnected;
 import me.vrekt.shared.protocol.GameProtocol;
 
 import java.util.List;
@@ -19,9 +28,10 @@ public final class CrimsonGameServer implements Disposable {
 
     private static final int TICKS_PER_SECOND = 20;
 
-    private static CrimsonGameServer instance;
+    private final WorldNetworkHandler handler;
+    private PlayerSP hostPlayer;
 
-    private final List<ServerPlayerEntity> allPlayers = new CopyOnWriteArrayList<>();
+    private final List<ServerEntityPlayer> allPlayers = new CopyOnWriteArrayList<>();
     // set of connections that are connected, but not in a world.
     private final List<ServerAbstractConnection> connections = new CopyOnWriteArrayList<>();
     // the last time it took to tick all worlds.
@@ -31,15 +41,15 @@ public final class CrimsonGameServer implements Disposable {
 
     private final Queue<Runnable> tasks = new ConcurrentLinkedQueue<>();
 
+    // all loaded worlds in this server
+    // TODO: Interior worlds
+    private final IntMap<World> loadedWorlds = new IntMap<>();
     private final GameProtocol protocol;
-    private final WorldManager worldManager;
-    private long lastKeepAlive;
 
-    public CrimsonGameServer(GameProtocol protocol) {
-        instance = this;
+    public CrimsonGameServer(GameProtocol protocol, WorldNetworkHandler handler) {
         this.service = Executors.newScheduledThreadPool(0, Thread.ofVirtual().factory());
-        this.worldManager = new WorldManager();
         this.protocol = protocol;
+        this.handler = handler;
     }
 
     public GameProtocol getProtocol() {
@@ -69,84 +79,64 @@ public final class CrimsonGameServer implements Disposable {
     }
 
     /**
-     * @return the world manager
-     */
-    public WorldManager getWorldManager() {
-        return worldManager;
-    }
-
-    /**
-     * Register player joined
+     * Handle when a player joins the server
      *
      * @param player the player
      */
-    public void registerGlobalPlayer(ServerPlayerEntity player) {
-        this.allPlayers.add(player);
+    public void handlePlayerJoinServer(ServerEntityPlayer player) {
+        allPlayers.add(player);
+        connections.add(player.getConnection());
     }
 
     /**
-     * Remove the global connection
-     *
-     * @param connection the connection
+     * Disconnect a player
      */
-    public void removeGlobalConnection(ServerAbstractConnection connection) {
-        this.connections.remove(connection);
+    public void disconnectPlayer(ServerEntityPlayer player, String reason) {
+        player.getConnection().sendImmediately(new S2CPacketDisconnected(reason));
+        if (player.isInWorld()) player.world().removePlayerInWorld(player);
+        player.getConnection().disconnect();
+        player.dispose();
     }
 
     /**
-     * Register global connection
-     *
-     * @param connection connection
-     */
-    public void handleGlobalConnection(ServerAbstractConnection connection) {
-        this.connections.add(connection);
-    }
-
-    /**
-     * Handle a player disconnection.
+     * Player was disconnected
      *
      * @param player the player
      */
-    public void removeGlobalPlayer(ServerPlayerEntity player) {
-        this.allPlayers.remove(player);
-        this.connections.remove(player.getConnection());
+    public void playerDisconnected(ServerEntityPlayer player, String reason) {
+        if (player.isInWorld()) player.world().removePlayerInWorld(player);
+        player.getConnection().disconnect();
+
+        Crimson.log("Player %s was disconnected because {%s}", player.name(), reason);
     }
 
     /**
-     * Test if server is at capacity.
+     * Check if a world is loaded.
      *
-     * @return {@code true} if the player can join.
+     * @param worldId the ID
+     * @return {@code true} if so
      */
-    public boolean isFull() {
-        return allPlayers.size() <= 100;
+    public boolean isWorldLoaded(int worldId) {
+        return loadedWorlds.containsKey(worldId);
     }
 
     /**
-     * Execute an async task to be run the next server tick
+     * Get a loaded world
      *
-     * @param task the task
+     * @param worldId the ID
+     * @return the world
      */
-    public void executeAsyncTaskOnNextTick(Runnable task) {
-        tasks.add(task);
+    public World getWorld(int worldId) {
+        return loadedWorlds.get(worldId);
     }
 
     /**
-     * Execute an async task and execute it now.
+     * Assign a random entity ID
      *
-     * @param task the task
+     * @return the new ID
      */
-    public void executeAsyncTaskNow(Runnable task) {
-        service.schedule(task, 0L, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Execute an async task after the provided delay has elapsed.
-     *
-     * @param task  the task
-     * @param delay the delay
-     */
-    public void executeAsyncTaskLater(Runnable task, long delay) {
-        service.schedule(task, delay, TimeUnit.MILLISECONDS);
+    public int acquireEntityId() {
+        return allPlayers.size() + MathUtils.random(1, 99);
     }
 
     /**
@@ -155,23 +145,65 @@ public final class CrimsonGameServer implements Disposable {
     public void start() {
         worldTickTime = 0;
 
+        // 20 world ticks per second
         service.scheduleAtFixedRate(this::tick, 0L, (1000 / TICKS_PER_SECOND), TimeUnit.MILLISECONDS);
+        // keep alive players every 1s
         service.scheduleAtFixedRate(this::ensurePlayerConnections, 1L, 1000, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * Suspend (pause) this server
-     * TODO: ExecutorService thread is still running, perhaps in the future stop that too.
+     * Register a loaded world
+     *
+     * @param world the world
      */
-    public void suspend() {
-        running.set(false);
+    public void registerLoadedWorld(GameWorld world) {
+        loadedWorlds.put(world.worldId(), new World(world.worldId(), this));
     }
 
     /**
-     * Resume this server
+     * Set the initial network state of the server
+     *
+     * @param state state
      */
-    public void resume() {
-        running.set(true);
+    public void setInitialNetworkState(NetworkState state, GameWorld loadedWorld) {
+        final World world = loadedWorlds.get(loadedWorld.worldId());
+
+        for (int i = 0; i < state.entities().length; i++) {
+            final NetworkEntityState es = state.entities()[i];
+            final ServerEntity entity = new ServerEntity(this);
+            entity.setName(es.name());
+            entity.setEntityId(es.entityId());
+            entity.setPosition(es.x(), es.y());
+            entity.setWorldIn(world);
+
+            world.spawnEntityInWorld(entity);
+        }
+
+        Crimson.log("Loaded a total of %d local entities", state.entities().length);
+    }
+
+    /**
+     * Add the local host player to this server
+     * Should only be invoked once.
+     *
+     * @param player player
+     */
+    public void setLocalHostPlayer(PlayerSP player) {
+        this.hostPlayer = player;
+    }
+
+    /**
+     * @return the host player
+     */
+    public PlayerSP hostPlayer() {
+        return hostPlayer;
+    }
+
+    /**
+     * @return world network handler
+     */
+    public WorldNetworkHandler handler() {
+        return handler;
     }
 
     /**
@@ -192,7 +224,7 @@ public final class CrimsonGameServer implements Disposable {
             long ticksToSkip = time >= 50 ? 50 : time;
 
             if (ticksToSkip > 1) {
-                Crimson.warning("WARNING: Running %d ms behind! Skipping %d ticks", worldTickTime, ticksToSkip);
+                Crimson.warning("Running %d ms behind! Skipping %d ticks", worldTickTime, ticksToSkip);
             }
 
             if (ticksToSkip != 0) {
@@ -203,10 +235,8 @@ public final class CrimsonGameServer implements Disposable {
                 worldTickTime = System.currentTimeMillis();
             }
 
-        } catch (Exception exception) {
-            Crimson.error("Exception caught during tick phase");
-            exception.printStackTrace();
-
+        } catch (Exception any) {
+            Crimson.exception("Exception caught during tick phase", any);
             running.compareAndSet(true, false);
         }
     }
@@ -226,7 +256,11 @@ public final class CrimsonGameServer implements Disposable {
      */
     private void tickAllWorlds() {
         final long now = System.currentTimeMillis();
-        worldManager.update();
+
+        for (World world : loadedWorlds.values()) {
+            world.tick();
+        }
+
         worldTickTime = System.currentTimeMillis() - now;
     }
 
@@ -250,17 +284,12 @@ public final class CrimsonGameServer implements Disposable {
         }
     }
 
-    public static CrimsonGameServer getServer() {
-        return instance;
-    }
-
     @Override
     public void dispose() {
         running.set(false);
         allPlayers.clear();
         connections.clear();
         tasks.clear();
-        worldManager.dispose();
         service.shutdown();
     }
 

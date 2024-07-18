@@ -13,12 +13,22 @@
     },
     "mira:dialog_stage_1": {
       "key": "mira:dialog_stage_1",
-      "content": "Don't know what that is, I suggest you just leave.",
+      "content": "Don't know what that is, honestly. Maybe buy something and I'll tell you more, would you like to see the selection?",
       "nextEntry": "mira:dialog_stage_2",
       "locked:": false,
-      "skippable": true,
+      "skippable": false,
       "task": "mira:remember_me",
-      "exit": true
+      "suggestions": {
+        "Yes": {
+          "tolerance": 0.4,
+          "nextEntry": "mira:dialog_stage_1_2"
+        },
+        "No": {
+          "tolerance": 0.45,
+          "nextEntry": "mira:dialog_stage_1_2",
+          "exit": true
+        }
+      }
     },
     "mira:dialog_stage_1_1": {
       "key": "mira:dialog_stage_1_1",

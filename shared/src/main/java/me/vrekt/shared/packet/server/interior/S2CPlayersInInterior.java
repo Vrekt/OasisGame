@@ -1,6 +1,5 @@
 package me.vrekt.shared.packet.server.interior;
 
-import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
@@ -62,8 +61,8 @@ public final class S2CPlayersInInterior extends GamePacket {
             for (S2CNetworkPlayer player : players) {
                 buffer.writeInt(player.entityId);
                 writeString(player.username);
-                buffer.writeFloat(player.position.x);
-                buffer.writeFloat(player.position.y);
+               // buffer.writeFloat(player.position.x);
+             //   buffer.writeFloat(player.position.y);
             }
         }
     }
@@ -78,7 +77,7 @@ public final class S2CPlayersInInterior extends GamePacket {
                 final String name = readString();
                 final float x = buffer.readFloat();
                 final float y = buffer.readFloat();
-                this.players[i] = new S2CNetworkPlayer(entityId, name, new Vector2(x, y));
+                //this.players[i] = new S2CNetworkPlayer(entityId, name, new Vector2(x, y));
             }
         }
     }

@@ -4,22 +4,25 @@ import me.vrekt.crimson.Crimson;
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.network.ServerPlayerConnection;
 import me.vrekt.crimson.game.world.interior.InteriorWorld;
-import me.vrekt.shared.packet.server.S2CPacketDisconnected;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 
 /**
  * Base implementation of a player entity within the server
  */
-public abstract class ServerPlayerEntity extends ServerEntity {
+public final class ServerEntityPlayer extends AbstractServerEntity {
 
-    protected ServerPlayerConnection connection;
-    protected boolean isLoaded;
+    private ServerPlayerConnection connection;
+    private boolean isLoaded, isLoading;
 
-    protected InteriorWorld interiorEntering;
+    private InteriorWorld interiorEntering;
 
-    public ServerPlayerEntity(CrimsonGameServer server, ServerPlayerConnection connection) {
+    public ServerEntityPlayer(CrimsonGameServer server, ServerPlayerConnection connection) {
         super(server);
         this.connection = connection;
+    }
+
+    public ServerEntityPlayer(CrimsonGameServer server) {
+        super(server);
     }
 
     public void prepareTransfer(InteriorWorld to) {
@@ -36,12 +39,36 @@ public abstract class ServerPlayerEntity extends ServerEntity {
         interiorEntering.spawnPlayerInWorld(this);
     }
 
+    /**
+     * @return {@code true} if this player is loaded
+     */
     public boolean loaded() {
         return isLoaded;
     }
 
+    /**
+     * @return {@code true} if this player is loading a world.
+     */
+    public boolean loading() {
+        return isLoading;
+    }
+
+    /**
+     * Set this player has loaded the world
+     *
+     * @param loaded loaded
+     */
     public void setLoaded(boolean loaded) {
         isLoaded = loaded;
+    }
+
+    /**
+     * Set this player is loading a world
+     *
+     * @param loading loading
+     */
+    public void setLoading(boolean loading) {
+        isLoading = loading;
     }
 
     /**
@@ -57,8 +84,7 @@ public abstract class ServerPlayerEntity extends ServerEntity {
      * @param reason the reason
      */
     public void kick(String reason) {
-        connection.sendImmediately(new S2CPacketDisconnected(reason));
-        connection.disconnect();
+        server.disconnectPlayer(this, reason);
     }
 
     @Override

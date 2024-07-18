@@ -114,4 +114,9 @@ public abstract class GamePacket {
         buffer.writeBytes(bytes);
     }
 
+    protected void writeVector2(float x, float y) {
+        buffer.writeFloat(x);
+        buffer.writeFloat(y);
+    }
+
 }

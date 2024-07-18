@@ -32,6 +32,7 @@ import me.vrekt.oasis.gui.guis.inventory.PlayerInventoryGui;
 import me.vrekt.oasis.gui.guis.lockpicking.LockpickingGui;
 import me.vrekt.oasis.gui.guis.map.WorldMapGui;
 import me.vrekt.oasis.gui.guis.other.MagicBookGui;
+import me.vrekt.oasis.gui.guis.other.ShopGui;
 import me.vrekt.oasis.gui.guis.quest.QuestCompletedGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
@@ -106,6 +107,7 @@ public final class GuiManager implements Disposable {
         guis.put(GuiType.LOCK_PICKING, lockPickingGui = new LockpickingGui(this));
         guis.put(GuiType.QUEST_COMPLETED, completedGui = new QuestCompletedGui(this));
         guis.put(GuiType.MAGIC_BOOK, bookGui = new MagicBookGui(this));
+        guis.put(GuiType.SHOP, new ShopGui(this));
 
         multiplexer.addProcessor(stage);
     }

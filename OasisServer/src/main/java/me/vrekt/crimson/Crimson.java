@@ -1,15 +1,9 @@
 package me.vrekt.crimson;
 
 import me.vrekt.crimson.game.CrimsonGameServer;
-import me.vrekt.crimson.game.world.WorldAdapter;
-import me.vrekt.crimson.game.world.interior.InteriorWorldAdapter;
 import me.vrekt.crimson.netty.NettyServer;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.shared.protocol.GameProtocol;
-import me.vrekt.shared.protocol.ProtocolDefaults;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Initializes the server
@@ -17,13 +11,14 @@ import java.time.format.DateTimeFormatter;
 public final class Crimson {
 
     public static String CRIMSON_VERSION = "2024-2";
-    private final GameProtocol protocol;
 
-    private final NettyServer server;
-    private final CrimsonGameServer gameServer;
+    public static final String TAG = "IntegratedServer";
+    private GameProtocol protocol;
+    private NettyServer server;
+    private CrimsonGameServer gameServer;
 
     Crimson(String[] arguments) {
-        log("Starting Crimson version: " + CRIMSON_VERSION);
+       /* log("Starting Crimson version: " + CRIMSON_VERSION);
 
         String ip = arguments[0];
         int port;
@@ -39,8 +34,6 @@ public final class Crimson {
             }
         }
 
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> e.printStackTrace());
-
         protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
         gameServer = new CrimsonGameServer(protocol);
 
@@ -48,30 +41,26 @@ public final class Crimson {
         server.bind();
 
         log("Netty server successfully started!");
-
-        gameServer.getWorldManager().addWorld("TutorialWorld", new WorldAdapter("TutorialWorld"));
-        gameServer.getWorldManager().addInteriorWorld(InteriorWorldType.WRYNN_HOUSE, new InteriorWorldAdapter());
         gameServer.start();
 
         final String localTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd-HHmm"));
-        log("Server started successfully at " + localTime + ", version: " + CRIMSON_VERSION);
-
-        // keep alive
-        // TODO: Fix this shit
-        while (true) {
-        }
+        log("Server started successfully at " + localTime + ", version: " + CRIMSON_VERSION);*/
     }
 
     public static void log(String information, Object... arguments) {
-        System.err.printf("INFO: " + (information) + "%n", arguments);
-    }
-
-    public static void error(String information, Object... arguments) {
-        System.err.printf("ERROR: " + (information) + "%n", arguments);
+        GameLogging.info(TAG, information, arguments);
     }
 
     public static void warning(String information, Object... arguments) {
-        System.err.printf("WARNING: " + (information) + "%n", arguments);
+        GameLogging.warn(TAG, information, arguments);
+    }
+
+    public static void error(String information, Object... arguments) {
+        GameLogging.error(TAG, information, arguments);
+    }
+
+    public static void exception(String information, Throwable ex, Object... arguments) {
+        GameLogging.exceptionThrown(TAG, information, ex, arguments);
     }
 
 }

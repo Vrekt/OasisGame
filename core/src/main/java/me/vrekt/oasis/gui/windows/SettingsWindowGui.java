@@ -1,6 +1,7 @@
 package me.vrekt.oasis.gui.windows;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.*;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
@@ -159,13 +161,22 @@ public final class SettingsWindowGui extends Gui {
                     return;
                 }
 
+                final VisDialog dialog = new VisDialog("Loading");
+                final VisTextButton ok = new VisTextButton("Ok", Styles.getImageTextButtonStyle());
+                ok.setDisabled(true);
+
+                dialog.text("Enabling multiplayer, please wait....", Styles.getMediumWhite());
+                dialog.button(ok);
+                dialog.key(Input.Keys.ENTER, true);
+                dialog.show(guiManager.getStage());
+
+                GameManager.executeOnMainThread(() -> {
+                    // blocks, afterwards enable buttons
+                    GameManager.game().startIntegratedServerBlocking();
+                    ok.setDisabled(false);
+                });
+
                 lastMultiplayerChecked = System.currentTimeMillis();
-                OasisGameSettings.ENABLE_MP_LAN = mpGame.isChecked();
-                if (mpGame.isChecked()) {
-                    guiManager.getGame().enableLocalMultiplayer();
-                } else {
-                    guiManager.getGame().disableLocalMultiplayer();
-                }
             }
         });
 

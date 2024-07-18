@@ -85,7 +85,11 @@ public final class WrynnEntity extends EntityInteractable {
         });
 
         createRectangleBody(worldIn.boxWorld(), new Vector2(0.55f, 0.88f));
+        if (!isNetworked) loadAi();
+    }
 
+    @Override
+    public void loadAi() {
         pathComponent = new EntityFollowPathGoal(this, worldIn.getPaths(), true);
         pathComponent.setMaxLinearSpeed(1.25f);
         pathComponent.setMaxLinearAcceleration(1.25f);
@@ -151,7 +155,15 @@ public final class WrynnEntity extends EntityInteractable {
             return;
         }
 
-        updateAi(delta);
+        if (!isNetworked) updateAi(delta);
+        updateRotationTextureState();
+
+        if (dialogue != null) dialogue.update();
+    }
+
+    @Override
+    protected void updateAi(float delta) {
+        super.updateAi(delta);
 
         if (pathComponent.isWithinTarget(1.0f)) {
             setVelocity(0, 0, true);
@@ -162,9 +174,6 @@ public final class WrynnEntity extends EntityInteractable {
 
         // only update rotation if we are moving
         if (isMoving()) rotation = pathComponent.getFacingDirection();
-        updateRotationTextureState();
-
-        if (dialogue != null) dialogue.update();
     }
 
     @Override

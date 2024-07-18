@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240713-2050-6953";
+    public static final String GAME_VERSION = "20240718-0318-7250";
 
     private Asset asset;
 
@@ -156,7 +156,7 @@ public final class OasisGame extends Game {
         // start integrated server if this save has multiplayer enabled
         if (state.isMultiplayer()) {
             isLocalMultiplayer = true;
-            startIntegratedServer();
+            // TODO:    startIntegratedServer();
         }
 
         OasisGameSettings.loadSaveSettings(state.settings());
@@ -289,7 +289,19 @@ public final class OasisGame extends Game {
     /**
      * Start integrated server
      */
-    private void startIntegratedServer() {
+    public void startIntegratedServerBlocking() {
+        if (server != null && server.started()) return;
+
+        networkHandler = new WorldNetworkHandler(this);
+        // TODO: attach
+
+        protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
+        server = new IntegratedServer(this, protocol, player);
+        server.start();
+
+        // TODO: Client server?
+
+        isLocalMultiplayer = true;
        /* if (server != null && server.isStarted()) return;
 
         this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
@@ -314,6 +326,10 @@ public final class OasisGame extends Game {
         player.connection(handler);
 
         isLocalMultiplayer = true;*/
+    }
+
+    public void tickLocalMultiplayer() {
+        server.update();
     }
 
     private void resumeIntegratedServer() {
@@ -375,6 +391,10 @@ public final class OasisGame extends Game {
         handler.joinWorld("TutorialWorld", player.name());
     }
 
+    public WorldNetworkHandler networkHandler() {
+        return networkHandler;
+    }
+
     public boolean isGameReady() {
         return isGameReady;
     }
@@ -384,28 +404,31 @@ public final class OasisGame extends Game {
     }
 
     /**
-     * Load into a local world
+     * Load into a network world
      *
      * @param world the world
      */
-    public void loadIntoWorldLocal(GameWorld world) {
-        world.loadWorld(false);
+    public void loadIntoWorldNetwork(GameWorld world) {
+        world.loadNetworkWorld();
         world.enter();
     }
 
-    /**
-     * Load into a remote network world
-     *
-     * @param worldName the world
-     */
-    public void loadIntoNetworkWorld(String worldName) {
-        if (!worldManager.doesWorldExist(worldName)) {
-            GameLogging.info(this, "Bad information from the server! World %s does not exist!", worldName);
-            return;
-        }
 
-        Gdx.app.postRunnable(() -> {
-            loadIntoWorldLocal(worldManager.getWorld(worldName));
+    /**
+     * Load into a server world.
+     *
+     * @param worldId the ID
+     */
+    public void loadIntoNetworkWorld(int worldId) {
+        // TODO  if (!worldManager.doesWorldExist(worldName)) {
+        // GameLogging.info(this, "Bad information from the server! World %s does not exist!", worldName);
+        // return;
+        //  }
+
+        Gdx.app.postRunnable(() ->
+        {
+            // TODO
+            loadIntoWorldNetwork(worldManager.getWorld("TutorialWorld"));
             player.getConnection().updateWorldHasLoaded();
         });
     }
@@ -477,7 +500,7 @@ public final class OasisGame extends Game {
      * @return if this game is multiplayer regardless of local or remote
      */
     public boolean isAnyMultiplayer() {
-        return isMultiplayer;
+        return isLocalMultiplayer || isMultiplayer;
     }
 
     public Texture getLogoTexture() {
@@ -543,6 +566,9 @@ public final class OasisGame extends Game {
     @Override
     public void dispose() {
         try {
+            if (isLocalMultiplayer) {
+                server.dispose();
+            }
             if (screen != null) screen.hide();
             logoTexture.dispose();
             player.getConnection().dispose();

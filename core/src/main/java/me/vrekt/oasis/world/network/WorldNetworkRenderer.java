@@ -17,8 +17,6 @@ public final class WorldNetworkRenderer {
     public void update(GameWorld world, float delta) {
         for (NetworkPlayer player : world.players().values()) {
             player.setPreviousPosition(player.getPosition());
-
-            player.interpolatePosition();
             player.update(delta);
         }
     }

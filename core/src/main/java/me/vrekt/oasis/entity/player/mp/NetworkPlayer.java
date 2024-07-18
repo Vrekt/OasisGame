@@ -143,7 +143,8 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
 
     @Override
     public void render(SpriteBatch batch, float delta) {
-        if (!getVelocity().isZero()) {
+
+        if (!body.getLinearVelocity().isZero()) {
             draw(batch, animationComponent.animateMoving(rotation, delta), getScaledWidth(), getScaledHeight());
         } else {
             if (activeTexture != null) {
@@ -153,6 +154,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     }
 
     private void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
+
         if (enteringInterior) {
             batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
             fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
@@ -162,7 +164,7 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         }
 
         if (body != null) {
-            batch.draw(region, getInterpolatedPosition().x, getInterpolatedPosition().y, width, height);
+            batch.draw(region, body.getPosition().x, body.getPosition().y, width, height);
         }
 
         if (enteringInterior) {

@@ -123,10 +123,10 @@ public class PlayerConnection extends AbstractConnection {
      * @param packet packet
      */
     private void handleJoinWorld(S2CPacketJoinWorld packet) {
-        GameLogging.info(this, "Loading into network world %s with ID %d", packet.getWorldName(), packet.getEntityId());
+        GameLogging.info(this, "Loading into network world %s with ID %d", packet.worldId(), packet.getEntityId());
 
         player.setEntityId(packet.getEntityId());
-        game.loadIntoNetworkWorld(packet.getWorldName());
+        game.loadIntoNetworkWorld(packet.worldId());
     }
 
     /**
@@ -166,7 +166,7 @@ public class PlayerConnection extends AbstractConnection {
      * @param username the username of this player
      */
     public void joinWorld(String world, String username) {
-        final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(world, username, 0L);
+        final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(0, username, 0L);
         sendImmediatelyWithCallback(packet, 5000, true, this::joinWorldTimedOut, callback -> {
             handleJoinWorld((S2CPacketJoinWorld) callback);
         });

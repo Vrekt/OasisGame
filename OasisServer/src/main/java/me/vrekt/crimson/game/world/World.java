@@ -1,49 +1,52 @@
 package me.vrekt.crimson.game.world;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Collections;
 import com.badlogic.gdx.utils.Disposable;
-import me.vrekt.crimson.game.entity.ServerEntity;
-import me.vrekt.crimson.game.entity.ServerPlayerEntity;
+import com.badlogic.gdx.utils.IntMap;
+import me.vrekt.crimson.Crimson;
+import me.vrekt.crimson.game.CrimsonGameServer;
+import me.vrekt.crimson.game.entity.AbstractServerEntity;
+import me.vrekt.crimson.game.entity.ServerEntityPlayer;
+import me.vrekt.crimson.game.entity.adapter.ServerEntity;
+import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.packet.server.S2CNetworkFrame;
+import me.vrekt.shared.packet.server.S2CStartGame;
 import me.vrekt.shared.packet.server.player.*;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A world.
  */
-public abstract class World implements Disposable {
+public class World implements Disposable {
+    protected final CrimsonGameServer gameServer;
 
-    private static final int MAX_CAPACITY = 10;
+    protected IntMap<ServerEntityPlayer> players = new IntMap<>();
+    protected IntMap<ServerEntity> entities = new IntMap<>();
 
-    // network players and entities
-    protected Map<Integer, ServerPlayerEntity> players = new ConcurrentHashMap<>();
-    protected Map<Integer, ServerEntity> entities = new ConcurrentHashMap<>();
+    protected final int worldId;
 
-    // starting/spawn point of this world.
+    // where new players will spawn
     protected final Vector2 worldOrigin = new Vector2();
-    protected final String worldName;
 
     protected long currentTime;
     protected float currentTick;
 
-    protected long lastKeepAlive;
+    public World(int worldId, CrimsonGameServer gameServer) {
+        this.worldId = worldId;
+        this.gameServer = gameServer;
 
-    public World(String worldName) {
-        this.worldName = worldName;
-    }
-
-    public String getName() {
-        return worldName;
+        Collections.allocateIterators = true;
     }
 
     /**
-     * @return {@code true} if this world is full.
+     * @return the ID of this world
      */
-    public boolean isFull() {
-        return players.size() >= MAX_CAPACITY;
+    public int worldId() {
+        return worldId;
     }
 
     /**
@@ -52,8 +55,8 @@ public abstract class World implements Disposable {
      * @param player the player
      * @return {@code true} if the player is timed out
      */
-    public boolean isTimedOut(ServerPlayerEntity player) {
-        return !player.getConnection().isAlive();
+    public boolean isTimedOut(ServerEntityPlayer player) {
+        return false;
     }
 
     /**
@@ -61,11 +64,8 @@ public abstract class World implements Disposable {
      *
      * @param player the player
      */
-    public void timeoutPlayer(ServerPlayerEntity player) {
+    public void timeoutPlayer(ServerEntityPlayer player) {
         player.kick("Timed out.");
-
-        removePlayerInWorld(player);
-        player.server().removeGlobalPlayer(player);
     }
 
     /**
@@ -85,14 +85,9 @@ public abstract class World implements Disposable {
     }
 
     /**
-     * Assign an entity ID
-     *
-     * @return the new entity ID
+     * @param entityId player ID
+     * @return {@code true} if this world has the player
      */
-    public int assignId() {
-        return players.size() + 1 + entities.size() + 1 + ThreadLocalRandom.current().nextInt(1, 99);
-    }
-
     public boolean hasPlayer(int entityId) {
         return players.containsKey(entityId);
     }
@@ -109,7 +104,7 @@ public abstract class World implements Disposable {
      * @param y        their Y
      * @param rotation their rotation
      */
-    public void handlePlayerPosition(ServerPlayerEntity player, float x, float y, float rotation) {
+    public void handlePlayerPosition(ServerEntityPlayer player, float x, float y, float rotation) {
         player.setPosition(x, y);
         player.setRotation(rotation);
     }
@@ -122,7 +117,7 @@ public abstract class World implements Disposable {
      * @param y        their vel Y
      * @param rotation their rotation
      */
-    public void handlePlayerVelocity(ServerPlayerEntity player, float x, float y, float rotation) {
+    public void handlePlayerVelocity(ServerEntityPlayer player, float x, float y, float rotation) {
         player.setVelocity(x, y);
         player.setRotation(rotation);
     }
@@ -132,36 +127,53 @@ public abstract class World implements Disposable {
      *
      * @param player the player
      */
-    public void spawnPlayerInWorld(ServerPlayerEntity player) {
+    public void spawnPlayerInWorld(ServerEntityPlayer player) {
         player.setWorldIn(this);
-        if (players.isEmpty()) {
-            // no players, send empty start game
-            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName));
-        } else {
-            final S2CNetworkPlayer[] serverPlayers = new S2CNetworkPlayer[players.size()];
-            // first, notify other players a new player as joined
-            broadcastNowWithExclusion(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), 0.0f, 0.0f));
 
-            // next, construct start game packet
-            int index = 0;
-            for (ServerPlayerEntity other : players.values()) {
-                serverPlayers[index] = new S2CNetworkPlayer(other.entityId(), other.name(), other.getPosition());
+        Crimson.log("Spawning a new player %s", player.name());
+
+        final S2CNetworkPlayer hostPlayer = new S2CNetworkPlayer(
+                gameServer.hostPlayer().entityId(),
+                gameServer.hostPlayer().name(),
+                gameServer.hostPlayer().getX(),
+                gameServer.hostPlayer().getY());
+
+        if (players.isEmpty()) {
+            // no players besides the host.
+            gameServer.handler().handlePlayerJoined(player);
+            player.getConnection().sendImmediately(new S2CStartGame(worldId, hostPlayer));
+        } else {
+            final S2CNetworkPlayer[] networkPlayers = new S2CNetworkPlayer[players.size + 1];
+            // tell host we have a player
+            gameServer.handler().handlePlayerJoined(player);
+            // notify other players that a new player has joined
+            broadcastNowWithExclusion(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), worldOrigin.x, worldOrigin.y));
+            // now we can send the player that joined all other players
+            // add the host to this list
+            networkPlayers[0] = hostPlayer;
+
+            int index = 1;
+            for (ServerEntityPlayer other : players.values()) {
+                networkPlayers[index] = new S2CNetworkPlayer(other.entityId(), other.name(), other.getPosition().x, other.getPosition().y);
                 index++;
             }
-
-            // send!
-            player.getConnection().sendImmediately(new S2CPacketPlayers(worldName, serverPlayers));
+            player.getConnection().sendImmediately(new S2CStartGame(worldId, networkPlayers));
         }
 
         // add this new player to the list
         players.put(player.entityId(), player);
     }
 
+    /**
+     * Spawn an entity in this world
+     *
+     * @param entity entity
+     */
     public void spawnEntityInWorld(ServerEntity entity) {
         this.entities.put(entity.entityId(), entity);
     }
 
-    public void removePlayerTemporarily(ServerPlayerEntity player) {
+    public void removePlayerTemporarily(ServerEntityPlayer player) {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
     }
@@ -171,10 +183,11 @@ public abstract class World implements Disposable {
      *
      * @param player the player
      */
-    public void removePlayerInWorld(ServerPlayerEntity player) {
+    public void removePlayerInWorld(ServerEntityPlayer player) {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
 
+        gameServer.handler().handlePlayerDisconnected(player);
         broadcastNowWithExclusion(player.entityId(), new S2CPacketRemovePlayer(player.entityId(), player.name()));
     }
 
@@ -184,8 +197,51 @@ public abstract class World implements Disposable {
      * @param entityId the entity ID
      * @return the player or {@code  null} if none exists
      */
-    public ServerPlayerEntity getPlayer(int entityId) {
+    public ServerEntityPlayer getPlayer(int entityId) {
         return players.get(entityId);
+    }
+
+    /**
+     * Update this world from local game world state
+     * For now only entity data is updated, players handle themselves.
+     *
+     * @param world the world
+     */
+    public void localUpdate(GameWorld world, PlayerSP hostPlayer) {
+        for (GameEntity entity : world.entities().values()) {
+            final AbstractServerEntity local = this.entities.get(entity.entityId());
+            local.updateLocal(entity);
+        }
+
+        // notify other players of the host position
+        broadcast(new S2CPacketPlayerPosition(hostPlayer.entityId(), 1, hostPlayer.getX(), hostPlayer.getY()));
+        broadcast(new S2CPacketPlayerVelocity(hostPlayer.entityId(), 1, hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));
+    }
+
+    /**
+     * Set world origin
+     *
+     * @param origin origin
+     */
+    public void setWorldOrigin(Vector2 origin) {
+        worldOrigin.set(origin);
+    }
+
+    /**
+     * @return origin
+     */
+    public Vector2 worldOrigin() {
+        return worldOrigin;
+    }
+
+    /**
+     * Broadcast the active state
+     *
+     * @param state the state
+     */
+    public void broadcastState(NetworkState state) {
+        final S2CNetworkFrame frame = new S2CNetworkFrame(state);
+        broadcast(frame);
     }
 
     /**
@@ -195,7 +251,11 @@ public abstract class World implements Disposable {
      * @param packet the packet
      */
     public void broadcast(GamePacket packet) {
-        for (ServerPlayerEntity player : players.values()) player.getConnection().queue(packet);
+        gameServer.handler().handleRelevantPacket(packet);
+
+        for (ServerEntityPlayer player : players.values()) {
+            player.getConnection().sendImmediately(packet);
+        }
     }
 
     /**
@@ -205,8 +265,11 @@ public abstract class World implements Disposable {
      * @param packet    the packet
      */
     public void broadcastNowWithExclusion(int exclusion, GamePacket packet) {
-        for (ServerPlayerEntity player : players.values())
-            if (player.entityId() != exclusion) player.getConnection().sendImmediately(packet);
+        gameServer.handler().handleRelevantPacket(packet);
+
+        for (ServerEntityPlayer player : players.values())
+            if (player.entityId() != exclusion)
+                player.getConnection().sendImmediately(packet);
     }
 
     /**
@@ -216,7 +279,9 @@ public abstract class World implements Disposable {
      * @param packet    the packet
      */
     public void broadcastWithExclusion(int exclusion, GamePacket packet) {
-        for (ServerPlayerEntity value : players.values()) {
+        gameServer.handler().handleRelevantPacket(packet);
+
+        for (ServerEntityPlayer value : players.values()) {
             if (value.entityId() != exclusion) {
                 value.getConnection().queue(packet);
             }
@@ -227,11 +292,11 @@ public abstract class World implements Disposable {
      * Tick this world
      */
     public void tick() {
-        for (ServerPlayerEntity player : players.values()) {
-
+        for (ServerEntityPlayer player : players.values()) {
             player.getConnection().flush();
             currentTime = System.currentTimeMillis();
 
+            // notify everybody of their position.
             if (!isTimedOut(player)) {
                 queuePlayerPosition(player);
                 queuePlayerVelocity(player);
@@ -249,7 +314,8 @@ public abstract class World implements Disposable {
      *
      * @param player the player
      */
-    protected void queuePlayerPosition(ServerPlayerEntity player) {
+    protected void queuePlayerPosition(ServerEntityPlayer player) {
+        gameServer.handler().handlePlayerPosition(player);
         broadcastWithExclusion(player.entityId(), new S2CPacketPlayerPosition(player.entityId(), player.getRotation(), player.getPosition()));
     }
 
@@ -258,7 +324,8 @@ public abstract class World implements Disposable {
      *
      * @param player the player
      */
-    private void queuePlayerVelocity(ServerPlayerEntity player) {
+    private void queuePlayerVelocity(ServerEntityPlayer player) {
+        gameServer.handler().handlePlayerVelocity(player);
         broadcastWithExclusion(player.entityId(), new S2CPacketPlayerVelocity(player.entityId(), player.getRotation(), player.getVelocity()));
     }
 
@@ -272,9 +339,9 @@ public abstract class World implements Disposable {
 
     @Override
     public void dispose() {
-        players.values().forEach(ServerPlayerEntity::dispose);
+        players.values().forEach(ServerEntityPlayer::dispose);
         players.clear();
-        entities.values().forEach(ServerEntity::dispose);
+        entities.values().forEach(AbstractServerEntity::dispose);
         entities.clear();
     }
 

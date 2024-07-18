@@ -59,7 +59,11 @@ public final class BasicFishEntity extends GameEntity {
 
         createBB(16, 16);
         createRectangleBody(worldIn.boxWorld(), new Vector2(0.5f, 0.5f));
+        if (!isNetworked) loadAi();
+    }
 
+    @Override
+    public void loadAi() {
         wanderComponent = new AiWanderComponent(this, WANDERING_MIN_Y, WANDERING_MAX_Y);
         wanderComponent.setMaxLinearSpeed(1f);
         wanderComponent.setMaxLinearAcceleration(1f);
@@ -68,7 +72,7 @@ public final class BasicFishEntity extends GameEntity {
 
     @Override
     public void update(float delta) {
-        wanderComponent.update(delta);
+        if (!isNetworked) wanderComponent.update(delta);
 
         // play a splashing noise if the player is nearby
         if (!playingSplashing

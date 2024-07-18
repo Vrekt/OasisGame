@@ -1,7 +1,7 @@
 {
   "name": "AutoSave",
   "progress": 0.0,
-  "date": "12-07-24 00:18 AM",
+  "date": "13-07-24 22:10 PM",
   "multiplayer": false,
   "slot": 0,
   "settings": {
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player16",
+    "name": "Player73",
     "position": {
-      "x": 35.260437,
-      "y": 12.916626
+      "x": 23.885437,
+      "y": 36.510376
     },
     "inventory": {
       "type": "PLAYER",
@@ -88,7 +88,7 @@
       "world_in_name": "TutorialWorld",
       "is_in_interior": false,
       "current_world_in": {
-        "map": "world/worlds/TutorialWorld.tmx",
+        "map": "world/worlds/TutorialWorld - Copy.tmx",
         "name": "TutorialWorld",
         "interior": false,
         "entities": [
@@ -103,8 +103,8 @@
               "y": 54.625
             },
             "size": {
-              "x": 24.0,
-              "y": 24.0,
+              "x": 48.0,
+              "y": 48.0,
               "z": 0.0625
             },
             "health": 100.0,
@@ -116,8 +116,8 @@
             "name": "Chick",
             "entityId": 4,
             "position": {
-              "x": 25.0,
-              "y": 31.0
+              "x": 20.53104,
+              "y": 27.089563
             },
             "size": {
               "x": 16.0,
@@ -210,6 +210,24 @@
             "destroyed": false
           },
           {
+            "container_inventory": {
+              "type": "CONTAINER",
+              "size": 16,
+              "contents": [
+                {
+                  "slot": 0,
+                  "name": "Pigs Heart",
+                  "type": "PIG_HEART",
+                  "amount": 1
+                }
+              ]
+            },
+            "enabled": true,
+            "type": "CONTAINER",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
             "dropped_item": {
               "slot": 0,
               "name": "Lockpick",
@@ -218,7 +236,7 @@
             },
             "position": {
               "x": 53.5,
-              "y": 49.0
+              "y": 47.0
             },
             "enabled": true,
             "type": "MAP_ITEM",

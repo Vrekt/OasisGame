@@ -3,7 +3,6 @@ package me.vrekt.oasis.world.network;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.server.player.S2CPacketPlayers;
 
 /**
  * Handles validation of packets
@@ -27,24 +26,16 @@ public final class NetworkValidation {
     }
 
     /**
-     * Ensure the player is in the correct world for the packet
+     * Ensure the player is in the world
      *
-     * @param playerSP player
-     * @param packet   packet
+     * @param player player
      * @return {@code true} if so
      */
-    public static boolean ensureWorldContext(PlayerSP playerSP, S2CPacketPlayers packet) {
-        final boolean world = playerSP.isInWorld();
-        final boolean interior = playerSP.isInInteriorWorld();
-
-        final boolean result = world && (interior
-                ? playerSP.getInteriorWorldIn().type().name().equals(packet.worldKey())
-                : playerSP.getWorldState().getWorldName().equals(packet.worldKey()));
-
+    public static boolean ensureInWorld(PlayerSP player) {
+        final boolean result = player.isInWorld() && player.getWorldState() != null;
         if (!result) {
-            GameLogging.warn(TAG, "Invalid world context for create players packet! key=%s, interior=%b", packet.worldKey(), packet.interior());
+            GameLogging.warn(TAG, "Unexpected packet when the player was not in a world!");
         }
-
         return result;
     }
 

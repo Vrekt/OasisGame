@@ -1,8 +1,9 @@
 package me.vrekt.shared.packet.server;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.S2CPacketHandler;
+import me.vrekt.shared.packet.GamePacket;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A request to join a world yielded a world that was not found, or invalid.
@@ -11,14 +12,15 @@ public final class S2CPacketWorldInvalid extends GamePacket {
 
     public static final int PACKET_ID = 1115;
 
-    private String worldName, reason;
+    private int worldId;
+    private String reason;
 
     public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
         handler.handle(new S2CPacketWorldInvalid(buffer));
     }
 
-    public S2CPacketWorldInvalid(String worldName, String reason) {
-        this.worldName = worldName;
+    public S2CPacketWorldInvalid(int worldId, String reason) {
+        this.worldId = worldId;
         this.reason = reason;
     }
 
@@ -27,10 +29,10 @@ public final class S2CPacketWorldInvalid extends GamePacket {
     }
 
     /**
-     * @return the name of the world that was requested to join
+     * @return the world ID the player requested to join.
      */
-    public String getWorldName() {
-        return worldName;
+    public int worldId() {
+        return worldId;
     }
 
     /**
@@ -48,13 +50,13 @@ public final class S2CPacketWorldInvalid extends GamePacket {
     @Override
     public void encode() {
         writeId();
-        writeString(worldName == null ? "" : worldName);
-        writeString(reason == null ? "" : reason);
+        buffer.writeInt(worldId);
+        writeString(reason == null ? StringUtils.EMPTY : reason);
     }
 
     @Override
     public void decode() {
-        worldName = readString();
+        worldId = buffer.readInt();
         reason = readString();
     }
 

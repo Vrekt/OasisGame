@@ -45,7 +45,7 @@ public final class MiraObjectiveStatus extends EntityStatus {
         final float oldAlpha = oldColor.a;
 
         batch.setColor(1, 1, 1, alpha);
-        batch.draw(region, entity.getX() + 0.15f, entity.getY() + entity.getScaledHeight() + 0.1f, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
+        batch.draw(region, entity.getX() + 0.25f, entity.getY() + entity.getScaledHeight() + 0.1f, region.getRegionWidth() * OasisGameSettings.SCALE, region.getRegionHeight() * OasisGameSettings.SCALE);
 
         oldColor.a = oldAlpha;
         batch.setColor(oldColor);

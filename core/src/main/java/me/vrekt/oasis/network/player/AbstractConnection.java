@@ -38,7 +38,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
     protected boolean isConnected;
 
     // 50 ms hopefully
-    protected float updateInterval = 0.1f;
+    protected float updateInterval = 0.0f;
     protected float lastUpdate;
     protected float lastPacketReceived;
 
@@ -249,7 +249,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
     /**
      * Notify the server this clients world has loaded
      */
-    public void updateWorldHasLoaded() {
+    public void  updateWorldHasLoaded() {
         this.sendImmediately(new C2SPacketClientLoaded(C2SPacketClientLoaded.ClientLoadedType.WORLD));
     }
 
@@ -301,7 +301,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      * Update this sync.
      */
     public void updateSync() {
-        if (GameManager.hasTimeElapsed(lastUpdate, updateInterval)) {
+        if (GameManager.hasTimeElapsed(lastUpdate, 0.0f)) {
             virtual.execute(this::flush);
 
             if (!handlingQueue.isEmpty()) {

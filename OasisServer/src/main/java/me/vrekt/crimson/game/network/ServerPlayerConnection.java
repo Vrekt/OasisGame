@@ -3,9 +3,8 @@ package me.vrekt.crimson.game.network;
 import com.badlogic.gdx.Gdx;
 import me.vrekt.crimson.Crimson;
 import me.vrekt.crimson.game.CrimsonGameServer;
-import me.vrekt.crimson.game.entity.ServerPlayerEntity;
+import me.vrekt.crimson.game.entity.ServerEntityPlayer;
 import io.netty.channel.Channel;
-import me.vrekt.crimson.game.entity.adapter.ServerPlayerEntityAdapter;
 import me.vrekt.crimson.game.world.World;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.*;
@@ -25,7 +24,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
     // timed out after 5 seconds
     private static final float TIMEOUT_SECONDS = 5.0f;
 
-    private ServerPlayerEntity player;
+    private ServerEntityPlayer player;
     private boolean disconnected, hasJoined;
 
     public ServerPlayerConnection(Channel channel, CrimsonGameServer server) {
@@ -55,7 +54,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             case C2SPacketAuthenticate.PACKET_ID -> handleAuthentication((C2SPacketAuthenticate) packet);
             case C2SPacketPing.PACKET_ID -> handlePing((C2SPacketPing) packet);
             case C2SPacketJoinWorld.PACKET_ID -> handleJoinWorld((C2SPacketJoinWorld) packet);
-            case C2SPacketClientLoaded.PACKET_ID -> handleClientLoaded((C2SPacketClientLoaded) packet);
+            case C2SPacketClientLoaded.PACKET_ID -> handlePlayerClientLoaded((C2SPacketClientLoaded) packet);
             case C2SPacketDisconnected.PACKET_ID -> handleDisconnected((C2SPacketDisconnected) packet);
             case C2SPacketPlayerPosition.PACKET_ID -> handlePlayerPosition((C2SPacketPlayerPosition) packet);
             case C2SPacketPlayerVelocity.PACKET_ID -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet);
@@ -71,7 +70,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      *
      * @param packet the packet
      */
-    public void handleAuthentication(C2SPacketAuthenticate packet) {
+    private void handleAuthentication(C2SPacketAuthenticate packet) {
         if (server.authenticatePlayer(packet.getGameVersion(), packet.getProtocolVersion())) {
             sendImmediately(new S2CPacketAuthenticate(true, ProtocolDefaults.PROTOCOL_NAME, ProtocolDefaults.PROTOCOL_VERSION));
         } else {
@@ -85,9 +84,8 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      *
      * @param packet the packet
      */
-    public void handleDisconnected(C2SPacketDisconnected packet) {
-        Crimson.log("Player %d disconnected because %s", player.entityId(), packet.reason());
-        disconnect();
+    private void handleDisconnected(C2SPacketDisconnected packet) {
+        server.playerDisconnected(player, packet.reason());
     }
 
     /**
@@ -95,7 +93,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      *
      * @param packet packet
      */
-    public void handlePing(C2SPacketPing packet) {
+    private void handlePing(C2SPacketPing packet) {
         sendImmediately(new S2CPacketPing(packet.tick()));
     }
 
@@ -104,48 +102,47 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      *
      * @param packet packet
      */
-    public void handleKeepAlive(C2SKeepAlive packet) {
+    private void handleKeepAlive(C2SKeepAlive packet) {
         lastKeepAlive = player.world().getTick();
     }
 
     /**
-     * Handle a join world request
+     * Handling joining a world.
      *
      * @param packet the packet
      */
-    public void handleJoinWorld(C2SPacketJoinWorld packet) {
-        if (!server.isUsernameValidInWorld(packet.worldName(), packet.username())) {
-            sendImmediately(new S2CPacketWorldInvalid(packet.worldName(), "Invalid username or world."));
+    private void handleJoinWorld(C2SPacketJoinWorld packet) {
+        // prevent loaded worlds from being joined or if the player is already joining one.
+        if (!server.isWorldLoaded(packet.worldId()) || (player != null && player.loading())) {
+            sendImmediately(new S2CPacketWorldInvalid(packet.worldId(), "World not found."));
             return;
         }
 
-        final World world = server.getWorldManager().getWorld(packet.worldName());
-        if (world.isFull()) {
-            sendImmediately(new S2CPacketWorldInvalid(packet.worldName(), "World is full."));
-            return;
-        }
-
-        player = new ServerPlayerEntityAdapter(server, this);
+        final int worldId = packet.worldId();
+        final World world = server.getWorld(worldId);
+        player = new ServerEntityPlayer(server, this);
         player.setName(packet.username());
         player.setWorldIn(world);
-        player.setEntityId(world.assignId());
-        sendImmediately(new S2CPacketJoinWorld(world.getName(), player.entityId(), world.getTime()));
+        player.setEntityId(server.acquireEntityId());
+        player.setLoading(true);
+        player.setPosition(world.worldOrigin());
+        sendImmediately(new S2CPacketJoinWorld(worldId, player.entityId(), world.getTime()));
 
-        server.registerGlobalPlayer(player);
-        server.handleGlobalConnection(this);
-
+        server.handlePlayerJoinServer(player);
         hasJoined = true;
     }
 
     /**
      * Handle when the player has loaded their world
+     * TODO: Ensure correct world ID.
      *
      * @param packet packet
      */
-    public void handleClientLoaded(C2SPacketClientLoaded packet) {
+    private void handlePlayerClientLoaded(C2SPacketClientLoaded packet) {
         if (hasJoined) {
-            if(packet.loadedType() == C2SPacketClientLoaded.ClientLoadedType.WORLD) {
+            if (packet.loadedType() == C2SPacketClientLoaded.ClientLoadedType.WORLD) {
                 player.setLoaded(true);
+                player.setLoading(false);
                 player.world().spawnPlayerInWorld(player);
             } else {
                 player.finalizeTransfer();
@@ -180,7 +177,7 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
 
         // TODO: WRONG ENTITY ID FIX
         if (hasJoined && player.isInWorld()) {
-            player.prepareTransfer(server.getWorldManager().getInteriorWorld(packet.type()));
+            // player.prepareTransfer(server.getWorldManager().getInteriorWorld(packet.type()));
         }
     }
 
@@ -209,12 +206,6 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
     public void disconnect() {
         if (disconnected) return;
         this.disconnected = true;
-
-        if (server != null) server.removeGlobalConnection(this);
-        if (player != null) {
-            if (player.isInWorld()) player.world().removePlayerInWorld(player);
-            player.dispose();
-        }
 
         channel.pipeline().remove(this);
         if (channel.isOpen()) channel.close();

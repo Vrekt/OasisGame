@@ -13,12 +13,15 @@ import me.vrekt.oasis.world.GameWorld;
  */
 public final class MyceliaWorld extends GameWorld {
 
+    public static final int WORLD_ID = 1;
+
     public MyceliaWorld(OasisGame game, PlayerSP player) {
         super(game, player, new World(Vector2.Zero, true));
 
         this.worldName = "Mycelia";
         this.worldMap = Asset.MYCELIA_WORLD;
         this.flipPlayerCollision = true;
+        this.worldId = WORLD_ID;
     }
 
     @Override
