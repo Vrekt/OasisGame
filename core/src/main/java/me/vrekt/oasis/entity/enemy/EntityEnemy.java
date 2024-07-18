@@ -117,7 +117,7 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
     }
 
     @Override
-    public void renderDamageAnimation(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
+    public void postRender(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
         animator.render(batch, this, rotation, getScreenPosition(worldCamera, guiCamera), getWidth());
     }
 

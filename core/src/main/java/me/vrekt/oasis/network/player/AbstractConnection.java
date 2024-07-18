@@ -197,33 +197,11 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
     /**
      * Update the server on this players' position
      *
-     * @param x        x position
-     * @param y        y position
-     * @param rotation rotation
-     */
-    public void updatePosition(float x, float y, float rotation) {
-        sendImmediately(new C2SPacketPlayerPosition(x, y, rotation));
-    }
-
-    /**
-     * Update the server on this players' position
-     *
      * @param position position
      * @param rotation rotation
      */
-    public void updatePosition(Vector2 position, float rotation) {
+    public void updatePosition(Vector2 position, int rotation) {
         sendImmediately(new C2SPacketPlayerPosition(position.x, position.y, rotation));
-    }
-
-    /**
-     * Update the server on this players' velocity.
-     *
-     * @param x        x velocity
-     * @param y        y velocity
-     * @param rotation rotation
-     */
-    public void updateVelocity(float x, float y, float rotation) {
-        sendImmediately(new C2SPacketPlayerVelocity(x, y, rotation));
     }
 
     /**
@@ -232,7 +210,7 @@ public abstract class AbstractConnection implements S2CPacketHandler, Disposable
      * @param velocity velocity
      * @param rotation rotation
      */
-    public void updateVelocity(Vector2 velocity, float rotation) {
+    public void updateVelocity(Vector2 velocity, int rotation) {
         sendImmediately(new C2SPacketPlayerVelocity(velocity.x, velocity.y, rotation));
     }
 

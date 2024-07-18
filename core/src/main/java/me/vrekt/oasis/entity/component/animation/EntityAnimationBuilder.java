@@ -124,15 +124,6 @@ public final class EntityAnimationBuilder implements Disposable {
         return this;
     }
 
-    /**
-     * Get the active building state
-     *
-     * @return the state
-     */
-    public EntityAnimation get() {
-        return animation;
-    }
-
     @Override
     public void dispose() {
         asset = null;

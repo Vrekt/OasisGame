@@ -15,16 +15,4 @@ public final class MaterialSounds {
         return sounds;
     }
 
-    /**
-     * Add a sound at an index
-     *
-     * @param sound sound
-     * @param index index
-     * @return this
-     */
-    MaterialSounds add(Sounds sound, int index) {
-        this.sounds[index] = sound;
-        return this;
-    }
-
 }

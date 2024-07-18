@@ -9,23 +9,12 @@ import me.vrekt.oasis.item.Items;
  */
 public abstract class ItemConsumable extends Item {
 
-    // if this item is allowed to be consumed, yet
-    protected boolean allowedToConsume = true;
-
     public ItemConsumable(Items itemType, String key, String name, String description) {
         super(itemType, key, name, description);
     }
 
     public void useItem(PlayerSP player) {
         this.consume(player);
-    }
-
-    public boolean isAllowedToConsume() {
-        return allowedToConsume;
-    }
-
-    public void setAllowedToConsume(boolean allowedToConsume) {
-        this.allowedToConsume = allowedToConsume;
     }
 
     /**

@@ -3,7 +3,6 @@ package me.vrekt.oasis.ai.goals;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.ai.components.AiFollowPathComponent;
-import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
@@ -28,15 +27,8 @@ public final class EntityWalkPathGoal extends AiFollowPathComponent {
     }
 
     @Override
-    public EntityRotation getFacingDirection() {
-        return !isFinished ? super.getFacingDirection() : finalRotation;
-    }
-
-    @Override
     public void applyResult(Vector2 linear) {
         super.applyResult(linear);
-
-        if (!isFinished) steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));
     }
 
     @Override

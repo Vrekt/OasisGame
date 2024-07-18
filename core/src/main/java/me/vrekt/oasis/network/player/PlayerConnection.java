@@ -161,11 +161,11 @@ public class PlayerConnection extends AbstractConnection {
      * Attempt to join a world.
      * unlike {@code joinWorld(world, username, time)} this method substitutes time for {@code System.currentTimeMillis}
      *
-     * @param world    the world
+     * @param worldId  world ID
      * @param username the username of this player
      */
-    public void joinWorld(String world, String username) {
-        final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(0, username, 0L);
+    public void joinWorld(int worldId, String username) {
+        final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(worldId, username, 0L);
         sendImmediatelyWithCallback(packet, 5000, true, this::joinWorldTimedOut, callback -> {
             handleJoinWorld((S2CPacketJoinWorld) callback);
         });

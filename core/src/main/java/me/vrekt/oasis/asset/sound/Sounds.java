@@ -1,7 +1,5 @@
 package me.vrekt.oasis.asset.sound;
 
-import me.vrekt.oasis.utility.logging.GameLogging;
-
 /**
  * All sounds
  */
@@ -64,15 +62,6 @@ public enum Sounds {
 
     public String resource() {
         return resource;
-    }
-
-    public static Sounds of(String resource) {
-        try {
-            return valueOf(resource.toUpperCase());
-        } catch (IllegalArgumentException exception) {
-            GameLogging.warn("Sounds", "Failed to find the tile sound for %s", resource);
-            return NONE;
-        }
     }
 
 }

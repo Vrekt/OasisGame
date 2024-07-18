@@ -8,13 +8,14 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
 
     public static final int PACKET_ID = 2227;
 
-    private float velocityX, velocityY, rotation;
+    private float velocityX, velocityY;
+    private int rotation;
 
     public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
         handler.handle(new C2SPacketPlayerVelocity(buffer));
     }
 
-    public C2SPacketPlayerVelocity(float velocityX, float velocityY, float rotation) {
+    public C2SPacketPlayerVelocity(float velocityX, float velocityY, int rotation) {
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.rotation = rotation;
@@ -41,7 +42,7 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
     /**
      * @return the rotation value
      */
-    public float rotation() {
+    public int rotation() {
         return rotation;
     }
 
@@ -55,13 +56,13 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
         writeId();
         buffer.writeFloat(velocityX);
         buffer.writeFloat(velocityY);
-        buffer.writeFloat(rotation);
+        buffer.writeInt(rotation);
     }
 
     @Override
     public void decode() {
         velocityX = buffer.readFloat();
         velocityY = buffer.readFloat();
-        rotation = buffer.readFloat();
+        rotation = buffer.readInt();
     }
 }

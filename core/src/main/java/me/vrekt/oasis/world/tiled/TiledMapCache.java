@@ -44,11 +44,4 @@ public final class TiledMapCache {
     public TileMaterialType get(StaticSoundMapTile tile) {
         return tile == null ? TileMaterialType.NONE : tile.material();
     }
-
-    /**
-     * @return all tiles
-     */
-    public StaticSoundMapTile[][] tiles() {
-        return tiles;
-    }
 }

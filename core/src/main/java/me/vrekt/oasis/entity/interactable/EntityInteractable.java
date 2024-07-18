@@ -20,10 +20,10 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
         super(player);
 
         setName(name);
-        setAngle(EntityRotation.DOWN.ordinal());
         getTransformComponent().position.set(position);
         setNearby(false);
 
+        this.rotation = EntityRotation.DOWN;
         this.worldIn = worldIn;
         this.game = game;
     }

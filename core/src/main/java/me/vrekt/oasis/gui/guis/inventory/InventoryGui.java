@@ -100,12 +100,11 @@ public abstract class InventoryGui extends Gui {
     /**
      * Create slot components for as many {@code slots}
      *
-     * @param manager      the manager
      * @param slot         the slot
      * @param hotbar       if this new slot is a hotbar
      * @param forContainer if this component is for a container
      */
-    protected InventoryUiComponent createSlotComponents(GuiManager manager, int slot, boolean hotbar, boolean forContainer) {
+    protected InventoryUiComponent createSlotComponents(int slot, boolean hotbar, boolean forContainer) {
         final VisImage background = new VisImage(Styles.slots().normal());
 
         final VisImage item = new VisImage();

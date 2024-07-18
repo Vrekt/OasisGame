@@ -72,27 +72,6 @@ public final class EntityDamageAnimator implements Disposable {
      * @param batch    batch
      * @param entity   entity
      * @param rotation rotation
-     * @param x        x
-     * @param y        y
-     * @param width    width
-     */
-    public void render(SpriteBatch batch, GameEntity entity, EntityRotation rotation, float x, float y, float width) {
-        if (!damageQueue.containsKey(entity.entityId())) return;
-
-        for (EntityDamage damage : damageQueue.get(entity.entityId())) {
-            damage.type.useWith(drawFont, damage.fade);
-            applyOffset(rotation, damage, x, y, width);
-
-            drawFont.draw(batch, StringUtils.EMPTY + damage.damage, this.position.x, this.position.y);
-        }
-    }
-
-    /**
-     * Render the damage queue
-     *
-     * @param batch    batch
-     * @param entity   entity
-     * @param rotation rotation
      * @param position position
      * @param width    width
      */

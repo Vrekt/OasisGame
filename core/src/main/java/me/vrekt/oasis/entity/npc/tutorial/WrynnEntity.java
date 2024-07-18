@@ -48,7 +48,6 @@ public final class WrynnEntity extends EntityInteractable {
         super.load(asset);
 
         this.parentWorld = ((GameWorldInterior) worldIn).getParentWorld();
-        this.isInParentWorld = true;
 
         addTexturePart("face", asset.get("wrynn_face"));
         addTexturePart(EntityRotation.UP, asset.get("wrynn_facing_up"), false);
@@ -106,9 +105,7 @@ public final class WrynnEntity extends EntityInteractable {
         dialogue.addEntryCondition("wrynn:dialog_stage_6", this::checkPlayerHasBook);
         // take the book
         dialogue.addTaskHandler("wrynn:take_item", () -> player.getInventory().removeFirst(Items.WRYNN_RECIPE_BOOK));
-        dialogue.addTaskHandler("wrynn:complete_quest", () -> {
-            this.completeQuest = true;
-        });
+        dialogue.addTaskHandler("wrynn:complete_quest", () -> this.completeQuest = true);
 
         dialogue.addTaskHandler("wrynn:unlock_container", () -> {
             worldIn.enableWorldInteraction(WorldInteractionType.CONTAINER, "wrynn:container");
@@ -173,13 +170,13 @@ public final class WrynnEntity extends EntityInteractable {
         }
 
         // only update rotation if we are moving
-        if (isMoving()) rotation = pathComponent.getFacingDirection();
+        if (isMoving()) rotation = rotationFromVelocity();
     }
 
     @Override
     public void speak(boolean speakingTo) {
         if (this.speakingTo && !speakingTo) {
-            // stopped talking, pause AI for awhile so they don't
+            // stopped talking, pause AI for a while so they don't
             // instantly walk away.
             pauseFor(4f);
         }

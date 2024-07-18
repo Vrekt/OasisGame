@@ -362,7 +362,6 @@ public final class EntityDialogGui extends Gui {
             return;
         }
 
-
         // may or may not need the second statement
         if (entity != null && entity.getEntry().suggestions()) {
             // if suggestions is already maxed, just return.

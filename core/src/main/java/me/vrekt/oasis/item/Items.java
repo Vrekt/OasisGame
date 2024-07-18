@@ -38,10 +38,6 @@ public enum Items {
         this.rarity = rarity;
     }
 
-    public String getKey() {
-        return key;
-    }
-
     public ItemRarity rarity() {
         return rarity;
     }

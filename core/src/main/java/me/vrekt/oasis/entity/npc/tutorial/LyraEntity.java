@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.components.AiHostilePursueComponent;
 import me.vrekt.oasis.ai.goals.EntityWalkPathGoal;
-import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
@@ -87,7 +86,7 @@ public final class LyraEntity extends EntityInteractable {
 
         createRectangleBody(worldIn.boxWorld(), new Vector2(0, 1));
         if (!isNetworked) loadAi();
-        this.speakingStatus = (EntitySpeakableStatus) status;
+        this.speakingStatus = getStatus(EntitySpeakableStatus.STATUS_ID);
     }
 
     @Override
@@ -120,7 +119,7 @@ public final class LyraEntity extends EntityInteractable {
         resetPathingPursuePlayer(interior);
         setRotation(EntityRotation.UP);
         // lyra is alerted because we are in her house
-        setStatus(new EntityAlertedStatus(this, game.getAsset()));
+        addStatus(new EntityAlertedStatus(this, game.getAsset()));
 
         activeEntry = dialogue.getEntry("lyra:dialog2_stage_1").getEntry();
         transferred = true;
@@ -158,12 +157,12 @@ public final class LyraEntity extends EntityInteractable {
      */
     private void resetState() {
         isFinished = true;
-        setStatus(speakingStatus);
+        addStatus(speakingStatus);
 
         aiComponents.clear();
         resetPathingWalkPath();
 
-        // give the player the spellbook
+        // give the player the spell book
         player.getInventory().add(Items.ARCANA_CODEX, 1);
 
     }
@@ -188,10 +187,7 @@ public final class LyraEntity extends EntityInteractable {
     public void update(float delta) {
         super.update(delta);
 
-        // TODO: inline get rotation method instead of AI component
-        if (isNetworked) {
-            rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
-        }
+        if (isMoving()) rotation = rotationFromVelocity();
 
         // check for end of dialog
         if (!isFinished && activeEntry.getKey().equalsIgnoreCase("lyra:dialog2_stage_9")) {
@@ -211,10 +207,8 @@ public final class LyraEntity extends EntityInteractable {
             }
         }
 
-
         if ((transferred || (pathComponent != null && !pathComponent.isFinished()))) {
             updateAi(delta);
-            rotation = pathComponent == null ? component.getFacingDirection() : pathComponent.getFacingDirection();
         }
 
         updateRotationTextureState();

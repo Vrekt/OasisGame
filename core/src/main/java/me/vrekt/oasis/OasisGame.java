@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240718-0436-7273";
+    public static final String GAME_VERSION = "20240718-0543-7288";
 
     private Asset asset;
 
@@ -364,7 +364,7 @@ public final class OasisGame extends Game {
         networkHandler.attach();
 
         GameLogging.info(this, "Connection successful, Attempting to join TutorialWorld");
-        handler.joinWorld("TutorialWorld", player.name());
+        handler.joinWorld(NewGameWorld.WORLD_ID, player.name());
     }
 
     public WorldNetworkHandler networkHandler() {

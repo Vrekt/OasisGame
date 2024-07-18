@@ -19,7 +19,7 @@ public abstract class AbstractServerEntity implements Disposable {
     protected String name;
 
     protected Vector2 position, velocity;
-    protected float rotation;
+    protected int rotation;
 
     public AbstractServerEntity(CrimsonGameServer server) {
         this.server = server;
@@ -149,14 +149,14 @@ public abstract class AbstractServerEntity implements Disposable {
      *
      * @param rotation rotation
      */
-    public void setRotation(float rotation) {
+    public void setRotation(int rotation) {
         this.rotation = rotation;
     }
 
     /**
      * @return the rotation of this entity
      */
-    public float getRotation() {
+    public int getRotation() {
         return rotation;
     }
 

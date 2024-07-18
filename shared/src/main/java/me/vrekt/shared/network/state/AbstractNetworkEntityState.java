@@ -1,6 +1,5 @@
 package me.vrekt.shared.network.state;
 
-import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.GameEntity;
 
 /**
@@ -26,15 +25,6 @@ public abstract class AbstractNetworkEntityState {
         this.y = y;
         this.vx = vx;
         this.vy = vy;
-    }
-
-    public AbstractNetworkEntityState(int entityId, String name, Vector2 position, Vector2 velocity) {
-        this.entityId = entityId;
-        this.name = name;
-        this.x = position.x;
-        this.y = position.y;
-        this.vx = velocity.x;
-        this.vy = velocity.y;
     }
 
     public AbstractNetworkEntityState(GameEntity entity) {

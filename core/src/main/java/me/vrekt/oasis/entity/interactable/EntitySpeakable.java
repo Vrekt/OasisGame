@@ -8,6 +8,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.component.status.EntityDebugStatus;
 import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -64,14 +65,13 @@ public abstract class EntitySpeakable extends GameEntity {
 
     @Override
     public void load(Asset asset) {
-        setStatus(new EntitySpeakableStatus(this, asset));
+        addStatus(new EntitySpeakableStatus(this, asset));
+        addStatus(new EntityDebugStatus(this));
     }
 
     @Override
     public void update(float v) {
         super.update(v);
-
-        if (status != null) status.update(v);
 
         // stop speaking to this entity if the player moves away
         if (speakingTo) {
@@ -96,11 +96,6 @@ public abstract class EntitySpeakable extends GameEntity {
 
     }
 
-    @Override
-    public void render(SpriteBatch batch, float delta) {
-        if (status != null) status.render(batch, delta);
-    }
-
     /**
      * @return the active entry of the dialogue.
      */
@@ -110,13 +105,6 @@ public abstract class EntitySpeakable extends GameEntity {
 
     public boolean advance() {
         return dialogue.advance();
-    }
-
-    /**
-     * @return {@code true} if this entity can be spoken to, (mainly distance related)
-     */
-    public boolean isSpeakable() {
-        return speakable;
     }
 
     public void setSpeakable(boolean speakable) {

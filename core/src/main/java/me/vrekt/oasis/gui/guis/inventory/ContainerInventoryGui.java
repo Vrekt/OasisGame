@@ -251,7 +251,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      */
     private void populateContainerInventoryComponents(VisTable topTable) {
         for (int i = 1; i < 16; i++) {
-            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), false, true);
+            final InventoryUiComponent component = createSlotComponents((i - 1), false, true);
             final InventoryGuiSlot slot = new InventoryGuiSlot(guiManager, this, component, (i - 1));
 
             slot.setContainerSlot(true);
@@ -269,7 +269,7 @@ public final class ContainerInventoryGui extends InventoryGui {
      */
     private void populatePlayerInventoryComponents(VisTable bottomTable) {
         for (int i = 1; i < player.getInventory().getSize(); i++) {
-            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), false, false);
+            final InventoryUiComponent component = createSlotComponents((i - 1), false, false);
             playerSlots.add(new InventoryGuiSlot(guiManager, this, component, (i - 1)));
 
             bottomTable.add(component.container()).size(48, 48);

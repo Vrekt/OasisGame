@@ -229,20 +229,6 @@ public final class GuiManager implements Disposable {
     }
 
     /**
-     * @return {@code true} if the cursor was changed recently
-     */
-    public boolean wasCursorChanged() {
-        return wasCursorChanged;
-    }
-
-    /**
-     * @return {@code true} if the cursor is unchanged.
-     */
-    public boolean isDefaultCursorState() {
-        return cursorState == Cursor.DEFAULT;
-    }
-
-    /**
      * Reset the cursor to its default state
      */
     public void resetCursor() {
@@ -260,13 +246,6 @@ public final class GuiManager implements Disposable {
 
         this.cursorState = Cursor.DEFAULT;
         wasCursorChanged = false;
-    }
-
-    /**
-     * @return active cursor
-     */
-    public Cursor cursor() {
-        return cursorState;
     }
 
     public void updateAndDrawStage() {

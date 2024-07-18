@@ -166,10 +166,7 @@ public final class ChickEntity extends GameEntity {
 
     @Override
     public void update(float delta) {
-
-        if(isNetworked) {
-            rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
-        }
+        rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
 
         if (stateMachine.isInState(state)) {
             if (state.isFinished()) {
@@ -192,7 +189,7 @@ public final class ChickEntity extends GameEntity {
     protected void updateAi(float delta) {
         super.updateAi(delta);
 
-        rotation = component.getFacingDirection();
+        rotation = rotationFromVelocity();
 
         if (component.isAtGoal()) {
             // full-stop

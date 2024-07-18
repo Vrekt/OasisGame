@@ -51,14 +51,10 @@ public final class MiraEntity extends EntityInteractable {
         dialogue = EntityDialogueLoader.load("assets/dialog/mira_dialog.json");
         dialogue.setOwner(this);
 
-      //  dialogue.addTaskHandler("mira:remember_me", this::handleRemembrance);
         dialogue.addTaskHandler("mira:show_items", this::showPlayerItems);
 
         activeEntry = dialogue.getEntry("mira:dialog_stage_0").getEntry();
-        if (status instanceof EntitySpeakableStatus speaking) {
-            speaking.setOffsetX(0.25f);
-            speaking.setOffsetY(0.0f);
-        }
+        ((EntitySpeakableStatus) getStatus(EntitySpeakableStatus.STATUS_ID)).offset(0.25f, 0.0f);
     }
 
     @Override
@@ -82,7 +78,7 @@ public final class MiraEntity extends EntityInteractable {
      * Show the player the shop GUI
      */
     private void showPlayerItems() {
-        setStatus(new MiraObjectiveStatus(this, game.getAsset()));
+        addStatus(new MiraObjectiveStatus(this, game.getAsset()));
 
         GameManager.getTaskManager().schedule(() -> {
             this.speak(false);

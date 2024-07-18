@@ -74,14 +74,6 @@ public final class EntitySteerable implements Steerable<Vector2> {
         return getLinearVelocity().isZero(DEFAULT_ZERO_LINEAR_SPEED);
     }
 
-    public EntityRotation getDirectionMoving() {
-        return direction;
-    }
-
-    public void setDirectionMoving(EntityRotation direction) {
-        this.direction = direction;
-    }
-
     public void setMovementTolerance(float x, float y) {
         this.handleMovementTolerance = true;
         this.toleranceX = x;
@@ -92,7 +84,6 @@ public final class EntitySteerable implements Steerable<Vector2> {
         if (behavior != null) {
             behavior.calculateSteering(output);
             apply(delta);
-
         }
     }
 

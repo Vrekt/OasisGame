@@ -46,6 +46,7 @@ public final class GameHudGui extends Gui {
         debugComponentText = new VisLabel();
         debugComponentText.setStyle(Styles.getSmallWhite());
 
+        components.put(HudComponentType.ATTRIBUTE, new HudAttributeComponent(guiManager));
         components.put(HudComponentType.ARTIFACT, new HudArtifactComponent(guiManager));
         components.put(HudComponentType.HINT, new HudPlayerHintComponent(guiManager));
         components.put(HudComponentType.HOT_BAR, new HudHotbarComponent(guiManager));
@@ -107,9 +108,9 @@ public final class GameHudGui extends Gui {
         }
 
         if (guiManager.getGame().isLocalMultiplayer()) {
-           /* builder.append(MSPT)
-                    .append(guiManager.getGame().getServer().getGameServer().getWorldTickTime())
-                    .append(MS);*/
+            builder.append(MSPT)
+                    .append(guiManager.getGame().getServer().mspt())
+                    .append(MS);
         }
         debugComponentText.setText(builder.toString());
     }

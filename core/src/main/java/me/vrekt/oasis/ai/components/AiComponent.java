@@ -5,7 +5,6 @@ import me.vrekt.oasis.ai.EntitySteerable;
 import me.vrekt.oasis.ai.behaviour.ApplyBehavior;
 import me.vrekt.oasis.ai.utility.SimpleVectorLocation;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.entity.component.facing.EntityRotation;
 
 /**
  * Represents a base AI component
@@ -41,10 +40,6 @@ public abstract class AiComponent {
 
     public void setMaxLinearAcceleration(float value) {
         steering.setMaxLinearAcceleration(value);
-    }
-
-    public EntityRotation getFacingDirection() {
-        return steering.getDirectionMoving();
     }
 
     public AiComponentType type() {

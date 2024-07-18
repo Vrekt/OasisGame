@@ -11,10 +11,12 @@ import me.vrekt.oasis.entity.GameEntity;
  */
 public final class EntityAlertedStatus extends EntityStatus {
 
+    public static final int STATUS_ID = 3;
+
     private final TextureRegion region;
 
     public EntityAlertedStatus(GameEntity entity, Asset asset) {
-        super(entity);
+        super(entity, STATUS_ID);
 
         this.region = asset.get("entity_alerted");
     }

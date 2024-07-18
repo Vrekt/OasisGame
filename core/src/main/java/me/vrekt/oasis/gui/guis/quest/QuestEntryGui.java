@@ -25,7 +25,6 @@ import java.util.Map;
 
 public final class QuestEntryGui extends Gui {
 
-    private final PlayerQuestManager manager;
     private final TypingLabel completeness;
     private final VisLabel questNameLabel;
     private final VisLabel itemsRequiredLabel;
@@ -43,8 +42,6 @@ public final class QuestEntryGui extends Gui {
 
     public QuestEntryGui(GuiManager guiManager) {
         super(GuiType.QUEST_ENTRY, guiManager);
-
-        manager = guiManager.getGame().getPlayer().getQuestManager();
 
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
@@ -118,7 +115,7 @@ public final class QuestEntryGui extends Gui {
                 continue;
             }
 
-            populateObjectiveComponent(quest, objective, i);
+            populateObjectiveComponent(objective, i);
         }
     }
 
@@ -146,7 +143,7 @@ public final class QuestEntryGui extends Gui {
             final QuestObjective objective = quest.getObjectives().get(i);
             if (!objective.isUnlocked()) continue;
 
-            populateObjectiveComponent(quest, objective, i);
+            populateObjectiveComponent(objective, i);
             populatedObjectives.add(objective);
         }
 
@@ -162,7 +159,7 @@ public final class QuestEntryGui extends Gui {
         }
     }
 
-    private void populateObjectiveComponent(Quest quest, QuestObjective objective, int i) {
+    private void populateObjectiveComponent(QuestObjective objective, int i) {
         TypingLabel label;
         boolean wasExistingLabel = false;
 

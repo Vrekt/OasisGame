@@ -12,6 +12,8 @@ import me.vrekt.oasis.entity.GameEntity;
  */
 public final class EntitySpeakableStatus extends EntityStatus {
 
+    public static final int STATUS_ID = 0;
+
     private static final float ANIMATION_DISTANCE = 40f;
     private static final float SPEAKING_DISTANCE = 5.5f;
 
@@ -25,7 +27,7 @@ public final class EntitySpeakableStatus extends EntityStatus {
     private int currentDialogFrame = 1;
 
     public EntitySpeakableStatus(GameEntity entity, Asset asset) {
-        super(entity);
+        super(entity, STATUS_ID);
 
         dialogFrames = new TextureRegion[3];
         dialogFrames[0] = asset.get("dialog", 1);
@@ -33,12 +35,9 @@ public final class EntitySpeakableStatus extends EntityStatus {
         dialogFrames[2] = asset.get("dialog", 3);
     }
 
-    public void setOffsetX(float offsetX) {
-        this.offsetX = offsetX;
-    }
-
-    public void setOffsetY(float offsetY) {
-        this.offsetY = offsetY;
+    public void offset(float x, float y) {
+        this.offsetX = x;
+        this.offsetY = y;
     }
 
     @Override

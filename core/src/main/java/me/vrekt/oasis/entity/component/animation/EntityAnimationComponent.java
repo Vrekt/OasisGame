@@ -37,6 +37,12 @@ public final class EntityAnimationComponent implements Component {
         return otherAnimations.get(type).animate(delta);
     }
 
+    /**
+     * Animate hurting frames
+     *
+     * @param rotation rotation
+     * @return the animation frame
+     */
     public TextureRegion animateHurting(EntityRotation rotation) {
         return ((EntityHurtingAnimation) otherAnimations.get(AnimationType.HURTING)).animateFromMoveState(moveAnimations.get(rotation));
     }
@@ -52,10 +58,19 @@ public final class EntityAnimationComponent implements Component {
         return moveAnimations.get(rotation).animate(deltaTime);
     }
 
+    /**
+     * @param type animation type
+     * @return {@code true} if the specified animation is finished.
+     */
     public boolean isFinished(AnimationType type) {
         return otherAnimations.get(type).isFinished();
     }
 
+    /**
+     * Reset an animation
+     *
+     * @param type type
+     */
     public void reset(AnimationType type) {
         otherAnimations.get(type).reset();
     }

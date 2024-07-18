@@ -15,8 +15,6 @@ public final class DialogueEntry {
     private boolean isSkippable;
 
     private boolean exit;
-    @SerializedName("finished")
-    private boolean finished;
 
     private String requirement, task;
     private String incompleteContent;
@@ -161,13 +159,6 @@ public final class DialogueEntry {
      */
     boolean advance() {
         return visited && exit;
-    }
-
-    /**
-     * @return if the dialog has finished
-     */
-    public boolean finished() {
-        return finished;
     }
 
     /**

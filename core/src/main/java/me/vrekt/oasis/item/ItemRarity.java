@@ -19,10 +19,6 @@ public enum ItemRarity {
         return rarityName;
     }
 
-    public String getColoredRarityName() {
-        return colorName + rarityName;
-    }
-
     public String getColorName() {
         return colorName;
     }

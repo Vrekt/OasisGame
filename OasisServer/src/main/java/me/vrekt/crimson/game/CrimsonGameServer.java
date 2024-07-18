@@ -36,6 +36,8 @@ public final class CrimsonGameServer implements Disposable {
     private final List<ServerAbstractConnection> connections = new CopyOnWriteArrayList<>();
     // the last time it took to tick all worlds.
     private long worldTickTime;
+    private long mspt;
+
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final ScheduledExecutorService service;
 
@@ -214,6 +216,8 @@ public final class CrimsonGameServer implements Disposable {
             return;
         }
 
+        final long now = System.currentTimeMillis();
+
         try {
             tickAllWorlds();
             runAllTasks();
@@ -235,6 +239,7 @@ public final class CrimsonGameServer implements Disposable {
                 worldTickTime = System.currentTimeMillis();
             }
 
+            mspt = System.currentTimeMillis() - now;
         } catch (Exception any) {
             Crimson.exception("Exception caught during tick phase", any);
             running.compareAndSet(true, false);
@@ -282,6 +287,13 @@ public final class CrimsonGameServer implements Disposable {
         for (ServerAbstractConnection connection : connections) {
             if (connection.isAlive()) connection.keepAlive();
         }
+    }
+
+    /**
+     * @return ms per tick
+     */
+    public long mspt() {
+        return mspt;
     }
 
     @Override

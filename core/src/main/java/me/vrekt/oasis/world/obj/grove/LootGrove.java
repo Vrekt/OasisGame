@@ -7,21 +7,15 @@ import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.world.GameWorld;
 
 public final class LootGrove {
-
-    private static final float CONTAINER_CHANCE = 0.3f;
-    private static final float CONTAINER_MULTIPLE_ITEMS_CHANCE = 0.1f;
-
     private final String childKey;
     private final ItemRarity rarity;
-    private final int rewards;
 
     private final LootGroveGenerator generator;
     private final Array<Vector2> points = new Array<>();
 
-    public LootGrove(String childKey, ItemRarity rarity, int rewards) {
+    public LootGrove(String childKey, ItemRarity rarity) {
         this.childKey = childKey;
         this.rarity = rarity;
-        this.rewards = rewards;
         this.generator = assignGenerator();
     }
 
@@ -41,10 +35,14 @@ public final class LootGrove {
         points.add(point);
     }
 
+    /**
+     * Generate this grove.
+     *
+     * @param world world in
+     * @param asset asset
+     */
     public void generate(GameWorld world, Asset asset) {
         generator.generate(world, asset, points);
     }
-
-
 
 }

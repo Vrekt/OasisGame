@@ -92,7 +92,7 @@ public final class LockpickingGui extends Gui {
     public void hide() {
         super.hide();
 
-        guiManager.player().enableMovement();
+        guiManager.player().enableMovementAfter(0.55f);
         rootTable.setVisible(false);
     }
 

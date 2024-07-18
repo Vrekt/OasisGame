@@ -34,24 +34,10 @@ public final class DialogueResult {
     }
 
     /**
-     * @return if the dialogue is incomplete and waiting.
-     */
-    public boolean isIncomplete() {
-        return state == DialogueState.INCOMPLETE;
-    }
-
-    /**
      * @return the next entry, or {@code null}
      */
     public DialogueEntry getEntry() {
         return entry;
-    }
-
-    /**
-     * @return the result, never null.
-     */
-    public DialogueState getState() {
-        return state;
     }
 
     void setEntry(DialogueEntry entry) {

@@ -154,10 +154,10 @@ public abstract class Box2dGameWorld {
      * @param entityId id
      * @param x        x
      * @param y        y
-     * @param angle    angle/rotation
+     * @param rotation    angle/rotation
      */
-    public void updatePlayerPositionInWorld(int entityId, float x, float y, float angle) {
-        player(entityId).ifPresent(p -> p.updateNetworkPosition(x, y, angle));
+    public void updatePlayerPositionInWorld(int entityId, float x, float y, int rotation) {
+        player(entityId).ifPresent(p -> p.updateNetworkPosition(x, y, rotation));
     }
 
     /**
@@ -166,10 +166,10 @@ public abstract class Box2dGameWorld {
      * @param entityId id
      * @param x        x
      * @param y        y
-     * @param angle    angle/rotation
+     * @param rotation    angle/rotation
      */
-    public void updatePlayerVelocityInWorld(int entityId, float x, float y, float angle) {
-        player(entityId).ifPresent(p -> p.updateNetworkVelocity(x, y, angle));
+    public void updatePlayerVelocityInWorld(int entityId, float x, float y, int rotation) {
+        player(entityId).ifPresent(p -> p.updateNetworkVelocity(x, y, rotation));
     }
 
 }

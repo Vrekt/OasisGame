@@ -12,21 +12,21 @@ public final class S2CPacketPlayerPosition extends GamePacket {
 
     public static final int PACKET_ID = 1119;
 
-    private int entityId;
-    private float x, y, rotation;
+    private int entityId, rotation;
+    private float x, y;
 
     public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
         handler.handle(new S2CPacketPlayerPosition(buffer));
     }
 
-    public S2CPacketPlayerPosition(int entityId, float rotation, float x, float y) {
+    public S2CPacketPlayerPosition(int entityId, int rotation, float x, float y) {
         this.entityId = entityId;
         this.rotation = rotation;
         this.x = x;
         this.y = y;
     }
 
-    public S2CPacketPlayerPosition(int entityId, float rotation, Vector2 position) {
+    public S2CPacketPlayerPosition(int entityId, int rotation, Vector2 position) {
         this(entityId, rotation, position.x, position.y);
     }
 
@@ -44,7 +44,7 @@ public final class S2CPacketPlayerPosition extends GamePacket {
     /**
      * @return rotation index
      */
-    public float getRotation() {
+    public int getRotation() {
         return rotation;
     }
 
@@ -71,7 +71,7 @@ public final class S2CPacketPlayerPosition extends GamePacket {
     public void encode() {
         writeId();
         buffer.writeInt(entityId);
-        buffer.writeFloat(rotation);
+        buffer.writeInt(rotation);
         buffer.writeFloat(x);
         buffer.writeFloat(y);
     }
@@ -79,7 +79,7 @@ public final class S2CPacketPlayerPosition extends GamePacket {
     @Override
     public void decode() {
         entityId = buffer.readInt();
-        rotation = buffer.readFloat();
+        rotation = buffer.readInt();
         x = buffer.readFloat();
         y = buffer.readFloat();
     }

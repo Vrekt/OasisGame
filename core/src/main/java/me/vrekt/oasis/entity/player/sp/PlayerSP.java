@@ -1,7 +1,6 @@
 package me.vrekt.oasis.entity.player.sp;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -427,10 +426,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
                 game.getGuiManager().hideGui(GuiType.DIALOG);
                 game.guiManager.resetCursor();
                 return;
-            } else if (entry.finished()) {
-                game.getGuiManager().hideGui(GuiType.DIALOG);
-                game.guiManager.resetCursor();
-                return;
             }
 
             speakable.next();
@@ -637,7 +632,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         if (velX != 0.0 || velY != 0.0) hasMoved = true;
 
         rotationChanged = getAngle() != rotation.ordinal();
-        setAngle(rotation.ordinal());
     }
 
     private float getVelocityY() {
@@ -677,12 +671,12 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         final float now = GameManager.getTick();
 
         if (GameManager.hasTimeElapsed(lastPosition, POSITION_NETWORK_SEND_RATE)) {
-            getConnection().updatePosition(body.getPosition(), getAngle());
+            getConnection().updatePosition(body.getPosition(), rotation.ordinal());
             lastPosition = now;
         }
 
         if (GameManager.hasTimeElapsed(lastVelocity, VELOCITY_NETWORK_SEND_RATE)) {
-            getConnection().updateVelocity(body.getLinearVelocity(), getAngle());
+            getConnection().updateVelocity(body.getLinearVelocity(), rotation.ordinal());
             lastVelocity = now;
         }
     }
@@ -761,13 +755,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
                 getInterpolatedPosition().y,
                 (region.getRegionWidth() * OasisGameSettings.SCALE) * physicsScale,
                 (region.getRegionHeight() * OasisGameSettings.SCALE) * physicsScale);
-    }
-
-    public void drawDamage(SpriteBatch batch, Camera worldCamera, Camera guiCamera) {
-        worldPosition.set(worldCamera.project(worldPosition.set(getPosition().x + 1.0f, getInterpolatedPosition().y + 2.5f, 0.0f)));
-        screenPosition.set(guiCamera.project(worldPosition));
-
-        // animator.drawAccumulatedDamage(batch, game.getAsset().getBoxy(), screenPosition.x, screenPosition.y, getWidth());
     }
 
     @Override

@@ -349,15 +349,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Enter an interior
-     *
-     * @param interior the type
-     */
-    public void enterInterior(InteriorWorldType interior) {
-        enterInterior(interiorWorlds.get(interior));
-    }
-
-    /**
      * Enter this world
      */
     public void enter() {
@@ -661,12 +652,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 GameLogging.warn(this, "Invalid map data for a loot grove! obj-name=%s, key=%s", object.getName(), key);
             } else {
                 final String rarity = TiledMapLoader.ofString(object, "rarity");
-                final int rewardsAmount = TiledMapLoader.ofInt(object, "rewards", 0);
-                final LootGrove grove = new LootGrove(key, ItemRarity.valueOf(rarity), rewardsAmount);
-
+                final LootGrove grove = new LootGrove(key, ItemRarity.valueOf(rarity));
                 registry.put(key, grove);
 
-                GameLogging.info(this, "Found loot-grove %s with %d rewards", key, rewardsAmount);
+                GameLogging.info(this, "Found loot-grove %s", key);
             }
         });
         return registry;
@@ -1217,7 +1206,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // render entity UI elements
         for (GameEntity entity : entities.values()) {
-            entity.renderDamageAnimation(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
+            entity.postRender(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
         }
 
         // draw name tags on top of everything

@@ -7,14 +7,19 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.components.AiComponent;
 import me.vrekt.oasis.ai.goals.EntityGoal;
 import me.vrekt.oasis.ai.goals.EntityMapGoal;
+import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.combat.DamageType;
 import me.vrekt.oasis.combat.EntityDamageAnimator;
@@ -68,7 +73,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected GameWorld worldIn;
     // if entity is in interior
     protected GameWorld parentWorld;
-    protected boolean isInParentWorld;
 
     protected Array<EntityMapGoal> goals = new Array<>();
     protected Bag<CollisionType> collisionTypes = new Bag<>();
@@ -81,7 +85,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected boolean queueRemoval;
 
     protected AreaEffectCloud cloudApartOf;
-    protected EntityStatus status;
+    protected IntMap<EntityStatus> statuses = new IntMap<>();
 
     protected EntityStateMachine stateMachine;
     protected float physicsScale = 1.0f;
@@ -99,8 +103,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected final Vector2 lerped = new Vector2();
     protected final Vector2 trajectory = new Vector2();
     protected final Vector2 smoothed = new Vector2();
-
-    private float last;
 
     public GameEntity() {
         entity = new Entity();
@@ -202,7 +204,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     protected void updateRotationTextureState() {
         if (previousRotation != rotation) {
-            if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation.name());
+            if (hasTexturePart(rotation)) activeEntityTexture = getTexturePart(rotation);
             previousRotation = rotation;
         }
     }
@@ -298,20 +300,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * @param width the width of this entity
-     */
-    public void setWidth(float width) {
-        getPropertiesComponent().width = width;
-    }
-
-    /**
-     * @param height the height of this entity
-     */
-    public void setHeight(float height) {
-        getPropertiesComponent().height = height;
-    }
-
-    /**
      * Set size and world/entity scaling
      *
      * @param width  width
@@ -392,15 +380,17 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * Render damage animations for this entity
+     * Render UI components and other things
      *
      * @param worldCamera camera
      * @param guiCamera   stage camera
      * @param batch       batch
      * @param animator    animator
      */
-    public void renderDamageAnimation(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
-
+    public void postRender(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
+        for (EntityStatus status : statuses.values()) {
+            if (status.isPostRender()) status.postRender(batch, worldCamera, guiCamera);
+        }
     }
 
     /**
@@ -424,12 +414,11 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         this.queueRemoval = true;
     }
 
+    /**
+     * @return unused: always return 0.0f for box2d
+     */
     public float getAngle() {
-        return this instanceof PlayerSP ? getPropertiesComponent().angle : 0.0f;
-    }
-
-    public void setAngle(float angle) {
-        getPropertiesComponent().angle = angle;
+        return 0.0f;
     }
 
     /**
@@ -591,6 +580,15 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public void setVelocity(float x, float y) {
         if (body != null) body.setLinearVelocity(x, y);
+    }
+
+    /**
+     * Get rotation from velocity
+     *
+     * @return rotation
+     */
+    protected EntityRotation rotationFromVelocity() {
+        return AiVectorUtility.velocityToDirection(getVelocity());
     }
 
     /**
@@ -769,7 +767,16 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param delta delta
      */
     public void update(float delta) {
+        for (EntityStatus status : statuses.values()) {
+            if (!status.isPostRender()) status.update(delta);
+        }
+    }
 
+    @Override
+    public void render(SpriteBatch batch, float delta) {
+        for (EntityStatus status : statuses.values()) {
+            if (!status.isPostRender()) status.update(delta);
+        }
     }
 
     /**
@@ -879,13 +886,17 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * Set the status of this entity
+     * Add status of this entity
      * Basically draws something above their head to describe what they may be doing or thinking
      *
      * @param status the status
      */
-    protected void setStatus(EntityStatus status) {
-        this.status = status;
+    protected void addStatus(EntityStatus status) {
+        statuses.put(status.id(), status);
+    }
+
+    protected <T extends EntityStatus> T getStatus(int id) {
+        return (T) statuses.get(id);
     }
 
     /**
@@ -1094,7 +1105,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         player = null;
         gradient = null;
         bb = null;
-        status = null;
+        statuses.clear();
         aiComponents.clear();
     }
 

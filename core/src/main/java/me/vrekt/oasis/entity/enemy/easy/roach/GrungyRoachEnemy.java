@@ -163,7 +163,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         if (shouldUpdateAiState()) {
             previousRotation = rotation;
-            rotation = hostilePursueComponent.getFacingDirection();
+            rotation = rotationFromVelocity();
 
             if (canAttack() && !isAttacking) {
                 handleAttackState();

@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import me.vrekt.oasis.ai.components.AiFollowPathComponent;
-import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.entity.GameEntity;
 
 /**
@@ -35,8 +34,6 @@ public final class EntityFollowPathGoal extends AiFollowPathComponent {
     @Override
     public void applyResult(Vector2 linear) {
         super.applyResult(linear);
-
-        if (!rotationLocked) steering.setDirectionMoving(AiVectorUtility.velocityToDirection(linear));
     }
 
     /**

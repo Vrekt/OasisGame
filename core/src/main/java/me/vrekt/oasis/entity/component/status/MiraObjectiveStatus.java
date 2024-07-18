@@ -12,6 +12,7 @@ import me.vrekt.oasis.entity.GameEntity;
  */
 public final class MiraObjectiveStatus extends EntityStatus {
 
+    public static final int STATUS_ID = 4;
     private final TextureRegion region;
 
     private final Color oldColor = new Color();
@@ -19,7 +20,7 @@ public final class MiraObjectiveStatus extends EntityStatus {
     private float alpha = 1.0f;
 
     public MiraObjectiveStatus(GameEntity entity, Asset asset) {
-        super(entity);
+        super(entity, STATUS_ID);
 
         this.region = asset.get("mira_get_book");
     }

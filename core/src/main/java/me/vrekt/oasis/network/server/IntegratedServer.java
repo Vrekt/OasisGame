@@ -13,7 +13,7 @@ import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.protocol.GameProtocol;
 
 /**
- * Integrated single player server (that can be multiplayer enabled)
+ * Integrated multiplayer server
  */
 public final class IntegratedServer implements Disposable {
 
@@ -49,6 +49,19 @@ public final class IntegratedServer implements Disposable {
     }
 
     /**
+     * Initialize
+     */
+    private void init() {
+        if (gameServer == null) {
+            gameServer = new CrimsonGameServer(protocol, game.networkHandler());
+        }
+
+        if (networkServer == null) {
+            networkServer = new NettyServer("localhost", 6969, protocol, gameServer);
+        }
+    }
+
+    /**
      * Update network state to all players
      */
     public void update() {
@@ -60,16 +73,6 @@ public final class IntegratedServer implements Disposable {
 
         // update world origin to around the player
         activeWorld.setWorldOrigin(player.getPosition().cpy().sub(1, 1));
-    }
-
-    private void init() {
-        if (gameServer == null) {
-            gameServer = new CrimsonGameServer(protocol, game.networkHandler());
-        }
-
-        if (networkServer == null) {
-            networkServer = new NettyServer("localhost", 6969, protocol, gameServer);
-        }
     }
 
     /**
@@ -102,6 +105,12 @@ public final class IntegratedServer implements Disposable {
         return started;
     }
 
+    /**
+     * @return ms per tick
+     */
+    public float mspt() {
+        return gameServer.mspt();
+    }
 
     @Override
     public void dispose() {

@@ -102,25 +102,25 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
     /**
      * Update position from the network
      *
-     * @param x     x
-     * @param y     y
-     * @param angle rotation
+     * @param x        x
+     * @param y        y
+     * @param rotation rotation
      */
-    public void updateNetworkPosition(float x, float y, float angle) {
+    public void updateNetworkPosition(float x, float y, int rotation) {
         incomingNetworkPosition.set(x, y);
-        setAngle(angle);
+        this.rotation = EntityRotation.values()[rotation];
     }
 
     /**
      * Update velocity of this player from the server
      *
-     * @param x     the X
-     * @param y     the Y
-     * @param angle angle or rotation
+     * @param x        the X
+     * @param y        the Y
+     * @param rotation rotation
      */
-    public void updateNetworkVelocity(float x, float y, float angle) {
+    public void updateNetworkVelocity(float x, float y, int rotation) {
         incomingNetworkVelocity.set(x, y);
-        setAngle(angle);
+        this.rotation = EntityRotation.values()[rotation];
     }
 
     @Override
@@ -250,6 +250,7 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
                 break;
         }
     }
+
 
     @Override
     public void createCircleBody(World world, boolean flipped) {

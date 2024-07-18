@@ -23,11 +23,12 @@ import java.util.function.BiConsumer;
  */
 public final class GameProtocol {
 
-    private final int protocolVersion;
-    private final String protocolName;
     // max frame length allowed of a packet
     // Depending on how complex/and or large packets can get
-    private final int maxPacketFrameLength = 65536;
+    public static final int MAX_FRAME_LENGTH = 65536;
+
+    private final int protocolVersion;
+    private final String protocolName;
 
     private final Map<Integer, BiConsumer<ByteBuf, S2CPacketHandler>> server = new HashMap<>();
     private final Map<Integer, BiConsumer<ByteBuf, C2SPacketHandler>> client = new HashMap<>();
@@ -44,30 +45,8 @@ public final class GameProtocol {
         initializeDefaults();
     }
 
-    public int getProtocolVersion() {
-        return protocolVersion;
-    }
-
-    public String getProtocolName() {
-        return protocolName;
-    }
-
     public int getMaxPacketFrameLength() {
-        return maxPacketFrameLength;
-    }
-
-    /**
-     * @return a map of all server packet handlers
-     */
-    public Map<Integer, BiConsumer<ByteBuf, S2CPacketHandler>> getServerHandlers() {
-        return server;
-    }
-
-    /**
-     * @return a map of all client packet handlers
-     */
-    public Map<Integer, BiConsumer<ByteBuf, C2SPacketHandler>> getClientHandlers() {
-        return client;
+        return MAX_FRAME_LENGTH;
     }
 
     /**
@@ -126,48 +105,6 @@ public final class GameProtocol {
      */
     public boolean isServerPacket(int pid) {
         return server.containsKey(pid);
-    }
-
-    /**
-     * Change a server packet handler
-     * This must be invoked after the protocol is initialized (only IF, {@code initializeDefaults} in the constructor is {@code true})
-     *
-     * @param pid     the pid
-     * @param handler the new handler
-     */
-    public void changeServerPacketHandler(int pid, BiConsumer<ByteBuf, S2CPacketHandler> handler) {
-        server.put(pid, handler);
-    }
-
-    /**
-     * Change a client packet handler
-     * This must be invoked after the protocol is initialized (only IF, {@code initializeDefaults} in the constructor is {@code true})
-     *
-     * @param pid     the pid
-     * @param handler the new handler
-     */
-    public void changeClientPacketHandler(int pid, BiConsumer<ByteBuf, C2SPacketHandler> handler) {
-        client.put(pid, handler);
-    }
-
-    /**
-     * Register a new client packet.
-     *
-     * @param pid     the id
-     * @param handler the handler
-     */
-    public void registerClientPacket(int pid, BiConsumer<ByteBuf, C2SPacketHandler> handler) {
-        client.put(pid, handler);
-    }
-
-    /**
-     * Register a new server packet.
-     *
-     * @param pid     the id
-     * @param handler the handler
-     */
-    public void registerServerPacket(int pid, BiConsumer<ByteBuf, S2CPacketHandler> handler) {
-        server.put(pid, handler);
     }
 
     /**

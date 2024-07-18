@@ -55,10 +55,7 @@ public final class ThaliaEntity extends EntityInteractable {
         dialogue.setOwner(this);
 
         activeEntry = dialogue.getEntry("thalia:dialog_stage_0").getEntry();
-        if (status instanceof EntitySpeakableStatus speaking) {
-            speaking.setOffsetX(1.2f);
-            speaking.setOffsetY(-0.5f);
-        }
+        ((EntitySpeakableStatus) getStatus(EntitySpeakableStatus.STATUS_ID)).offset(1.25f, -0.5f);
     }
 
     @Override

@@ -13,7 +13,6 @@ public final class EntityPropertiesComponent implements Component, Pool.Poolable
     public float width, height, scaling;
     public float speed;
     public float health;
-    public float angle = 0.0f;
     public boolean isMoving;
 
     public void setProperties(int entityId, String entityName) {
@@ -70,21 +69,12 @@ public final class EntityPropertiesComponent implements Component, Pool.Poolable
         this.health = health;
     }
 
-    public float getAngle() {
-        return angle;
-    }
-
-    public void setAngle(float angle) {
-        this.angle = angle;
-    }
-
     @Override
     public void reset() {
         entityId = -1;
         entityName = null;
         speed = 0.0f;
         health = 0.0f;
-        angle = 0.0f;
         isMoving = false;
     }
 }

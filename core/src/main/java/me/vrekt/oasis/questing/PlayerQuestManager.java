@@ -20,7 +20,12 @@ public final class PlayerQuestManager {
         this.activeQuests.put(type, quest);
     }
 
-
+    /**
+     * Get a quest.
+     *
+     * @param type the type
+     * @return the quest
+     */
     public Quest getQuest(QuestType type) {
         return activeQuests.get(type);
     }

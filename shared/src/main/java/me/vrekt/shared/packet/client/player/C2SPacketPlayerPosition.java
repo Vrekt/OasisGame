@@ -11,13 +11,14 @@ public final class C2SPacketPlayerPosition extends GamePacket {
 
     public static final int PACKET_ID = 2226;
 
-    private float rotation, x, y;
+    private int rotation;
+    private float x, y;
 
     public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
         handler.handle(new C2SPacketPlayerPosition(buffer));
     }
 
-    public C2SPacketPlayerPosition(float x, float y, float rotation) {
+    public C2SPacketPlayerPosition(float x, float y, int rotation) {
         this.x = x;
         this.y = y;
         this.rotation = rotation;
@@ -35,7 +36,7 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         return y;
     }
 
-    public float rotation() {
+    public int rotation() {
         return rotation;
     }
 
@@ -49,13 +50,13 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         writeId();
         buffer.writeFloat(x);
         buffer.writeFloat(y);
-        buffer.writeFloat(rotation);
+        buffer.writeInt(rotation);
     }
 
     @Override
     public void decode() {
         x = buffer.readFloat();
         y = buffer.readFloat();
-        rotation = buffer.readFloat();
+        rotation = buffer.readInt();
     }
 }

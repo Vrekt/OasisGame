@@ -146,7 +146,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         for (int i = 1; i < player.getInventory().getSize(); i++) {
             // (i - 1) for compatibility with splitting the table in rows of 3
-            final InventoryUiComponent component = createSlotComponents(guiManager, (i - 1), (i - 1) < 6, false);
+            final InventoryUiComponent component = createSlotComponents((i - 1), (i - 1) < 6, false);
             guiSlots.add(new InventoryGuiSlot(guiManager, this, component, (i - 1)));
 
             left.add(component.container()).size(48, 48);

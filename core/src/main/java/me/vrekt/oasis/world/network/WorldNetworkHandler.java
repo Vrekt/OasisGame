@@ -115,7 +115,7 @@ public final class WorldNetworkHandler {
      * @param player player
      */
     public void handlePlayerPosition(ServerEntityPlayer player) {
-        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkPosition(player.getPosition().x, player.getPosition().y, 1.0f);
+        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkPosition(player.getPosition().x, player.getPosition().y, player.getRotation());
     }
 
     /**
@@ -124,7 +124,7 @@ public final class WorldNetworkHandler {
      * @param player player
      */
     public void handlePlayerVelocity(ServerEntityPlayer player) {
-        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkVelocity(player.getVelocity().x, player.getVelocity().y, 1.0f);
+        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkVelocity(player.getVelocity().x, player.getVelocity().y, player.getRotation());
     }
 
     /**

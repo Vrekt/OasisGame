@@ -19,11 +19,6 @@ public final class S2CPacketPing extends GamePacket {
         handler.handle(new S2CPacketPing(buffer));
     }
 
-    public S2CPacketPing(long clientTime, long serverTime) {
-        this.clientTime = clientTime;
-        this.serverTime = serverTime;
-    }
-
     public S2CPacketPing(float gameTick) {
         this.gameTick = gameTick;
     }

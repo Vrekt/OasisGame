@@ -105,7 +105,7 @@ public class World implements Disposable {
      * @param y        their Y
      * @param rotation their rotation
      */
-    public void handlePlayerPosition(ServerEntityPlayer player, float x, float y, float rotation) {
+    public void handlePlayerPosition(ServerEntityPlayer player, float x, float y, int rotation) {
         player.setPosition(x, y);
         player.setRotation(rotation);
     }
@@ -118,7 +118,7 @@ public class World implements Disposable {
      * @param y        their vel Y
      * @param rotation their rotation
      */
-    public void handlePlayerVelocity(ServerEntityPlayer player, float x, float y, float rotation) {
+    public void handlePlayerVelocity(ServerEntityPlayer player, float x, float y, int rotation) {
         player.setVelocity(x, y);
         player.setRotation(rotation);
     }

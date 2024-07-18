@@ -102,7 +102,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     @Override
     public boolean ready() {
-        return isEnabled;
+        return isEnabled && handleMouseState;
     }
 
     /**

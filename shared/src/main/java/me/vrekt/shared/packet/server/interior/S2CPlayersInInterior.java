@@ -61,8 +61,6 @@ public final class S2CPlayersInInterior extends GamePacket {
             for (S2CNetworkPlayer player : players) {
                 buffer.writeInt(player.entityId);
                 writeString(player.username);
-               // buffer.writeFloat(player.position.x);
-             //   buffer.writeFloat(player.position.y);
             }
         }
     }
