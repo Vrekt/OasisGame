@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.network.state.NetworkEntityState;
-import me.vrekt.shared.network.state.NetworkPlayerState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.network.state.NetworkWorldState;
 import me.vrekt.shared.packet.GamePacket;
@@ -50,22 +49,6 @@ public final class S2CNetworkFrame extends GamePacket {
         // client will use this to predict/correct entity movement
         buffer.writeLong(state.timeSent());
 
-        final boolean hasPlayers = state.players() != null && state.players().length > 0;
-        buffer.writeBoolean(hasPlayers);
-
-        if (hasPlayers) {
-            // write player data
-            buffer.writeInt(state.players().length);
-            for (int i = 0; i < state.players().length; i++) {
-                final NetworkPlayerState player = state.players()[i];
-                buffer.writeInt(player.entityId());
-                writeVector2(player.x(), player.y());
-                writeVector2(player.vx(), player.vy());
-                buffer.writeBoolean(player.isHost());
-                writeString(player.name());
-            }
-        }
-
         // write entity data
         buffer.writeInt(state.entities().length);
         for (int i = 0; i < state.entities().length; i++) {
@@ -85,26 +68,6 @@ public final class S2CNetworkFrame extends GamePacket {
         final long timeSent = buffer.readLong();
         final NetworkWorldState world = new NetworkWorldState(worldName, worldTick);
 
-        // read network player data
-        final boolean hasPlayers = buffer.readBoolean();
-        NetworkPlayerState[] players = null;
-
-        if (hasPlayers) {
-            final int pLength = buffer.readInt();
-            players = new NetworkPlayerState[pLength];
-
-            for (int i = 0; i < pLength; i++) {
-                final int entityId = buffer.readInt();
-                final float x = buffer.readFloat();
-                final float y = buffer.readFloat();
-                final float vx = buffer.readFloat();
-                final float vy = buffer.readFloat();
-                final boolean isHost = buffer.readBoolean();
-                final String name = readString();
-                players[i] = new NetworkPlayerState(entityId, name, x, y, vx, vy, isHost);
-            }
-        }
-
         // read entity data
         final int length = buffer.readInt();
         final NetworkEntityState[] entities = new NetworkEntityState[length];
@@ -119,6 +82,6 @@ public final class S2CNetworkFrame extends GamePacket {
             entities[i] = new NetworkEntityState(entityId, name, x, y, vx, vy, EntityType.values()[ordinal]);
         }
 
-        this.state = new NetworkState(world, players, entities, timeSent);
+        this.state = new NetworkState(world, entities, timeSent);
     }
 }

@@ -24,7 +24,6 @@ import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.save.GameSaveProperties;
 import me.vrekt.oasis.save.GameSaveSlotProperty;
 import me.vrekt.oasis.save.SaveManager;
-import me.vrekt.oasis.ui.dialog.DialogCreator;
 
 /**
  * The main menu of the game
@@ -104,10 +103,10 @@ public final class OasisMainMenu extends ScreenAdapter {
         rootTable.row();
         rootTable.add(quitGameButton).width(150);
         rootTable.row();
-        rootTable.add(new VisLabel("MP: " + System.getProperty("mp")));
+        rootTable.add(new VisLabel("MP: " + System.getProperty("mp"), Styles.getMediumWhiteMipMapped()));
 
         assignClickAction(newGameButton, game::loadNewGame);
-        assignClickAction(joinServerButton, game::hostNewGame);
+        assignClickAction(joinServerButton, game::joinLocalServer);
 
         // show load game UI
         assignClickAction(loadGameButton, () -> {
@@ -115,8 +114,7 @@ public final class OasisMainMenu extends ScreenAdapter {
             stage.addActor(loadGameTable);
         });
 
-        // FIXME: Temporary testing
-        assignClickAction(quitGameButton, () -> game.setScreen(new DialogCreator(game)));
+        assignClickAction(quitGameButton, () -> System.exit(0));
     }
 
     /**

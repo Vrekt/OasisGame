@@ -43,7 +43,7 @@ public final class EntityWalkPathGoal extends AiFollowPathComponent {
     public void update(float delta) {
         // stop at last waypoint
         if (currentPathSegment + 1 >= waypoints.size && !isFinished) {
-            entity.setVelocity(0, 0, true);
+            entity.setVelocity(0, 0);
             entity.setRotation(finalRotation);
             isFinished = true;
         } else if (!isFinished) {

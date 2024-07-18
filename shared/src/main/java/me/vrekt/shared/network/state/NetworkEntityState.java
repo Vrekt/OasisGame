@@ -1,6 +1,5 @@
 package me.vrekt.shared.network.state;
 
-import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 
@@ -13,11 +12,6 @@ public final class NetworkEntityState extends AbstractNetworkEntityState {
 
     public NetworkEntityState(int entityId, String name, float x, float y, float vx, float vy, EntityType type) {
         super(entityId, name, x, y, vx, vy);
-        this.type = type;
-    }
-
-    public NetworkEntityState(int entityId, String name, Vector2 position, Vector2 velocity, EntityType type) {
-        super(entityId, name, position, velocity);
         this.type = type;
     }
 

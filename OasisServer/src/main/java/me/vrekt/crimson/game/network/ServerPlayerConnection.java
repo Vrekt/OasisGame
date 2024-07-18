@@ -1,19 +1,16 @@
 package me.vrekt.crimson.game.network;
 
-import com.badlogic.gdx.Gdx;
+import io.netty.channel.Channel;
 import me.vrekt.crimson.Crimson;
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.entity.ServerEntityPlayer;
-import io.netty.channel.Channel;
 import me.vrekt.crimson.game.world.World;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.*;
-import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
-import me.vrekt.shared.packet.server.*;
-import me.vrekt.shared.packet.server.player.S2CChatMessage;
+import me.vrekt.shared.packet.server.player.*;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
 /**
@@ -32,13 +29,6 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
     }
 
     /**
-     * @return {@code  true} if this {connection} is disconnected
-     */
-    public boolean isDisconnected() {
-        return disconnected;
-    }
-
-    /**
      * @return {@code true} if this connection is alive
      */
     public boolean isAlive() {
@@ -46,6 +36,15 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             return !player.world().hasTimeElapsed(lastKeepAlive, TIMEOUT_SECONDS);
         }
         return true;
+    }
+
+    /**
+     * Ensure the player is in a world and has joined.
+     *
+     * @return {@code true} if so
+     */
+    private boolean isValid() {
+        return hasJoined && player.isInWorld();
     }
 
     @Override
@@ -59,7 +58,6 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
             case C2SPacketPlayerPosition.PACKET_ID -> handlePlayerPosition((C2SPacketPlayerPosition) packet);
             case C2SPacketPlayerVelocity.PACKET_ID -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet);
             case C2SKeepAlive.PACKET_ID -> handleKeepAlive((C2SKeepAlive) packet);
-            case C2SEnterInteriorWorld.ID -> handleEnterInterior((C2SEnterInteriorWorld) packet);
             case C2SChatMessage.PACKET_ID -> handleChatMessage((C2SChatMessage) packet);
             default -> Crimson.warning("Unhandled packet ID! %d", packet.getId());
         }
@@ -140,13 +138,9 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      */
     private void handlePlayerClientLoaded(C2SPacketClientLoaded packet) {
         if (hasJoined) {
-            if (packet.loadedType() == C2SPacketClientLoaded.ClientLoadedType.WORLD) {
-                player.setLoaded(true);
-                player.setLoading(false);
-                player.world().spawnPlayerInWorld(player);
-            } else {
-                player.finalizeTransfer();
-            }
+            player.setLoaded(true);
+            player.setLoading(false);
+            player.world().spawnPlayerInWorld(player);
         }
     }
 
@@ -156,8 +150,8 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      * @param packet packet
      */
     public void handlePlayerPosition(C2SPacketPlayerPosition packet) {
-        if (hasJoined && player.isInWorld()) {
-            player.world().handlePlayerPosition(player, packet.getX(), packet.getY(), packet.getRotation());
+        if (isValid()) {
+            player.world().handlePlayerPosition(player, packet.x(), packet.y(), packet.rotation());
         }
     }
 
@@ -167,17 +161,8 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      * @param packet packet
      */
     public void handlePlayerVelocity(C2SPacketPlayerVelocity packet) {
-        if (hasJoined && player.isInWorld()) {
+        if (isValid()) {
             player.world().handlePlayerVelocity(player, packet.x(), packet.y(), packet.rotation());
-        }
-    }
-
-    public void handleEnterInterior(C2SEnterInteriorWorld packet) {
-        Crimson.log("Player %d entered interior %s", packet.entityId(), packet.type());
-
-        // TODO: WRONG ENTITY ID FIX
-        if (hasJoined && player.isInWorld()) {
-            // player.prepareTransfer(server.getWorldManager().getInteriorWorld(packet.type()));
         }
     }
 
@@ -187,19 +172,12 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
      * @param packet packet
      */
     public void handleChatMessage(C2SChatMessage packet) {
-        if (packet.message() == null) {
-            Crimson.log("Chat message was null? from=%d", packet.from());
+        if (packet.message() == null || packet.message().length() > 150 || !isValid()) {
+            Crimson.log("Invalid chat message. msg=%s", packet.message());
             return;
         }
 
-        if (packet.message().length() > 150) {
-            Crimson.log("Chat message packet is too long! l=%d", packet.message().length());
-            return;
-        }
-
-        if (hasJoined && player.isInWorld()) {
-            player.world().broadcastNowWithExclusion(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
-        }
+        player.world().broadcastNowWithExclusion(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
     }
 
     @Override
@@ -213,8 +191,12 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
 
     @Override
     public void connectionClosed(Throwable exception) {
-        if (exception != null) Gdx.app.log("ServerPlayerConnection", "Connection closed with exception!", exception);
-        if (!disconnected) disconnect();
+        if (exception != null) Crimson.exception("Connection closed with exception!", exception);
+        if (isValid()) {
+            if (!disconnected) server.playerDisconnected(player, "Error");
+        } else {
+            if (!disconnected) disconnect();
+        }
     }
 
 }

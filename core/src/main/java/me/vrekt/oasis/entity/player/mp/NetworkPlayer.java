@@ -1,11 +1,13 @@
 package me.vrekt.oasis.entity.player.mp;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
@@ -14,6 +16,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -23,7 +26,11 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
 /**
  * Represents any player over the network
  */
-public final class NetworkPlayer extends AbstractNetworkPlayer implements ResourceLoader {
+public final class NetworkPlayer extends AbstractPlayer implements ResourceLoader {
+
+    // TODO: NET-3 Fix snapping issues
+    private static final float DE_SYNC_DISTANCE = 0.25f;
+    private final Vector2 incomingNetworkVelocity = new Vector2();
 
     private boolean enteringInterior;
     private InteriorWorldType interiorEntering;
@@ -36,8 +43,9 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
     private boolean renderNametag;
 
     public NetworkPlayer(GameWorld world) {
-        super(world);
+        super();
 
+        this.worldIn = world;
         disableCollision();
         dynamicSize = false;
     }
@@ -81,14 +89,38 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
             // destroy our previous body and create a new one for this interior
             worldIn.removePlayerTemporarily(this);
 
-            setPosition(interior.worldOrigin().x, interior.worldOrigin().y, false);
             createCircleBody(interior.boxWorld(), true);
+            setPosition(interior.worldOrigin().x, interior.worldOrigin().y);
 
             interior.spawnPlayerInWorld(this);
             this.worldIn = interior;
         } else {
             GameLogging.warn(this, "Failed to find the interior a player joined! type=%s", type);
         }
+    }
+
+    /**
+     * Update position from the network
+     *
+     * @param x     x
+     * @param y     y
+     * @param angle rotation
+     */
+    public void updateNetworkPosition(float x, float y, float angle) {
+        incomingNetworkPosition.set(x, y);
+        setAngle(angle);
+    }
+
+    /**
+     * Update velocity of this player from the server
+     *
+     * @param x     the X
+     * @param y     the Y
+     * @param angle angle or rotation
+     */
+    public void updateNetworkVelocity(float x, float y, float angle) {
+        incomingNetworkVelocity.set(x, y);
+        setAngle(angle);
     }
 
     @Override
@@ -123,27 +155,31 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
 
     @Override
     public void update(float delta) {
-        super.update(delta);
+
+        final boolean moving = !incomingNetworkVelocity.isZero(0.01f);
+        if (moving) {
+            body.setLinearVelocity(incomingNetworkVelocity);
+        } else {
+            if (body.getPosition().dst2(incomingNetworkPosition) > DE_SYNC_DISTANCE) {
+                // lerp to final position
+                velocity.set(body.getLinearVelocity());
+                predicted.set(body.getPosition()).add(velocity.scl(delta));
+                lerped.set(predicted).lerp(incomingNetworkPosition, 1.0f);
+                trajectory.set(lerped).sub(body.getPosition()).scl(1f / (6.0f * delta));
+                smoothed.set(trajectory).add(velocity).scl(1.0f);
+
+                body.setLinearVelocity(smoothed);
+            } else {
+                body.setLinearVelocity(0, 0);
+            }
+        }
 
         if (previousRotation != rotation) setIdleRegionState();
         previousRotation = rotation;
     }
 
     @Override
-    public void updateNetworkPosition(float x, float y, float angle) {
-        super.updateNetworkPosition(x, y, angle);
-        rotation = EntityRotation.values()[(int) angle];
-    }
-
-    @Override
-    public void updateNetworkVelocity(float x, float y, float angle) {
-        super.updateNetworkVelocity(x, y, angle);
-        rotation = EntityRotation.values()[(int) angle];
-    }
-
-    @Override
     public void render(SpriteBatch batch, float delta) {
-
         if (!body.getLinearVelocity().isZero()) {
             draw(batch, animationComponent.animateMoving(rotation, delta), getScaledWidth(), getScaledHeight());
         } else {
@@ -153,24 +189,38 @@ public final class NetworkPlayer extends AbstractNetworkPlayer implements Resour
         }
     }
 
+    @Override
+    public boolean isInView(Camera camera) {
+        return true;
+    }
+
     private void draw(SpriteBatch batch, TextureRegion region, float width, float height) {
+        if (enteringInterior) fadePlayer(batch);
+        if (body != null) batch.draw(region, body.getPosition().x, body.getPosition().y, width, height);
+        if (enteringInterior) endFade(batch);
+    }
 
-        if (enteringInterior) {
-            batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
-            fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
+    /**
+     * Fade and if valid, transfer.
+     *
+     * @param batch batch
+     */
+    private void fadePlayer(SpriteBatch batch) {
+        batch.setColor(1, 1, 1, fadingAnimationEnteringAlpha);
+        fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
 
-            // we are ready to be transferred since the visual animation completed
-            if (fadingAnimationEnteringAlpha <= 0.0f) transfer();
-        }
+        // we are ready to be transferred since the visual animation completed
+        if (fadingAnimationEnteringAlpha <= 0.0f) transfer();
+    }
 
-        if (body != null) {
-            batch.draw(region, body.getPosition().x, body.getPosition().y, width, height);
-        }
-
-        if (enteringInterior) {
-            if (fadingAnimationEnteringAlpha <= 0.0f) enteringInterior = false;
-            batch.setColor(Color.WHITE);
-        }
+    /**
+     * End fading
+     *
+     * @param batch batch
+     */
+    private void endFade(SpriteBatch batch) {
+        if (fadingAnimationEnteringAlpha <= 0.0f) enteringInterior = false;
+        batch.setColor(Color.WHITE);
     }
 
     /**

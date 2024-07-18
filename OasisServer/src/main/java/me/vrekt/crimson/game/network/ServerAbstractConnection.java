@@ -8,7 +8,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.server.S2CKeepAlive;
+import me.vrekt.shared.packet.server.player.S2CKeepAlive;
 
 /**
  * Represents a basic connection.

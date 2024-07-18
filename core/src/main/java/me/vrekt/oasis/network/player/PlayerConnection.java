@@ -19,8 +19,7 @@ import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
 import me.vrekt.shared.packet.client.item.C2SEquipItem;
 import me.vrekt.shared.packet.client.item.C2SResetEquippedItem;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
-import me.vrekt.shared.packet.server.*;
-import me.vrekt.shared.packet.server.player.S2CChatMessage;
+import me.vrekt.shared.packet.server.player.*;
 import me.vrekt.shared.protocol.GameProtocol;
 
 /**

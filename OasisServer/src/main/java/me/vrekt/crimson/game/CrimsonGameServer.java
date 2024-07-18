@@ -13,7 +13,7 @@ import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
-import me.vrekt.shared.packet.server.S2CPacketDisconnected;
+import me.vrekt.shared.packet.server.player.S2CPacketDisconnected;
 import me.vrekt.shared.protocol.GameProtocol;
 
 import java.util.List;
@@ -286,11 +286,18 @@ public final class CrimsonGameServer implements Disposable {
 
     @Override
     public void dispose() {
+        allPlayers.forEach(player -> player.kick("Server closed."));
+
         running.set(false);
         allPlayers.clear();
         connections.clear();
+        for (World world : loadedWorlds.values()) {
+            world.dispose();
+        }
+        loadedWorlds.clear();
         tasks.clear();
         service.shutdown();
+        hostPlayer = null;
     }
 
 }

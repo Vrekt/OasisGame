@@ -108,7 +108,7 @@ public abstract class Box2dGameWorld {
      */
     public void removePlayerTemporarily(NetworkPlayer player) {
         players.remove(player.entityId());
-        world.destroyBody(player.getBody());
+        world.destroyBody(player.body());
     }
 
     public IntMap<NetworkPlayer> players() {

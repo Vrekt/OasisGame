@@ -19,10 +19,6 @@ public final class S2CPacketRemovePlayer extends GamePacket {
         handler.handle(new S2CPacketRemovePlayer(buffer));
     }
 
-    public S2CPacketRemovePlayer(int entityId) {
-        this(entityId, null);
-    }
-
     public S2CPacketRemovePlayer(int entityId, String username) {
         this.entityId = entityId;
         this.username = (username == null ? StringUtil.EMPTY_STRING : username);
@@ -35,11 +31,11 @@ public final class S2CPacketRemovePlayer extends GamePacket {
     /**
      * @return the ID
      */
-    public int getEntityId() {
+    public int entityId() {
         return entityId;
     }
 
-    public String getUsername() {
+    public String username() {
         return username;
     }
 

@@ -117,7 +117,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     @Override
     public void load(PlayerSave playerSave) {
         this.setName(playerSave.name());
-        this.setPosition(playerSave.position(), true);
+        this.setPosition(playerSave.position());
         this.getInventory().transferFrom(playerSave.inventory().inventory());
 
         loadArtifacts(playerSave.artifacts());
@@ -191,7 +191,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         setHealth(100);
 
         setSize(24, 28, OasisGameSettings.SCALE);
-        bounds.set(getPosition().x, getPosition().y, 24 * OasisGameSettings.SCALE, 28 * OasisGameSettings.SCALE);
+        bb = new Rectangle(0, 0, getScaledWidth(), getScaledHeight());
 
         itemBounds.set(bounds);
         itemBounds.x += 3.0f;
@@ -575,7 +575,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     public void update(float delta) {
         pollInput();
 
-        this.body.setLinearVelocity(this.getVelocity());
+        this.body.setLinearVelocity(getTransformComponent().velocity);
         bounds.setPosition(body.getPosition());
 
         // handle all attributes currently applied
@@ -623,7 +623,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Poll input of the user input
      */
     private void pollInput() {
-        setVelocity(0.0f, 0.0f, false);
+        getTransformComponent().velocity.set(0, 0);
         if (!canMove) {
             return;
         }
@@ -633,7 +633,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         final float velX = getVelocityX();
 
         // TODO: Normalize, but fix slow movement
-        setVelocity(velX, velY, false);
+        getTransformComponent().velocity.set(velX, velY);
         if (velX != 0.0 || velY != 0.0) hasMoved = true;
 
         rotationChanged = getAngle() != rotation.ordinal();

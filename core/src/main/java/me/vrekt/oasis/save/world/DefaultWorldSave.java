@@ -4,8 +4,8 @@ import me.vrekt.oasis.world.GameWorld;
 
 public final class DefaultWorldSave extends AbstractWorldSaveState {
 
-    public DefaultWorldSave(GameWorld world, String excludeInteriorName) {
-        super(world, excludeInteriorName);
+    public DefaultWorldSave(GameWorld world, int excludedInteriorId) {
+        super(world, excludedInteriorId);
     }
 
     public DefaultWorldSave(GameWorld world) {

@@ -1,10 +1,12 @@
 package me.vrekt.shared.packet.client.player;
 
-import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.C2SPacketHandler;
+import me.vrekt.shared.packet.GamePacket;
 
+/**
+ * A players position
+ */
 public final class C2SPacketPlayerPosition extends GamePacket {
 
     public static final int PACKET_ID = 2226;
@@ -21,23 +23,19 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         this.rotation = rotation;
     }
 
-    public C2SPacketPlayerPosition(Vector2 position, float rotation) {
-        this(position.x, position.y, rotation);
-    }
-
     private C2SPacketPlayerPosition(ByteBuf buffer) {
         super(buffer);
     }
 
-    public float getX() {
+    public float x() {
         return x;
     }
 
-    public float getY() {
+    public float y() {
         return y;
     }
 
-    public float getRotation() {
+    public float rotation() {
         return rotation;
     }
 

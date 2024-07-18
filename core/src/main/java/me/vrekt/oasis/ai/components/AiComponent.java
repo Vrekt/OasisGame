@@ -24,7 +24,7 @@ public abstract class AiComponent {
         this.entity = entity;
         this.type = type;
 
-        steering = new EntitySteerable(entity, entity.getBody(), this, behavior);
+        steering = new EntitySteerable(entity, entity.body(), this, behavior);
         location = new SimpleVectorLocation().set(entity.getPosition());
     }
 
@@ -59,7 +59,7 @@ public abstract class AiComponent {
         this.paused = true;
 
         if (emptyVelocity) {
-            entity.getBody().setLinearVelocity(0, 0);
+            entity.setVelocity(0, 0);
         }
     }
 

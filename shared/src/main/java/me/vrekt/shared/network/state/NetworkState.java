@@ -8,17 +8,14 @@ import com.badlogic.gdx.utils.TimeUtils;
 public final class NetworkState {
 
     private final NetworkWorldState world;
-    private final NetworkPlayerState[] players;
     private final NetworkEntityState[] entities;
 
     private final long timeSent;
 
     public NetworkState(NetworkWorldState world,
-                        NetworkPlayerState[] players,
                         NetworkEntityState[] entities,
                         long now) {
         this.world = world;
-        this.players = players;
         this.entities = entities;
         this.timeSent = now;
     }
@@ -28,13 +25,6 @@ public final class NetworkState {
      */
     public NetworkWorldState world() {
         return world;
-    }
-
-    /**
-     * @return all players connected to the host
-     */
-    public NetworkPlayerState[] players() {
-        return players;
     }
 
     /**

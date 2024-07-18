@@ -42,9 +42,6 @@ public final class NettyServer {
     private final GameProtocol protocol;
     private final CrimsonGameServer server;
 
-    // if connections are allowed to connect
-    private boolean connectionEnabled = true;
-
     /**
      * Initialize the bootstrap and server.
      *
@@ -103,30 +100,11 @@ public final class NettyServer {
     }
 
     /**
-     * Disable any requests to connect to this server
-     */
-    public void disableIncomingConnections() {
-        connectionEnabled = false;
-    }
-
-    /**
-     * Enable any requests to connect to this server
-     */
-    public void enableIncomingConnections() {
-        connectionEnabled = true;
-    }
-
-    /**
      * Handle a new socket channel
      *
      * @param channel the channel
      */
     private void handleSocketConnection(SocketChannel channel) {
-        if (!connectionEnabled) {
-            channel.close();
-            return;
-        }
-
         final ServerAbstractConnection connection = new ServerPlayerConnection(channel, server);
         final LengthFieldBasedFrameDecoder decoder = new ClientProtocolPacketDecoder(connection, protocol);
 

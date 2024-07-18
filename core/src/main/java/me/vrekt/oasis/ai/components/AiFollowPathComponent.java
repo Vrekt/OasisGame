@@ -33,7 +33,7 @@ public abstract class AiFollowPathComponent extends AiComponent {
         followPath = new FollowPath<>(steering, linePath, 1);
         GameLogging.info(this, "Loaded %d waypoints for %s", waypoints.size, entity.name());
 
-        if (teleportToFirst) entity.setPosition(waypoints.first().x, waypoints.first().y, true);
+        if (teleportToFirst) entity.setPosition(waypoints.first().x, waypoints.first().y);
         steering.setBehavior(followPath);
         this.applySelf = true;
 
@@ -77,7 +77,7 @@ public abstract class AiFollowPathComponent extends AiComponent {
         if (isZeroY) linear.y = 0.0f;
         if (isZeroX) linear.x = 0.0f;
 
-        entity.setVelocity(linear, true);
+        entity.setVelocity(linear);
     }
 
     /**

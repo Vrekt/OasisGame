@@ -12,10 +12,13 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
  */
 public final class WrynnBasementInterior extends GameWorldInterior {
 
+    public static final int WORLD_ID = 3;
+
     public WrynnBasementInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
 
         this.worldMap = Asset.WRYNN_BASEMENT;
+        this.worldId = WORLD_ID;
     }
 
     @Override

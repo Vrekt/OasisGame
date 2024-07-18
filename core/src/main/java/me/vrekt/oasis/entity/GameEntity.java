@@ -118,7 +118,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param save save
      */
     public void loadSavedEntity(GenericEntitySave save) {
-        setPosition(save.position(), true);
+        setPosition(save.position());
         setHealth(save.health());
         setMoveSpeed(save.moveSpeed());
         rotation = save.rotation();
@@ -436,7 +436,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @return position of this entity, defaulted to {@code 0.0f,0.0f}
      */
     public Vector2 getPosition() {
-        return GlobalEntityMapper.transform.get(entity).position;
+        return body == null ? Vector2.Zero : body.getPosition();
     }
 
     /**
@@ -467,24 +467,20 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     /**
      * Set the position of this entity
      *
-     * @param position  the position
-     * @param transform if the box2d body should be transformed
+     * @param position the position
      */
-    public void setPosition(Vector2 position, boolean transform) {
-        getPosition().set(position);
-        if (transform && body != null) body.setTransform(position, getAngle());
+    public void setPosition(Vector2 position) {
+        if (body != null) body.setTransform(position, getAngle());
     }
 
     /**
      * Set the position of this entity
      *
-     * @param x         x position
-     * @param y         y position
-     * @param transform if the box2d body should be transformed
+     * @param x x position
+     * @param y y position
      */
-    public void setPosition(float x, float y, boolean transform) {
-        getPosition().set(x, y);
-        if (transform && body != null) body.setTransform(x, y, getAngle());
+    public void setPosition(float x, float y) {
+        if (body != null) body.setTransform(x, y, getAngle());
     }
 
     /**
@@ -505,7 +501,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         trajectory.set(lerped).sub(body.getPosition()).scl(1f / (networkTime * delta));
         // final smoothing of the velocity
         smoothed.set(trajectory).add(velocity).scl(0.25f);
-        setVelocity(smoothed, true);
+        setVelocity(smoothed);
     }
 
     /**
@@ -542,27 +538,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * Usually set right before updating an entities current position
-     *
-     * @param x position
-     * @param y y position
-     */
-    public void setPreviousPosition(float x, float y) {
-        getPreviousPosition().set(x, y);
-    }
-
-    /**
      * @return interpolated position for drawing or anything else that requires smoothing
      */
     public Vector2 getInterpolatedPosition() {
         return GlobalEntityMapper.transform.get(entity).interpolated;
-    }
-
-    /**
-     * @param position position
-     */
-    public void setInterpolatedPosition(Vector2 position) {
-        getInterpolatedPosition().set(position);
     }
 
     /**
@@ -583,15 +562,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     /**
      * Interpolate the position of this entity
      *
-     * @param alpha alpha to use for 'smoothing'
-     */
-    public void interpolatePosition(float alpha) {
-        interpolatePosition(Interpolation.linear, alpha);
-    }
-
-    /**
-     * Interpolate the position of this entity
-     *
      * @param interpolation interpolation method to use
      * @param alpha         alpha to use for 'smoothing'
      */
@@ -605,24 +575,22 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @return current linear velocity of this entity
      */
     public Vector2 getVelocity() {
-        return GlobalEntityMapper.transform.get(entity).velocity;
+        return body.getLinearVelocity();
     }
 
     /**
      * @param velocity the linear velocity
      */
-    public void setVelocity(Vector2 velocity, boolean updateBody) {
-        getVelocity().set(velocity);
-        if (updateBody && body != null) body.setLinearVelocity(velocity);
+    public void setVelocity(Vector2 velocity) {
+        if (body != null) body.setLinearVelocity(velocity);
     }
 
     /**
      * @param x linear X velocity
      * @param y linear Y velocity
      */
-    public void setVelocity(float x, float y, boolean updateBody) {
-        getVelocity().set(x, y);
-        if (updateBody && body != null) body.setLinearVelocity(x, y);
+    public void setVelocity(float x, float y) {
+        if (body != null) body.setLinearVelocity(x, y);
     }
 
     /**
@@ -635,12 +603,8 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     /**
      * @return the box2d {@link Body} or {@code  null} if none yet
      */
-    public Body getBody() {
+    public Body body() {
         return body;
-    }
-
-    public Vector2 bodyPosition() {
-        return body.getPosition();
     }
 
     /**
@@ -700,7 +664,15 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param h h
      */
     protected void createBB(float w, float h) {
-        bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
+        if (body == null) {
+            bb = new Rectangle(
+                    getTransformComponent().position.x,
+                    getTransformComponent().position.y,
+                    w * OasisGameSettings.SCALE,
+                    h * OasisGameSettings.SCALE);
+        } else {
+            bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
+        }
         setSize(w, h, OasisGameSettings.SCALE);
     }
 
@@ -711,7 +683,15 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param h h
      */
     protected void createBBNoSize(float w, float h) {
-        bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
+        if (body == null) {
+            bb = new Rectangle(
+                    getTransformComponent().position.x,
+                    getTransformComponent().position.y,
+                    w * OasisGameSettings.SCALE,
+                    h * OasisGameSettings.SCALE);
+        } else {
+            bb = new Rectangle(getX(), getY(), w * OasisGameSettings.SCALE, h * OasisGameSettings.SCALE);
+        }
     }
 
     /**
@@ -806,7 +786,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * Called when this entity will stop updating (outside update distance)
      */
     public void stopUpdating() {
-        setVelocity(0, 0, true);
+        setVelocity(0, 0);
     }
 
     /**
@@ -848,10 +828,9 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param rotation rotation key
      * @param texture  the texture
      */
-    protected TextureRegion addTexturePart(EntityRotation rotation, TextureRegion texture, boolean initial) {
+    protected void addTexturePart(EntityRotation rotation, TextureRegion texture, boolean initial) {
         entity.getComponent(EntityTextureComponent.class).textureRegions.put(rotation.name(), texture);
         if (initial) activeEntityTexture = texture;
-        return texture;
     }
 
     /**
@@ -860,9 +839,8 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param name    the name
      * @param texture the texture
      */
-    protected TextureRegion addTexturePart(String name, TextureRegion texture) {
+    protected void addTexturePart(String name, TextureRegion texture) {
         entity.getComponent(EntityTextureComponent.class).textureRegions.put(name, texture);
-        return texture;
     }
 
     /**
@@ -871,10 +849,9 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param name    the name
      * @param texture the texture
      */
-    protected TextureRegion addTexturePart(String name, TextureRegion texture, boolean initial) {
+    protected void addTexturePart(String name, TextureRegion texture, boolean initial) {
         entity.getComponent(EntityTextureComponent.class).textureRegions.put(name, texture);
         if (initial) activeEntityTexture = texture;
-        return texture;
     }
 
     /**
@@ -1019,7 +996,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
         definition.type = BodyDef.BodyType.DynamicBody;
         definition.fixedRotation = false;
-        definition.position.set(getPosition());
+        definition.position.set(getTransformComponent().position);
 
         body = world.createBody(definition);
 
@@ -1044,7 +1021,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         final BodyDef definition = new BodyDef();
         definition.type = BodyDef.BodyType.DynamicBody;
         definition.fixedRotation = false;
-        definition.position.set(getPosition());
+        definition.position.set(getTransformComponent().position);
 
         final CircleShape shape = createCircleCollisionShape(flipped);
         final FixtureDef fixture = createCircleCollisionFixture(shape);

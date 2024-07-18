@@ -310,7 +310,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             player.createCircleBody(world, flipPlayerCollision);
         } else {
             player.createCircleBody(world, flipPlayerCollision);
-            player.setPosition(worldOrigin, true);
+            player.setPosition(worldOrigin);
         }
 
         player.updateWorldState(this);
@@ -564,7 +564,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void transferEntityTo(EntityInteractable entity, GameWorldInterior other) {
         removeEntity(entity, false);
-        world.destroyBody(entity.getBody());
+        world.destroyBody(entity.body());
 
         entity.createRectangleBody(other.world, Vector2.Zero);
         entity.setWorldIn(other);
@@ -1144,7 +1144,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         worldDamageAnimator.update(delta);
 
         player.setPreviousPosition(player.getPosition());
-        player.setPosition(player.getBody().getPosition(), false);
         player.interpolatePosition();
         player.update(delta);
 

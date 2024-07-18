@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.C2SPacketHandler;
-import me.vrekt.shared.packet.server.S2CPacketJoinWorld;
+import me.vrekt.shared.packet.server.player.S2CPacketJoinWorld;
 
 /**
  * Request to join a world.
@@ -16,10 +16,6 @@ public final class C2SPacketJoinWorld extends GamePacket {
     private int worldId;
     private String username;
     private long clientTime;
-    // indicates to send all current players within separate packets
-    // instead of one large chunk.
-    // TODO
-    private boolean batchPlayers;
 
     public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
         handler.handle(new C2SPacketJoinWorld(buffer));

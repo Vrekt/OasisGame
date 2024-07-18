@@ -50,7 +50,7 @@ public final class ChickEntity extends GameEntity {
         this.stateMachine = new EntityStateMachine(this);
 
         setName(NAME);
-        setPosition(position.x, position.y, false);
+        getTransformComponent().position.set(position);
     }
 
     @Override
@@ -196,7 +196,7 @@ public final class ChickEntity extends GameEntity {
 
         if (component.isAtGoal()) {
             // full-stop
-            setVelocity(0, 0, true);
+            setVelocity(0, 0);
         }
     }
 

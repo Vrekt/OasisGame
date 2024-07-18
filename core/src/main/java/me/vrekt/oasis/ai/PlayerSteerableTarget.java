@@ -19,7 +19,7 @@ public final class PlayerSteerableTarget extends SteerableAdapter<Vector2> {
 
     public PlayerSteerableTarget(PlayerSP player) {
         this.player = player;
-        this.body = player.getBody();
+        this.body = player.body();
     }
 
     @Override

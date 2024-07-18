@@ -2,39 +2,36 @@ package me.vrekt.oasis.world.management;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Handles loading and unloading worlds.
  */
 public final class WorldManager implements Disposable {
 
-    private final Map<String, GameWorld> worldMap = new ConcurrentHashMap<>();
+    private final IntMap<GameWorld> worlds = new IntMap<>();
+    // the position where the player entered an interior
     private final Vector2 parentWorldPosition = new Vector2();
 
-    private int memoryManagerTaskId;
-
-    public void addWorld(String worldName, GameWorld world) {
-        worldMap.put(worldName, world);
+    public void addWorld(GameWorld world) {
+        worlds.put(world.worldId(), world);
     }
 
-    public GameWorld getWorld(String name) {
-        return worldMap.get(name);
+    public GameWorld getWorld(int worldId) {
+        return worlds.get(worldId);
     }
 
-    public boolean doesWorldExist(String name) {
-        return worldMap.containsKey(name);
+    public boolean doesWorldExist(int worldId) {
+        return worlds.containsKey(worldId);
     }
 
-    public Map<String, GameWorld> worlds() {
-        return worldMap;
+    public IntMap<GameWorld> worlds() {
+        return worlds;
     }
 
     public void setParentWorldPosition(Vector2 position) {
@@ -53,7 +50,7 @@ public final class WorldManager implements Disposable {
      * @param interior the interior world
      */
     public void transferIn(PlayerSP player, GameWorld parent, GameWorldInterior interior) {
-        parentWorldPosition.set(player.getBody().getPosition());
+        parentWorldPosition.set(player.getPosition());
 
         GameManager.transitionScreen(parent, interior, () -> {
             interior.loadWorld(false);
@@ -64,13 +61,13 @@ public final class WorldManager implements Disposable {
     /**
      * Transfer to another world
      *
-     * @param player player
-     * @param into   world name
+     * @param player      player
+     * @param worldIdInto the world ID of the world entering
      */
-    public GameWorld transferTo(PlayerSP player, String into) {
-        final GameWorld to = getWorld(into);
+    public GameWorld transferTo(PlayerSP player, int worldIdInto) {
+        final GameWorld to = getWorld(worldIdInto);
         if (to == null) {
-            GameLogging.error(this, "Failed to find the world %s", into);
+            GameLogging.error(this, "Failed to find the world %d", worldIdInto);
             return null;
         }
 
@@ -95,7 +92,7 @@ public final class WorldManager implements Disposable {
         player.removeFromInteriorWorld();
         // FIXME:  manageInteriorMemoryState(from);
 
-        player.setPosition(parentWorldPosition, true);
+        player.setPosition(parentWorldPosition);
         player.createCircleBody(parent.boxWorld(), false);
         player.updateWorldState(parent);
 
@@ -107,22 +104,9 @@ public final class WorldManager implements Disposable {
         parent.enter();
     }
 
-    /**
-     * Handles unloading the interior
-     *
-     * @param interior interior
-     */
-    private void manageInteriorMemoryState(GameWorldInterior interior) {
-        if (memoryManagerTaskId != 0) {
-            // cancel this task to reset the timer
-            GameManager.getTaskManager().cancel(memoryManagerTaskId);
-        }
-        memoryManagerTaskId = GameManager.getTaskManager().schedule(interior::dispose, GameWorldInterior.UNLOAD_AFTER);
-    }
-
     @Override
     public void dispose() {
-        worldMap.values().forEach(GameWorld::dispose);
-        worldMap.clear();
+        worlds.values().forEach(GameWorld::dispose);
+        worlds.clear();
     }
 }

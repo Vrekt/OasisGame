@@ -21,7 +21,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
 
         setName(name);
         setAngle(EntityRotation.DOWN.ordinal());
-        setPosition(position, true);
+        getTransformComponent().position.set(position);
         setNearby(false);
 
         this.worldIn = worldIn;
@@ -30,7 +30,7 @@ public abstract class EntityInteractable extends EntitySpeakable implements Sava
 
     @Override
     public void load(InteractableEntitySave save) {
-        setPosition(save.position(), true);
+        setPosition(save.position());
         rotation = save.rotation();
 
         // if dialog was not implemented yet for the saved entity

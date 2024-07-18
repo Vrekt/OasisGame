@@ -49,7 +49,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         super(ENTITY_KEY, world, game);
         this.type = EntityType.ROACH;
 
-        setPosition(position, true);
+        setPosition(position);
         setName(NAME);
         setHealth(20);
 

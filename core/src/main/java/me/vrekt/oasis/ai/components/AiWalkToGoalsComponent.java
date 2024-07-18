@@ -64,7 +64,7 @@ public final class AiWalkToGoalsComponent extends AiComponent {
      * @return {@code true} if this entity is within its goal
      */
     public boolean isAtGoal() {
-        return activeGoal != null && activeGoal.goal.position().dst2(entity.getBody().getPosition()) <= arrive.getArrivalTolerance();
+        return activeGoal != null && activeGoal.goal.position().dst2(entity.getPosition()) <= arrive.getArrivalTolerance();
     }
 
     public void resume() {

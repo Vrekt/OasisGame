@@ -39,6 +39,7 @@ public class World implements Disposable {
         this.worldId = worldId;
         this.gameServer = gameServer;
 
+        // TODO: Fix this, not ideal but nested() errors are thrown with concurrency
         Collections.allocateIterators = true;
     }
 
@@ -56,7 +57,7 @@ public class World implements Disposable {
      * @return {@code true} if the player is timed out
      */
     public boolean isTimedOut(ServerEntityPlayer player) {
-        return false;
+        return !player.getConnection().isAlive();
     }
 
     /**

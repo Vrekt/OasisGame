@@ -61,7 +61,7 @@ public final class EntityFollowPathGoal extends AiFollowPathComponent {
         // sometimes the path segment is greater than the list for whatever reason.
         boolean result = false;
         if (currentPathSegment + 1 < waypoints.size) {
-            result = entity.getBody().getPosition().dst2(waypoints.get(currentPathSegment + 1)) <= tolerance && isInitialized;
+            result = entity.getPosition().dst2(waypoints.get(currentPathSegment + 1)) <= tolerance && isInitialized;
         }
 
         // TODO: A little quirky, but works better.

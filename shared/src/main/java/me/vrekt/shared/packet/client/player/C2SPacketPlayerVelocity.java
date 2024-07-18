@@ -1,9 +1,8 @@
 package me.vrekt.shared.packet.client.player;
 
-import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.codec.C2SPacketHandler;
+import me.vrekt.shared.packet.GamePacket;
 
 public final class C2SPacketPlayerVelocity extends GamePacket {
 
@@ -19,10 +18,6 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.rotation = rotation;
-    }
-
-    public C2SPacketPlayerVelocity(Vector2 velocity, float rotation) {
-        this(velocity.x, velocity.y, rotation);
     }
 
     private C2SPacketPlayerVelocity(ByteBuf buffer) {

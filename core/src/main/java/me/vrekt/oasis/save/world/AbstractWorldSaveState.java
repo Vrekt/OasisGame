@@ -32,7 +32,7 @@ public abstract class AbstractWorldSaveState {
     @Expose
     protected String map;
     @Expose
-    protected String name;
+    protected int worldId;
     @Expose
     protected boolean interior;
     @Expose
@@ -43,17 +43,17 @@ public abstract class AbstractWorldSaveState {
     List<AbstractWorldObjectSaveState> objects;
 
     // the interior to exclude when writing this save
-    private transient final String excludeInteriorName;
+    private transient final int excludedInteriorId;
 
     public AbstractWorldSaveState() {
-        this.excludeInteriorName = null;
+        this.excludedInteriorId = -1;
     }
 
-    public AbstractWorldSaveState(GameWorld world, String excludeInteriorName) {
+    public AbstractWorldSaveState(GameWorld world, int excludedInteriorId) {
         this.map = world.getWorldMap();
-        this.name = world.getWorldName();
+        this.worldId = world.worldId();
         this.interior = world.isInterior();
-        this.excludeInteriorName = excludeInteriorName;
+        this.excludedInteriorId = excludedInteriorId;
 
         writeEntities(world);
         writeInteriors(world);
@@ -62,9 +62,9 @@ public abstract class AbstractWorldSaveState {
 
     public AbstractWorldSaveState(GameWorld world) {
         this.map = world.getWorldMap();
-        this.name = world.getWorldName();
+        this.worldId = world.worldId();
         this.interior = world.isInterior();
-        this.excludeInteriorName = null;
+        this.excludedInteriorId = -1;
 
         writeEntities(world);
         writeInteriors(world);
@@ -107,14 +107,12 @@ public abstract class AbstractWorldSaveState {
         // TODO: So then it can be reloaded from disk
         for (GameWorldInterior interior : world.interiorWorlds().values()) {
             // != null fixes EM-91
-            if (excludeInteriorName == null) {
+            if (excludedInteriorId == -1) {
                 // debugging purposes, remove later 6/12/24
                 GameLogging.warn(this, "Excluded was null, debugging: interior=%s, caller=%s", interior.type(), world.getWorldName());
             }
 
-            if (interior.isWorldLoaded()
-                    && excludeInteriorName != null
-                    && !excludeInteriorName.equals(interior.getWorldName())) {
+            if (interior.isWorldLoaded() && excludedInteriorId != interior.worldId()) {
                 interiors.add(new InteriorWorldSave(interior));
             }
         }
@@ -152,10 +150,10 @@ public abstract class AbstractWorldSaveState {
     }
 
     /**
-     * @return name
+     * @return id
      */
-    public String name() {
-        return name;
+    public int worldId() {
+        return worldId;
     }
 
     /**

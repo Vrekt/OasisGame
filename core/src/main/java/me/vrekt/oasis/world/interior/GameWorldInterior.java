@@ -328,7 +328,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         player.createCircleBody(world, isFlipped);
 
         if (!isGameSave) {
-            player.setPosition(worldOrigin, true);
+            player.setPosition(worldOrigin);
         }
         player.updateWorldState(this);
     }

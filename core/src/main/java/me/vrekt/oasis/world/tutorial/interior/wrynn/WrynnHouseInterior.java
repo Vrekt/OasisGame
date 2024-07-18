@@ -16,10 +16,13 @@ import me.vrekt.oasis.world.obj.interaction.impl.misc.WrynnLeverInteraction;
  */
 public final class WrynnHouseInterior extends GameWorldInterior {
 
+    public static final int WORLD_ID = 2;
+
     public WrynnHouseInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
 
         this.worldMap = Asset.WRYNN_OFFICE;
+        this.worldId = WORLD_ID;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package me.vrekt.shared.packet.server;
+package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;

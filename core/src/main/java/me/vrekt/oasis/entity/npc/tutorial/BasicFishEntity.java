@@ -43,7 +43,7 @@ public final class BasicFishEntity extends GameEntity {
         this.player = game.getPlayer();
 
         setName("Fish");
-        setPosition(position.x, position.y, false);
+        getTransformComponent().position.set(position.x, position.y);
     }
 
     @Override

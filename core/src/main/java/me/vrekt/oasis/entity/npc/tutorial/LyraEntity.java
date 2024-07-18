@@ -140,7 +140,7 @@ public final class LyraEntity extends EntityInteractable {
         component.setMaxLinearAcceleration(2.0f);
         component.setHostileAttackRange(1.0f);
 
-        setPosition(interior.worldOrigin().x, interior.worldOrigin().y - 1.0f, true);
+        setPosition(interior.worldOrigin().x, interior.worldOrigin().y - 1.0f);
         addAiComponent(component);
     }
 
@@ -188,7 +188,8 @@ public final class LyraEntity extends EntityInteractable {
     public void update(float delta) {
         super.update(delta);
 
-        if(isNetworked) {
+        // TODO: inline get rotation method instead of AI component
+        if (isNetworked) {
             rotation = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
         }
 
@@ -199,7 +200,7 @@ public final class LyraEntity extends EntityInteractable {
         }
 
         if (isSpeakingTo()) {
-            if (isMoving()) setVelocity(0, 0, true);
+            if (isMoving()) setVelocity(0, 0);
             return;
         }
 

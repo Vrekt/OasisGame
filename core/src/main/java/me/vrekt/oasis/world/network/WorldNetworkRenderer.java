@@ -9,6 +9,7 @@ import me.vrekt.oasis.world.GameWorld;
  * Handles rendering and updating network elements within a world.
  */
 public final class WorldNetworkRenderer {
+
     /**
      * Update network players
      *
@@ -16,7 +17,6 @@ public final class WorldNetworkRenderer {
      */
     public void update(GameWorld world, float delta) {
         for (NetworkPlayer player : world.players().values()) {
-            player.setPreviousPosition(player.getPosition());
             player.update(delta);
         }
     }
@@ -24,6 +24,7 @@ public final class WorldNetworkRenderer {
     /**
      * Render elements
      *
+     * @param world active world.
      * @param batch batch
      * @param delta delta
      */

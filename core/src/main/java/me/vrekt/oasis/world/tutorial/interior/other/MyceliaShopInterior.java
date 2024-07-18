@@ -15,12 +15,15 @@ import me.vrekt.oasis.world.tutorial.MyceliaWorld;
  */
 public final class MyceliaShopInterior extends GameWorldInterior {
 
+    public static final int WORLD_ID = 5;
+
     public MyceliaShopInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
 
         this.worldName = "MyceliaShop";
         this.worldMap = Asset.MYCELIA_SHOP;
         this.requiresNearUpdating = false;
+        this.worldId = WORLD_ID;
     }
 
     @Override

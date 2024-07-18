@@ -37,7 +37,7 @@ public final class InteriorWorldSave extends AbstractWorldSaveState {
 
     public InteriorWorldSave(GameWorldInterior world) {
         this.map = world.getWorldMap();
-        this.name = world.getWorldName();
+        this.worldId = world.worldId();
         this.interiorType = world.type();
         this.interior = true;
         this.enterable = world.isEnterable();

@@ -7,11 +7,12 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
-import me.vrekt.shared.network.state.*;
+import me.vrekt.shared.network.state.NetworkEntityState;
+import me.vrekt.shared.network.state.NetworkState;
+import me.vrekt.shared.network.state.NetworkWorldState;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.server.S2CNetworkFrame;
 import me.vrekt.shared.packet.server.S2CStartGame;
@@ -44,14 +45,6 @@ public final class WorldNetworkHandler {
     }
 
     /**
-     * Register server events we need to keep an eye on
-     * TODO
-     */
-    public void registerServerEvents(IntegratedServer server) {
-
-    }
-
-    /**
      * Build a network state from the active world
      *
      * @return the new state
@@ -67,7 +60,7 @@ public final class WorldNetworkHandler {
         }
 
         final NetworkWorldState state = new NetworkWorldState(world);
-        return new NetworkState(state, null, entities, TimeUtils.nanoTime());
+        return new NetworkState(state, entities, TimeUtils.nanoTime());
     }
 
     /**
@@ -80,10 +73,7 @@ public final class WorldNetworkHandler {
         final NetworkState state = frame.state();
         final float now = Gdx.graphics.getDeltaTime();
 
-        updateNetworkWorldState(state);
-        updateNetworkPlayersState(state, now);
         updateNetworkEntityState(state, now);
-
         receivedBefore = true;
     }
 
@@ -111,33 +101,6 @@ public final class WorldNetworkHandler {
     }
 
     /**
-     * Update the world state from the network
-     *
-     * @param state state
-     */
-    private void updateNetworkWorldState(NetworkState state) {
-        // TODO:
-    }
-
-    /**
-     * Update all network player states
-     *
-     * @param state state
-     */
-    private void updateNetworkPlayersState(NetworkState state, float delta) {
-        if (state.players() == null) return;
-        for (int i = 0; i < state.players().length; i++) {
-            final NetworkPlayerState playerState = state.players()[i];
-            final NetworkPlayer player = this.player.getWorldState().getPlayer(playerState.entityId());
-            if (player != null) {
-                // TODO: player.networkInterpolate(playerState, delta, TimeUtils.nanosToMillis(state.timeSent()));
-            } else {
-                GameLogging.warn(this, "Failed to find network player %d", playerState.entityId());
-            }
-        }
-    }
-
-    /**
      * TODO: Handle all relevant packets we may want to watch
      *
      * @param packet packet
@@ -146,16 +109,26 @@ public final class WorldNetworkHandler {
 
     }
 
+    /**
+     * Host: handle a players position
+     *
+     * @param player player
+     */
     public void handlePlayerPosition(ServerEntityPlayer player) {
         this.player.getWorldState().getPlayer(player.entityId()).updateNetworkPosition(player.getPosition().x, player.getPosition().y, 1.0f);
     }
 
+    /**
+     * Host: handle a players velocity
+     *
+     * @param player player
+     */
     public void handlePlayerVelocity(ServerEntityPlayer player) {
         this.player.getWorldState().getPlayer(player.entityId()).updateNetworkVelocity(player.getVelocity().x, player.getVelocity().y, 1.0f);
     }
 
     /**
-     * Handle a player joined this host server
+     * Host: handle a player joined this host server
      *
      * @param player the player
      */
@@ -181,7 +154,7 @@ public final class WorldNetworkHandler {
 
         networkPlayer.setProperties(username, entityId);
         networkPlayer.createCircleBody(player.getWorldState().boxWorld(), false);
-        networkPlayer.setPosition(x, y, true);
+        networkPlayer.setPosition(x, y);
 
         player.getConnection().addPlayer(entityId, networkPlayer);
         player.getWorldState().spawnPlayerInWorld(networkPlayer);
@@ -242,10 +215,10 @@ public final class WorldNetworkHandler {
     private void handleRemovePlayer(S2CPacketRemovePlayer packet) {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
 
-        player.getConnection().removePlayer(packet.getEntityId());
-        player.getWorldState().removePlayerInWorld(packet.getEntityId(), true);
+        player.getConnection().removePlayer(packet.entityId());
+        player.getWorldState().removePlayerInWorld(packet.entityId(), true);
 
-        GameLogging.info(this, "Player (%d) (%s) left.", packet.getEntityId(), packet.getUsername());
+        GameLogging.info(this, "Player (%d) (%s) left.", packet.entityId(), packet.username());
     }
 
     /**
@@ -267,7 +240,7 @@ public final class WorldNetworkHandler {
     private void handlePlayerVelocity(S2CPacketPlayerVelocity packet) {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
 
-        player.getWorldState().updatePlayerVelocityInWorld(packet.getEntityId(), packet.getX(), packet.getY(), packet.getRotation());
+        player.getWorldState().updatePlayerVelocityInWorld(packet.entityId(), packet.x(), packet.y(), packet.rotation());
     }
 
     /**

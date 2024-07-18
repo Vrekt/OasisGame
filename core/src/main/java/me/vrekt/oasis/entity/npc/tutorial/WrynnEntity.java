@@ -147,7 +147,7 @@ public final class WrynnEntity extends EntityInteractable {
         super.update(delta);
 
         if (isSpeakingTo()) {
-            if (isMoving()) setVelocity(0.0f, 0.0f, true);
+            if (isMoving()) setVelocity(0.0f, 0.0f);
             // face the player if we haven't already.
             // maybe check if we haven't instead of running this every tick.
             setRotation(AiVectorUtility.faceEntity(player, this));
@@ -166,10 +166,10 @@ public final class WrynnEntity extends EntityInteractable {
         super.updateAi(delta);
 
         if (pathComponent.isWithinTarget(1.0f)) {
-            setVelocity(0, 0, true);
+            setVelocity(0, 0);
             pauseFor(MathUtils.random(4.0f, 10.0f));
         } else if (isPaused) {
-            setVelocity(0, 0, true);
+            setVelocity(0, 0);
         }
 
         // only update rotation if we are moving

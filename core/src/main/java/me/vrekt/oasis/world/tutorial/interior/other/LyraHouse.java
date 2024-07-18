@@ -14,9 +14,12 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
  */
 public final class LyraHouse extends GameWorldInterior {
 
+    public static final int WORLD_ID = 4;
+
     public LyraHouse(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
         this.worldMap = Asset.HOUSE_2;
+        this.worldId = WORLD_ID;
     }
 
     @Override

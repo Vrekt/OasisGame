@@ -32,9 +32,9 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
-import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
+import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
 import me.vrekt.shared.protocol.GameProtocol;
 import me.vrekt.shared.protocol.ProtocolDefaults;
@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240718-0318-7250";
+    public static final String GAME_VERSION = "20240718-0436-7273";
 
     private Asset asset;
 
@@ -67,7 +67,6 @@ public final class OasisGame extends Game {
     private WorldNetworkHandler networkHandler;
 
     private ExecutorService virtualAsyncService;
-    private boolean isNewGame;
 
     private IntegratedServer server;
     // local multiplayer = we are the host
@@ -134,13 +133,18 @@ public final class OasisGame extends Game {
 
         renderer = new MapRenderer(batch, player);
         GameManager.initialize(this);
+        loadWorlds();
+    }
 
+    /**
+     * Load required worlds.
+     */
+    private void loadWorlds() {
         final NewGameWorld world = new NewGameWorld(this, player);
-        worldManager.addWorld("TutorialWorld", world);
+        worldManager.addWorld(world);
 
         final MyceliaWorld myceliaWorld = new MyceliaWorld(this, player);
-        worldManager.addWorld("MyceliaWorld", myceliaWorld);
-
+        worldManager.addWorld(myceliaWorld);
     }
 
     /**
@@ -163,7 +167,7 @@ public final class OasisGame extends Game {
         OasisKeybindings.loadSaveSettings(state.settings());
 
         player.load(state.player());
-        loadWorldState(state.player());
+        loadWorldSaveState(state.player());
     }
 
     /**
@@ -171,7 +175,7 @@ public final class OasisGame extends Game {
      *
      * @param save save
      */
-    private void loadWorldState(PlayerSave save) {
+    private void loadWorldSaveState(PlayerSave save) {
         final PlayerWorldSave worldSave = save.worldSave();
         final GameWorld world = worldManager.getWorld(worldSave.inInterior() ? worldSave.parentWorld() : worldSave.worldIn());
 
@@ -211,10 +215,8 @@ public final class OasisGame extends Game {
 
         player.connection(new DummyConnection());
 
-        final GameWorld world = worldManager.getWorld("TutorialWorld");
+        final GameWorld world = worldManager.getWorld(NewGameWorld.WORLD_ID);
         loadingScreen.setWorldLoadingIn(world);
-
-        isNewGame = true;
 
         world.loadWorld(false);
         world.enter();
@@ -222,14 +224,16 @@ public final class OasisGame extends Game {
         scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);
     }
 
-    public void hostNewGame() {
+    /**
+     * Join local LAN server
+     */
+    public void joinLocalServer() {
         loadingScreen = new OasisLoadingScreen(this, true);
         setScreen(loadingScreen);
         loadGameStructure();
 
         joinRemoteServer();
     }
-
 
     /**
      * Save the game async
@@ -292,54 +296,26 @@ public final class OasisGame extends Game {
     public void startIntegratedServerBlocking() {
         if (server != null && server.started()) return;
 
-        networkHandler = new WorldNetworkHandler(this);
-        // TODO: attach
+        OasisGameSettings.ENABLE_MP_LAN = true;
 
+        networkHandler = new WorldNetworkHandler(this);
         protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
         server = new IntegratedServer(this, protocol, player);
         server.start();
 
-        // TODO: Client server?
-
         isLocalMultiplayer = true;
-       /* if (server != null && server.isStarted()) return;
+    }
 
-        this.protocol = new GdxProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME, true);
-        server = new IntegratedServer(this, protocol);
-        server.start();
-
-        clientServer = new LunarClientServer(protocol, "localhost", 6969);
-        clientServer.setConnectionProvider(channel -> new PlayerConnection(channel, protocol, this, player));
-
-        try {
-            clientServer.connect();
-        } catch (Exception exception) {
-            GameLogging.exceptionThrown(GAME_VERSION, "Exception thrown during connection stage", exception);
-            Gdx.app.exit();
-        }
-
-        if (clientServer.getConnection() == null) {
-            throw new UnsupportedOperationException("An error occurred with the remote server.");
-        }
-
-        handler = (PlayerConnection) clientServer.getConnection();
-        player.connection(handler);
-
-        isLocalMultiplayer = true;*/
+    /**
+     * Shutdown integrated server.
+     */
+    public void shutdownIntegratedServer() {
+        protocol.dispose();
+        server.dispose();
     }
 
     public void tickLocalMultiplayer() {
         server.update();
-    }
-
-    private void resumeIntegratedServer() {
-        GameLogging.info(this, "Integrated server resumed.");
-        //  server.resume();
-    }
-
-    private void stopIntegratedServer() {
-        GameLogging.info(this, "Integrated server suspended.");
-        //  server.suspend();
     }
 
     /**
@@ -420,15 +396,14 @@ public final class OasisGame extends Game {
      * @param worldId the ID
      */
     public void loadIntoNetworkWorld(int worldId) {
-        // TODO  if (!worldManager.doesWorldExist(worldName)) {
-        // GameLogging.info(this, "Bad information from the server! World %s does not exist!", worldName);
-        // return;
-        //  }
+        if (!worldManager.doesWorldExist(worldId)) {
+            GameLogging.error(this, "Bad world ID from server, id=%d", worldId);
+            return;
+        }
 
         Gdx.app.postRunnable(() ->
         {
-            // TODO
-            loadIntoWorldNetwork(worldManager.getWorld("TutorialWorld"));
+            loadIntoWorldNetwork(worldManager.getWorld(worldId));
             player.getConnection().updateWorldHasLoaded();
         });
     }
@@ -443,26 +418,10 @@ public final class OasisGame extends Game {
 
     }
 
-    public void enableLocalMultiplayer() {
-        if (!isLocalMultiplayer) {
-          /*  if (server != null && server.isStarted()) {
-                resumeIntegratedServer();
-                isLocalMultiplayer = true;
-            } else {
-                asyncLoadingService.execute(this::startIntegratedServer);
-            }*/
-        }
-    }
-
-    public void disableLocalMultiplayer() {
-        if (isLocalMultiplayer) {
-            isLocalMultiplayer = false;
-            stopIntegratedServer();
-        }
-    }
 
     /**
-     * TODO: Dispose of world, but later.
+     * Return to the main menu, dispose of world state.
+     * TODO: Proper implementation
      */
     public void returnToMenu() {
         player.getWorldState().dispose();
@@ -553,14 +512,6 @@ public final class OasisGame extends Game {
 
     public SoundManager soundManager() {
         return soundManager;
-    }
-
-    public boolean isNewGame() {
-        return isNewGame;
-    }
-
-    public void setNewGame(boolean newGame) {
-        isNewGame = newGame;
     }
 
     @Override

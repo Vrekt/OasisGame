@@ -1,7 +1,6 @@
 package me.vrekt.oasis.gui.windows;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -161,20 +160,15 @@ public final class SettingsWindowGui extends Gui {
                     return;
                 }
 
-                final VisDialog dialog = new VisDialog("Loading");
-                final VisTextButton ok = new VisTextButton("Ok", Styles.getImageTextButtonStyle());
-                ok.setDisabled(true);
-
-                dialog.text("Enabling multiplayer, please wait....", Styles.getMediumWhite());
-                dialog.button(ok);
-                dialog.key(Input.Keys.ENTER, true);
-                dialog.show(guiManager.getStage());
-
-                GameManager.executeOnMainThread(() -> {
-                    // blocks, afterwards enable buttons
-                    GameManager.game().startIntegratedServerBlocking();
-                    ok.setDisabled(false);
-                });
+                if (!OasisGameSettings.ENABLE_MP_LAN) {
+                    // start the server.
+                    GameManager.executeOnMainThread(() -> {
+                        GameManager.game().startIntegratedServerBlocking();
+                    });
+                } else {
+                    // stop the server.
+                    GameManager.game().shutdownIntegratedServer();
+                }
 
                 lastMultiplayerChecked = System.currentTimeMillis();
             }

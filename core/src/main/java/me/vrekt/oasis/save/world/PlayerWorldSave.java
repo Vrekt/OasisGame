@@ -16,12 +16,12 @@ import java.util.Map;
 public final class PlayerWorldSave {
 
     @Expose
-    @SerializedName("world_in_name")
-    private String worldIn;
+    @SerializedName("world_in_id")
+    private int worldIn;
 
     @Expose
-    @SerializedName("parent_world_name")
-    private String parentWorld;
+    @SerializedName("parent_world_id")
+    private int parentWorld;
 
     @Expose
     @SerializedName("is_in_interior")
@@ -37,14 +37,14 @@ public final class PlayerWorldSave {
 
     @Expose
     @SerializedName("visited_worlds")
-    private Map<String, AbstractWorldSaveState> worlds;
+    private Map<Integer, AbstractWorldSaveState> worlds;
 
     public PlayerWorldSave(OasisGame game, PlayerSP player) {
-        this.worldIn = player.getWorldState().getWorldName();
+        this.worldIn = player.getWorldState().worldId();
         this.inInterior = player.getWorldState().isInterior();
 
         if (inInterior) {
-            this.parentWorld = player.getInteriorWorldIn().getParentWorld().getWorldName();
+            this.parentWorld = player.getInteriorWorldIn().getParentWorld().worldId();
             this.interiorType = player.getInteriorWorldIn().type();
             this.world = new InteriorWorldSave(player.getInteriorWorldIn());
         } else {
@@ -55,23 +55,23 @@ public final class PlayerWorldSave {
         // will only return normal worlds and not interior worlds
         for (GameWorld gameWorld : game.getWorldManager().worlds().values()) {
             // only save this world if visited, and it's not already set as the active world
-            if (gameWorld.hasVisited() && !worldIn.equals(gameWorld.getWorldName())) {
-                this.worlds.put(gameWorld.getWorldName(), new DefaultWorldSave(gameWorld, inInterior ? worldIn : null));
+            if (gameWorld.hasVisited() && worldIn != gameWorld.worldId()) {
+                this.worlds.put(gameWorld.worldId(), new DefaultWorldSave(gameWorld, inInterior ? worldIn : -1));
             }
         }
     }
 
     /**
-     * @return world in name
+     * @return world in ID
      */
-    public String worldIn() {
+    public int worldIn() {
         return worldIn;
     }
 
     /**
-     * @return parent world name
+     * @return parent world ID
      */
-    public String parentWorld() {
+    public int parentWorld() {
         return parentWorld;
     }
 
@@ -99,7 +99,7 @@ public final class PlayerWorldSave {
     /**
      * @return all visited worlds, excluding active interior
      */
-    public Map<String, AbstractWorldSaveState> worlds() {
+    public Map<Integer, AbstractWorldSaveState> worlds() {
         return worlds;
     }
 }

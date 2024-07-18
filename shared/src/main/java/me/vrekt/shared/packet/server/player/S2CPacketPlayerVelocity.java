@@ -21,9 +21,9 @@ public final class S2CPacketPlayerVelocity extends GamePacket {
 
     public S2CPacketPlayerVelocity(int entityId, float rotation, float x, float y) {
         this.entityId = entityId;
+        this.rotation = rotation;
         this.x = x;
         this.y = y;
-        this.rotation = rotation;
     }
 
     public S2CPacketPlayerVelocity(int entityId, float rotation, Vector2 velocity) {
@@ -37,28 +37,28 @@ public final class S2CPacketPlayerVelocity extends GamePacket {
     /**
      * @return EID
      */
-    public int getEntityId() {
+    public int entityId() {
         return entityId;
     }
 
     /**
      * @return x vel
      */
-    public float getX() {
+    public float x() {
         return x;
     }
 
     /**
      * @return y vel
      */
-    public float getY() {
+    public float y() {
         return y;
     }
 
     /**
      * @return the rotation value
      */
-    public float getRotation() {
+    public float rotation() {
         return rotation;
     }
 

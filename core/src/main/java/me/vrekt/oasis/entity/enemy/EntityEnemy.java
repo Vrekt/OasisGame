@@ -47,7 +47,7 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
 
     @Override
     public void load(EnemyEntitySave save) {
-        setPosition(save.position(), true);
+        setPosition(save.position());
         setHealth(save.health());
         setMoveSpeed(save.moveSpeed());
         rotation = save.rotation();

@@ -41,10 +41,10 @@ public abstract class AbstractNetworkEntityState {
         this.entityId = entity.entityId();
         this.name = entity.name();
 
-        this.x = entity.getBody().getPosition().x;
-        this.y = entity.getBody().getPosition().y;
-        this.vx = entity.getBody().getLinearVelocity().x;
-        this.vy = entity.getBody().getLinearVelocity().y;
+        this.x = entity.getPosition().x;
+        this.y = entity.getPosition().y;
+        this.vx = entity.getVelocity().x;
+        this.vy = entity.getVelocity().y;
     }
 
     /**

@@ -59,7 +59,7 @@ public final class IntegratedServer implements Disposable {
         activeWorld.broadcastState(state);
 
         // update world origin to around the player
-        activeWorld.setWorldOrigin(player.getBody().getPosition().cpy().sub(1, 1));
+        activeWorld.setWorldOrigin(player.getPosition().cpy().sub(1, 1));
     }
 
     private void init() {

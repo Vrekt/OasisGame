@@ -65,7 +65,7 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
     public void enter() {
         entered = GameManager.getTick();
         last = GameManager.getTick();
-        entity.setVelocity(0, 0, true);
+        entity.setVelocity(0, 0);
     }
 
     @Override
@@ -104,8 +104,8 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
         }
 
         if (frame != null) batch.draw(frame,
-                entity.bodyPosition().x + offsetX,
-                entity.bodyPosition().y - offsetY,
+                entity.getPosition().x + offsetX,
+                entity.getPosition().y - offsetY,
                 frame.getRegionWidth() * OasisGameSettings.SCALE,
                 frame.getRegionHeight() * OasisGameSettings.SCALE);
 
