@@ -1,26 +1,29 @@
-package me.vrekt.shared.packet.client.player;
+package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
 
 /**
- * A players position
+ * Notify players that a player teleported.
  */
-public final class C2SPacketPlayerPosition extends GamePacket {
+public final class S2CTeleportPlayer extends GamePacket {
 
-    public static final int PACKET_ID = 2226;
-
-    private int rotation;
+    public static final int PACKET_ID = 1124;
+    private int entityId;
     private float x, y;
 
-    public C2SPacketPlayerPosition(float x, float y, int rotation) {
-        this.x = x;
-        this.y = y;
-        this.rotation = rotation;
+    public S2CTeleportPlayer(ByteBuf buffer) {
+        super(buffer);
     }
 
-    public C2SPacketPlayerPosition(ByteBuf buffer) {
-        super(buffer);
+    public S2CTeleportPlayer(int entityId, float x, float y) {
+        this.entityId = entityId;
+        this.x = x;
+        this.y = y;
+    }
+
+    public int entityId() {
+        return entityId;
     }
 
     public float x() {
@@ -31,10 +34,6 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         return y;
     }
 
-    public int rotation() {
-        return rotation;
-    }
-
     @Override
     public int getId() {
         return PACKET_ID;
@@ -43,15 +42,16 @@ public final class C2SPacketPlayerPosition extends GamePacket {
     @Override
     public void encode() {
         writeId();
+        buffer.writeInt(entityId);
         buffer.writeFloat(x);
         buffer.writeFloat(y);
-        buffer.writeInt(rotation);
     }
 
     @Override
     public void decode() {
+        entityId = buffer.readInt();
         x = buffer.readFloat();
         y = buffer.readFloat();
-        rotation = buffer.readInt();
     }
+
 }

@@ -2,7 +2,6 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.S2CPacketHandler;
 
 /**
  * Sent from the server to authenticate a new client
@@ -15,10 +14,6 @@ public final class S2CPacketAuthenticate extends GamePacket {
     private boolean authenticationSuccessful;
     private String gameVersion;
     private int protocolVersion;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketAuthenticate(buffer));
-    }
 
     public S2CPacketAuthenticate(boolean authenticationSuccessful, String gameVersion, int protocolVersion) {
         this.authenticationSuccessful = authenticationSuccessful;

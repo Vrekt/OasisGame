@@ -123,7 +123,6 @@ public final class ServerPlayerConnection extends ServerAbstractConnection {
         player.setWorldIn(world);
         player.setEntityId(server.acquireEntityId());
         player.setLoading(true);
-        player.setPosition(world.worldOrigin());
         sendImmediately(new S2CPacketJoinWorld(worldId, player.entityId(), world.getTime()));
 
         server.handlePlayerJoinServer(player);

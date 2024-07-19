@@ -2,7 +2,6 @@ package me.vrekt.shared.packet.client.interior;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
-import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 
 /**
@@ -14,10 +13,6 @@ public final class C2SEnterInteriorWorld extends GamePacket {
 
     private InteriorWorldType interiorWorldType;
     private int entityId;
-
-    public static void handle(C2SPacketHandler handler, ByteBuf in) {
-        handler.handle(new C2SEnterInteriorWorld(in));
-    }
 
     public C2SEnterInteriorWorld(int entityId, InteriorWorldType type) {
         this.entityId = entityId;

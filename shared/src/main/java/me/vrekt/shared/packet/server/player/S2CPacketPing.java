@@ -2,7 +2,6 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.S2CPacketHandler;
 
 /**
  * Ping packet sent from the server to the client in response to a ping
@@ -14,10 +13,6 @@ public final class S2CPacketPing extends GamePacket {
     // current client time in ms, current server time in ms.
     private long clientTime, serverTime;
     private float gameTick;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketPing(buffer));
-    }
 
     public S2CPacketPing(float gameTick) {
         this.gameTick = gameTick;

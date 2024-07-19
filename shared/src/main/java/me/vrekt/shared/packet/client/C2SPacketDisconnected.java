@@ -3,7 +3,6 @@ package me.vrekt.shared.packet.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.C2SPacketHandler;
 
 /**
  * Inform the server the client has disconnected.
@@ -14,10 +13,6 @@ public final class C2SPacketDisconnected extends GamePacket {
 
     // given reason, if any.
     private String givenReason;
-
-    public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new C2SPacketDisconnected(buffer));
-    }
 
     /**
      * @param givenReason the reason or {@code null} if not specified.

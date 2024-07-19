@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240718-0543-7288";
+    public static final String GAME_VERSION = "20240719-0645-7374";
 
     private Asset asset;
 
@@ -157,17 +157,17 @@ public final class OasisGame extends Game {
         setScreen(loadingScreen);
         loadGameStructure();
 
-        // start integrated server if this save has multiplayer enabled
-        if (state.isMultiplayer()) {
-            isLocalMultiplayer = true;
-            // TODO:    startIntegratedServer();
-        }
-
         OasisGameSettings.loadSaveSettings(state.settings());
         OasisKeybindings.loadSaveSettings(state.settings());
 
         player.load(state.player());
         loadWorldSaveState(state.player());
+
+        // start integrated server if this save has multiplayer enabled
+        if (state.isMultiplayer()) {
+            isLocalMultiplayer = true;
+            startIntegratedServerBlocking();
+        }
     }
 
     /**
@@ -415,7 +415,7 @@ public final class OasisGame extends Game {
      * @param reason reason
      */
     public void exitNetworkWorld(String reason) {
-
+        System.exit(0);
     }
 
 
@@ -523,8 +523,7 @@ public final class OasisGame extends Game {
             if (screen != null) screen.hide();
             logoTexture.dispose();
             player.getConnection().dispose();
-            if (isLocalMultiplayer || isMultiplayer) clientServer.dispose();
-            // if (isLocalMultiplayer) server.dispose();
+            if (isMultiplayer) clientServer.dispose();
             virtualAsyncService.shutdownNow();
             player.dispose();
             worldManager.dispose();

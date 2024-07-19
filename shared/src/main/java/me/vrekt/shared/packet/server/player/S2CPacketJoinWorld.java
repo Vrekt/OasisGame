@@ -15,10 +15,6 @@ public final class S2CPacketJoinWorld extends GamePacket {
     private int entityId;
     private long serverTime;
 
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketJoinWorld(buffer));
-    }
-
     public S2CPacketJoinWorld(int worldId, int entityId, long serverTime) {
         this.worldId = worldId;
         this.entityId = entityId;

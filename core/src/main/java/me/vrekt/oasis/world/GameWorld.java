@@ -253,13 +253,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Load network components if the world supports it.
-     */
-    protected void loadNetworkComponents() {
-
-    }
-
-    /**
      * Load this world
      * Should be overridden to provide the correct map and scaling
      */
@@ -314,10 +307,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         player.updateWorldState(this);
-        if (game.isAnyMultiplayer()) loadNetworkComponents();
-
         finalizeWorld();
-
         isWorldLoaded = true;
     }
 

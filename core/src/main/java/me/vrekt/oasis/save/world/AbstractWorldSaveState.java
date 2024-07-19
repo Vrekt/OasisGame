@@ -1,12 +1,16 @@
 package me.vrekt.oasis.save.world;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.GenericEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
@@ -41,6 +45,9 @@ public abstract class AbstractWorldSaveState {
     List<InteriorWorldSave> interiors;
     @Expose
     List<AbstractWorldObjectSaveState> objects;
+    @Expose
+    @SerializedName("network_players")
+    List<NetworkPlayerSave> networkPlayers;
 
     // the interior to exclude when writing this save
     private transient final int excludedInteriorId;
@@ -69,6 +76,9 @@ public abstract class AbstractWorldSaveState {
         writeEntities(world);
         writeInteriors(world);
         writeObjects(world);
+        if (GameManager.game().isLocalMultiplayer()) {
+            writePlayers(world);
+        }
     }
 
     /**
@@ -150,6 +160,18 @@ public abstract class AbstractWorldSaveState {
     }
 
     /**
+     * Write MP players
+     *
+     * @param world world
+     */
+    protected void writePlayers(GameWorld world) {
+        for (NetworkPlayer player : world.players().values()) {
+            if (networkPlayers == null) networkPlayers = new ArrayList<>();
+            networkPlayers.add(new NetworkPlayerSave(player));
+        }
+    }
+
+    /**
      * @return id
      */
     public int worldId() {
@@ -175,6 +197,13 @@ public abstract class AbstractWorldSaveState {
      */
     public List<AbstractWorldObjectSaveState> objects() {
         return objects;
+    }
+
+    /**
+     * @return all network players
+     */
+    public List<NetworkPlayerSave> networkPlayers() {
+        return networkPlayers;
     }
 
     /**

@@ -1,7 +1,6 @@
 package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,10 +13,6 @@ public final class S2CPacketWorldInvalid extends GamePacket {
 
     private int worldId;
     private String reason;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketWorldInvalid(buffer));
-    }
 
     public S2CPacketWorldInvalid(int worldId, String reason) {
         this.worldId = worldId;

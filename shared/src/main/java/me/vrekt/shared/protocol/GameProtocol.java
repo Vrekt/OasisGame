@@ -58,32 +58,33 @@ public final class GameProtocol {
     }
 
     private void initializeServerHandlers() {
-        server.put(S2CPacketAuthenticate.PACKET_ID, (buf, handler) -> S2CPacketAuthenticate.handle(handler, buf));
-        server.put(S2CPacketCreatePlayer.PACKET_ID, (buf, handler) -> S2CPacketCreatePlayer.handle(handler, buf));
-        server.put(S2CPacketDisconnected.PACKET_ID, (buf, handler) -> S2CPacketDisconnected.handle(handler, buf));
-        server.put(S2CPacketJoinWorld.PACKET_ID, (buf, handler) -> S2CPacketJoinWorld.handle(handler, buf));
-        server.put(S2CPacketPing.PACKET_ID, (buf, handler) -> S2CPacketPing.handle(handler, buf));
-        server.put(S2CPacketPlayerPosition.PACKET_ID, (buf, handler) -> S2CPacketPlayerPosition.handle(handler, buf));
-        server.put(S2CPacketPlayerVelocity.PACKET_ID, (buf, handler) -> S2CPacketPlayerVelocity.handle(handler, buf));
-        server.put(S2CPacketRemovePlayer.PACKET_ID, (buf, handler) -> S2CPacketRemovePlayer.handle(handler, buf));
-        server.put(S2CStartGame.PACKET_ID, (buf, handler) -> S2CStartGame.handle(handler, buf));
-        server.put(S2CPacketWorldInvalid.PACKET_ID, (buf, handler) -> S2CPacketWorldInvalid.handle(handler, buf));
-        server.put(S2CKeepAlive.PACKET_ID, (buf, handler) -> S2CKeepAlive.handle(handler, buf));
-        server.put(S2CPlayerEnteredInterior.ID, (buf, handler) -> S2CPlayerEnteredInterior.handle(handler, buf));
+        server.put(S2CPacketAuthenticate.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketAuthenticate(buf)));
+        server.put(S2CPacketCreatePlayer.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketCreatePlayer(buf)));
+        server.put(S2CPacketDisconnected.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketDisconnected(buf)));
+        server.put(S2CPacketJoinWorld.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketJoinWorld(buf)));
+        server.put(S2CPacketPing.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketPing(buf)));
+        server.put(S2CPacketPlayerPosition.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketPlayerPosition(buf)));
+        server.put(S2CPacketPlayerVelocity.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketPlayerVelocity(buf)));
+        server.put(S2CPacketRemovePlayer.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketRemovePlayer(buf)));
+        server.put(S2CStartGame.PACKET_ID, (buf, handler) -> handler.handle(new S2CStartGame(buf)));
+        server.put(S2CPacketWorldInvalid.PACKET_ID, (buf, handler) -> handler.handle(new S2CPacketWorldInvalid(buf)));
+        server.put(S2CKeepAlive.PACKET_ID, (buf, handler) -> handler.handle(new S2CKeepAlive(buf)));
+        server.put(S2CPlayerEnteredInterior.ID, (buf, handler) -> handler.handle(new S2CPlayerEnteredInterior(buf)));
         server.put(S2CChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new S2CChatMessage(buf)));
         server.put(S2CNetworkFrame.ID, (buf, handler) -> handler.handle(new S2CNetworkFrame(buf)));
+        server.put(S2CTeleport.PACKET_ID, (buf, handler) -> handler.handle(new S2CTeleport(buf)));
     }
 
     private void initializeClientHandlers() {
-        client.put(C2SPacketAuthenticate.PACKET_ID, (buf, handler) -> C2SPacketAuthenticate.handle(handler, buf));
-        client.put(C2SPacketDisconnected.PACKET_ID, (buf, handler) -> C2SPacketDisconnected.handle(handler, buf));
-        client.put(C2SPacketJoinWorld.PACKET_ID, (buf, handler) -> C2SPacketJoinWorld.handle(handler, buf));
-        client.put(C2SPacketPing.PACKET_ID, (buf, handler) -> C2SPacketPing.handle(handler, buf));
-        client.put(C2SPacketPlayerPosition.PACKET_ID, (buf, handler) -> C2SPacketPlayerPosition.handle(handler, buf));
-        client.put(C2SPacketPlayerVelocity.PACKET_ID, (buf, handler) -> C2SPacketPlayerVelocity.handle(handler, buf));
-        client.put(C2SPacketClientLoaded.PACKET_ID, (buf, handler) -> C2SPacketClientLoaded.handle(handler, buf));
-        client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> C2SKeepAlive.handle(handler, buf));
-        client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> C2SEnterInteriorWorld.handle(handler, buf));
+        client.put(C2SPacketAuthenticate.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketAuthenticate(buf)));
+        client.put(C2SPacketDisconnected.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketDisconnected(buf)));
+        client.put(C2SPacketJoinWorld.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketJoinWorld(buf)));
+        client.put(C2SPacketPing.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketPing(buf)));
+        client.put(C2SPacketPlayerPosition.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketPlayerPosition(buf)));
+        client.put(C2SPacketPlayerVelocity.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketPlayerVelocity(buf)));
+        client.put(C2SPacketClientLoaded.PACKET_ID, (buf, handler) -> handler.handle(new C2SPacketClientLoaded(buf)));
+        client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> handler.handle(new C2SKeepAlive(buf)));
+        client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> handler.handle(new C2SEnterInteriorWorld(buf)));
         client.put(C2SChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new C2SChatMessage(buf)));
     }
 

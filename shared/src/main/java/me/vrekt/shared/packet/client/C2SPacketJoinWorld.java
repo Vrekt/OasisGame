@@ -3,7 +3,6 @@ package me.vrekt.shared.packet.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.packet.server.player.S2CPacketJoinWorld;
 
 /**
@@ -16,10 +15,6 @@ public final class C2SPacketJoinWorld extends GamePacket {
     private int worldId;
     private String username;
     private long clientTime;
-
-    public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new C2SPacketJoinWorld(buffer));
-    }
 
     public C2SPacketJoinWorld(int worldId, String username, long clientTime) {
         this.worldId = worldId;

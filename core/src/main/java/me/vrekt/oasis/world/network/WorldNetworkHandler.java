@@ -1,12 +1,14 @@
 package me.vrekt.oasis.world.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import me.vrekt.crimson.game.entity.ServerEntityPlayer;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
@@ -39,6 +41,8 @@ public final class WorldNetworkHandler {
         player.getConnection().attach(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
         player.getConnection().attach(S2CPacketPlayerPosition.PACKET_ID, packet -> handlePlayerPosition((S2CPacketPlayerPosition) packet));
         player.getConnection().attach(S2CPacketPlayerVelocity.PACKET_ID, packet -> handlePlayerVelocity((S2CPacketPlayerVelocity) packet));
+        player.getConnection().attach(S2CTeleport.PACKET_ID, packet -> handleSelfTeleport((S2CTeleport) packet));
+        player.getConnection().attach(S2CTeleportPlayer.PACKET_ID, packet -> handlePlayerTeleport((S2CTeleportPlayer) packet));
         player.getConnection().attach(S2CPacketRemovePlayer.PACKET_ID, packet -> handleRemovePlayer((S2CPacketRemovePlayer) packet));
         player.getConnection().attach(S2CPlayerEnteredInterior.ID, packet -> handlePlayerEnteredInterior((S2CPlayerEnteredInterior) packet));
         player.getConnection().attach(S2CNetworkFrame.ID, packet -> handleNetworkFrame((S2CNetworkFrame) packet));
@@ -133,7 +137,48 @@ public final class WorldNetworkHandler {
      * @param player the player
      */
     public void handlePlayerJoined(ServerEntityPlayer player) {
-        createPlayerInActiveWorld(player.name(), player.entityId(), player.getPosition().x, player.getPosition().y);
+        createLocalPlayer(player);
+    }
+
+    /**
+     * Create local player when this client is the host
+     *
+     * @param player player
+     */
+    private void createLocalPlayer(ServerEntityPlayer player) {
+        if (this.player.getWorldState().hasPlayer(player.entityId())) return;
+        GameLogging.info(this, "Creating local player %s", player.name());
+
+        final Vector2 origin = new Vector2();
+        final NetworkPlayerSave save = this.player.getWorldState().playerStorage().get(player.name());
+        if (save != null) {
+            // player has pre-saved position
+            origin.set(save.position());
+            GameLogging.info(this, "Loaded player %s from network storage at %s", player.name(), save.position());
+        } else {
+            origin.set(this.player.getPosition().cpy().add(1, 1));
+        }
+
+        player.teleport(origin);
+        createLocalNetworkPlayer(player.name(), player.entityId(), origin);
+    }
+
+    /**
+     * Create a network player in the active world
+     *
+     * @param name     name
+     * @param entityId ID
+     * @param origin   origin
+     */
+    private void createLocalNetworkPlayer(String name, int entityId, Vector2 origin) {
+        final NetworkPlayer networkPlayer = new NetworkPlayer(this.player.getWorldState());
+        networkPlayer.load(game.getAsset());
+
+        networkPlayer.setProperties(name, entityId);
+        networkPlayer.createCircleBody(this.player.getWorldState().boxWorld(), false);
+        networkPlayer.setPosition(origin);
+
+        this.player.getWorldState().spawnPlayerInWorld(networkPlayer);
     }
 
     /**
@@ -148,18 +193,8 @@ public final class WorldNetworkHandler {
         if (player.getWorldState().hasPlayer(entityId)) return;
 
         GameLogging.info(this, "Spawning new network player with ID %d and username %s at {%f,%f}", entityId, username, x, y);
-
-        final NetworkPlayer networkPlayer = new NetworkPlayer(player.getWorldState());
-        networkPlayer.load(game.getAsset());
-
-        networkPlayer.setProperties(username, entityId);
-        networkPlayer.createCircleBody(player.getWorldState().boxWorld(), false);
-        networkPlayer.setPosition(x, y);
-
-        player.getConnection().addPlayer(entityId, networkPlayer);
-        player.getWorldState().spawnPlayerInWorld(networkPlayer);
+        createLocalNetworkPlayer(username, entityId, new Vector2(x, y));
     }
-
 
     /**
      * Handle a player disconnected from this host server
@@ -169,9 +204,7 @@ public final class WorldNetworkHandler {
     public void handlePlayerDisconnected(ServerEntityPlayer player) {
         if (!NetworkValidation.ensureInWorld(this.player)) return;
 
-        this.player.getConnection().removePlayer(player.entityId());
         this.player.getWorldState().removePlayerInWorld(player.entityId(), true);
-
         GameLogging.info(this, "Player (%d) (%s) left.", player.entityId(), player.name());
     }
 
@@ -241,6 +274,27 @@ public final class WorldNetworkHandler {
         if (!NetworkValidation.ensureInWorld(player, packet)) return;
 
         player.getWorldState().updatePlayerVelocityInWorld(packet.entityId(), packet.x(), packet.y(), packet.rotation());
+    }
+
+    /**
+     * Teleport the client player
+     *
+     * @param packet packet
+     */
+    private void handleSelfTeleport(S2CTeleport packet) {
+        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        player.setPosition(packet.x(), packet.y());
+    }
+
+    /**
+     * Handle player teleported
+     *
+     * @param packet packet
+     */
+    private void handlePlayerTeleport(S2CTeleportPlayer packet) {
+        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        if (!NetworkValidation.ensureValidEntityId(player, packet.entityId())) return;
+        this.player.getWorldState().player(packet.entityId()).ifPresent(player -> player.teleport(packet.x(), packet.y()));
     }
 
     /**

@@ -54,10 +54,7 @@ public final class NewGameWorld extends GameWorld {
 
             player.getInventory().add(Items.ARCANA_CODEX, 1);
         }
-
-
         if (Boolean.parseBoolean(System.getProperty("mp"))) game.startIntegratedServerBlocking();
-
     }
 
     @Override

@@ -1,7 +1,6 @@
 package me.vrekt.shared.packet.client.player;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 
 public final class C2SPacketPlayerVelocity extends GamePacket {
@@ -11,17 +10,13 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
     private float velocityX, velocityY;
     private int rotation;
 
-    public static void handle(C2SPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new C2SPacketPlayerVelocity(buffer));
-    }
-
     public C2SPacketPlayerVelocity(float velocityX, float velocityY, int rotation) {
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.rotation = rotation;
     }
 
-    private C2SPacketPlayerVelocity(ByteBuf buffer) {
+    public C2SPacketPlayerVelocity(ByteBuf buffer) {
         super(buffer);
     }
 

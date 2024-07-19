@@ -1,13 +1,13 @@
 {
   "name": "abc",
   "progress": 0.0,
-  "date": "05-07-24 19:18 PM",
-  "multiplayer": false,
+  "date": "19-07-24 05:08 AM",
+  "multiplayer": true,
   "slot": 1,
   "settings": {
     "entity_update_distance": 100.0,
     "show_fps": true,
-    "mp_lan": false,
+    "mp_lan": true,
     "v_sync": true,
     "auto_save": true,
     "auto_save_interval": 1.0,
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player63",
+    "name": "Player85",
     "position": {
-      "x": 48.739563,
-      "y": 51.697876
+      "x": 22.635437,
+      "y": 29.697926
     },
     "inventory": {
       "type": "PLAYER",
@@ -36,8 +36,8 @@
         },
         {
           "slot": 5,
-          "name": "Silver Veil Spore",
-          "type": "SILVER_SPORE",
+          "name": "Verdant Fungus",
+          "type": "VERDANT_FUNGUS",
           "amount": 1
         },
         {
@@ -48,14 +48,14 @@
         },
         {
           "slot": 7,
-          "name": "Staff of Earth",
+          "name": "Staff of Obsidian",
           "type": "TEMPERED_BLADE",
           "amount": 1
         },
         {
           "slot": 4,
-          "name": "Crimson Cap",
-          "type": "CRIMSON_CAP",
+          "name": "Silver Veil Spore",
+          "type": "SILVER_SPORE",
           "amount": 1
         },
         {
@@ -66,30 +66,31 @@
         },
         {
           "slot": 6,
-          "name": "Verdant Fungus",
-          "type": "VERDANT_FUNGUS",
+          "name": "Staff of Earth",
+          "type": "TEMPERED_BLADE",
           "amount": 1
         },
         {
           "slot": 3,
-          "name": "Ring Of Mycelia",
-          "type": "RING_OF_MYCELIA",
+          "name": "Crimson Cap",
+          "type": "CRIMSON_CAP",
           "amount": 1
         },
         {
           "slot": 8,
-          "name": "Staff of Obsidian",
-          "type": "TEMPERED_BLADE",
+          "name": "Arcana\u0027s Codex",
+          "type": "ARCANA_CODEX",
           "amount": 1
         }
       ]
     },
     "all_worlds_and_state": {
-      "world_in_name": "TutorialWorld",
+      "world_in_id": 0,
+      "parent_world_id": -1,
       "is_in_interior": false,
       "current_world_in": {
-        "map": "world/worlds/TutorialWorld.tmx",
-        "name": "TutorialWorld",
+        "map": "world/worlds/TutorialWorld - Copy.tmx",
+        "worldId": 0,
         "interior": false,
         "entities": [
           {
@@ -99,8 +100,8 @@
             "name": "Thalia",
             "entityId": 2,
             "position": {
-              "x": 12.90625,
-              "y": 55.354187
+              "x": 13.0,
+              "y": 54.625
             },
             "size": {
               "x": 48.0,
@@ -116,16 +117,16 @@
             "name": "Chick",
             "entityId": 4,
             "position": {
-              "x": 25.0,
-              "y": 31.0
+              "x": 19.278713,
+              "y": 29.474537
             },
             "size": {
-              "x": 32.0,
-              "y": 32.0,
+              "x": 16.0,
+              "y": 16.0,
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "LEFT",
             "move_speed": 0.0
           },
           {
@@ -135,8 +136,8 @@
             "name": "Lyra",
             "entityId": 1,
             "position": {
-              "x": 16.0,
-              "y": 29.0
+              "x": 22.489416,
+              "y": 30.20376
             },
             "size": {
               "x": 12.0,
@@ -144,7 +145,7 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "UP",
             "move_speed": 0.0
           },
           {
@@ -156,8 +157,8 @@
               "y": 57.625
             },
             "size": {
-              "x": 1.0,
-              "y": 1.0,
+              "x": 16.0,
+              "y": 16.0,
               "z": 0.0625
             },
             "health": 100.0,
@@ -209,6 +210,23 @@
             "destroyed": false
           },
           {
+            "dropped_item": {
+              "slot": 0,
+              "name": "Lockpick",
+              "type": "LOCK_PICK",
+              "amount": 1
+            },
+            "position": {
+              "x": 53.5,
+              "y": 49.0
+            },
+            "enabled": true,
+            "type": "MAP_ITEM",
+            "key": "oasis:lock_pick",
+            "interactable": true,
+            "destroyed": false
+          },
+          {
             "container_inventory": {
               "type": "CONTAINER",
               "size": 16,
@@ -218,12 +236,6 @@
                   "name": "Lockpick",
                   "type": "LOCK_PICK",
                   "amount": 1
-                },
-                {
-                  "slot": 1,
-                  "name": "Crimson Cap",
-                  "type": "CRIMSON_CAP",
-                  "amount": 1
                 }
               ]
             },
@@ -231,23 +243,21 @@
             "type": "CONTAINER",
             "interactable": true,
             "destroyed": false
-          },
+          }
+        ],
+        "network_players": [
           {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
+            "name": "Player54",
+            "entityId": 78,
             "position": {
-              "x": 53.5,
-              "y": 47.0
+              "x": 22.351643,
+              "y": 22.42473
             },
-            "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
+            "inventory": {
+              "type": "PLAYER",
+              "size": 18,
+              "contents": []
+            }
           }
         ]
       },

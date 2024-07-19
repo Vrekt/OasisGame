@@ -6,9 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
@@ -34,7 +32,6 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.network.player.DummyConnection;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
@@ -81,14 +78,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private ItemWeapon equippedItem;
     private final IntMap<Artifact> artifacts = new IntMap<>(3);
     private final Map<AttributeType, Attributes> attributes = new HashMap<>();
-    // list of enemies attacking us.
-    private final Array<EntityEnemy> enemiesAttacking = new Array<>();
 
     private EntitySpeakable speakable;
-
-    private final Vector3 worldPosition = new Vector3();
-    private final Vector3 screenPosition = new Vector3();
-    private final Rectangle bounds = new Rectangle();
 
     private boolean canMove = true;
     // if the player has moved since some class requested it to be set.
@@ -116,7 +107,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     @Override
     public void load(PlayerSave playerSave) {
         this.setName(playerSave.name());
-        this.setPosition(playerSave.position());
+        getTransformComponent().position.set(playerSave.position());
         this.getInventory().transferFrom(playerSave.inventory().inventory());
 
         loadArtifacts(playerSave.artifacts());
@@ -185,14 +176,18 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Create and initialize the basic properties of the player
      */
     private void create() {
-        setName("Player" + MathUtils.random(1, 99));
+        if (Boolean.parseBoolean(System.getProperty("mp"))) {
+            setName("Player" + MathUtils.random(66, 99));
+        } else {
+            setName("Player54");
+        }
         setMoveSpeed(5.25f);
         setHealth(100);
 
         setSize(24, 28, OasisGameSettings.SCALE);
         bb = new Rectangle(0, 0, getScaledWidth(), getScaledHeight());
 
-        itemBounds.set(bounds);
+        itemBounds.set(bb);
         itemBounds.x += 3.0f;
         itemBounds.y += 3.0f;
 
@@ -247,19 +242,12 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @return network connection
      */
     public PlayerConnection getConnection() {
-        if (connection == null) {
-            GameLogging.warn(this, "Connection in null, providing DummyConnection");
-            connection = new DummyConnection();
-        }
+
         return connection;
     }
 
     public boolean isProjectileInBounds(Rectangle projectile) {
-        return this.bounds.contains(projectile);
-    }
-
-    public Rectangle getBounds() {
-        return bounds;
+        return this.bb.contains(projectile);
     }
 
     /**
@@ -459,13 +447,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     }
 
     /**
-     * @return list of all enemies attacking us
-     */
-    public Array<EntityEnemy> getEnemiesAttacking() {
-        return enemiesAttacking;
-    }
-
-    /**
      * @return {@code true} if the player is in an interior
      */
     public boolean isInInteriorWorld() {
@@ -571,7 +552,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         pollInput();
 
         this.body.setLinearVelocity(getTransformComponent().velocity);
-        bounds.setPosition(body.getPosition());
+        bb.setPosition(body.getPosition());
 
         // handle all attributes currently applied
         // TODO: Only needs to update every second.
@@ -587,7 +568,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             rotationChanged = false;
         }
 
-        if (game.isLocalMultiplayer() || game.isMultiplayer()) updateNetworkComponents();
+        if (game.isMultiplayer()) updateNetworkComponents();
         artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
 
         if (isMoving()) soundManager.updateWhileMoving(GameManager.getTick());
@@ -631,7 +612,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
         getTransformComponent().velocity.set(velX, velY);
         if (velX != 0.0 || velY != 0.0) hasMoved = true;
 
-        rotationChanged = getAngle() != rotation.ordinal();
+        rotationChanged = previousRotation != rotation;
     }
 
     private float getVelocityY() {

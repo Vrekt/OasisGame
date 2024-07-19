@@ -49,6 +49,7 @@ public final class PlayerWorldSave {
             this.world = new InteriorWorldSave(player.getInteriorWorldIn());
         } else {
             this.world = new DefaultWorldSave(player.getWorldState());
+            this.parentWorld = -1;
         }
 
         this.worlds = new HashMap<>();

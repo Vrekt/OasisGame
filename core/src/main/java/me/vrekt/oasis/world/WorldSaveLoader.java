@@ -9,6 +9,7 @@ import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
 import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
 import me.vrekt.oasis.save.world.entity.GenericEntitySave;
 import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
 import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
 import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
@@ -33,6 +34,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
     @Override
     public void load(AbstractWorldSaveState worldSave) {
         loadWorldEntities(worldSave);
+        loadNetworkPlayers(worldSave);
         loadContainersAndObjects(worldSave);
 
         if (worldSave instanceof InteriorWorldSave save) {
@@ -87,6 +89,18 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
         }
 
         GameLogging.info(world.worldName, "Loaded %d interactable entities and %d enemies", interactable, enemy);
+    }
+
+    /**
+     * Load network players
+     *
+     * @param save the save
+     */
+    private void loadNetworkPlayers(AbstractWorldSaveState save) {
+        if (save.networkPlayers() == null) return;
+        for (NetworkPlayerSave networkPlayer : save.networkPlayers()) {
+            world.playerStorage().put(networkPlayer.name(), networkPlayer);
+        }
     }
 
     /**

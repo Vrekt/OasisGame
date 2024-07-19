@@ -3,7 +3,6 @@ package me.vrekt.shared.packet.server.player;
 import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.S2CPacketHandler;
 
 /**
  * Update clients on a players position
@@ -14,10 +13,6 @@ public final class S2CPacketPlayerPosition extends GamePacket {
 
     private int entityId, rotation;
     private float x, y;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketPlayerPosition(buffer));
-    }
 
     public S2CPacketPlayerPosition(int entityId, int rotation, float x, float y) {
         this.entityId = entityId;

@@ -70,9 +70,6 @@ public final class IntegratedServer implements Disposable {
 
         final NetworkState state = game.networkHandler().build();
         activeWorld.broadcastState(state);
-
-        // update world origin to around the player
-        activeWorld.setWorldOrigin(player.getPosition().cpy().sub(1, 1));
     }
 
     /**
@@ -98,7 +95,6 @@ public final class IntegratedServer implements Disposable {
         gameServer.setLocalHostPlayer(player);
 
         activeWorld = gameServer.getWorld(player.getWorldState().worldId());
-        activeWorld.setWorldOrigin(player.getWorldState().worldOrigin());
     }
 
     public boolean started() {
@@ -110,6 +106,13 @@ public final class IntegratedServer implements Disposable {
      */
     public float mspt() {
         return gameServer.mspt();
+    }
+
+    /**
+     * @return the game server
+     */
+    public CrimsonGameServer gameServer() {
+        return gameServer;
     }
 
     @Override

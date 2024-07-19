@@ -1,7 +1,6 @@
 package me.vrekt.shared.packet.server;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.server.player.S2CNetworkPlayer;
 
@@ -16,10 +15,6 @@ public final class S2CStartGame extends GamePacket {
     // if the server has active players
     private boolean hasPlayers;
     private S2CNetworkPlayer[] players;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf in) {
-        handler.handle(new S2CStartGame(in));
-    }
 
     public S2CStartGame(int worldId, S2CNetworkPlayer... players) {
         this.worldId = worldId;

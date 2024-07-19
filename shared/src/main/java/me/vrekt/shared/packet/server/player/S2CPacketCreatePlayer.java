@@ -2,7 +2,6 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
-import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 
 /**
@@ -15,10 +14,6 @@ public final class S2CPacketCreatePlayer extends GamePacket {
     private String username;
     private int entityId;
     private float x, y;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPacketCreatePlayer(buffer));
-    }
 
     /**
      * Initialize
@@ -37,7 +32,7 @@ public final class S2CPacketCreatePlayer extends GamePacket {
         this.y = y;
     }
 
-    private S2CPacketCreatePlayer(ByteBuf buffer) {
+    public S2CPacketCreatePlayer(ByteBuf buffer) {
         super(buffer);
     }
 

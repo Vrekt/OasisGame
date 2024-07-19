@@ -6,7 +6,10 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
+import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,6 +24,10 @@ public abstract class Box2dGameWorld {
 
     protected IntMap<NetworkPlayer> players = new IntMap<>();
     protected IntMap<GameEntity> entities = new IntMap<>();
+
+    // ideally store by something else other than string
+    // For now, string is fine.
+    protected Map<String, NetworkPlayerSave> playerStorage = new HashMap<>();
 
     protected World world;
     protected Engine engine;
@@ -40,6 +47,10 @@ public abstract class Box2dGameWorld {
 
     public Vector2 worldOrigin() {
         return worldOrigin;
+    }
+
+    public Map<String, NetworkPlayerSave> playerStorage() {
+        return playerStorage;
     }
 
     /**
@@ -154,7 +165,7 @@ public abstract class Box2dGameWorld {
      * @param entityId id
      * @param x        x
      * @param y        y
-     * @param rotation    angle/rotation
+     * @param rotation angle/rotation
      */
     public void updatePlayerPositionInWorld(int entityId, float x, float y, int rotation) {
         player(entityId).ifPresent(p -> p.updateNetworkPosition(x, y, rotation));
@@ -166,7 +177,7 @@ public abstract class Box2dGameWorld {
      * @param entityId id
      * @param x        x
      * @param y        y
-     * @param rotation    angle/rotation
+     * @param rotation angle/rotation
      */
     public void updatePlayerVelocityInWorld(int entityId, float x, float y, int rotation) {
         player(entityId).ifPresent(p -> p.updateNetworkVelocity(x, y, rotation));

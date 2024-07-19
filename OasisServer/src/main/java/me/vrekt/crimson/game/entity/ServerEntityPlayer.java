@@ -1,10 +1,13 @@
 package me.vrekt.crimson.game.entity;
 
+import com.badlogic.gdx.math.Vector2;
 import me.vrekt.crimson.Crimson;
 import me.vrekt.crimson.game.CrimsonGameServer;
 import me.vrekt.crimson.game.network.ServerPlayerConnection;
 import me.vrekt.crimson.game.world.interior.InteriorWorld;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
+import me.vrekt.shared.packet.server.player.S2CTeleport;
+import me.vrekt.shared.packet.server.player.S2CTeleportPlayer;
 
 /**
  * Base implementation of a player entity within the server
@@ -85,6 +88,20 @@ public final class ServerEntityPlayer extends AbstractServerEntity {
      */
     public void kick(String reason) {
         server.disconnectPlayer(this, reason);
+    }
+
+    /**
+     * Teleport this player
+     *
+     * @param where where to
+     */
+    public void teleport(Vector2 where) {
+        setPosition(where);
+
+        // notify other players we teleported
+        if (inWorld) world.broadcastNowWithExclusion(entityId, new S2CTeleportPlayer(entityId, where.x, where.y));
+        // teleport us
+        getConnection().sendImmediately(new S2CTeleport(where.x, where.y));
     }
 
     @Override

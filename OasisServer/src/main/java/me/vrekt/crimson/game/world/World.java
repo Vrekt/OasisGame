@@ -1,6 +1,5 @@
 package me.vrekt.crimson.game.world;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Collections;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
@@ -28,9 +27,6 @@ public class World implements Disposable {
     protected IntMap<ServerEntity> entities = new IntMap<>();
 
     protected final int worldId;
-
-    // where new players will spawn
-    protected final Vector2 worldOrigin = new Vector2();
 
     protected long currentTime;
     protected float currentTick;
@@ -139,16 +135,17 @@ public class World implements Disposable {
                 gameServer.hostPlayer().getX(),
                 gameServer.hostPlayer().getY());
 
+        // ideally, this will set the right origin point of the player
+        gameServer.handler().handlePlayerJoined(player);
+
         if (players.isEmpty()) {
             // no players besides the host.
-            gameServer.handler().handlePlayerJoined(player);
             player.getConnection().sendImmediately(new S2CStartGame(worldId, hostPlayer));
         } else {
             final S2CNetworkPlayer[] networkPlayers = new S2CNetworkPlayer[players.size + 1];
             // tell host we have a player
-            gameServer.handler().handlePlayerJoined(player);
             // notify other players that a new player has joined
-            broadcastNowWithExclusion(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), worldOrigin.x, worldOrigin.y));
+            broadcastNowWithExclusion(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), player.getPosition().x, player.getPosition().y));
             // now we can send the player that joined all other players
             // add the host to this list
             networkPlayers[0] = hostPlayer;
@@ -215,24 +212,8 @@ public class World implements Disposable {
         }
 
         // notify other players of the host position
-        broadcast(new S2CPacketPlayerPosition(hostPlayer.entityId(), 1, hostPlayer.getX(), hostPlayer.getY()));
-        broadcast(new S2CPacketPlayerVelocity(hostPlayer.entityId(), 1, hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));
-    }
-
-    /**
-     * Set world origin
-     *
-     * @param origin origin
-     */
-    public void setWorldOrigin(Vector2 origin) {
-        worldOrigin.set(origin);
-    }
-
-    /**
-     * @return origin
-     */
-    public Vector2 worldOrigin() {
-        return worldOrigin;
+        broadcast(new S2CPacketPlayerPosition(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getX(), hostPlayer.getY()));
+        broadcast(new S2CPacketPlayerVelocity(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));
     }
 
     /**

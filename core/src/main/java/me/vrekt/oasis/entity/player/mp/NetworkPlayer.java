@@ -17,6 +17,7 @@ import me.vrekt.oasis.entity.component.animation.EntityAnimationBuilder;
 import me.vrekt.oasis.entity.component.animation.EntityAnimationComponent;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
+import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -42,12 +43,13 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
     private float nametagRenderWidth;
     private boolean renderNametag;
 
-    public NetworkPlayer(GameWorld world) {
-        super();
+    private PlayerInventory inventory;
 
+    public NetworkPlayer(GameWorld world) {
+        this.inventory = new PlayerInventory();
         this.worldIn = world;
-        disableCollision();
         dynamicSize = false;
+        disableCollision();
     }
 
     public void setRenderNametag(boolean renderNametag) {
@@ -56,6 +58,13 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
 
     public boolean shouldRenderNametag() {
         return renderNametag;
+    }
+
+    /**
+     * @return this players inventory
+     */
+    public PlayerInventory inventory() {
+        return inventory;
     }
 
     /**
@@ -155,7 +164,6 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
 
     @Override
     public void update(float delta) {
-
         final boolean moving = !incomingNetworkVelocity.isZero(0.01f);
         if (moving) {
             body.setLinearVelocity(incomingNetworkVelocity);

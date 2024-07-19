@@ -83,9 +83,6 @@ public final class MiraEntity extends EntityInteractable {
         GameManager.getTaskManager().schedule(() -> {
             this.speak(false);
             GameManager.getGuiManager().hideGui(GuiType.DIALOG);
-
-            System.err.println("SHOW GUI");
-
         }, 3.55f);
     }
 
