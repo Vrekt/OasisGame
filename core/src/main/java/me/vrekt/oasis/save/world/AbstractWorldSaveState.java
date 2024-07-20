@@ -1,29 +1,19 @@
 package me.vrekt.oasis.save.world;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
-import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
-import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
-import me.vrekt.oasis.save.world.entity.GenericEntitySave;
-import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.SaveManager;
+import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
-import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
-import me.vrekt.oasis.save.world.obj.DefaultWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.objects.ItemInteractionObjectSave;
-import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
-import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
-import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
-import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +30,17 @@ public abstract class AbstractWorldSaveState {
     @Expose
     protected boolean interior;
     @Expose
-    List<AbstractEntitySaveState> entities = new ArrayList<>();
+    List<EntitySaveState> entities = new ArrayList<>();
+    @Expose
+    List<String> deadEntities = new ArrayList<>();
     @Expose
     List<InteriorWorldSave> interiors;
     @Expose
-    List<AbstractWorldObjectSaveState> objects;
+    List<WorldObjectSaveState> objects;
+    @Expose
+    List<String> destroyedObjects;
+    @Expose
+    List<String> lootGroveParents;
     @Expose
     @SerializedName("network_players")
     List<NetworkPlayerSave> networkPlayers;
@@ -65,6 +61,12 @@ public abstract class AbstractWorldSaveState {
         writeEntities(world);
         writeInteriors(world);
         writeObjects(world);
+
+        // write loot-grove parents saved
+        this.lootGroveParents = new ArrayList<>();
+        for (int i = 0; i < world.lootGroveParents().size; i++) {
+            lootGroveParents.add(world.lootGroveParents().get(i));
+        }
     }
 
     public AbstractWorldSaveState(GameWorld world) {
@@ -79,6 +81,13 @@ public abstract class AbstractWorldSaveState {
         if (GameManager.game().isLocalMultiplayer()) {
             writePlayers(world);
         }
+
+        // write loot-grove parents saved
+        this.lootGroveParents = new ArrayList<>();
+        for (int i = 0; i < world.lootGroveParents().size; i++) {
+            lootGroveParents.add(world.lootGroveParents().get(i));
+        }
+
     }
 
     /**
@@ -88,19 +97,20 @@ public abstract class AbstractWorldSaveState {
      */
     protected void writeEntities(GameWorld world) {
         for (GameEntity entity : world.entities().values()) {
+            final JsonObject data = new JsonObject();
+
             if (entity.type().interactable()) {
-                entities.add(new InteractableEntitySave(entity.asInteractable()));
+                entities.add(entity.asInteractable().save(data, SaveManager.SAVE_GAME_GSON));
             } else if (entity.type().enemy()) {
-                entities.add(new EnemyEntitySave(entity.asEnemy()));
+                entities.add(entity.asEnemy().save(data, SaveManager.SAVE_GAME_GSON));
             } else if (entity.type().generic()) {
-                entities.add(new GenericEntitySave(entity));
+                entities.add(new EntitySaveState(entity));
             }
         }
 
-        // save dead enemies
-        for (int i = 0; i < world.deadEnemies().size(); i++) {
-            final EntityType type = world.deadEnemies().get(i);
-            entities.add(new EnemyEntitySave(type));
+        // save dead enemies, they were removed from entity list long ago.
+        for (String key : world.deadEnemies()) {
+            deadEntities.add(key);
         }
     }
 
@@ -116,12 +126,6 @@ public abstract class AbstractWorldSaveState {
         // TODO: Ideally, save it to a file before unloading
         // TODO: So then it can be reloaded from disk
         for (GameWorldInterior interior : world.interiorWorlds().values()) {
-            // != null fixes EM-91
-            if (excludedInteriorId == -1) {
-                // debugging purposes, remove later 6/12/24
-                GameLogging.warn(this, "Excluded was null, debugging: interior=%s, caller=%s", interior.type(), world.getWorldName());
-            }
-
             if (interior.isWorldLoaded() && excludedInteriorId != interior.worldId()) {
                 interiors.add(new InteriorWorldSave(interior));
             }
@@ -135,26 +139,27 @@ public abstract class AbstractWorldSaveState {
      */
     protected void writeObjects(GameWorld world) {
         this.objects = new ArrayList<>();
+        this.destroyedObjects = new ArrayList<>();
 
-        for (int i = 0; i < world.destroyedWorldObjects().size(); i++) {
-            objects.add(new DefaultWorldObjectSave(world.destroyedWorldObjects().get(i)));
-        }
+        // save any destroyed objects that will be removed upon loading
+        for (int i = 0; i < world.destroyedWorldObjects().size(); i++)
+            destroyedObjects.add(world.destroyedWorldObjects().get(i));
 
+        // write any regular objects that have no functionality
         for (AbstractWorldObject object : world.worldObjects()) {
-            final DefaultWorldObjectSave save = new DefaultWorldObjectSave(object);
-            objects.add(save);
+            objects.add(new WorldObjectSaveState(object));
         }
 
+        // finally save all other objects that have interactions
         for (AbstractInteractableWorldObject object : world.interactableWorldObjects()) {
-            if (object.getType() == WorldInteractionType.CONTAINER) {
-                final ContainerWorldObjectSave container = new ContainerWorldObjectSave(world, object, ((OpenableContainerInteraction) object).inventory());
-                objects.add(container);
-            } else if (object.getType() == WorldInteractionType.MAP_ITEM) {
-                final ItemInteractionObjectSave itemDrop = new ItemInteractionObjectSave((MapItemInteraction) object);
-                objects.add(itemDrop);
+            if (!object.shouldSave()) continue;
+
+            if (object.hasSaveSerialization()) {
+                final JsonObject data = new JsonObject();
+                objects.add(object.save(data, SaveManager.SAVE_GAME_GSON));
             } else {
-                final InteractableWorldObjectSave save = new InteractableWorldObjectSave(world, object);
-                objects.add(save);
+                // otherwise, the object is a normal object with no extra data.
+                objects.add(new WorldObjectSaveState(world, object));
             }
         }
     }
@@ -181,8 +186,15 @@ public abstract class AbstractWorldSaveState {
     /**
      * @return entities
      */
-    public List<AbstractEntitySaveState> entities() {
+    public List<EntitySaveState> entities() {
         return entities;
+    }
+
+    /**
+     * @return a keyed list of dead entities.
+     */
+    public List<String> deadEntities() {
+        return deadEntities;
     }
 
     /**
@@ -195,8 +207,22 @@ public abstract class AbstractWorldSaveState {
     /**
      * @return objects
      */
-    public List<AbstractWorldObjectSaveState> objects() {
+    public List<WorldObjectSaveState> objects() {
         return objects;
+    }
+
+    /**
+     * @return destroyed objects
+     */
+    public List<String> destroyedObjects() {
+        return destroyedObjects;
+    }
+
+    /**
+     * @return all loot groves generated
+     */
+    public List<String> lootGroveParents() {
+        return lootGroveParents;
     }
 
     /**

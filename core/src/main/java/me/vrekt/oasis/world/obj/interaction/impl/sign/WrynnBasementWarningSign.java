@@ -12,6 +12,7 @@ public final class WrynnBasementWarningSign extends ReadableSignInteraction {
 
     public WrynnBasementWarningSign() {
         super(KEY, "WARNING: Abhorrent creatures inside.");
+        this.shouldSave = false;
     }
 
 }

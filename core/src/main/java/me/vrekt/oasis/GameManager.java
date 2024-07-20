@@ -13,6 +13,7 @@ import me.vrekt.oasis.ui.FadeScreen;
 import me.vrekt.oasis.utility.TaskManager;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.management.WorldManager;
 
 import java.util.HashMap;
@@ -73,6 +74,8 @@ public class GameManager {
 
         KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
             OasisGameSettings.DRAW_DEBUG = !OasisGameSettings.DRAW_DEBUG;
+            getPlayer().getWorldState().findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
+            getPlayer().getWorldState().removeSimpleObject("oasis:basement_gate");
         });
         KEY_ACTIONS.put(OasisKeybindings.CHAT, () -> {
             if (game().isMultiplayer()) {

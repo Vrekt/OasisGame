@@ -1,19 +1,20 @@
 package me.vrekt.oasis.world;
 
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
-import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
+import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.save.Loadable;
+import me.vrekt.oasis.save.SaveManager;
+import me.vrekt.oasis.save.inventory.InventorySave;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.save.world.InteriorWorldSave;
-import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
-import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
-import me.vrekt.oasis.save.world.entity.GenericEntitySave;
-import me.vrekt.oasis.save.world.entity.InteractableEntitySave;
+import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
-import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
-import me.vrekt.oasis.save.world.obj.InteractableWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.objects.ContainerWorldObjectSave;
-import me.vrekt.oasis.save.world.obj.objects.ItemInteractionObjectSave;
+import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -23,19 +24,32 @@ import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInte
 /**
  * Handles loading a world
  */
-public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, Disposable {
+public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, Disposable {
 
     private GameWorld world;
+
+    private final Array<AbstractInteractableWorldObject> preLoadedObjects = new Array<>();
+    private final Array<OpenableContainerInteraction> preLoadedContainers = new Array<>();
 
     public WorldSaveLoader(GameWorld world) {
         this.world = world;
     }
 
     @Override
-    public void load(AbstractWorldSaveState worldSave) {
+    public void load(AbstractWorldSaveState worldSave, Gson gson) {
         loadWorldEntities(worldSave);
         loadNetworkPlayers(worldSave);
         loadContainersAndObjects(worldSave);
+
+        // now add preloaded objects
+        preLoadedObjects.forEach(object -> world.addInteraction(object));
+        preLoadedObjects.clear();
+
+        // add pre loaded containers
+        for (OpenableContainerInteraction container : preLoadedContainers) {
+            world.spawnWorldObject(container, container.activeTexture(), container.getPosition());
+        }
+        preLoadedContainers.clear();
 
         if (worldSave instanceof InteriorWorldSave save) {
             final GameWorldInterior interior = (GameWorldInterior) world;
@@ -51,6 +65,7 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
             }
         }
         world.hasVisited = true;
+        world.postLoad(worldSave);
     }
 
     /**
@@ -61,34 +76,28 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
     private void loadWorldEntities(AbstractWorldSaveState worldSave) {
         if (worldSave.entities() == null) return;
 
-        var interactable = 0;
-        var enemy = 0;
+        var interactableCount = 0;
+        var enemyCount = 0;
 
-        // TODO: EntityId, maybe only if multiplayer
-        for (AbstractEntitySaveState entitySave : worldSave.entities()) {
-            if (entitySave.type().interactable()) {
-                final InteractableEntitySave ies = (InteractableEntitySave) entitySave;
-                world.findInteractableEntity(ies.type()).load(ies);
+        for (EntitySaveState save : worldSave.entities()) {
+            if (save.type().interactable()) {
+                world.findInteractableEntity(save.type()).load(save, SaveManager.LOAD_GAME_GSON);
+                interactableCount++;
+            } else if (save.type().enemy()) {
+                final EntityEnemy enemy = world.findEnemy(save.type());
+                enemy.load(save, SaveManager.LOAD_GAME_GSON);
 
-                interactable++;
-            } else if (entitySave.type().enemy()) {
-                final EnemyEntitySave ees = (EnemyEntitySave) entitySave;
-                if (ees.isDead()) {
-                    final EntityEnemy e = world.findEnemy(ees.type());
-                    world.entities.remove(e.entityId());
-                    world.removeAndDestroyDeadEntityNow(e);
-                } else {
-                    world.findEnemy(ees.type()).load(ees);
+                // indicates this entity is dead.
+                if (worldSave.deadEntities().contains(enemy.key())) {
+                    world.entities.remove(enemy.entityId());
+                    world.removeAndDestroyDeadEntityNow(enemy);
                 }
-
-                enemy++;
-            } else if (entitySave.type().generic()) {
-                final GenericEntitySave save = (GenericEntitySave) entitySave;
+            } else if (save.type().generic()) {
                 world.findEntity(save.type()).loadSavedEntity(save);
             }
         }
 
-        GameLogging.info(world.worldName, "Loaded %d interactable entities and %d enemies", interactable, enemy);
+        GameLogging.info(world.worldName, "Loaded %d interactable entities and %d enemies", interactableCount, enemyCount);
     }
 
     /**
@@ -114,15 +123,21 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
         var interactable = 0;
         var normal = 0;
 
-        for (AbstractWorldObjectSaveState object : save.objects()) {
+        for (WorldObjectSaveState object : save.objects()) {
             if (object.interactable()) {
-                loadInteractableObject((InteractableWorldObjectSave) object);
+                loadInteractableObject(object);
                 interactable++;
             } else {
                 loadNormalWorldObject(object);
                 normal++;
             }
         }
+
+        // remove destroyed objects
+        for (String destroyedObject : save.destroyedObjects()) {
+            world.removeDestroyedSaveObject(destroyedObject);
+        }
+
         GameLogging.info(world.worldName, "Loaded %d interactable objects and %d normal objects", interactable, normal);
     }
 
@@ -131,10 +146,8 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
      *
      * @param save save
      */
-    private void loadNormalWorldObject(AbstractWorldObjectSaveState save) {
-        if (save.destroyed()) {
-            world.removeDestroyedSaveObject(save.key());
-        }
+    private void loadNormalWorldObject(WorldObjectSaveState save) {
+        // Currently un-used.
     }
 
     /**
@@ -142,32 +155,58 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
      *
      * @param save save
      */
-    private void loadInteractableObject(InteractableWorldObjectSave save) {
-        if (save.type() == WorldInteractionType.CONTAINER) {
-            loadContainer((ContainerWorldObjectSave) save);
-        } else if (save.type() == WorldInteractionType.MAP_ITEM) {
-            final ItemInteractionObjectSave drop = (ItemInteractionObjectSave) save;
-            world.spawnWorldDrop(drop.item().type(), drop.item().amount(), drop.position());
+    private void loadInteractableObject(WorldObjectSaveState save) {
+        // find the interaction and load its data.
+        final AbstractInteractableWorldObject object = world.findInteraction(save.type(), save.key());
+        if (object == null) {
+            // no object, just create it.
+            createMissingObject(save, SaveManager.LOAD_GAME_GSON);
         } else {
-            final AbstractInteractableWorldObject object = world.findInteraction(save.type(), save.key());
-            if (save.enabled()) object.enable();
+            object.load(save, SaveManager.LOAD_GAME_GSON);
+
+            if (save.enabled()) {
+                object.enable();
+            } else {
+                object.disable();
+            }
         }
     }
 
     /**
-     * Load a container and its contents
+     * Create missing objects that are randomly generated, like loot grove objects.
      *
-     * @param save save
+     * @param state the state
      */
-    private void loadContainer(ContainerWorldObjectSave save) {
-        if (save.inventory() != null) {
-            final OpenableContainerInteraction interaction = (OpenableContainerInteraction) world.findInteraction(save.type(), save.key());
-            if (interaction != null) {
-                interaction.inventory().transferFrom(save.inventory().inventory());
-                if (save.enabled()) interaction.enable();
+    private void createMissingObject(WorldObjectSaveState state, Gson gson) {
+        if (state.data() == null) {
+            GameLogging.warn(this, "Cannot create missing object, data is missing!");
+            return;
+        }
+
+        if (state.type() == WorldInteractionType.MAP_ITEM) {
+            final JsonObject parent = state.data().getAsJsonObject("dropped_item");
+            final Items typeOf = Items.valueOf(parent.get("type").getAsString());
+            final int amount = parent.get("amount").getAsInt();
+            preLoadedObjects.add(world.createWorldDrop(typeOf, amount, state.position()));
+        } else if (state.type() == WorldInteractionType.CONTAINER) {
+            final InventorySave fromJson = gson.fromJson(state.data().get("container_inventory"), InventorySave.class);
+            final ContainerInventory inventory = (ContainerInventory) fromJson.inventory();
+
+            // may cause future issues
+            final String texture = state.data().get("active_texture").getAsString();
+
+            final OpenableContainerInteraction interaction = new OpenableContainerInteraction(state.key(), inventory);
+            interaction.setPosition(state.position().x, state.position().y);
+            if (state.enabled()) {
+                interaction.enable();
             } else {
-                GameLogging.warn(world.worldName, "Failed to find a container: %s", save.key());
+                interaction.disable();
             }
+
+            interaction.setActiveTexture(texture);
+            preLoadedContainers.add(interaction);
+        } else {
+            GameLogging.warn(this, "Failed to find a pre-loaded interaction! type=%s, key=%s", state.type(), state.key());
         }
     }
 
@@ -179,7 +218,13 @@ public final class WorldSaveLoader implements Savable<AbstractWorldSaveState>, D
     private void loadInterior(InteriorWorldSave save) {
         final GameWorldInterior interior = world.findInteriorByType(save.interiorType());
         interior.loadWorld(true);
-        interior.loader().load(save);
+        interior.loader().load(save, null);
+    }
+
+    private void loadLootGroves(AbstractWorldSaveState state) {
+        // only after we load do we generate loot-groves, if not loaded.
+
+
     }
 
     @Override

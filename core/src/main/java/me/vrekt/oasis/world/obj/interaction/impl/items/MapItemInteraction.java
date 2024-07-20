@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.gui.GuiManager;
@@ -13,6 +15,8 @@ import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.save.inventory.ItemSave;
+import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.Pooling;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
@@ -45,6 +49,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
         this.handleMouseState = false;
         this.isUiComponent = true;
         this.item = item;
+        this.saveSerializer = true;
     }
 
     public MapItemInteraction() {
@@ -53,6 +58,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
         this.isMapObject = true;
         this.handleMouseState = false;
         this.isUiComponent = true;
+        this.saveSerializer = true;
     }
 
     private void calculateSize(Item item) {
@@ -107,6 +113,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
     public void interact() {
         item.addToPlayer(world.player());
         Pooling.freeHint(effect);
+        effect = null;
 
         world.removeInteraction(this);
         item = null;
@@ -135,5 +142,31 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
             Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING_Y + size.x), position.y - (height + size.y * PATCH_PADDING_Y), width, height);
             font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING_Y + size.x * 6f), position.y - (height + size.y * PATCH_PADDING_Y) / 2f);
         }
+    }
+
+    @Override
+    public WorldObjectSaveState save(JsonObject to, Gson gson) {
+        to.add("dropped_item", gson.toJsonTree(new ItemSave(0, item)));
+        return new WorldObjectSaveState(world, this, to);
+    }
+
+    @Override
+    public void load(WorldObjectSaveState save, Gson gson) {
+        if (save.data() != null) {
+            final JsonObject parent = save.data().getAsJsonObject("dropped_item");
+            final Vector2 position = gson.fromJson(save.data().get("position"), Vector2.class);
+            final Items typeOf = Items.valueOf(parent.get("type").getAsString());
+            final int amount = parent.get("amount").getAsInt();
+            world.spawnWorldDrop(typeOf, amount, position);
+        }
+    }
+
+    @Override
+    public void dispose() {
+        if (effect != null) {
+            Pooling.freeHint(effect);
+            effect = null;
+        }
+        item = null;
     }
 }

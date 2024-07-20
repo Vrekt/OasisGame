@@ -213,7 +213,7 @@ public final class SaveGameWindowGui extends Gui {
 
     private void saveAndShowConfirmation(int slot, String text) {
         showConfirmationDialog.show(guiManager.getStage());
-        guiManager.getGame().saveGameAsync(slot, text);
+        guiManager.getGame().saveGameSync(slot, text);
     }
 
     @Override

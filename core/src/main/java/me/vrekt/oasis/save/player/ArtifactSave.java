@@ -11,7 +11,6 @@ public final class ArtifactSave {
 
     @Expose
     private int slot;
-
     @Expose
     private ArtifactType type;
 

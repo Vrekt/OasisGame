@@ -30,7 +30,7 @@ import me.vrekt.oasis.world.effects.EffectType;
  */
 public final class GrungyRoachEnemy extends EntityEnemy {
 
-    public static final String ENTITY_KEY = "oasis:grungy_roach";
+    public static final String ENTITY_KEY = "oasis:grungy_roach_tutorial";
     public static final String NAME = "Grungy Roach";
 
     private final EntityAnimationComponent animationComponent;
@@ -49,7 +49,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
         super(ENTITY_KEY, world, game);
         this.type = EntityType.ROACH;
 
-        setPosition(position);
+        getTransformComponent().position.set(position);
         setName(NAME);
         setHealth(20);
 
@@ -108,6 +108,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
 
         createBB(32, 32);
         createRectangleBody(worldIn.boxWorld(), new Vector2(1, 1));
+        setPosition(getTransformComponent().position);
 
         hostilePursueComponent = new AiHostilePursueComponent(this, player);
         hostilePursueComponent.setMaxLinearSpeed(1.8f);

@@ -19,8 +19,8 @@ public final class CommonLootGroveGenerator extends LootGroveGenerator {
     private static final float MULTIPLE_ITEMS_CHANCE = 0.1f;
     private static final float STEP_ABOVE_RARITY_CHANCE = 0.25f;
 
-    public CommonLootGroveGenerator(ItemRarity rarity) {
-        super(rarity);
+    public CommonLootGroveGenerator(ItemRarity rarity, String childKey) {
+        super(rarity, childKey);
     }
 
     @Override

@@ -11,12 +11,13 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Contains all data within a players game save state
- * TODO: Possible future saving items
  */
 public final class GameSave {
 
     @Expose
     private final String name;
+    @Expose
+    private final int slot;
     @Expose
     private final float progress;
     @Expose
@@ -24,8 +25,6 @@ public final class GameSave {
     @Expose
     @SerializedName("multiplayer")
     private final boolean isMultiplayer;
-    @Expose
-    private final int slot;
     @Expose
     private GameSettingsSave settings;
     @Expose
@@ -39,11 +38,11 @@ public final class GameSave {
      * @param isMultiplayer if the game was previously multiplayer
      * @param slot          the save slot
      */
-    public GameSave(String name, float progress, boolean isMultiplayer, int slot) {
+    public GameSave(String name, int slot, float progress, boolean isMultiplayer) {
         this.name = name;
+        this.slot = slot;
         this.progress = progress;
         this.isMultiplayer = isMultiplayer;
-        this.slot = slot;
 
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm a");
         this.date = LocalDateTime.now().format(formatter);

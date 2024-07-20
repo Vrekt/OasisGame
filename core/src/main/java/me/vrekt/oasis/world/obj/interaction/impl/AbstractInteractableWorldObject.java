@@ -6,6 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.save.Loadable;
+import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Represents a world object that can be interacted with
  */
-public abstract class AbstractInteractableWorldObject extends AbstractWorldObject {
+public abstract class AbstractInteractableWorldObject extends AbstractWorldObject implements
+        Loadable<WorldObjectSaveState>,
+        Savable<WorldObjectSaveState> {
 
     private static final float INTERACTION_EXIT_DISTANCE = 1.0f;
 
@@ -31,6 +36,11 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected float lastInteraction;
     protected float interactionDelay;
 
+    // if this object has custom save data
+    protected boolean saveSerializer;
+    // if this object should even be saved at all.
+    protected boolean shouldSave = true;
+
     public AbstractInteractableWorldObject(WorldInteractionType type, String key) {
         this.type = type;
         this.key = key;
@@ -47,6 +57,20 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      */
     public WorldInteractionType getType() {
         return type;
+    }
+
+    /**
+     * @return {@code true} if this object should be saved.
+     */
+    public boolean hasSaveSerialization() {
+        return saveSerializer;
+    }
+
+    /**
+     * @return if the object should be saved
+     */
+    public boolean shouldSave() {
+        return shouldSave;
     }
 
     /**

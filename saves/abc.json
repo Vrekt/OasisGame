@@ -1,13 +1,13 @@
 {
   "name": "abc",
-  "progress": 0.0,
-  "date": "19-07-24 05:08 AM",
-  "multiplayer": true,
   "slot": 1,
+  "progress": 0.0,
+  "date": "20-07-24 03:54 AM",
+  "multiplayer": false,
   "settings": {
     "entity_update_distance": 100.0,
     "show_fps": true,
-    "mp_lan": true,
+    "mp_lan": false,
     "v_sync": true,
     "auto_save": true,
     "auto_save_interval": 1.0,
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player85",
+    "name": "Player54",
     "position": {
-      "x": 22.635437,
-      "y": 29.697926
+      "x": 44.010437,
+      "y": 22.510376
     },
     "inventory": {
       "type": "PLAYER",
@@ -94,10 +94,9 @@
         "interior": false,
         "entities": [
           {
-            "dialogueStageIndex": 1,
-            "dialogueEntryKey": "thalia:dialog_stage_0",
             "type": "THALIA",
             "name": "Thalia",
+            "key": "oasis:thalia",
             "entityId": 2,
             "position": {
               "x": 13.0,
@@ -110,15 +109,20 @@
             },
             "health": 100.0,
             "rotation": "DOWN",
-            "move_speed": 0.0
+            "move_speed": 0.0,
+            "entity_data": {
+              "dialogue_entry_key": "thalia:dialog_stage_0",
+              "dialogue_stage_index": 1
+            }
           },
           {
             "type": "CHICK",
             "name": "Chick",
+            "key": "oasis:chick",
             "entityId": 4,
             "position": {
-              "x": 19.278713,
-              "y": 29.474537
+              "x": 25.0,
+              "y": 31.0
             },
             "size": {
               "x": 16.0,
@@ -126,18 +130,17 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "LEFT",
+            "rotation": "DOWN",
             "move_speed": 0.0
           },
           {
-            "dialogueStageIndex": 1,
-            "dialogueEntryKey": "lyra:dialog_stage_0",
             "type": "LYRA",
             "name": "Lyra",
+            "key": "oasis:lyra",
             "entityId": 1,
             "position": {
-              "x": 22.489416,
-              "y": 30.20376
+              "x": 16.0,
+              "y": 29.0
             },
             "size": {
               "x": 12.0,
@@ -145,12 +148,17 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "UP",
-            "move_speed": 0.0
+            "rotation": "DOWN",
+            "move_speed": 0.0,
+            "entity_data": {
+              "dialogue_entry_key": "lyra:dialog_stage_0",
+              "dialogue_stage_index": 1
+            }
           },
           {
             "type": "FISH",
             "name": "Fish",
+            "key": "oasis:fish",
             "entityId": 3,
             "position": {
               "x": 15.333312,
@@ -166,99 +174,69 @@
             "move_speed": 0.0
           }
         ],
+        "deadEntities": [],
         "interiors": [],
         "objects": [
           {
-            "key": "oasis:basement_gate",
-            "interactable": false,
-            "destroyed": false
-          },
-          {
-            "enabled": true,
-            "type": "READABLE_SIGN",
-            "key": "oasis:basement_sign",
+            "key": "oasis:lock_pick",
             "interactable": true,
-            "destroyed": false
-          },
-          {
             "enabled": true,
-            "type": "BREAKABLE_OBJECT",
-            "interactable": true,
-            "destroyed": false
-          },
-          {
-            "enabled": true,
-            "type": "BREAKABLE_OBJECT",
-            "interactable": true,
-            "destroyed": false
-          },
-          {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
+            "interaction_type": "MAP_ITEM",
             "position": {
               "x": 51.0,
               "y": 53.0
             },
-            "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
+            "object_data": {
+              "dropped_item": {
+                "slot": 0,
+                "name": "Lockpick",
+                "type": "LOCK_PICK",
+                "amount": 1
+              }
+            }
           },
           {
-            "dropped_item": {
-              "slot": 0,
-              "name": "Lockpick",
-              "type": "LOCK_PICK",
-              "amount": 1
-            },
+            "key": "oasis:lock_pick",
+            "interactable": true,
+            "enabled": true,
+            "interaction_type": "MAP_ITEM",
             "position": {
               "x": 53.5,
               "y": 49.0
             },
-            "enabled": true,
-            "type": "MAP_ITEM",
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "destroyed": false
+            "object_data": {
+              "dropped_item": {
+                "slot": 0,
+                "name": "Lockpick",
+                "type": "LOCK_PICK",
+                "amount": 1
+              }
+            }
           },
           {
-            "container_inventory": {
-              "type": "CONTAINER",
-              "size": 16,
-              "contents": [
-                {
-                  "slot": 0,
-                  "name": "Lockpick",
-                  "type": "LOCK_PICK",
-                  "amount": 1
-                }
-              ]
-            },
-            "enabled": true,
-            "type": "CONTAINER",
+            "key": "oasis:lock_pick",
             "interactable": true,
-            "destroyed": false
-          }
-        ],
-        "network_players": [
-          {
-            "name": "Player54",
-            "entityId": 78,
+            "enabled": true,
+            "interaction_type": "MAP_ITEM",
             "position": {
-              "x": 22.351643,
-              "y": 22.42473
+              "x": 53.5,
+              "y": 47.0
             },
-            "inventory": {
-              "type": "PLAYER",
-              "size": 18,
-              "contents": []
+            "object_data": {
+              "dropped_item": {
+                "slot": 0,
+                "name": "Lockpick",
+                "type": "LOCK_PICK",
+                "amount": 1
+              }
             }
           }
+        ],
+        "destroyedObjects": [
+          "oasis:basement_gate"
+        ],
+        "lootGroveParents": [
+          "loot_grove_0"
         ]
       },
       "visited_worlds": {}

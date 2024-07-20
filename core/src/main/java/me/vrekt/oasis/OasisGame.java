@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240719-0645-7374";
+    public static final String GAME_VERSION = "20240720-0356-7481";
 
     private Asset asset;
 
@@ -160,7 +160,7 @@ public final class OasisGame extends Game {
         OasisGameSettings.loadSaveSettings(state.settings());
         OasisKeybindings.loadSaveSettings(state.settings());
 
-        player.load(state.player());
+        player.load(state.player(), null);
         loadWorldSaveState(state.player());
 
         // start integrated server if this save has multiplayer enabled
@@ -184,20 +184,20 @@ public final class OasisGame extends Game {
 
         if (worldSave.inInterior()) {
             // load the parent world save data
-            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()));
+            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()), null);
 
             final GameWorldInterior interior = world.interiorWorlds().get(worldSave.interiorType());
             // loads the interior tiled map properties
             interior.loadWorld(true);
             // loads the save data
-            interior.loader().load(save.worldSave().world());
+            interior.loader().load(save.worldSave().world(), null);
             interior.enter();
 
             // done loading save data, resume normal operation
             interior.setGameSave(false);
         } else {
             // loads the world normally
-            world.loader().load(worldSave.world());
+            world.loader().load(worldSave.world(), null);
             world.enter();
 
             // done loading save data, resume normal operation
@@ -236,14 +236,16 @@ public final class OasisGame extends Game {
     }
 
     /**
-     * Save the game async
+     * Save the game sync
+     * EM-148: Do not save async because object state is not always reflected accurately -
+     * seems obvious in hindsight.
      *
      * @param slot      slot
      * @param nameIfAny name
      */
-    public void saveGameAsync(int slot, String nameIfAny) {
+    public void saveGameSync(int slot, String nameIfAny) {
         guiManager.getGameActionComponent().showSavingIcon();
-        virtualAsyncService.execute(() -> SaveManager.save(slot, nameIfAny));
+        SaveManager.save(slot, nameIfAny);
     }
 
     /**
@@ -258,7 +260,7 @@ public final class OasisGame extends Game {
 
         autoSaveTaskId = GameManager.getTaskManager().schedule(() -> {
             if (currentSlot == -1) currentSlot = 0;
-            saveGameAsync(currentSlot, SaveManager.getProperties().getSlotNameOr(currentSlot, "AutoSave"));
+            saveGameSync(currentSlot, SaveManager.getProperties().getSlotNameOr(currentSlot, "AutoSave"));
         }, delay);
     }
 
@@ -268,7 +270,7 @@ public final class OasisGame extends Game {
      * @param slot the slot
      */
     public void loadSaveGame(int slot) {
-        loadGameSaveAsync(slot);
+        loadSaveGameSync(slot);
         currentSlot = slot;
 
         scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);
@@ -276,18 +278,17 @@ public final class OasisGame extends Game {
 
     /**
      * Load a game save file async
-     *
+     * EM-148: Do not load async because object state is not always reflected accurately -
+     * seems obvious in hindsight.
      * @param slot the slot
      */
-    private void loadGameSaveAsync(int slot) {
-        virtualAsyncService.execute(() -> {
-            final GameSave state = SaveManager.load(slot);
-            if (state == null) {
-                throw new IllegalArgumentException("Slot " + slot + " does not exist.");
-            } else {
-                executeMain(() -> loadGameFromSave(state));
-            }
-        });
+    private void loadSaveGameSync(int slot) {
+        final GameSave state = SaveManager.load(slot);
+        if (state == null) {
+            throw new IllegalArgumentException("Slot " + slot + " does not exist.");
+        } else {
+            executeMain(() -> loadGameFromSave(state));
+        }
     }
 
     /**

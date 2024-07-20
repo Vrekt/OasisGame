@@ -50,6 +50,7 @@ import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -66,6 +67,7 @@ import me.vrekt.oasis.world.obj.grove.LootGrove;
 import me.vrekt.oasis.world.obj.interaction.InteractionManager;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
@@ -110,8 +112,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected AreaEffectCloudManager effectCloudManager;
 
     // destroyed world objects/entities used for saving
-    protected final Bag<EntityType> deadEnemies = new Bag<>();
+    protected final Array<String> deadEnemiesByKey = new Array<>();
     protected final Bag<String> destroyedWorldObjects = new Bag<>();
+    protected final Array<String> lootGroveParents = new Array<>();
 
     // objects within this world
     protected final Map<String, AbstractWorldObject> worldObjects = new HashMap<>();
@@ -269,6 +272,19 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Post load - after loading a save.
+     */
+    public void postLoad(AbstractWorldSaveState state) {
+        // here we can actually check afterwards if one has already generated.
+        for (String lootGroveParent : state.lootGroveParents()) {
+            lootGroveParents.add(lootGroveParent);
+        }
+        ;
+
+        generateLootGroves(map, game.getAsset(), OasisGameSettings.SCALE);
+    }
+
+    /**
      * Create and initialize this world.
      *
      * @param worldMap   the map of the world
@@ -291,7 +307,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
         createEntityGoals(worldMap, worldScale);
-        generateLootGroves(worldMap, game.getAsset(), worldScale);
+        if (!isGameSave) {
+            // do not generate yet if we are a save.
+            generateLootGroves(worldMap, game.getAsset(), worldScale);
+        }
 
         updateRendererMap();
         game.getMultiplexer().addProcessor(this);
@@ -334,7 +353,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param interior the interior
      */
     public void enterInterior(GameWorldInterior interior) {
-        player.getConnection().updateNetworkInteriorWorldEntered(interior);
+        if (game.isMultiplayer()) player.getConnection().updateNetworkInteriorWorldEntered(interior);
         GameManager.getWorldManager().transferIn(player, this, interior);
     }
 
@@ -562,7 +581,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public void removeAndDestroyDeadEntityNow(GameEntity entity) {
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
-        deadEnemies.add(entity.type());
+        deadEnemiesByKey.add(entity.key());
         mouseListeners.remove(entity);
         entity.dispose();
     }
@@ -593,12 +612,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * TODO: Causes issues with multiple types of same enemy EM-86
-     *
-     * @return dead enemies
+     * @return dead enemies by key
      */
-    public Bag<EntityType> deadEnemies() {
-        return deadEnemies;
+    public Array<String> deadEnemies() {
+        return deadEnemiesByKey;
     }
 
     /**
@@ -614,9 +631,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         TiledMapLoader.loadMapObjects(worldMap, worldScale, "LootGroveChildren", (object, rectangle) -> {
             final String childKey = TiledMapLoader.ofString(object, "child_key");
             final LootGrove grove = registry.get(childKey);
-            if (grove == null) {
-                GameLogging.warn(this, "Failed to find a registered root-grove child by key %s", childKey);
-            } else {
+            if (grove != null) {
                 final float offsetX = TiledMapLoader.ofFloat(object, "offset_x", 0.0f) * OasisGameSettings.SCALE;
                 grove.addRewardPoint(new Vector2(rectangle.x - offsetX, rectangle.y));
             }
@@ -641,14 +656,28 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             if (key == null || registry.containsKey(key)) {
                 GameLogging.warn(this, "Invalid map data for a loot grove! obj-name=%s, key=%s", object.getName(), key);
             } else {
-                final String rarity = TiledMapLoader.ofString(object, "rarity");
-                final LootGrove grove = new LootGrove(key, ItemRarity.valueOf(rarity));
-                registry.put(key, grove);
+                // only create a loot grove if it has not been saved.
+                if (!lootGroveParents.contains(key, false)) {
+                    lootGroveParents.add(key);
 
-                GameLogging.info(this, "Found loot-grove %s", key);
+                    final String rarity = TiledMapLoader.ofString(object, "rarity");
+                    final LootGrove grove = new LootGrove(key, ItemRarity.valueOf(rarity));
+                    registry.put(key, grove);
+
+                    GameLogging.info(this, "Found loot-grove %s", key);
+                } else {
+                    GameLogging.info(this, "Skipping loot-grove %s", key);
+                }
             }
         });
         return registry;
+    }
+
+    /**
+     * @return a list of all loot grove parents
+     */
+    public Array<String> lootGroveParents() {
+        return lootGroveParents;
     }
 
     /**
@@ -821,6 +850,31 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Create a world drop but do not spawn it. Used in loading saves.
+     *
+     * @param type     type
+     * @param amount   amount
+     * @param position position
+     * @return the object
+     */
+    public MapItemInteraction createWorldDrop(Items type, int amount, Vector2 position) {
+        final Item item = ItemRegistry.createItem(type, amount);
+        final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
+        interaction.load(game.getAsset());
+        return interaction;
+    }
+
+    /**
+     * Add an interaction
+     *
+     * @param interaction the interaction
+     */
+    public void addInteraction(AbstractInteractableWorldObject interaction) {
+        interactableWorldObjects.add(interaction);
+        mouseListeners.put(interaction, false);
+    }
+
+    /**
      * Check if this world has a simple object
      *
      * @param key key
@@ -897,6 +951,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         if (texture != null) {
             object.setTextureAndSize(game.getAsset().get(texture));
+            // make sure this data is saved.
+            if (object instanceof OpenableContainerInteraction container) {
+                container.setActiveTexture(texture);
+            }
         }
 
         object.load(game.getAsset());
@@ -1434,7 +1492,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (guiManager.isAnyGuiVisible(GuiType.HUD)) return true;
 
         for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
-            if (entry.getValue()) {
+            if (entry.getKey().within(cursorInWorld)) {
                 // mouse is within, we clicked it.
                 return entry.getKey().clicked(cursorInWorld);
             }

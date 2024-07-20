@@ -2,8 +2,8 @@
   "slot_one": {
     "name": "abc",
     "progress": 0.0,
-    "date": "19-07-24 05:08 AM",
-    "multiplayer": true,
+    "date": "20-07-24 03:54 AM",
+    "multiplayer": false,
     "slot": 1
   }
 }

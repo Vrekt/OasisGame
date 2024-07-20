@@ -2,6 +2,7 @@ package me.vrekt.oasis.save.world.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.entity.EntityType;
@@ -11,29 +12,35 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 /**
  * Represents a game entity save
  */
-public abstract class AbstractEntitySaveState {
+public final class EntitySaveState {
 
     @Expose
-    protected EntityType type;
+    private EntityType type;
     @Expose
-    protected String name;
+    private String name;
     @Expose
-    protected int entityId;
+    private String key;
     @Expose
-    protected Vector2 position;
+    private int entityId;
     @Expose
-    protected Vector3 size;
+    private Vector2 position;
     @Expose
-    protected float health;
+    private Vector3 size;
     @Expose
-    protected EntityRotation rotation;
+    private float health;
+    @Expose
+    private EntityRotation rotation;
     @Expose
     @SerializedName("move_speed")
-    protected float moveSpeed;
+    private float moveSpeed;
+    @Expose
+    @SerializedName("entity_data")
+    private JsonObject data;
 
-    public AbstractEntitySaveState(GameEntity entity) {
+    public EntitySaveState(GameEntity entity) {
         this.type = entity.type();
         this.name = entity.name();
+        this.key = entity.key();
         this.entityId = entity.entityId();
         this.position = entity.getPosition();
         this.size = entity.getSizeVector();
@@ -42,7 +49,21 @@ public abstract class AbstractEntitySaveState {
         this.moveSpeed = entity.getMoveSpeed();
     }
 
-    public AbstractEntitySaveState() {
+    public EntitySaveState(GameEntity entity, JsonObject data) {
+        this.type = entity.type();
+        this.name = entity.name();
+        this.key = entity.key();
+        this.entityId = entity.entityId();
+        this.position = entity.getPosition();
+        this.size = entity.getSizeVector();
+        this.health = entity.getHealth();
+        this.rotation = entity.rotation();
+        this.moveSpeed = entity.getMoveSpeed();
+        this.data = data;
+    }
+
+    public EntitySaveState(String key, boolean dead) {
+        this.key = key;
     }
 
     /**
@@ -107,4 +128,10 @@ public abstract class AbstractEntitySaveState {
         return moveSpeed;
     }
 
+    /**
+     * @return other entity data
+     */
+    public JsonObject data() {
+        return data;
+    }
 }

@@ -96,7 +96,7 @@ public final class WrynnEntity extends EntityInteractable {
     }
 
     private void loadDialog() {
-        // TODO: "SPeak to wrynn before leaving"
+        // TODO: "Speak to wrynn before leaving"
         // TODO: Dialog stage is not skipped if not speaking afterwards
 
         // dialog will be set to complete once the player has the items
@@ -112,6 +112,8 @@ public final class WrynnEntity extends EntityInteractable {
             worldIn.enableWorldInteraction(WorldInteractionType.WRYNN_LEVER, "wrynn:lever");
             player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         });
+
+        activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
     }
 
     @Override

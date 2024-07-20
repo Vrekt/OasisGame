@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.combat.DamageType;
@@ -14,14 +16,15 @@ import me.vrekt.oasis.entity.enemy.animation.EnemyAnimation;
 import me.vrekt.oasis.entity.enemy.fsm.EntityState;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
 import me.vrekt.oasis.entity.enemy.fsm.states.ai.AiProcessingState;
+import me.vrekt.oasis.save.Loadable;
 import me.vrekt.oasis.save.Savable;
-import me.vrekt.oasis.save.world.entity.EnemyEntitySave;
+import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.world.GameWorld;
 
 /**
  * An enemy entity
  */
-public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEntitySave> {
+public abstract class EntityEnemy extends GameEntity implements Savable<EntitySaveState>, Loadable<EntitySaveState> {
 
     protected float inaccuracy, hostileRange, attackSpeed;
     protected float attackStrength;
@@ -46,11 +49,18 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EnemyEnt
     }
 
     @Override
-    public void load(EnemyEntitySave save) {
+    public void load(EntitySaveState save, Gson gson) {
         setPosition(save.position());
         setHealth(save.health());
         setMoveSpeed(save.moveSpeed());
-        rotation = save.rotation();
+        setRotation(save.rotation());
+    }
+
+    @Override
+    public EntitySaveState save(JsonObject to, Gson gson) {
+        // Currently unused, health will be always 0 if dead.
+        to.addProperty("is_dead", isDead());
+        return new EntitySaveState(this, to);
     }
 
     /**

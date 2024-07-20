@@ -6,10 +6,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.save.inventory.InventorySave;
 import me.vrekt.oasis.save.inventory.adapter.InventoryAdapter;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
-import me.vrekt.oasis.save.world.entity.AbstractEntitySaveState;
-import me.vrekt.oasis.save.world.entity.adapter.GameEntityAdapter;
-import me.vrekt.oasis.save.world.obj.AbstractWorldObjectSaveState;
-import me.vrekt.oasis.save.world.obj.adapters.WorldObjectAdapter;
 import me.vrekt.oasis.save.world.obj.adapters.WorldSaveAdapter;
 import me.vrekt.oasis.utility.logging.GameLogging;
 
@@ -22,16 +18,14 @@ import java.nio.file.Paths;
 
 public class SaveManager {
 
-    private static final Gson SAVE_GAME_GSON = new GsonBuilder()
+    public static final Gson SAVE_GAME_GSON = new GsonBuilder()
             .registerTypeAdapter(InventorySave.class, new InventoryAdapter.InventoryPropertiesSerializer())
             .setPrettyPrinting()
             .create();
 
-    private static final Gson LOAD_GAME_GSON = new GsonBuilder().
-            registerTypeAdapter(InventorySave.class, new InventoryAdapter.InventoryPropertiesDeserializer())
+    public static final Gson LOAD_GAME_GSON = new GsonBuilder()
+            .registerTypeAdapter(InventorySave.class, new InventoryAdapter.InventoryPropertiesDeserializer())
             .registerTypeAdapter(AbstractWorldSaveState.class, new WorldSaveAdapter())
-            .registerTypeAdapter(AbstractEntitySaveState.class, new GameEntityAdapter())
-            .registerTypeAdapter(AbstractWorldObjectSaveState.class, new WorldObjectAdapter())
             .create();
 
     private static GameSaveProperties properties;
@@ -57,7 +51,7 @@ public class SaveManager {
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
-                final GameSave save = new GameSave(name, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer(), slot);
+                final GameSave save = new GameSave(name, slot, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer());
 
                 writeGameSaveProperties(slot, save);
                 SAVE_GAME_GSON.toJson(save, writer);

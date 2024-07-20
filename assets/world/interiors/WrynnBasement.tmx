@@ -126,7 +126,7 @@
   <object id="5" x="192" y="240">
    <properties>
     <property name="enemy" type="bool" value="true"/>
-    <property name="key" value="oasis:grungy_roach"/>
+    <property name="key" value="oasis:grungy_roach_tutorial"/>
    </properties>
    <point/>
   </object>

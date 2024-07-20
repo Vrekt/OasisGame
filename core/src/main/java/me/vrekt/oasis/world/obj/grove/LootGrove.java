@@ -26,7 +26,7 @@ public final class LootGrove {
      */
     private LootGroveGenerator assignGenerator() {
         return switch (rarity) {
-            case COMMON -> new CommonLootGroveGenerator(rarity);
+            case COMMON -> new CommonLootGroveGenerator(rarity, childKey);
             case null, default -> throw new UnsupportedOperationException();
         };
     }

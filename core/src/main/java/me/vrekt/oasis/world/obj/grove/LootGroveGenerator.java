@@ -15,9 +15,11 @@ import me.vrekt.oasis.world.GameWorld;
 public abstract class LootGroveGenerator {
 
     protected final ItemRarity rarity;
+    protected final String childKey;
 
-    public LootGroveGenerator(ItemRarity rarity) {
+    public LootGroveGenerator(ItemRarity rarity, String childKey) {
         this.rarity = rarity;
+        this.childKey = childKey;
     }
 
     public abstract void generate(GameWorld world, Asset asset, Array<Vector2> points);

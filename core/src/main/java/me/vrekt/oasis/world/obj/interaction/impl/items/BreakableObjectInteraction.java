@@ -40,6 +40,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
         this.rarity = ItemRarity.valueOf(TiledMapLoader.ofString(object, "rarity"));
         this.handleMouseState = false;
         this.isCombatInteraction = true;
+        this.shouldSave = false;
 
         // load breaking animation
         final String anim = TiledMapLoader.ofString(object, "animation");
@@ -105,5 +106,4 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
     public boolean playerHit(ItemWeapon weapon) {
         return weapon.getBounds().overlaps(bounds);
     }
-
 }

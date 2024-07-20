@@ -53,7 +53,7 @@ public final class PlayerWorldSave {
         }
 
         this.worlds = new HashMap<>();
-        // will only return normal worlds and not interior worlds
+        // will only return normal worlds and not interior worlds 
         for (GameWorld gameWorld : game.getWorldManager().worlds().values()) {
             // only save this world if visited, and it's not already set as the active world
             if (gameWorld.hasVisited() && worldIn != gameWorld.worldId()) {

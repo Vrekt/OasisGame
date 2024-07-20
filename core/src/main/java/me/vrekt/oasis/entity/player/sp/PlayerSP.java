@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.IntMap;
+import com.google.gson.Gson;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
@@ -35,7 +36,7 @@ import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
-import me.vrekt.oasis.save.Savable;
+import me.vrekt.oasis.save.Loadable;
 import me.vrekt.oasis.save.player.ArtifactSave;
 import me.vrekt.oasis.save.player.EffectSave;
 import me.vrekt.oasis.save.player.PlayerSave;
@@ -55,7 +56,7 @@ import java.util.Map;
 /**
  * Represents the local player SP
  */
-public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Drawable, Savable<PlayerSave> {
+public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Drawable, Loadable<PlayerSave> {
 
     private static final float VELOCITY_NETWORK_SEND_RATE = 0.1f;
     private static final float POSITION_NETWORK_SEND_RATE = 0.35f;
@@ -105,7 +106,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     }
 
     @Override
-    public void load(PlayerSave playerSave) {
+    public void load(PlayerSave playerSave, Gson gson) {
         this.setName(playerSave.name());
         getTransformComponent().position.set(playerSave.position());
         this.getInventory().transferFrom(playerSave.inventory().inventory());
