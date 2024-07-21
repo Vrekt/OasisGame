@@ -14,6 +14,7 @@ import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
+import me.vrekt.oasis.world.obj.DestroyedObject;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ public abstract class AbstractWorldSaveState implements Disposable {
     @Expose
     protected boolean interior;
     @Expose
+    protected int parentWorld = -1;
+    @Expose
     List<EntitySaveState> entities = new ArrayList<>();
     @Expose
     List<String> deadEntities = new ArrayList<>();
@@ -39,7 +42,7 @@ public abstract class AbstractWorldSaveState implements Disposable {
     @Expose
     List<WorldObjectSaveState> objects;
     @Expose
-    List<String> destroyedObjects;
+    List<DestroyedObject> destroyedObjects;
     @Expose
     List<String> lootGroveParents;
     @Expose
@@ -58,6 +61,9 @@ public abstract class AbstractWorldSaveState implements Disposable {
         this.worldId = world.worldId();
         this.interior = world.isInterior();
         this.excludedInteriorId = excludedInteriorId;
+        if (interior) {
+            this.parentWorld = ((GameWorldInterior) world).getParentWorld().worldId();
+        }
 
         writeEntities(world);
         writeInteriors(world);
@@ -143,8 +149,10 @@ public abstract class AbstractWorldSaveState implements Disposable {
         this.destroyedObjects = new ArrayList<>();
 
         // save any destroyed objects that will be removed upon loading
-        for (int i = 0; i < world.destroyedWorldObjects().size(); i++)
+        for (int i = 0; i < world.destroyedWorldObjects().size(); i++) {
             destroyedObjects.add(world.destroyedWorldObjects().get(i));
+        }
+
 
         // write any regular objects that have no functionality
         for (AbstractWorldObject object : world.worldObjects()) {
@@ -185,6 +193,13 @@ public abstract class AbstractWorldSaveState implements Disposable {
     }
 
     /**
+     * @return parent world if any
+     */
+    public int parentWorld() {
+        return parentWorld;
+    }
+
+    /**
      * @return entities
      */
     public List<EntitySaveState> entities() {
@@ -215,7 +230,7 @@ public abstract class AbstractWorldSaveState implements Disposable {
     /**
      * @return destroyed objects
      */
-    public List<String> destroyedObjects() {
+    public List<DestroyedObject> destroyedObjects() {
         return destroyedObjects;
     }
 

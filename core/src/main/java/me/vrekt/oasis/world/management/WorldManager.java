@@ -53,7 +53,7 @@ public final class WorldManager implements Disposable {
         parentWorldPosition.set(player.getPosition());
 
         GameManager.transitionScreen(parent, interior, () -> {
-            interior.loadWorld(false);
+            interior.loadWorldTiledMap(false);
             interior.enter();
         });
     }
@@ -75,7 +75,7 @@ public final class WorldManager implements Disposable {
             player.getWorldState().exit();
             player.removeFromWorld();
 
-            to.loadWorld(false);
+            to.loadWorldTiledMap(false);
             to.enter();
         });
         return to;

@@ -27,8 +27,8 @@ public final class MyceliaShopInterior extends GameWorldInterior {
     }
 
     @Override
-    public void loadWorld(boolean isGameSave) {
-        super.loadWorld(isGameSave);
+    public void loadWorldTiledMap(boolean isGameSave) {
+        super.loadWorldTiledMap(isGameSave);
     }
 
     @Override

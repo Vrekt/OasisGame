@@ -25,10 +25,10 @@ public final class MyceliaWorld extends GameWorld {
     }
 
     @Override
-    public void loadWorld(boolean isGameSave) {
+    public void loadWorldTiledMap(boolean isGameSave) {
         // scale this player before we create their new box body
         player.scalePlayerBy(0.8f);
-        super.loadWorld(isGameSave);
+        super.loadWorldTiledMap(isGameSave);
         if (!isWorldLoaded) {
             loadTiledMap(game.getAsset().getWorldMap(worldMap), OasisGameSettings.SCALE);
         }

@@ -61,6 +61,7 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.network.WorldNetworkRenderer;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
+import me.vrekt.oasis.world.obj.DestroyedObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
 import me.vrekt.oasis.world.obj.TiledWorldObjectProperties;
 import me.vrekt.oasis.world.obj.grove.LootGrove;
@@ -113,7 +114,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     // destroyed world objects/entities used for saving
     protected final Array<String> deadEnemiesByKey = new Array<>();
-    protected final Bag<String> destroyedWorldObjects = new Bag<>();
+    protected final Bag<DestroyedObject> destroyedWorldObjects = new Bag<>();
     protected final Array<String> lootGroveParents = new Array<>();
 
     // objects within this world
@@ -259,7 +260,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * Load this world
      * Should be overridden to provide the correct map and scaling
      */
-    public void loadWorld(boolean isGameSave) {
+    public void loadWorldTiledMap(boolean isGameSave) {
         this.isGameSave = isGameSave;
     }
 
@@ -268,7 +269,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void loadNetworkWorld() {
         this.isNetworked = true;
-        this.loadWorld(false);
+        this.loadWorldTiledMap(false);
     }
 
     /**
@@ -894,48 +895,54 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
         if (object == null) return;
 
-        destroyedWorldObjects.add(key);
+        destroyedWorldObjects.add(new DestroyedObject(key));
 
         object.destroyCollision();
         object.dispose();
 
-        // TODO: Regular world objects remove from mouse listeners
+        mouseListeners.remove(object);
         worldObjects.remove(key);
     }
 
     /**
      * Remove an object that was saved as destroyed
      *
-     * @param key key
+     * @param object the destroyed object.
      */
-    protected void removeDestroyedSaveObject(String key) {
-        final SimpleWorldObject object = (SimpleWorldObject) worldObjects.get(key);
-        if (object == null) return;
-
-        // will need to be saved again.
-        // fixes: EM-74
-        destroyedWorldObjects.add(key);
-
-        object.destroyCollision();
-        object.dispose();
+    protected void removeDestroyedSaveObject(DestroyedObject object) {
+        if (object.type() != null) {
+            // find the exact interaction
+            for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
+                if (worldObject.getType() == object.type() && worldObject.getPosition().equals(object.position())) {
+                    removeInteraction(worldObject);
+                    break;
+                }
+            }
+        } else {
+            // otherwise, normal destroy.
+            removeSimpleObject(object.key());
+        }
     }
 
     /**
      * Remove an interaction
-     * Not required to save, if an item;
-     * TODO: If not item, save
      *
      * @param object object
      */
     public void removeInteraction(AbstractInteractableWorldObject object) {
+        object.destroyCollision();
+        object.dispose();
+
         interactableWorldObjects.removeValue(object, true);
         mouseListeners.remove(object);
+
+        destroyedWorldObjects.add(new DestroyedObject(object.getKey(), object.getType(), object.getPosition()));
     }
 
     /**
      * @return all destroyed objects
      */
-    public Bag<String> destroyedWorldObjects() {
+    public Bag<DestroyedObject> destroyedWorldObjects() {
         return destroyedWorldObjects;
     }
 

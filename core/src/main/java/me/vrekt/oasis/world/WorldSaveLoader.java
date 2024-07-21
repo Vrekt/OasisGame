@@ -19,6 +19,7 @@ import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.obj.DestroyedObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
@@ -147,8 +148,8 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
         }
 
         // remove destroyed objects
-        for (String destroyedObject : save.destroyedObjects()) {
-            world.removeDestroyedSaveObject(destroyedObject);
+        for (DestroyedObject object : save.destroyedObjects()) {
+            world.removeDestroyedSaveObject(object);
         }
 
         GameLogging.info(world.worldName, "Loaded %d interactable objects and %d normal objects", interactable, normal);
@@ -230,7 +231,7 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
      */
     private void loadInterior(InteriorWorldSave save) {
         final GameWorldInterior interior = world.findInteriorByType(save.interiorType());
-        interior.loadWorld(true);
+        interior.loadWorldTiledMap(true);
         interior.loader().load(save, SaveManager.LOAD_GAME_GSON);
     }
 

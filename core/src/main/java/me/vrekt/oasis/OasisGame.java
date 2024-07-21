@@ -1,5 +1,6 @@
 package me.vrekt.oasis;
 
+import com.badlogic.ashley.utils.Bag;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -23,6 +24,8 @@ import me.vrekt.oasis.network.server.IntegratedServer;
 import me.vrekt.oasis.save.GameSave;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.save.player.PlayerSave;
+import me.vrekt.oasis.save.world.AbstractWorldSaveState;
+import me.vrekt.oasis.save.world.InteriorWorldSave;
 import me.vrekt.oasis.save.world.PlayerWorldSave;
 import me.vrekt.oasis.ui.OasisLoadingScreen;
 import me.vrekt.oasis.ui.OasisMainMenu;
@@ -39,6 +42,7 @@ import me.vrekt.oasis.world.tutorial.NewGameWorld;
 import me.vrekt.shared.protocol.GameProtocol;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,7 +50,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240721-0730-7499";
+    public static final String GAME_VERSION = "20240721-1047-7509";
 
     private Asset asset;
 
@@ -179,32 +183,102 @@ public final class OasisGame extends Game {
      */
     private void loadWorldSaveState(PlayerSave save) {
         final PlayerWorldSave worldSave = save.worldSave();
-        final GameWorld world = worldManager.getWorld(worldSave.inInterior() ? worldSave.parentWorld() : worldSave.worldIn());
 
-        // loads all the tiled map properties, not save data
-        world.loadWorld(true);
+        final GameWorld toEnter = loadActiveWorld(worldSave);
+        loadAllOtherWorlds(worldSave, toEnter);
+        toEnter.enter();
+    }
 
-        if (worldSave.inInterior()) {
-            // load the parent world save data
-            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()), SaveManager.LOAD_GAME_GSON);
+    /**
+     * Loads the active world, if the player is an interior the parent world is loaded too.
+     *
+     * @param save the save data
+     * @return the world the player will enter when loading is finished
+     */
+    private GameWorld loadActiveWorld(PlayerWorldSave save) {
+        // Find the current world the player is apart of, if it's an interior the parent world is selected.
+        final GameWorld world = worldManager.getWorld(save.inInterior() ? save.parentWorld() : save.worldIn());
+        // load map data of that world.
+        world.loadWorldTiledMap(true);
 
-            final GameWorldInterior interior = world.interiorWorlds().get(worldSave.interiorType());
-            // loads the interior tiled map properties
-            interior.loadWorld(true);
-            // loads the save data
-            interior.loader().load(save.worldSave().world(), SaveManager.LOAD_GAME_GSON);
-            interior.enter();
+        if (save.inInterior()) {
+            // will load the save data of the parent world.
+            world.loader().load(save.worlds().get(save.parentWorld()), SaveManager.LOAD_GAME_GSON);
 
-            // done loading save data, resume normal operation
-            interior.setGameSave(false);
+            // now get the interior world we are in
+            final GameWorldInterior interiorIn = world.interiorWorlds().get(save.interiorType());
+            // load map data of the interior
+            interiorIn.loadWorldTiledMap(true);
+            // loads the save data for the interior
+            interiorIn.loader().load(save.world(), SaveManager.LOAD_GAME_GSON);
+            // done, resume normal stuff.
+            interiorIn.setGameSave(false);
+            return interiorIn;
         } else {
-            // loads the world normally
-            world.loader().load(worldSave.world(), SaveManager.LOAD_GAME_GSON);
-            world.enter();
-
-            // done loading save data, resume normal operation
+            // otherwise, just load the world.
+            world.loader().load(save.world(), SaveManager.LOAD_GAME_GSON);
             world.setGameSave(false);
+            return world;
         }
+    }
+
+    /**
+     * Load all other worlds
+     *
+     * @param pws     save data
+     * @param toEnter the world to enter, will be excluded.
+     */
+    private void loadAllOtherWorlds(PlayerWorldSave pws, GameWorld toEnter) {
+        // list of excluded world IDs that should not be loaded
+        final Bag<Integer> excluded = new Bag<>();
+        if (toEnter.isInterior()) {
+            // player is in an interior,  also exclude parent world because that was done before.
+            excluded.add(((GameWorldInterior) toEnter).getParentWorld().worldId());
+        }
+        excluded.add(toEnter.worldId());
+
+        // load all other worlds
+        for (Map.Entry<Integer, AbstractWorldSaveState> entry : pws.worlds().entrySet()) {
+            final int worldId = entry.getKey();
+            final int parentWorldId = entry.getValue().interior() ? entry.getValue().parentWorld() : -1;
+            if (excluded.contains(worldId) || excluded.contains(parentWorldId)) {
+                GameLogging.info(this, "Skipping world " + (parentWorldId == -1 ? worldId : parentWorldId));
+                continue;
+            }
+
+            final boolean interior = parentWorldId != -1;
+            if (interior) {
+                GameLogging.info(this, "Loading interior %d", parentWorldId);
+                // find the parent world, load that first.
+                final GameWorld parent = worldManager.getWorld(parentWorldId);
+                if (parent == null) throw new UnsupportedOperationException("Failed to find world " + parentWorldId);
+
+                // load all data related to parent world first.
+                parent.loadWorldTiledMap(true);
+                parent.loader().load(pws.worlds().get(parentWorldId), SaveManager.LOAD_GAME_GSON);
+                // May cause issues, since we are not immediately entering this world.
+                parent.setGameSave(false);
+
+                final InteriorWorldSave asInterior = (InteriorWorldSave) entry.getValue();
+
+                // now get the interior
+                final GameWorldInterior interiorIn = parent.interiorWorlds().get(asInterior.interiorType());
+                if (interiorIn == null) throw new UnsupportedOperationException("Invalid pw " + parentWorldId);
+
+                // load all data of the interior
+                interiorIn.loadWorldTiledMap(true);
+                interiorIn.loader().load(asInterior, SaveManager.LOAD_GAME_GSON);
+                interiorIn.setGameSave(false);
+            } else {
+                GameLogging.info(this, "Loading regular world %d", worldId);
+                // load normal world
+                final GameWorld world = worldManager.getWorld(worldId);
+                world.loadWorldTiledMap(true);
+                world.loader().load(entry.getValue(), SaveManager.LOAD_GAME_GSON);
+                world.setGameSave(false);
+            }
+        }
+
     }
 
     /**
@@ -220,7 +294,7 @@ public final class OasisGame extends Game {
         final GameWorld world = worldManager.getWorld(NewGameWorld.WORLD_ID);
         loadingScreen.setWorldLoadingIn(world);
 
-        world.loadWorld(false);
+        world.loadWorldTiledMap(false);
         world.enter();
 
         scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);

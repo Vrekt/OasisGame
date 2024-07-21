@@ -128,8 +128,10 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      * Destroy the collision body.
      */
     public void destroyCollision() {
-        world.boxWorld().destroyBody(body);
-        body = null;
+        if (body != null) {
+            world.boxWorld().destroyBody(body);
+            body = null;
+        }
     }
 
     /**

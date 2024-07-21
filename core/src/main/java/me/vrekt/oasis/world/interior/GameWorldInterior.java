@@ -238,7 +238,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     }
 
     @Override
-    public void loadWorld(boolean isGameSave) {
+    public void loadWorldTiledMap(boolean isGameSave) {
         this.isGameSave = isGameSave;
         loadTiledMap(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
 
