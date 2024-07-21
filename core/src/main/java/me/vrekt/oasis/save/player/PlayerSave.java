@@ -1,23 +1,32 @@
 package me.vrekt.oasis.save.player;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntMap;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.artifact.Artifact;
+import me.vrekt.oasis.item.artifact.ArtifactType;
+import me.vrekt.oasis.questing.Quest;
+import me.vrekt.oasis.questing.QuestObjective;
+import me.vrekt.oasis.questing.quests.QuestType;
+import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.save.inventory.InventorySave;
 import me.vrekt.oasis.save.world.PlayerWorldSave;
+import me.vrekt.oasis.world.effects.Effect;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * All player data and the worlds they have visited.
  */
-public final class PlayerSave {
+public final class PlayerSave implements Disposable {
 
     @Expose
     private String name;
@@ -33,16 +42,16 @@ public final class PlayerSave {
     private PlayerWorldSave worldSave;
 
     @Expose
-    @SerializedName("artifact_inventory")
-    private LinkedList<ArtifactSave> artifacts;
+    @SerializedName("artifacts")
+    private LinkedList<PlayerArtifacts> artifacts;
 
     @Expose
     @SerializedName("active_quests")
-    private List<QuestSave> activeQuests;
+    private List<PlayerQuests> activeQuests;
 
     @Expose
     @SerializedName("active_effects")
-    private LinkedList<EffectSave> activeEffects;
+    private LinkedList<Effect> activeEffects;
 
     public PlayerSave(OasisGame game, PlayerSP player) {
         this.name = player.name();
@@ -64,8 +73,8 @@ public final class PlayerSave {
         if (player.getArtifacts().isEmpty()) return;
 
         this.artifacts = new LinkedList<>();
-        for (IntMap.Entry<Artifact> entry : player.getArtifacts()) {
-            artifacts.add(new ArtifactSave(entry.key, entry.value));
+        for (IntMap.Entry<Artifact> artifact : player.getArtifacts()) {
+            this.artifacts.add(new PlayerArtifacts(artifact.value.type(), artifact.key, artifact.value.level()));
         }
     }
 
@@ -77,7 +86,10 @@ public final class PlayerSave {
     private void saveEffects(PlayerSP player) {
         if (player.activeEffect() != null) {
             activeEffects = new LinkedList<>();
-            activeEffects.add(new EffectSave(player.activeEffect()));
+            final JsonObject data = new JsonObject();
+            player.activeEffect().save(data, SaveManager.SAVE_GAME_GSON);
+
+            activeEffects.add(player.activeEffect());
         }
     }
 
@@ -88,10 +100,13 @@ public final class PlayerSave {
      */
     private void saveQuests(PlayerSP player) {
         this.activeQuests = new ArrayList<>();
-        player.getQuestManager().getActiveQuests().forEach((type, quest) -> {
-            final QuestSave save = new QuestSave(type, quest);
-            activeQuests.add(save);
-        });
+        for (Map.Entry<QuestType, Quest> entry : player.getQuestManager().getActiveQuests().entrySet()) {
+            this.activeQuests.add(new PlayerQuests(
+                    entry.getKey(),
+                    entry.getValue().objectives(),
+                    entry.getValue().currentObjectiveStep())
+            );
+        }
     }
 
     /**
@@ -125,21 +140,56 @@ public final class PlayerSave {
     /**
      * @return artifact inventory
      */
-    public LinkedList<ArtifactSave> artifacts() {
+    public LinkedList<PlayerArtifacts> artifacts() {
         return artifacts;
     }
 
     /**
      * @return active quests
      */
-    public List<QuestSave> quests() {
+    public List<PlayerQuests> quests() {
         return activeQuests;
     }
 
     /**
      * @return active effects
      */
-    public LinkedList<EffectSave> effects() {
+    public LinkedList<Effect> effects() {
         return activeEffects;
+    }
+
+    /**
+     * Player artifact storage
+     *
+     * @param type  the type
+     * @param slot  the slot it is in
+     * @param level the level
+     */
+    public record PlayerArtifacts(ArtifactType type, int slot, int level) {
+    }
+
+    /**
+     * Player active quest storage
+     *
+     * @param type       type
+     * @param objectives list of objectives
+     * @param index      current quest step/index
+     */
+    public record PlayerQuests(QuestType type, LinkedList<QuestObjective> objectives, int index) {
+
+    }
+
+    @Override
+    public void dispose() {
+        name = null;
+        position = null;
+        inventory.dispose();
+        inventory = null;
+        worldSave.dispose();
+        worldSave = null;
+
+        if (artifacts != null) artifacts.clear();
+        if (activeQuests != null) activeQuests.clear();
+        if (activeEffects != null) activeEffects.clear();
     }
 }

@@ -66,25 +66,25 @@ public abstract class Quest {
     /**
      * @return {@link  ItemDescriptor} basic items that are required to do this quest.
      */
-    public LinkedList<ItemDescriptor> getItemsRequired() {
+    public LinkedList<ItemDescriptor> itemsRequired() {
         return itemsRequired;
     }
 
     /**
      * @return {@link  ItemDescriptor} basic items that could be rewards.
      */
-    public LinkedList<QuestReward> getRewards() {
+    public LinkedList<QuestReward> rewards() {
         return rewards;
     }
 
     /**
      * @return all quest objectives for this quest
      */
-    public LinkedList<QuestObjective> getObjectives() {
+    public LinkedList<QuestObjective> objectives() {
         return objectives;
     }
 
-    public QuestDifficulty getDifficulty() {
+    public QuestDifficulty difficulty() {
         return difficulty;
     }
 

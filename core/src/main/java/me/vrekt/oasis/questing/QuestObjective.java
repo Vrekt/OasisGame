@@ -5,7 +5,7 @@ package me.vrekt.oasis.questing;
  */
 public final class QuestObjective {
 
-    private final String description;
+    private transient final String description;
     private boolean completed, unlocked;
 
     public QuestObjective(String description, boolean unlocked) {

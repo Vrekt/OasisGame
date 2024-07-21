@@ -15,6 +15,7 @@ public final class PlayerQuestManager {
 
     // active player quests
     private final Map<QuestType, Quest> activeQuests = new HashMap<>();
+    private int completedQuestsAmount;
 
     public void addActiveQuest(QuestType type, Quest quest) {
         this.activeQuests.put(type, quest);
@@ -43,6 +44,10 @@ public final class PlayerQuestManager {
         return activeQuests.containsKey(type);
     }
 
+    public int completedQuestsAmount() {
+        return completedQuestsAmount;
+    }
+
     /**
      * Complete the quest
      *
@@ -55,6 +60,8 @@ public final class PlayerQuestManager {
             GameManager.getGuiManager().getCompletedQuestComponent().showQuestCompleted(quest);
             GameManager.playSound(Sounds.QUEST_COMPLETED, 0.2f, 1.0f, 0.0f);
         }
+
+        completedQuestsAmount++;
     }
 
     public Map<QuestType, Quest> getActiveQuests() {

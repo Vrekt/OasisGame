@@ -33,6 +33,8 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
     private static final float PATCH_PADDING_X = 30f;
     private Item item;
 
+    private final Color oldColor = new Color();
+
     private ParticleEffectPool.PooledEffect effect;
     private final boolean isMapObject;
 
@@ -138,9 +140,11 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
             final float width = manager.getStringWidth(item.name()) + PATCH_PADDING_X;
             final float height = manager.getStringHeight(item.name()) + PATCH_PADDING_Y;
 
+            oldColor.set(font.getColor());
             font.setColor(Color.SKY);
             Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING_Y + size.x), position.y - (height + size.y * PATCH_PADDING_Y), width, height);
             font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING_Y + size.x * 6f), position.y - (height + size.y * PATCH_PADDING_Y) / 2f);
+            font.setColor(oldColor);
         }
     }
 
@@ -154,10 +158,9 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
     public void load(WorldObjectSaveState save, Gson gson) {
         if (save.data() != null) {
             final JsonObject parent = save.data().getAsJsonObject("dropped_item");
-            final Vector2 position = gson.fromJson(save.data().get("position"), Vector2.class);
             final Items typeOf = Items.valueOf(parent.get("type").getAsString());
             final int amount = parent.get("amount").getAsInt();
-            world.spawnWorldDrop(typeOf, amount, position);
+            world.spawnWorldDrop(typeOf, amount, save.position());
         }
     }
 

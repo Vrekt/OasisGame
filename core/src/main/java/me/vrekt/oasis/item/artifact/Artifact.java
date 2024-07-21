@@ -5,14 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.utility.ResourceLoader;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a single artifact
  */
-public abstract class Artifact implements ResourceLoader {
+public abstract class Artifact implements ResourceLoader{
 
     protected final String key, name, description;
     protected final ArtifactType type;
@@ -28,6 +28,8 @@ public abstract class Artifact implements ResourceLoader {
 
     protected Sprite artifactParticle;
     protected ItemArtifact item;
+
+    protected int slot;
 
     public Artifact(String key, ArtifactType type, String name, String description) {
         this.key = key;
@@ -48,6 +50,13 @@ public abstract class Artifact implements ResourceLoader {
         return type;
     }
 
+    /**
+     * @return slot from save data
+     */
+    public int slot() {
+        return slot;
+    }
+
     public boolean isApplied() {
         return isApplied;
     }
@@ -56,15 +65,15 @@ public abstract class Artifact implements ResourceLoader {
         return drawEffect;
     }
 
-    public int getArtifactLevel() {
+    public int level() {
         return artifactLevel;
     }
 
-    public void setArtifactLevel(int artifactLevel) {
+    public void setLevel(int artifactLevel) {
         this.artifactLevel = artifactLevel;
     }
 
-    public float getArtifactDuration() {
+    public float duration() {
         return artifactDuration;
     }
 
@@ -184,5 +193,4 @@ public abstract class Artifact implements ResourceLoader {
     public boolean is(Artifact artifact) {
         return StringUtils.equals(artifact.key, key);
     }
-
 }

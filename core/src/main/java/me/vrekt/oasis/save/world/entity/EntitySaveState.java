@@ -2,6 +2,7 @@ package me.vrekt.oasis.save.world.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -12,7 +13,7 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 /**
  * Represents a game entity save
  */
-public final class EntitySaveState {
+public final class EntitySaveState implements Disposable {
 
     @Expose
     private EntityType type;
@@ -81,6 +82,13 @@ public final class EntitySaveState {
     }
 
     /**
+     * @return key
+     */
+    public String key() {
+        return key;
+    }
+
+    /**
      * NOTE: Unused for now.
      *
      * @return entity ID
@@ -133,5 +141,14 @@ public final class EntitySaveState {
      */
     public JsonObject data() {
         return data;
+    }
+
+    @Override
+    public void dispose() {
+        name = null;
+        key = null;
+        position = null;
+        size = null;
+        data = null;
     }
 }

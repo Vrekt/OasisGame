@@ -36,11 +36,9 @@ import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.network.player.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
+import me.vrekt.oasis.questing.QuestObjective;
 import me.vrekt.oasis.save.Loadable;
-import me.vrekt.oasis.save.player.ArtifactSave;
-import me.vrekt.oasis.save.player.EffectSave;
 import me.vrekt.oasis.save.player.PlayerSave;
-import me.vrekt.oasis.save.player.QuestSave;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -121,14 +119,13 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      *
      * @param artifacts artifacts
      */
-    private void loadArtifacts(LinkedList<ArtifactSave> artifacts) {
+    private void loadArtifacts(LinkedList<PlayerSave.PlayerArtifacts> artifacts) {
         if (artifacts == null) return;
 
-        for (ArtifactSave save : artifacts) {
-            final Artifact artifact = save.type().create();
-            artifact.setArtifactLevel(save.level());
-
-            this.artifacts.put(save.slot(), artifact);
+        for (PlayerSave.PlayerArtifacts artifact : artifacts) {
+            final Artifact a = artifact.type().create();
+            a.setLevel(artifact.level());
+            this.artifacts.put(artifact.slot(), a);
         }
     }
 
@@ -137,19 +134,20 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      *
      * @param quests quests
      */
-    private void loadQuests(List<QuestSave> quests) {
+    private void loadQuests(List<PlayerSave.PlayerQuests> quests) {
         if (quests == null) return;
 
-        for (QuestSave save : quests) {
+        for (PlayerSave.PlayerQuests save : quests) {
             final Quest quest = save.type().create();
-            quest.setCurrentObjectiveStep(save.objectiveIndex());
-
+            quest.setCurrentObjectiveStep(save.index());
             for (int i = 0; i < save.objectives().size(); i++) {
-                final QuestSave.QuestObjectiveSave objectiveSave = save.objectives().get(i);
-                quest.getObjectives().get(i).setStatus(objectiveSave.unlocked(), objectiveSave.completed());
+                final QuestObjective objective = save.objectives().get(i);
+                quest.objectives().get(i).setStatus(objective.isUnlocked(), objective.isCompleted());
             }
 
-            questManager.addActiveQuest(save.type(), quest);
+            if (!questManager.getActiveQuests().containsKey(save.type())) {
+                questManager.addActiveQuest(save.type(), quest);
+            }
         }
     }
 
@@ -158,13 +156,14 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      *
      * @param effects effects
      */
-    private void loadEffects(LinkedList<EffectSave> effects) {
+    private void loadEffects(LinkedList<Effect> effects) {
         if (effects == null) return;
-        // TODO: Multiple effects
-        for (EffectSave save : effects) {
-            this.activeEffect = Effect.create(save.type(), save.interval(), save.strength(), save.duration());
-            this.activeEffect.setApplied(save.applied());
-            this.activeEffect.applyPreviously(this);
+        for (Effect save : effects) {
+            activeEffect = save;
+
+            // TODO: Will reset the timer on the effect.
+            activeEffect.setApplied(GameManager.getTick());
+            activeEffect.applyPreviously(this);
         }
     }
 

@@ -1,19 +1,26 @@
 package me.vrekt.oasis.world.effects;
 
 import com.badlogic.gdx.utils.Pool;
+import com.google.gson.*;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.utility.Pooling;
+
+import java.lang.reflect.Type;
 
 /**
  * Represents an effect
  * Poison, etc
  */
-public final class Effect implements Pool.Poolable {
+public final class Effect implements Pool.Poolable, Savable<Effect>, JsonDeserializer<Effect> {
 
     private EffectType type;
     private float strength, duration, interval, applied;
+
+    public Effect() {
+    }
 
     /**
      * Create a new effect
@@ -92,6 +99,28 @@ public final class Effect implements Pool.Poolable {
      */
     public void free() {
         Pooling.freeEffect(this);
+    }
+
+    @Override
+    public Effect save(JsonObject to, Gson gson) {
+        to.addProperty("type", type.name());
+        to.addProperty("strength", strength);
+        to.addProperty("duration", duration);
+        to.addProperty("interval", interval);
+        return this;
+    }
+
+    @Override
+    public Effect deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        final JsonObject object = json.getAsJsonObject();
+
+        final EffectType type = EffectType.valueOf(object.get("type").getAsString());
+        final float strength = object.get("strength").getAsFloat();
+        final float duration = object.get("duration").getAsFloat();
+        final float interval = object.get("interval").getAsFloat();
+        final Effect effect = Effect.create(type, interval, strength, duration);
+        effect.applied = applied;
+        return effect;
     }
 
     @Override

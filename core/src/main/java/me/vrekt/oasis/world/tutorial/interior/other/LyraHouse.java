@@ -26,8 +26,13 @@ public final class LyraHouse extends GameWorldInterior {
     public void enter() {
         super.enter();
 
-        // after we enter, bring lyra into this house to confront the player
-        GameManager.executeTaskLater(() -> parentWorld.findInteractableEntity(EntityType.LYRA).transfer(this), 2);
+        // TODO: Set correct dialog staging
+        // TODO: (Maybe), correctly confront the player instead of teleport to AI position
+        // TODO ^^ after loading save
+        if (findEntity(EntityType.LYRA) == null) {
+            // after we enter, bring lyra into this house to confront the player
+            GameManager.executeTaskLater(() -> parentWorld.findInteractableEntity(EntityType.LYRA).transfer(this), 2);
+        }
     }
 
     @Override

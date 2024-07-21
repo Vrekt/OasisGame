@@ -1,5 +1,6 @@
 package me.vrekt.oasis.save.world;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * The data of a generic world or interior
  */
-public abstract class AbstractWorldSaveState {
+public abstract class AbstractWorldSaveState implements Disposable {
 
     @Expose
     protected String map;
@@ -239,4 +240,40 @@ public abstract class AbstractWorldSaveState {
         return interior;
     }
 
+    @Override
+    public void dispose() {
+        entities.forEach(EntitySaveState::dispose);
+        entities.clear();
+        entities = null;
+        deadEntities.clear();
+        deadEntities = null;
+
+        if (interiors != null) {
+            interiors.forEach(AbstractWorldSaveState::dispose);
+            interiors.clear();
+            interiors = null;
+        }
+
+        if (objects != null) {
+            objects.forEach(WorldObjectSaveState::dispose);
+            objects.clear();
+            objects = null;
+        }
+
+        if (destroyedObjects != null) {
+            destroyedObjects.clear();
+            destroyedObjects = null;
+        }
+
+        if (lootGroveParents != null) {
+            lootGroveParents.clear();
+            lootGroveParents = null;
+        }
+
+        if (networkPlayers != null) {
+            networkPlayers.forEach(NetworkPlayerSave::dispose);
+            networkPlayers.clear();
+            networkPlayers = null;
+        }
+    }
 }

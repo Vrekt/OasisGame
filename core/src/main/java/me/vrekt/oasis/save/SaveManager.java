@@ -36,6 +36,7 @@ public class SaveManager {
         } catch (IOException exception) {
             GameLogging.exceptionThrown("SaveManager", "Failed to create new directory for saves", exception);
         }
+
     }
 
     /**

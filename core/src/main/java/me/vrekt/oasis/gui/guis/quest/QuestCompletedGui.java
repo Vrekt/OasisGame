@@ -97,8 +97,8 @@ public final class QuestCompletedGui extends Gui {
         rewardsHeader.restart();
 
         float delay = 0.1f;
-        for (int i = 0; i < quest.getRewards().size(); i++) {
-            final QuestReward reward = quest.getRewards().get(i);
+        for (int i = 0; i < quest.rewards().size(); i++) {
+            final QuestReward reward = quest.rewards().get(i);
             RewardContainer container = rewardContainers[i];
 
             container.image.setDrawable(new TextureRegionDrawable(guiManager.getAsset().get(reward.descriptor().texture())));

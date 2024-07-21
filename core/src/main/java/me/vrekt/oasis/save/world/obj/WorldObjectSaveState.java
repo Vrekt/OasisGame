@@ -1,6 +1,7 @@
 package me.vrekt.oasis.save.world.obj;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -12,7 +13,7 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
 /**
  * Save a world object
  */
-public final class WorldObjectSaveState {
+public final class WorldObjectSaveState implements Disposable {
 
     @Expose
     private String key;
@@ -97,5 +98,13 @@ public final class WorldObjectSaveState {
      */
     public JsonObject data() {
         return data;
+    }
+
+    @Override
+    public void dispose() {
+        key = null;
+        type = null;
+        position = null;
+        data = null;
     }
 }

@@ -1,5 +1,6 @@
 package me.vrekt.oasis.save.world;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.OasisGame;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Represents all the worlds that a player has visited and thus should be saved.
  */
-public final class PlayerWorldSave {
+public final class PlayerWorldSave implements Disposable {
 
     @Expose
     @SerializedName("world_in_id")
@@ -102,5 +103,12 @@ public final class PlayerWorldSave {
      */
     public Map<Integer, AbstractWorldSaveState> worlds() {
         return worlds;
+    }
+
+    @Override
+    public void dispose() {
+        world.dispose();
+        worlds.values().forEach(AbstractWorldSaveState::dispose);
+        worlds.clear();
     }
 }

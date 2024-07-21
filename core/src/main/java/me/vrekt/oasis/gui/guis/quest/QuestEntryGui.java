@@ -104,8 +104,8 @@ public final class QuestEntryGui extends Gui {
 
 
     private void updateExistingQuestComponents(Quest quest) {
-        for (int i = 0; i < quest.getObjectives().size(); i++) {
-            final QuestObjective objective = quest.getObjectives().get(i);
+        for (int i = 0; i < quest.objectives().size(); i++) {
+            final QuestObjective objective = quest.objectives().get(i);
             // we already populated this or its not unlocked.
             if (!objective.isUnlocked()) continue;
 
@@ -134,13 +134,13 @@ public final class QuestEntryGui extends Gui {
         completeness.setText(quest.getCompleteness() + "% complete");
         completeness.restart();
 
-        final TextureRegion difficultyIconAsset = guiManager.getAsset().get(quest.getDifficulty().getAsset());
+        final TextureRegion difficultyIconAsset = guiManager.getAsset().get(quest.difficulty().getAsset());
         questDifficultyIcon.setDrawable(new TextureRegionDrawable(difficultyIconAsset));
-        questDifficultyTooltip.setText(quest.getDifficulty().getPrettyName());
+        questDifficultyTooltip.setText(quest.difficulty().getPrettyName());
 
         // populate each individual quest objective
-        for (int i = 0; i < quest.getObjectives().size(); i++) {
-            final QuestObjective objective = quest.getObjectives().get(i);
+        for (int i = 0; i < quest.objectives().size(); i++) {
+            final QuestObjective objective = quest.objectives().get(i);
             if (!objective.isUnlocked()) continue;
 
             populateObjectiveComponent(objective, i);
@@ -149,8 +149,8 @@ public final class QuestEntryGui extends Gui {
 
         // populate items required table
         if (quest.hasItemRequirements())
-            populateQuestItemsRequired(itemsRequiredTable, quest.getItemsRequired(), itemsRequiredLabel);
-        if (quest.hasRewards()) populateQuestRewards(questRewardsTable, quest.getRewards(), questRewardsLabel);
+            populateQuestItemsRequired(itemsRequiredTable, quest.itemsRequired(), itemsRequiredLabel);
+        if (quest.hasRewards()) populateQuestRewards(questRewardsTable, quest.rewards(), questRewardsLabel);
     }
 
     private void updateExistingObjectiveComponent(QuestObjective objective, int i) {

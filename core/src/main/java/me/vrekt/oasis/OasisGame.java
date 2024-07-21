@@ -46,7 +46,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240720-0356-7481";
+    public static final String GAME_VERSION = "20240721-0730-7499";
 
     private Asset asset;
 
@@ -160,7 +160,7 @@ public final class OasisGame extends Game {
         OasisGameSettings.loadSaveSettings(state.settings());
         OasisKeybindings.loadSaveSettings(state.settings());
 
-        player.load(state.player(), null);
+        player.load(state.player(), SaveManager.LOAD_GAME_GSON);
         loadWorldSaveState(state.player());
 
         // start integrated server if this save has multiplayer enabled
@@ -168,6 +168,8 @@ public final class OasisGame extends Game {
             isLocalMultiplayer = true;
             startIntegratedServerBlocking();
         }
+
+        state.dispose();
     }
 
     /**
@@ -184,20 +186,20 @@ public final class OasisGame extends Game {
 
         if (worldSave.inInterior()) {
             // load the parent world save data
-            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()), null);
+            world.loader().load(worldSave.worlds().get(worldSave.parentWorld()), SaveManager.LOAD_GAME_GSON);
 
             final GameWorldInterior interior = world.interiorWorlds().get(worldSave.interiorType());
             // loads the interior tiled map properties
             interior.loadWorld(true);
             // loads the save data
-            interior.loader().load(save.worldSave().world(), null);
+            interior.loader().load(save.worldSave().world(), SaveManager.LOAD_GAME_GSON);
             interior.enter();
 
             // done loading save data, resume normal operation
             interior.setGameSave(false);
         } else {
             // loads the world normally
-            world.loader().load(worldSave.world(), null);
+            world.loader().load(worldSave.world(), SaveManager.LOAD_GAME_GSON);
             world.enter();
 
             // done loading save data, resume normal operation
@@ -280,6 +282,7 @@ public final class OasisGame extends Game {
      * Load a game save file async
      * EM-148: Do not load async because object state is not always reflected accurately -
      * seems obvious in hindsight.
+     *
      * @param slot the slot
      */
     private void loadSaveGameSync(int slot) {

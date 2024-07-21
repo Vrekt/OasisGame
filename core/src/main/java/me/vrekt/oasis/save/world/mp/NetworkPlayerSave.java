@@ -1,18 +1,19 @@
 package me.vrekt.oasis.save.world.mp;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.save.inventory.InventorySave;
-import me.vrekt.oasis.save.player.EffectSave;
+import me.vrekt.oasis.world.effects.Effect;
 
 import java.util.LinkedList;
 
 /**
  * A network player save
  */
-public final class NetworkPlayerSave {
+public final class NetworkPlayerSave implements Disposable {
 
     @Expose
     private String name;
@@ -28,7 +29,7 @@ public final class NetworkPlayerSave {
 
     @Expose
     @SerializedName("active_effects")
-    private LinkedList<EffectSave> activeEffects;
+    private LinkedList<Effect> activeEffects;
 
     public NetworkPlayerSave(NetworkPlayer player) {
         this.name = player.name();
@@ -76,11 +77,8 @@ public final class NetworkPlayerSave {
         return inventory;
     }
 
-    /**
-     * @return active effects
-     */
-    public LinkedList<EffectSave> effects() {
-        return activeEffects;
+    @Override
+    public void dispose() {
+        inventory.dispose();
     }
-
 }

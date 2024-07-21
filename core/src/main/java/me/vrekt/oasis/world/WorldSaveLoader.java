@@ -4,7 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import me.vrekt.oasis.entity.Entities;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
+import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.save.Loadable;
@@ -81,7 +83,18 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
 
         for (EntitySaveState save : worldSave.entities()) {
             if (save.type().interactable()) {
-                world.findInteractableEntity(save.type()).load(save, SaveManager.LOAD_GAME_GSON);
+                EntityInteractable interactable = world.findInteractableEntity(save.type());
+                if (interactable != null) {
+                    interactable.load(save, SaveManager.LOAD_GAME_GSON);
+                } else {
+                    // no entity, create it.
+                    interactable = Entities.interactable(save.key(), world, save.position(), world.game);
+                    interactable.load(save, SaveManager.LOAD_GAME_GSON);
+                    interactable.load(world.game.getAsset());
+
+                    world.populateEntity(interactable);
+                }
+
                 interactableCount++;
             } else if (save.type().enemy()) {
                 final EntityEnemy enemy = world.findEnemy(save.type());
@@ -218,7 +231,7 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
     private void loadInterior(InteriorWorldSave save) {
         final GameWorldInterior interior = world.findInteriorByType(save.interiorType());
         interior.loadWorld(true);
-        interior.loader().load(save, null);
+        interior.loader().load(save, SaveManager.LOAD_GAME_GSON);
     }
 
     private void loadLootGroves(AbstractWorldSaveState state) {

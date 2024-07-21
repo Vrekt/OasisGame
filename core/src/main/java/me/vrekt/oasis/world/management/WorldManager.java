@@ -99,8 +99,6 @@ public final class WorldManager implements Disposable {
         GameManager.game().getMultiplexer().addProcessor(parent);
 
         parent.updateRendererMap();
-        GameManager.game().setScreen(parent);
-
         parent.enter();
     }
 

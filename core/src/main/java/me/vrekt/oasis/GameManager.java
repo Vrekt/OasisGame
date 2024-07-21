@@ -195,7 +195,8 @@ public class GameManager {
     }
 
     public static float getGameProgress() {
-        return 0.0f;
+        // In the future expand upon this, include side activities, interiors, other things.
+        return getPlayer().getQuestManager().completedQuestsAmount() * 10;
     }
 
     public static GuiManager getGuiManager() {

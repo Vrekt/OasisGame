@@ -51,8 +51,8 @@ public final class ItemInformationContainer {
         icon.setDrawable(new TextureRegionDrawable(artifact.getIcon()));
         icon.setVisible(true);
 
-        tooltip.setText("Artifact Level: " + artifact.getArtifact().getArtifactLevel()
-                + "\n" + "Artifact Duration: " + artifact.getArtifact().getArtifactDuration()
+        tooltip.setText("Artifact Level: " + artifact.getArtifact().level()
+                + "\n" + "Artifact Duration: " + artifact.getArtifact().duration()
                 + " \n" + "Artifact Cooldown: " + artifact.getArtifact().getArtifactCooldown());
         tooltip.setVisible(true);
         return icon;

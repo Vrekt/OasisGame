@@ -1,5 +1,6 @@
 package me.vrekt.oasis.save;
 
+import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.GameManager;
@@ -12,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Contains all data within a players game save state
  */
-public final class GameSave {
+public final class GameSave implements Disposable {
 
     @Expose
     private final String name;
@@ -97,5 +98,10 @@ public final class GameSave {
      */
     public PlayerSave player() {
         return player;
+    }
+
+    @Override
+    public void dispose() {
+        player.dispose();
     }
 }

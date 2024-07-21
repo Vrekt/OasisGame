@@ -276,11 +276,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void postLoad(AbstractWorldSaveState state) {
         // here we can actually check afterwards if one has already generated.
-        for (String lootGroveParent : state.lootGroveParents()) {
-            lootGroveParents.add(lootGroveParent);
-        }
-        ;
 
+        if (state.lootGroveParents() != null) {
+            for (String lootGroveParent : state.lootGroveParents()) {
+                lootGroveParents.add(lootGroveParent);
+            }
+        }
         generateLootGroves(map, game.getAsset(), OasisGameSettings.SCALE);
     }
 

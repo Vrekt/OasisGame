@@ -17,8 +17,8 @@ public final class C2SArtifactActivated extends GamePacket {
 
     public C2SArtifactActivated(Artifact artifact) {
         this.key = artifact.getKey();
-        this.level = artifact.getArtifactLevel();
-        this.duration = artifact.getArtifactDuration();
+        this.level = artifact.level();
+        this.duration = artifact.duration();
     }
 
     public C2SArtifactActivated(ByteBuf buffer) {

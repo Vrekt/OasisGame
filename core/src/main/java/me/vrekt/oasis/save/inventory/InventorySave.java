@@ -1,11 +1,12 @@
 package me.vrekt.oasis.save.inventory;
 
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.entity.inventory.AbstractInventory;
 
 /**
  * An inventory save, player or container.
  */
-public final class InventorySave {
+public final class InventorySave implements Disposable {
 
     private transient AbstractInventory inventory;
 
@@ -30,5 +31,10 @@ public final class InventorySave {
      */
     public void setInventory(AbstractInventory inventory) {
         this.inventory = inventory;
+    }
+
+    @Override
+    public void dispose() {
+        inventory.dispose();
     }
 }
