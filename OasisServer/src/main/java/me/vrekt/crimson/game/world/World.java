@@ -136,7 +136,7 @@ public class World implements Disposable {
                 gameServer.hostPlayer().getY());
 
         // ideally, this will set the right origin point of the player
-        gameServer.handler().handlePlayerJoined(player);
+        gameServer.handler().handlePlayerConnected(player);
 
         if (players.isEmpty()) {
             // no players besides the host.
@@ -185,7 +185,7 @@ public class World implements Disposable {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
 
-        gameServer.handler().handlePlayerDisconnected(player);
+        gameServer.handler().handlePlayerDisconnected(player.entityId());
         broadcastNowWithExclusion(player.entityId(), new S2CPacketRemovePlayer(player.entityId(), player.name()));
     }
 
@@ -233,8 +233,6 @@ public class World implements Disposable {
      * @param packet the packet
      */
     public void broadcast(GamePacket packet) {
-        gameServer.handler().handleRelevantPacket(packet);
-
         for (ServerEntityPlayer player : players.values()) {
             player.getConnection().sendImmediately(packet);
         }
@@ -247,8 +245,6 @@ public class World implements Disposable {
      * @param packet    the packet
      */
     public void broadcastNowWithExclusion(int exclusion, GamePacket packet) {
-        gameServer.handler().handleRelevantPacket(packet);
-
         for (ServerEntityPlayer player : players.values())
             if (player.entityId() != exclusion)
                 player.getConnection().sendImmediately(packet);
@@ -261,8 +257,6 @@ public class World implements Disposable {
      * @param packet    the packet
      */
     public void broadcastWithExclusion(int exclusion, GamePacket packet) {
-        gameServer.handler().handleRelevantPacket(packet);
-
         for (ServerEntityPlayer value : players.values()) {
             if (value.entityId() != exclusion) {
                 value.getConnection().queue(packet);
@@ -282,6 +276,13 @@ public class World implements Disposable {
             if (!isTimedOut(player)) {
                 queuePlayerPosition(player);
                 queuePlayerVelocity(player);
+
+                // host player send network update
+                gameServer.handler().queuePlayerNetworkUpdate(
+                        player.entityId(),
+                        player.getPosition(),
+                        player.getVelocity(),
+                        player.getRotation());
             } else {
                 timeoutPlayer(player);
                 player.dispose();
@@ -297,7 +298,6 @@ public class World implements Disposable {
      * @param player the player
      */
     protected void queuePlayerPosition(ServerEntityPlayer player) {
-        gameServer.handler().handlePlayerPosition(player);
         broadcastWithExclusion(player.entityId(), new S2CPacketPlayerPosition(player.entityId(), player.getRotation(), player.getPosition()));
     }
 
@@ -307,7 +307,6 @@ public class World implements Disposable {
      * @param player the player
      */
     private void queuePlayerVelocity(ServerEntityPlayer player) {
-        gameServer.handler().handlePlayerVelocity(player);
         broadcastWithExclusion(player.entityId(), new S2CPacketPlayerVelocity(player.entityId(), player.getRotation(), player.getVelocity()));
     }
 

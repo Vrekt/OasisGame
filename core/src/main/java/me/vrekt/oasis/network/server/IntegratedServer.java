@@ -8,7 +8,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.network.WorldNetworkHandler;
+import me.vrekt.oasis.world.network.HostNetworkHandler;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.protocol.GameProtocol;
 
@@ -53,7 +53,7 @@ public final class IntegratedServer implements Disposable {
      */
     private void init() {
         if (gameServer == null) {
-            gameServer = new CrimsonGameServer(protocol, game.networkHandler());
+            gameServer = new CrimsonGameServer(protocol, game.hostNetworkHandler());
         }
 
         if (networkServer == null) {
@@ -68,7 +68,7 @@ public final class IntegratedServer implements Disposable {
         final GameWorld world = player.getWorldState();
         activeWorld.localUpdate(world, player);
 
-        final NetworkState state = game.networkHandler().build();
+        final NetworkState state = game.hostNetworkHandler().build();
         activeWorld.broadcastState(state);
     }
 
@@ -88,7 +88,7 @@ public final class IntegratedServer implements Disposable {
      * Build local network state and load it.
      */
     private void buildAndLoadLocalState() {
-        final WorldNetworkHandler handler = game.networkHandler();
+        final HostNetworkHandler handler = game.hostNetworkHandler();
         final NetworkState state = handler.build();
 
         gameServer.setInitialNetworkState(state, player.getWorldState());

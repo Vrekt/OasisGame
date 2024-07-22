@@ -2,7 +2,7 @@
   "name": "abc",
   "slot": 1,
   "progress": 0.0,
-  "date": "21-07-24 10:47 AM",
+  "date": "21-07-24 20:46 PM",
   "multiplayer": false,
   "settings": {
     "entity_update_distance": 100.0,
@@ -21,19 +21,13 @@
   "player": {
     "name": "Player54",
     "position": {
-      "x": 45.19758,
-      "y": 11.2708
+      "x": 11.286501,
+      "y": 10.84371
     },
     "inventory": {
       "type": "PLAYER",
       "size": 18,
       "contents": [
-        {
-          "slot": 0,
-          "name": "Lockpick",
-          "type": "LOCK_PICK",
-          "amount": 1
-        },
         {
           "slot": 5,
           "name": "Verdant Fungus",
@@ -85,63 +79,32 @@
       ]
     },
     "all_worlds_and_state": {
-      "world_in_id": 0,
-      "parent_world_id": -1,
-      "is_in_interior": false,
+      "world_in_id": 4,
+      "parent_world_id": 0,
+      "is_in_interior": true,
+      "interior_type": "HOUSE2",
       "current_world_in": {
-        "map": "world/worlds/TutorialWorld - Copy.tmx",
-        "worldId": 0,
-        "interior": false,
+        "type": "HOUSE2",
+        "enterable": true,
+        "entered_position": {
+          "x": 12.494488,
+          "y": 30.585049
+        },
+        "is_locked": false,
+        "lock_difficulty": "EASY",
+        "map": "world/interiors/House2.tmx",
+        "worldId": 4,
+        "interior": true,
         "parentWorld": -1,
         "entities": [
-          {
-            "type": "THALIA",
-            "name": "Thalia",
-            "key": "oasis:thalia",
-            "entityId": 2,
-            "position": {
-              "x": 13.0,
-              "y": 54.625
-            },
-            "size": {
-              "x": 48.0,
-              "y": 48.0,
-              "z": 0.0625
-            },
-            "health": 100.0,
-            "rotation": "DOWN",
-            "move_speed": 0.0,
-            "entity_data": {
-              "dialogue_entry_key": "thalia:dialog_stage_0",
-              "dialogue_stage_index": 1
-            }
-          },
-          {
-            "type": "CHICK",
-            "name": "Chick",
-            "key": "oasis:chick",
-            "entityId": 4,
-            "position": {
-              "x": 25.0,
-              "y": 31.0
-            },
-            "size": {
-              "x": 16.0,
-              "y": 16.0,
-              "z": 0.0625
-            },
-            "health": 100.0,
-            "rotation": "DOWN",
-            "move_speed": 0.0
-          },
           {
             "type": "LYRA",
             "name": "Lyra",
             "key": "oasis:lyra",
             "entityId": 1,
             "position": {
-              "x": 16.0,
-              "y": 29.0
+              "x": 13.284884,
+              "y": 6.7446504
             },
             "size": {
               "x": 12.0,
@@ -149,131 +112,175 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "UP",
             "move_speed": 0.0,
             "entity_data": {
-              "dialogue_entry_key": "lyra:dialog_stage_0",
-              "dialogue_stage_index": 1
+              "dialogue_entry_key": "lyra:dialog2_stage_1",
+              "dialogue_stage_index": 2
             }
-          },
-          {
-            "type": "FISH",
-            "name": "Fish",
-            "key": "oasis:fish",
-            "entityId": 3,
-            "position": {
-              "x": 15.333312,
-              "y": 57.625
-            },
-            "size": {
-              "x": 16.0,
-              "y": 16.0,
-              "z": 0.0625
-            },
-            "health": 100.0,
-            "rotation": "DOWN",
-            "move_speed": 0.0
           }
         ],
         "deadEntities": [],
-        "interiors": [],
         "objects": [
           {
-            "key": "oasis:basement_gate",
-            "interactable": false,
-            "enabled": false,
-            "position": {
-              "x": 43.0,
-              "y": 26.0
-            }
-          },
-          {
-            "key": "oasis:verdant_fungus",
             "interactable": true,
             "enabled": true,
             "interaction_type": "MAP_ITEM",
             "position": {
-              "x": 51.0,
-              "y": 53.0
+              "x": 5.5,
+              "y": 11.5
             },
             "object_data": {
               "dropped_item": {
                 "slot": 0,
-                "name": "Verdant Fungus",
-                "type": "VERDANT_FUNGUS",
-                "amount": 1
-              }
-            }
-          },
-          {
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "enabled": true,
-            "interaction_type": "MAP_ITEM",
-            "position": {
-              "x": 53.5,
-              "y": 49.0
-            },
-            "object_data": {
-              "dropped_item": {
-                "slot": 0,
-                "name": "Lockpick",
-                "type": "LOCK_PICK",
-                "amount": 1
-              }
-            }
-          },
-          {
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "enabled": true,
-            "interaction_type": "MAP_ITEM",
-            "position": {
-              "x": 53.5,
-              "y": 47.0
-            },
-            "object_data": {
-              "dropped_item": {
-                "slot": 0,
-                "name": "Lockpick",
-                "type": "LOCK_PICK",
-                "amount": 1
-              }
-            }
-          },
-          {
-            "key": "oasis:lock_pick",
-            "interactable": true,
-            "enabled": true,
-            "interaction_type": "MAP_ITEM",
-            "position": {
-              "x": 46.25,
-              "y": 11.25
-            },
-            "object_data": {
-              "dropped_item": {
-                "slot": 0,
-                "name": "Lockpick",
-                "type": "LOCK_PICK",
+                "name": "Arcana\u0027s Codex",
+                "type": "ARCANA_CODEX",
                 "amount": 1
               }
             }
           }
         ],
-        "destroyedObjects": [
-          {
-            "type": "BREAKABLE_OBJECT",
-            "position": {
-              "x": 46.0,
-              "y": 11.0
-            }
-          }
-        ],
-        "lootGroveParents": [
-          "loot_grove_0"
-        ]
+        "destroyedObjects": []
       },
-      "visited_worlds": {}
+      "visited_worlds": {
+        "0": {
+          "map": "world/worlds/TutorialWorld - Copy.tmx",
+          "worldId": 0,
+          "interior": false,
+          "parentWorld": -1,
+          "entities": [
+            {
+              "type": "THALIA",
+              "name": "Thalia",
+              "key": "oasis:thalia",
+              "entityId": 2,
+              "position": {
+                "x": 13.0,
+                "y": 54.625
+              },
+              "size": {
+                "x": 48.0,
+                "y": 48.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "DOWN",
+              "move_speed": 0.0,
+              "entity_data": {
+                "dialogue_entry_key": "thalia:dialog_stage_0",
+                "dialogue_stage_index": 1
+              }
+            },
+            {
+              "type": "CHICK",
+              "name": "Chick",
+              "key": "oasis:chick",
+              "entityId": 4,
+              "position": {
+                "x": 22.814463,
+                "y": 30.417267
+              },
+              "size": {
+                "x": 16.0,
+                "y": 16.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "LEFT",
+              "move_speed": 0.0
+            },
+            {
+              "type": "FISH",
+              "name": "Fish",
+              "key": "oasis:fish",
+              "entityId": 3,
+              "position": {
+                "x": 15.333312,
+                "y": 57.625
+              },
+              "size": {
+                "x": 16.0,
+                "y": 16.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "DOWN",
+              "move_speed": 0.0
+            }
+          ],
+          "deadEntities": [],
+          "interiors": [],
+          "objects": [
+            {
+              "key": "oasis:basement_gate",
+              "interactable": false,
+              "enabled": false,
+              "position": {
+                "x": 43.0,
+                "y": 26.0
+              }
+            },
+            {
+              "key": "oasis:verdant_fungus",
+              "interactable": true,
+              "enabled": true,
+              "interaction_type": "MAP_ITEM",
+              "position": {
+                "x": 51.0,
+                "y": 53.0
+              },
+              "object_data": {
+                "dropped_item": {
+                  "slot": 0,
+                  "name": "Verdant Fungus",
+                  "type": "VERDANT_FUNGUS",
+                  "amount": 1
+                }
+              }
+            },
+            {
+              "key": "oasis:lock_pick",
+              "interactable": true,
+              "enabled": true,
+              "interaction_type": "MAP_ITEM",
+              "position": {
+                "x": 53.5,
+                "y": 49.0
+              },
+              "object_data": {
+                "dropped_item": {
+                  "slot": 0,
+                  "name": "Lockpick",
+                  "type": "LOCK_PICK",
+                  "amount": 1
+                }
+              }
+            },
+            {
+              "key": "oasis:lock_pick",
+              "interactable": true,
+              "enabled": true,
+              "interaction_type": "MAP_ITEM",
+              "position": {
+                "x": 53.5,
+                "y": 47.0
+              },
+              "object_data": {
+                "dropped_item": {
+                  "slot": 0,
+                  "name": "Lockpick",
+                  "type": "LOCK_PICK",
+                  "amount": 1
+                }
+              }
+            }
+          ],
+          "destroyedObjects": [],
+          "lootGroveParents": [
+            "loot_grove_0"
+          ]
+        }
+      }
     },
     "active_quests": [
       {

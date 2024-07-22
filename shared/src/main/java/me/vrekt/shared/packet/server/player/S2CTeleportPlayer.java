@@ -8,7 +8,7 @@ import me.vrekt.shared.packet.GamePacket;
  */
 public final class S2CTeleportPlayer extends GamePacket {
 
-    public static final int PACKET_ID = 1124;
+    public static final int PACKET_ID = 1125;
     private int entityId;
     private float x, y;
 

@@ -3,32 +3,26 @@ package me.vrekt.oasis.world.network;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
-import me.vrekt.crimson.game.entity.ServerEntityPlayer;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
-import me.vrekt.shared.network.state.NetworkWorldState;
-import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.server.S2CNetworkFrame;
 import me.vrekt.shared.packet.server.S2CStartGame;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 import me.vrekt.shared.packet.server.player.*;
 
 /**
- * Handles the barebones of world networking
+ * Handles all world/player related networking as a player connected to a remote server
  */
 public final class WorldNetworkHandler {
 
     private final OasisGame game;
     private final PlayerSP player;
-
     private boolean receivedBefore;
 
     public WorldNetworkHandler(OasisGame game) {
@@ -36,6 +30,9 @@ public final class WorldNetworkHandler {
         this.player = game.getPlayer();
     }
 
+    /**
+     * Attach all relevant packets to their handlers
+     */
     public void attach() {
         player.getConnection().attach(S2CStartGame.PACKET_ID, packet -> handleStartGame((S2CStartGame) packet));
         player.getConnection().attach(S2CPacketCreatePlayer.PACKET_ID, packet -> handleNetworkCreatePlayer((S2CPacketCreatePlayer) packet));
@@ -46,25 +43,6 @@ public final class WorldNetworkHandler {
         player.getConnection().attach(S2CPacketRemovePlayer.PACKET_ID, packet -> handleRemovePlayer((S2CPacketRemovePlayer) packet));
         player.getConnection().attach(S2CPlayerEnteredInterior.ID, packet -> handlePlayerEnteredInterior((S2CPlayerEnteredInterior) packet));
         player.getConnection().attach(S2CNetworkFrame.ID, packet -> handleNetworkFrame((S2CNetworkFrame) packet));
-    }
-
-    /**
-     * Build a network state from the active world
-     *
-     * @return the new state
-     */
-    public NetworkState build() {
-        final GameWorld world = player.getWorldState();
-
-        final NetworkEntityState[] entities = new NetworkEntityState[world.entities().size];
-        int e = 0;
-        for (GameEntity entity : world.entities().values()) {
-            entities[e] = new NetworkEntityState(entity);
-            e++;
-        }
-
-        final NetworkWorldState state = new NetworkWorldState(world);
-        return new NetworkState(state, entities, TimeUtils.nanoTime());
     }
 
     /**
@@ -105,65 +83,6 @@ public final class WorldNetworkHandler {
     }
 
     /**
-     * TODO: Handle all relevant packets we may want to watch
-     *
-     * @param packet packet
-     */
-    public void handleRelevantPacket(GamePacket packet) {
-
-    }
-
-    /**
-     * Host: handle a players position
-     *
-     * @param player player
-     */
-    public void handlePlayerPosition(ServerEntityPlayer player) {
-        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkPosition(player.getPosition().x, player.getPosition().y, player.getRotation());
-    }
-
-    /**
-     * Host: handle a players velocity
-     *
-     * @param player player
-     */
-    public void handlePlayerVelocity(ServerEntityPlayer player) {
-        this.player.getWorldState().getPlayer(player.entityId()).updateNetworkVelocity(player.getVelocity().x, player.getVelocity().y, player.getRotation());
-    }
-
-    /**
-     * Host: handle a player joined this host server
-     *
-     * @param player the player
-     */
-    public void handlePlayerJoined(ServerEntityPlayer player) {
-        createLocalPlayer(player);
-    }
-
-    /**
-     * Create local player when this client is the host
-     *
-     * @param player player
-     */
-    private void createLocalPlayer(ServerEntityPlayer player) {
-        if (this.player.getWorldState().hasPlayer(player.entityId())) return;
-        GameLogging.info(this, "Creating local player %s", player.name());
-
-        final Vector2 origin = new Vector2();
-        final NetworkPlayerSave save = this.player.getWorldState().playerStorage().get(player.name());
-        if (save != null) {
-            // player has pre-saved position
-            origin.set(save.position());
-            GameLogging.info(this, "Loaded player %s from network storage at %s", player.name(), save.position());
-        } else {
-            origin.set(this.player.getPosition().cpy().add(1, 1));
-        }
-
-        player.teleport(origin);
-        createLocalNetworkPlayer(player.name(), player.entityId(), origin);
-    }
-
-    /**
      * Create a network player in the active world
      *
      * @param name     name
@@ -194,18 +113,6 @@ public final class WorldNetworkHandler {
 
         GameLogging.info(this, "Spawning new network player with ID %d and username %s at {%f,%f}", entityId, username, x, y);
         createLocalNetworkPlayer(username, entityId, new Vector2(x, y));
-    }
-
-    /**
-     * Handle a player disconnected from this host server
-     *
-     * @param player player
-     */
-    public void handlePlayerDisconnected(ServerEntityPlayer player) {
-        if (!NetworkValidation.ensureInWorld(this.player)) return;
-
-        this.player.getWorldState().removePlayerInWorld(player.entityId(), true);
-        GameLogging.info(this, "Player (%d) (%s) left.", player.entityId(), player.name());
     }
 
     /**

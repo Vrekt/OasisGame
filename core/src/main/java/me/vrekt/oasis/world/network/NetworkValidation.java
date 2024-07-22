@@ -10,6 +10,19 @@ import me.vrekt.shared.packet.GamePacket;
 public final class NetworkValidation {
 
     private static final String TAG = "NetworkUtility";
+    public static long mainThreadId;
+
+    /**
+     * Ensure whatever is calling is on the main thread
+     * @return {@code true} if so
+     */
+    public static boolean ensureMainThread() {
+        if (Thread.currentThread().threadId() != mainThreadId) {
+            GameLogging.info("NetworkValidation", "Not in main thread!");
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Ensure the player is in the world

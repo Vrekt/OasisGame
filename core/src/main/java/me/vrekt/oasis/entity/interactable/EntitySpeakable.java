@@ -126,9 +126,6 @@ public abstract class EntitySpeakable extends GameEntity {
         }
 
         if (speakingTo) {
-
-            System.err.println(activeEntry.getKey());
-
             worldIn.getGame().guiManager.showGui(GuiType.DIALOG, true);
             worldIn.getGame().guiManager.getDialogComponent().showEntityDialog(this);
             player.setRotation(AiVectorUtility.faceEntity(this, player));

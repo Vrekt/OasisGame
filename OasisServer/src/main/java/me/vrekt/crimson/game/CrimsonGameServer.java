@@ -10,7 +10,7 @@ import me.vrekt.crimson.game.network.ServerAbstractConnection;
 import me.vrekt.crimson.game.world.World;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.network.WorldNetworkHandler;
+import me.vrekt.oasis.world.network.HostNetworkHandler;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.server.player.S2CPacketDisconnected;
@@ -28,7 +28,7 @@ public final class CrimsonGameServer implements Disposable {
 
     private static final int TICKS_PER_SECOND = 20;
 
-    private final WorldNetworkHandler handler;
+    private final HostNetworkHandler handler;
     private PlayerSP hostPlayer;
 
     private final List<ServerEntityPlayer> allPlayers = new CopyOnWriteArrayList<>();
@@ -48,7 +48,7 @@ public final class CrimsonGameServer implements Disposable {
     private final IntMap<World> loadedWorlds = new IntMap<>();
     private final GameProtocol protocol;
 
-    public CrimsonGameServer(GameProtocol protocol, WorldNetworkHandler handler) {
+    public CrimsonGameServer(GameProtocol protocol, HostNetworkHandler handler) {
         this.service = Executors.newScheduledThreadPool(0, Thread.ofVirtual().factory());
         this.protocol = protocol;
         this.handler = handler;
@@ -204,7 +204,7 @@ public final class CrimsonGameServer implements Disposable {
     /**
      * @return world network handler
      */
-    public WorldNetworkHandler handler() {
+    public HostNetworkHandler handler() {
         return handler;
     }
 

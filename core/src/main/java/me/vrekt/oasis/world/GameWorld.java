@@ -1193,6 +1193,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         player.update(delta);
 
         networkRenderer.update(this, delta);
+        if (game.isLocalMultiplayer()) game.hostNetworkHandler().update();
 
         renderWorld(delta);
 

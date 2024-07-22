@@ -51,7 +51,7 @@ public final class ThaliaEntity extends EntityInteractable {
         setSize(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight(), OasisGameSettings.SCALE);
         createRectangleBody(worldIn.boxWorld(), new Vector2(1.5f, 1.5f));
 
-        dialogue = EntityDialogueLoader.load("assets/dialog/thalia_dialog.json");
+        dialogue = EntityDialogueLoader.loadSync("assets/dialog/thalia_dialog.json");
         dialogue.setOwner(this);
 
         activeEntry = dialogue.getEntry("thalia:dialog_stage_0").getEntry();

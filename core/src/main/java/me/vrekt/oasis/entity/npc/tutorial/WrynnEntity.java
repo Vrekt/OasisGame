@@ -18,7 +18,6 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
@@ -70,18 +69,9 @@ public final class WrynnEntity extends EntityInteractable {
                 .add(animationComponent);
         builder.dispose();
 
-
-        EntityDialogueLoader.loadAsync("assets/dialog/wrynn_dialog.json").whenComplete((dialogue, error) -> {
-            if (error != null) {
-                GameLogging.exceptionThrown("AsyncDialogService", "Failed to load wrynn dialog!", error);
-            } else {
-                this.dialogue = dialogue;
-                this.dialogue.setOwner(this);
-
-                activeEntry = dialogue.getEntry("wrynn:dialog_stage_0").getEntry();
-                loadDialog();
-            }
-        });
+        this.dialogue = EntityDialogueLoader.loadSync("assets/dialog_wrynn_dialog.json");
+        this.dialogue.setOwner(this);
+        loadDialog();
 
         createRectangleBody(worldIn.boxWorld(), new Vector2(0.55f, 0.88f));
         if (!isNetworked) loadAi();

@@ -48,7 +48,7 @@ public final class MiraEntity extends EntityInteractable {
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
         createRectangleBody(worldIn.boxWorld(), new Vector2(0.55f, 0.88f));
 
-        dialogue = EntityDialogueLoader.load("assets/dialog/mira_dialog.json");
+        dialogue = EntityDialogueLoader.loadSync("assets/dialog/mira_dialog.json");
         dialogue.setOwner(this);
 
         dialogue.addTaskHandler("mira:show_items", this::showPlayerItems);

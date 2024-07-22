@@ -36,6 +36,8 @@ import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.management.WorldManager;
+import me.vrekt.oasis.world.network.HostNetworkHandler;
+import me.vrekt.oasis.world.network.NetworkValidation;
 import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
@@ -50,7 +52,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240721-1047-7509";
+    public static final String GAME_VERSION = "20240722-0951-7531";
 
     private Asset asset;
 
@@ -68,7 +70,9 @@ public final class OasisGame extends Game {
     private GameClientServer clientServer;
 
     private PlayerConnection handler;
-    private WorldNetworkHandler networkHandler;
+
+    private WorldNetworkHandler worldNetworkHandler;
+    private HostNetworkHandler hostNetworkHandler;
 
     private ExecutorService virtualAsyncService;
 
@@ -89,6 +93,8 @@ public final class OasisGame extends Game {
     public void create() {
         GameLogging.info(this, "Starting game, version: %s", GAME_VERSION);
         this.logoTexture = new Texture(Gdx.files.internal("ui/em_logo2.png"));
+
+        NetworkValidation.mainThreadId = Thread.currentThread().threadId();
 
         setScreen(new OasisSplashScreen(this));
         initialize();
@@ -376,7 +382,8 @@ public final class OasisGame extends Game {
 
         OasisGameSettings.ENABLE_MP_LAN = true;
 
-        networkHandler = new WorldNetworkHandler(this);
+        hostNetworkHandler = new HostNetworkHandler(player, this);
+
         protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
         server = new IntegratedServer(this, protocol, player);
         server.start();
@@ -438,15 +445,19 @@ public final class OasisGame extends Game {
         handler = clientServer.getConnection();
         player.connection(handler);
 
-        networkHandler = new WorldNetworkHandler(this);
-        networkHandler.attach();
+        worldNetworkHandler = new WorldNetworkHandler(this);
+        worldNetworkHandler.attach();
 
         GameLogging.info(this, "Connection successful, Attempting to join TutorialWorld");
         handler.joinWorld(NewGameWorld.WORLD_ID, player.name());
     }
 
-    public WorldNetworkHandler networkHandler() {
-        return networkHandler;
+    public HostNetworkHandler hostNetworkHandler() {
+        return hostNetworkHandler;
+    }
+
+    public WorldNetworkHandler worldNetworkHandler() {
+        return worldNetworkHandler;
     }
 
     public boolean isGameReady() {

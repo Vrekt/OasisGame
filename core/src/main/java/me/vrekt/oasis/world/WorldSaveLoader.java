@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.Entities;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
@@ -30,12 +31,14 @@ import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInte
 public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, Disposable {
 
     private GameWorld world;
+    private final OasisGame game;
 
     private final Array<AbstractInteractableWorldObject> preLoadedObjects = new Array<>();
     private final Array<OpenableContainerInteraction> preLoadedContainers = new Array<>();
 
     public WorldSaveLoader(GameWorld world) {
         this.world = world;
+        this.game = world.getGame();
     }
 
     @Override
@@ -90,8 +93,9 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
                 } else {
                     // no entity, create it.
                     interactable = Entities.interactable(save.key(), world, save.position(), world.game);
-                    interactable.load(save, SaveManager.LOAD_GAME_GSON);
+                    // load data first!
                     interactable.load(world.game.getAsset());
+                    interactable.load(save, SaveManager.LOAD_GAME_GSON);
 
                     world.populateEntity(interactable);
                 }

@@ -17,7 +17,6 @@ import me.vrekt.oasis.entity.dialog.EntityDialogueLoader;
 import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.collision.CollisionType;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 
@@ -62,16 +61,9 @@ public final class LyraEntity extends EntityInteractable {
         animationComponent = new EntityAnimationComponent();
         entity.add(animationComponent);
 
-        EntityDialogueLoader.loadAsync("assets/dialog/lyra_dialog.json").whenComplete((dialogue, error) -> {
-            if (error != null) {
-                GameLogging.exceptionThrown("AsyncDialogService", "Failed to load lyra dialog!", error);
-            } else {
-                this.dialogue = dialogue;
-                this.dialogue.setOwner(this);
-
-                activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
-            }
-        });
+        this.dialogue = EntityDialogueLoader.loadSync("assets/dialog/lyra_dialog.json");
+        this.dialogue.setOwner(this);
+        activeEntry = dialogue.getEntry("lyra:dialog_stage_0").getEntry();
 
         final EntityAnimationBuilder builder = new EntityAnimationBuilder(asset)
                 .moving(EntityRotation.LEFT, 0.4f, "lyra_walking_left", 2)
