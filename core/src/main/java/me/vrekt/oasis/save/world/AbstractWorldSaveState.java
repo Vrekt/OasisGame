@@ -160,7 +160,7 @@ public abstract class AbstractWorldSaveState implements Disposable {
         }
 
         // finally save all other objects that have interactions
-        for (AbstractInteractableWorldObject object : world.interactableWorldObjects()) {
+        for (AbstractInteractableWorldObject object : world.interactableWorldObjects().values()) {
             if (!object.shouldSave()) continue;
 
             if (object.hasSaveSerialization()) {

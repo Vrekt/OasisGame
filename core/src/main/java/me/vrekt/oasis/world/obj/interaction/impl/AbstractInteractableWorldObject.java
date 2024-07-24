@@ -24,6 +24,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     protected final WorldInteractionType type;
     protected final Vector2 interactionPoint;
+    protected int objectId;
 
     protected boolean wasInteractedWith, isEnabled = true, updatable = true;
     protected float interactionRange = 4.5f;
@@ -57,6 +58,17 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      */
     public WorldInteractionType getType() {
         return type;
+    }
+
+    /**
+     * @return unique identifier for networking
+     */
+    public int objectId() {
+        return objectId;
+    }
+
+    public void setObjectId(int objectId) {
+        this.objectId = objectId;
     }
 
     /**
@@ -94,6 +106,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      */
     public void setInteractionRange(float interactionRange) {
         this.interactionRange = interactionRange;
+    }
+
+    /**
+     * @return interaction range of this object
+     */
+    public float interactionRange() {
+        return interactionRange;
     }
 
     /**

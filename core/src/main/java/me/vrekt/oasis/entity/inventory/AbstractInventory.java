@@ -296,6 +296,16 @@ public abstract class AbstractInventory implements Disposable {
     }
 
     /**
+     * Add an item to a slot
+     *
+     * @param item item
+     * @param slot slot
+     */
+    public void add(Item item, int slot) {
+        items.put(slot, item);
+    }
+
+    /**
      * Add an item
      *
      * @param key    the item

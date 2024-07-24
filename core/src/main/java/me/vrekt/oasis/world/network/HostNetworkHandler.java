@@ -10,9 +10,17 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.network.state.NetworkWorldState;
+import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
+import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
+import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
+import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -110,6 +118,45 @@ public final class HostNetworkHandler {
         networkPlayer.setPosition(origin);
 
         this.player.getWorldState().spawnPlayerInWorld(networkPlayer);
+
+        // sync world objects to the connecting player
+        syncNetworkWorldObjects(player);
+    }
+
+    /**
+     * Sync active world objects
+     *
+     * @param player player
+     */
+    private void syncNetworkWorldObjects(ServerEntityPlayer player) {
+        // not all populated entries will be valid, since some objects have their own packet.
+        final WorldNetworkObject[] objects = new WorldNetworkObject[this.player.getWorldState().interactableWorldObjects().size];
+        int o = 0;
+
+        for (AbstractInteractableWorldObject worldObject : this.player.getWorldState().interactableWorldObjects().values()) {
+            if (worldObject.getType() == WorldInteractionType.MAP_ITEM) {
+                // spawn world drops right away.
+                final MapItemInteraction interaction = (MapItemInteraction) worldObject;
+                player.getConnection().sendImmediately(new S2CNetworkSpawnWorldDrop(interaction.item(), interaction.getPosition()));
+            } else if (worldObject.getType() == WorldInteractionType.CONTAINER) {
+                // spawn containers right away.
+                final OpenableContainerInteraction interaction = (OpenableContainerInteraction) worldObject;
+                player.getConnection().sendImmediately(new S2CNetworkPopulateContainer(interaction.inventory(), interaction.textureAsset(), interaction.getPosition()));
+            } else {
+                // otherwise, create and add to the list.
+                objects[o] = new WorldNetworkObject(worldObject.getType(), worldObject.getKey(), worldObject.getPosition(), worldObject.getSize(), worldObject.objectId(), worldObject.object());
+                o++;
+            }
+        }
+
+        for (WorldNetworkObject object : objects) {
+            // some objects will be null.
+            if (object != null) {
+                player.getConnection().sendImmediately(new S2CNetworkAddWorldObject(object));
+            }
+        }
+
+        GameLogging.info(this, "Synced %d total world objects to player %s", objects.length, player.name());
     }
 
     /**

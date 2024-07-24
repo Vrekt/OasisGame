@@ -11,6 +11,9 @@ import me.vrekt.shared.packet.server.*;
 import me.vrekt.shared.codec.C2SPacketHandler;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
+import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
+import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
+import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
 import me.vrekt.shared.packet.server.player.*;
 
 import java.util.HashMap;
@@ -73,6 +76,9 @@ public final class GameProtocol {
         server.put(S2CChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new S2CChatMessage(buf)));
         server.put(S2CNetworkFrame.ID, (buf, handler) -> handler.handle(new S2CNetworkFrame(buf)));
         server.put(S2CTeleport.PACKET_ID, (buf, handler) -> handler.handle(new S2CTeleport(buf)));
+        server.put(S2CNetworkAddWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkAddWorldObject(buf)));
+        server.put(S2CNetworkSpawnWorldDrop.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkSpawnWorldDrop(buf)));
+        server.put(S2CNetworkPopulateContainer.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkPopulateContainer(buf)));
     }
 
     private void initializeClientHandlers() {

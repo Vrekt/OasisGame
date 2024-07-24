@@ -9,10 +9,10 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
  */
 public final class TiledWorldObjectProperties {
 
-    public final boolean hasCollision, interactable, offsetX, offsetY;
-    public final float interactionRange, sizeX, sizeY;
-    public final String key, texture;
-    public final WorldInteractionType interactionType;
+    public boolean hasCollision, interactable, offsetX, offsetY;
+    public float interactionRange, sizeX, sizeY;
+    public String key, texture;
+    public WorldInteractionType interactionType;
 
     public TiledWorldObjectProperties(MapObject object) {
         hasCollision = TiledMapLoader.ofBoolean(object, "hasCollision");

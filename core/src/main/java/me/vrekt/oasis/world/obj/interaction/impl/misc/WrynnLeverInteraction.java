@@ -39,7 +39,7 @@ public final class WrynnLeverInteraction extends AbstractInteractableWorldObject
         state = !state;
         activeTexture = state ? "lever_on" : "lever_off";
         final TextureRegion region = world.getGame().getAsset().get(activeTexture);
-        setTextureAndSize(region);
+        setTextureAndSize(activeTexture, region);
 
         if (!pressed && parentWorld.hasSimpleObject("oasis:basement_gate")) {
             parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
@@ -64,7 +64,7 @@ public final class WrynnLeverInteraction extends AbstractInteractableWorldObject
             this.state = save.data().get("state").getAsBoolean();
             this.pressed = save.data().get("pressed").getAsBoolean();
             this.activeTexture = save.data().get("active_texture").getAsString();
-            setTextureAndSize(GameManager.asset().get(activeTexture));
+            setTextureAndSize(activeTexture, GameManager.asset().get(activeTexture));
         }
     }
 }

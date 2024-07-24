@@ -53,7 +53,7 @@ public class OpenableContainerInteraction extends AbstractInteractableWorldObjec
      * @param object map object
      */
     public OpenableContainerInteraction(MapObject object) {
-        super(WorldInteractionType.CONTAINER, object.getName() + "-container");
+        super(WorldInteractionType.CONTAINER, null);
 
         this.inventory = new ContainerInventory(16);
         this.saveSerializer = true;

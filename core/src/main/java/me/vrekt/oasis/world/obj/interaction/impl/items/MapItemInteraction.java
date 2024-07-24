@@ -81,7 +81,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
     @Override
     public void load(Asset asset) {
-        if (isMapObject) {
+        if (isMapObject && object != null) {
             loadMapObject();
         }
 

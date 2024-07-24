@@ -5,7 +5,6 @@ import me.vrekt.oasis.world.GameWorld;
 /**
  * Network world state.
  * TODO: update world tick time
- * TODO: NET-1: Store world objects
  */
 public class NetworkWorldState {
 

@@ -29,6 +29,7 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     protected GameWorld parentWorld;
 
     protected TextureRegion texture;
+    protected String textureAsset;
 
     protected final Rectangle bounds = new Rectangle();
     protected final Vector2 position = new Vector2();
@@ -99,20 +100,30 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      *
      * @param texture the texture
      */
-    public void setTexture(TextureRegion texture) {
+    public void setTexture(String asset, TextureRegion texture) {
+        this.textureAsset = asset;
         this.texture = texture;
     }
 
     /**
      * Set the texture + size of this object
      *
+     * @param asset   the asset
      * @param texture the texture
      */
-    public void setTextureAndSize(TextureRegion texture) {
+    public void setTextureAndSize(String asset, TextureRegion texture) {
+        this.textureAsset = asset;
         this.texture = texture;
         this.size.set(texture.getRegionWidth() * OasisGameSettings.SCALE, texture.getRegionHeight() * OasisGameSettings.SCALE);
 
         bounds.set(position.x, position.y, size.x, size.y);
+    }
+
+    /**
+     * @return asset region name
+     */
+    public String textureAsset() {
+        return textureAsset;
     }
 
     /**
@@ -122,6 +133,13 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public void setBody(Body body) {
         this.body = body;
+    }
+
+    /**
+     * @return {@code true} if this object has collision.
+     */
+    public boolean hasCollisionBody() {
+        return body != null;
     }
 
     /**
@@ -161,6 +179,13 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     }
 
     /**
+     * @return map object
+     */
+    public MapObject object() {
+        return object;
+    }
+
+    /**
      * @return the cursor this object should use.
      */
     public Cursor getCursor() {
@@ -175,11 +200,6 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     @Override
     public boolean within(Vector3 mouse) {
         return isMouseOver(mouse);
-    }
-
-    @Override
-    public boolean ready() {
-        return true;
     }
 
     @Override

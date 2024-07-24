@@ -119,7 +119,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     // objects within this world
     protected final Map<String, AbstractWorldObject> worldObjects = new HashMap<>();
-    protected final Array<AbstractInteractableWorldObject> interactableWorldObjects = new Array<>();
+    protected final IntMap<AbstractInteractableWorldObject> interactableWorldObjects = new IntMap<>();
     protected final Array<Vector2> paths = new Array<>();
 
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
@@ -306,7 +306,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         buildEntityPathing(worldMap, worldScale);
         createEntities(game.getAsset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.getAsset(), worldScale);
-        createWorldObjects(worldMap, game.getAsset(), worldScale);
+        // host server will tell us the objects to generate
+        if (!game.isMultiplayer()) createWorldObjects(worldMap, game.getAsset(), worldScale);
         createInteriors(worldMap, worldScale);
         createEntityGoals(worldMap, worldScale);
         if (!isGameSave) {
@@ -734,11 +735,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      * @param asset      asset
      */
-    private void createInteractableObject(TiledWorldObjectProperties properties,
-                                          MapObject object,
-                                          Rectangle rectangle,
-                                          float worldScale,
-                                          Asset asset) {
+    public AbstractInteractableWorldObject createInteractableObject(TiledWorldObjectProperties properties,
+                                                                     MapObject object,
+                                                                     Rectangle rectangle,
+                                                                     float worldScale,
+                                                                     Asset asset) {
         final boolean isKeyed = properties.key != null;
         final AbstractInteractableWorldObject worldObject = isKeyed
                 ? properties.interactionType.getKeyed(properties.key, interactionManager)
@@ -755,7 +756,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         worldObject.setObject(object);
 
         if (properties.texture != null) {
-            worldObject.setTextureAndSize(asset.get(properties.texture));
+            worldObject.setTextureAndSize(properties.texture, asset.get(properties.texture));
         }
 
         worldObject.load(asset);
@@ -764,10 +765,23 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         // load collision for this object
         // In the future: collision body from texture?
         if (properties.hasCollision) createObjectCollisionBody(worldObject, rectangle);
-        interactableWorldObjects.add(worldObject);
+        interactableWorldObjects.put(assignUniqueObjectId(worldObject), worldObject);
         mouseListeners.put(worldObject, false);
 
         GameLogging.info(this, "Loaded interaction object %s", properties.interactionType);
+        return worldObject;
+    }
+
+    /**
+     * Assign a unique object ID
+     *
+     * @param object object
+     * @return the unique ID
+     */
+    protected int assignUniqueObjectId(AbstractInteractableWorldObject object) {
+        final int id = (int) (Vector2.len2(object.getPosition().x, object.getPosition().y) + interactableWorldObjects.size + 1);
+        object.setObjectId(id);
+        return id;
     }
 
     /**
@@ -810,7 +824,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             createObjectCollisionBody(worldObject, rectangle);
         }
 
-        if (drawable) worldObject.setTexture(texture);
+        if (drawable) worldObject.setTexture(properties.texture, texture);
         worldObject.setPosition(positionX, positionY);
         if (drawable)
             worldObject.setSize(texture.getRegionWidth() * worldScale, texture.getRegionHeight() * worldScale);
@@ -829,7 +843,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
 
         interaction.load(game.getAsset());
-        interactableWorldObjects.add(interaction);
+        interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
 
         mouseListeners.put(interaction, false);
     }
@@ -846,7 +860,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
 
         interaction.load(game.getAsset());
-        interactableWorldObjects.add(interaction);
+        interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
 
         mouseListeners.put(interaction, false);
     }
@@ -872,7 +886,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param interaction the interaction
      */
     public void addInteraction(AbstractInteractableWorldObject interaction) {
-        interactableWorldObjects.add(interaction);
+        interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
         mouseListeners.put(interaction, false);
     }
 
@@ -912,7 +926,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected void removeDestroyedSaveObject(DestroyedObject object) {
         if (object.type() != null) {
             // find the exact interaction
-            for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
+            for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
                 if (worldObject.getType() == object.type() && worldObject.getPosition().equals(object.position())) {
                     removeInteraction(worldObject);
                     break;
@@ -933,7 +947,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         object.destroyCollision();
         object.dispose();
 
-        interactableWorldObjects.removeValue(object, true);
+        interactableWorldObjects.remove(object.objectId());
         mouseListeners.remove(object);
 
         destroyedWorldObjects.add(new DestroyedObject(object.getKey(), object.getType(), object.getPosition()));
@@ -958,7 +972,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         object.setPosition(position.x, position.y);
 
         if (texture != null) {
-            object.setTextureAndSize(game.getAsset().get(texture));
+            object.setTextureAndSize(texture, game.getAsset().get(texture));
             // make sure this data is saved.
             if (object instanceof OpenableContainerInteraction container) {
                 container.setActiveTexture(texture);
@@ -967,7 +981,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         object.load(game.getAsset());
 
-        interactableWorldObjects.add(object);
+        interactableWorldObjects.put(assignUniqueObjectId(object), object);
         mouseListeners.put(object, false);
     }
 
@@ -1221,7 +1235,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         for (AbstractWorldObject object : worldObjects.values()) object.render(batch, delta);
 
         // interactions
-        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
             if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
             worldObject.render(batch, delta);
         }
@@ -1255,7 +1269,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         batch.setProjectionMatrix(guiManager.getCamera().combined);
 
         // render object UI elements
-        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
             if (worldObject.isUiComponent()) {
                 guiManager.renderWorldObjectComponents(worldObject, renderer.getCamera(), batch);
             }
@@ -1375,7 +1389,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param key  the key
      */
     public void enableWorldInteraction(WorldInteractionType type, String key) {
-        for (AbstractInteractableWorldObject interaction : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject interaction : interactableWorldObjects.values()) {
             if (interaction.matches(type, key)) {
                 interaction.enable();
                 break;
@@ -1391,7 +1405,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @return the object or {@code null} if not found
      */
     public AbstractInteractableWorldObject findInteraction(WorldInteractionType type, String key) {
-        for (AbstractInteractableWorldObject interaction : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject interaction : interactableWorldObjects.values()) {
             if (interaction.matches(type, key)) {
                 return interaction;
             }
@@ -1400,17 +1414,14 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * @return all interactable objects
-     */
-    public Array<AbstractInteractableWorldObject> interactableWorldObjects() {
-        return interactableWorldObjects;
-    }
-
-    /**
      * @return all (non) interactable world objects
      */
     public Collection<AbstractWorldObject> worldObjects() {
         return worldObjects.values();
+    }
+
+    public IntMap<AbstractInteractableWorldObject> interactableWorldObjects() {
+        return interactableWorldObjects;
     }
 
     /**
@@ -1437,7 +1448,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @return {@code null} if no object was hit
      */
     public BreakableObjectInteraction hitInteractableObject(ItemWeapon item) {
-        for (AbstractInteractableWorldObject obj : interactableWorldObjects) {
+        for (AbstractInteractableWorldObject obj : interactableWorldObjects.values()) {
             if (obj instanceof BreakableObjectInteraction interaction) {
                 if (interaction.playerHit(item)) {
                     return interaction;
@@ -1514,7 +1525,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public void dispose() {
         entities.forEach(entity -> entity.value.dispose());
         worldObjects.values().forEach(Disposable::dispose);
-        interactableWorldObjects.forEach(Disposable::dispose);
+        interactableWorldObjects.values().forEach(Disposable::dispose);
 
         game.getMultiplexer().removeProcessor(this);
 

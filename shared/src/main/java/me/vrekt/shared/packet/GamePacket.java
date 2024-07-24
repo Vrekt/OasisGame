@@ -2,6 +2,9 @@ package me.vrekt.shared.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.item.Items;
 
 import java.nio.charset.StandardCharsets;
 
@@ -117,6 +120,18 @@ public abstract class GamePacket {
     protected void writeVector2(float x, float y) {
         buffer.writeFloat(x);
         buffer.writeFloat(y);
+    }
+
+    protected void writeItem(Item item) {
+        writeString(item.type().name());
+        buffer.writeInt(item.amount());
+    }
+
+    protected Item readItem() {
+        final String of = readString();
+        final Items type = Items.valueOf(of);
+        final int amount = buffer.readInt();
+        return ItemRegistry.createItem(type, amount);
     }
 
 }

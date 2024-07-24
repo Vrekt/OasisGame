@@ -1,19 +1,29 @@
 package me.vrekt.oasis.world.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import me.vrekt.oasis.OasisGame;
+import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.obj.TiledWorldObjectProperties;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.server.S2CNetworkFrame;
 import me.vrekt.shared.packet.server.S2CStartGame;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
+import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
+import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
+import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
+import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
 import me.vrekt.shared.packet.server.player.*;
 
 /**
@@ -43,6 +53,61 @@ public final class WorldNetworkHandler {
         player.getConnection().attach(S2CPacketRemovePlayer.PACKET_ID, packet -> handleRemovePlayer((S2CPacketRemovePlayer) packet));
         player.getConnection().attach(S2CPlayerEnteredInterior.ID, packet -> handlePlayerEnteredInterior((S2CPlayerEnteredInterior) packet));
         player.getConnection().attach(S2CNetworkFrame.ID, packet -> handleNetworkFrame((S2CNetworkFrame) packet));
+        player.getConnection().attach(S2CNetworkAddWorldObject.PACKET_ID, packet -> createNetworkWorldObject((S2CNetworkAddWorldObject) packet));
+        player.getConnection().attach(S2CNetworkSpawnWorldDrop.PACKET_ID, packet -> networkSpawnDroppedItem((S2CNetworkSpawnWorldDrop) packet));
+        player.getConnection().attach(S2CNetworkPopulateContainer.PACKET_ID, packet -> networkPopulateContainer((S2CNetworkPopulateContainer) packet));
+    }
+
+    /**
+     * Create a world object
+     *
+     * @param packet packet
+     */
+    private void createNetworkWorldObject(S2CNetworkAddWorldObject packet) {
+        final WorldNetworkObject object = packet.object();
+        if (object.mapObject() == null) {
+            // debugging purposes.
+            GameLogging.info(this, "Cannot register a network object %s with no map properties.", object.type());
+        } else {
+            final TiledWorldObjectProperties properties = new TiledWorldObjectProperties(object.mapObject());
+            // position is already offset from the server.
+            properties.offsetX = false;
+            properties.offsetY = false;
+
+            final Rectangle size = new Rectangle(object.position().x, object.position().y, object.size().x, object.size().y);
+            final AbstractInteractableWorldObject worldObject = this.player.getWorldState().createInteractableObject(
+                    properties,
+                    object.mapObject(),
+                    size,
+                    OasisGameSettings.SCALE,
+                    game.getAsset()
+            );
+            worldObject.setObjectId(object.objectId());
+            GameLogging.info(this, "Created network object type %s @ %f,%f", object.type(), object.position().x, object.position().y);
+        }
+    }
+
+    /**
+     * Spawn a dropped item in the world
+     *
+     * @param packet packet
+     */
+    private void networkSpawnDroppedItem(S2CNetworkSpawnWorldDrop packet) {
+        this.player.getWorldState().spawnWorldDrop(packet.item(), packet.position());
+    }
+
+    /**
+     * Spawn and populate a container
+     *
+     * @param packet packet
+     */
+    private void networkPopulateContainer(S2CNetworkPopulateContainer packet) {
+        final ContainerInventory inventory = new ContainerInventory(packet.size());
+        final OpenableContainerInteraction interaction = new OpenableContainerInteraction(inventory);
+        for (int i = 0; i < packet.contents().length; i++) {
+            if (packet.contents()[i] != null) inventory.add(packet.contents()[i], i);
+        }
+        this.player.getWorldState().spawnWorldObject(interaction, packet.containerType(), packet.position());
     }
 
     /**
