@@ -95,7 +95,6 @@ public class S2CNetworkPopulateContainer extends GamePacket {
 
     @Override
     public void decode() {
-
         containerType = readString();
         final float x = buffer.readFloat();
         final float y = buffer.readFloat();

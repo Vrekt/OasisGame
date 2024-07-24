@@ -52,7 +52,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240724-1510-7612";
+    public static final String GAME_VERSION = "20240724-1524-7622";
 
     private Asset asset;
 

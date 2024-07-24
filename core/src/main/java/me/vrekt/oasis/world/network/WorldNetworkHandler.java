@@ -20,10 +20,7 @@ import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.server.S2CNetworkFrame;
 import me.vrekt.shared.packet.server.S2CStartGame;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
-import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
-import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
-import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
-import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
+import me.vrekt.shared.packet.server.obj.*;
 import me.vrekt.shared.packet.server.player.*;
 
 /**
@@ -56,6 +53,7 @@ public final class WorldNetworkHandler {
         player.getConnection().attach(S2CNetworkAddWorldObject.PACKET_ID, packet -> createNetworkWorldObject((S2CNetworkAddWorldObject) packet));
         player.getConnection().attach(S2CNetworkSpawnWorldDrop.PACKET_ID, packet -> networkSpawnDroppedItem((S2CNetworkSpawnWorldDrop) packet));
         player.getConnection().attach(S2CNetworkPopulateContainer.PACKET_ID, packet -> networkPopulateContainer((S2CNetworkPopulateContainer) packet));
+        player.getConnection().attach(S2CNetworkRemoveWorldObject.PACKET_ID, packet -> networkDestroyWorldObject((S2CNetworkRemoveWorldObject) packet));
     }
 
     /**
@@ -80,9 +78,9 @@ public final class WorldNetworkHandler {
                     object.mapObject(),
                     size,
                     OasisGameSettings.SCALE,
-                    game.getAsset()
+                    game.getAsset(),
+                    object.objectId()
             );
-            worldObject.setObjectId(object.objectId());
             GameLogging.info(this, "Created network object type %s @ %f,%f", object.type(), object.position().x, object.position().y);
         }
     }
@@ -108,6 +106,15 @@ public final class WorldNetworkHandler {
             if (packet.contents()[i] != null) inventory.add(packet.contents()[i], i);
         }
         this.player.getWorldState().spawnWorldObject(interaction, packet.containerType(), packet.position());
+    }
+
+    /**
+     * Destroy/remove and object
+     *
+     * @param object the object
+     */
+    private void networkDestroyWorldObject(S2CNetworkRemoveWorldObject object) {
+        this.player.getWorldState().removeObjectById(object.objectId());
     }
 
     /**

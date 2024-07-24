@@ -13,6 +13,7 @@ import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
 import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
+import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
 import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
 import me.vrekt.shared.packet.server.player.*;
 
@@ -79,6 +80,7 @@ public final class GameProtocol {
         server.put(S2CNetworkAddWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkAddWorldObject(buf)));
         server.put(S2CNetworkSpawnWorldDrop.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkSpawnWorldDrop(buf)));
         server.put(S2CNetworkPopulateContainer.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkPopulateContainer(buf)));
+        server.put(S2CNetworkRemoveWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkRemoveWorldObject(buf)));
     }
 
     private void initializeClientHandlers() {

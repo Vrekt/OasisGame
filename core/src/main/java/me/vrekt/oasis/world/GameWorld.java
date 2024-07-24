@@ -712,7 +712,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             try {
                 final TiledWorldObjectProperties properties = new TiledWorldObjectProperties(object);
                 if (properties.interactable) {
-                    createInteractableObject(properties, object, rectangle, worldScale, asset);
+                    // -1 indicates generate ID for us.
+                    createInteractableObject(properties, object, rectangle, worldScale, asset, -1);
                 } else {
                     createRegularObject(properties, object, rectangle, worldScale, asset);
                 }
@@ -736,10 +737,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param asset      asset
      */
     public AbstractInteractableWorldObject createInteractableObject(TiledWorldObjectProperties properties,
-                                                                     MapObject object,
-                                                                     Rectangle rectangle,
-                                                                     float worldScale,
-                                                                     Asset asset) {
+                                                                    MapObject object,
+                                                                    Rectangle rectangle,
+                                                                    float worldScale,
+                                                                    Asset asset,
+                                                                    int id) {
         final boolean isKeyed = properties.key != null;
         final AbstractInteractableWorldObject worldObject = isKeyed
                 ? properties.interactionType.getKeyed(properties.key, interactionManager)
@@ -762,10 +764,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         worldObject.load(asset);
         createObjectParticles(worldObject, object, asset);
 
+        // assign ID if none
+        id = id == -1 ? assignUniqueObjectId(worldObject) : id;
+
         // load collision for this object
         // In the future: collision body from texture?
         if (properties.hasCollision) createObjectCollisionBody(worldObject, rectangle);
-        interactableWorldObjects.put(assignUniqueObjectId(worldObject), worldObject);
+        interactableWorldObjects.put(id, worldObject);
         mouseListeners.put(worldObject, false);
 
         GameLogging.info(this, "Loaded interaction object %s", properties.interactionType);
@@ -951,6 +956,18 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         mouseListeners.remove(object);
 
         destroyedWorldObjects.add(new DestroyedObject(object.getKey(), object.getType(), object.getPosition()));
+    }
+
+    /**
+     * Remove and an object by id
+     *
+     * @param id id
+     */
+    public void removeObjectById(int id) {
+        final AbstractInteractableWorldObject object = interactableWorldObjects.get(id);
+        if (object != null) {
+            removeInteraction(object);
+        }
     }
 
     /**
