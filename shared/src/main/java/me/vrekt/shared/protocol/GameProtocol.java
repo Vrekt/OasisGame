@@ -79,6 +79,7 @@ public final class GameProtocol {
         server.put(S2CNetworkPopulateContainer.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkPopulateContainer(buf)));
         server.put(S2CNetworkRemoveWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkRemoveWorldObject(buf)));
         server.put(S2CAnimateObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CAnimateObject(buf)));
+        server.put(S2CDestroyWorldObjectResponse.PACKET_ID, (buf, handler) -> handler.handle(new S2CDestroyWorldObjectResponse(buf)));
     }
 
     private void initializeClientHandlers() {

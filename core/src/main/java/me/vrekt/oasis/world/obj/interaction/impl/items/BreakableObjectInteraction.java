@@ -34,6 +34,8 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
     private boolean isBreaking;
     private boolean unlucky;
 
+    private boolean networkAnimation;
+
     public BreakableObjectInteraction(GameWorld world, MapObject object) {
         super(WorldInteractionType.BREAKABLE_OBJECT);
 
@@ -59,10 +61,18 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
     }
 
     /**
+     * @return assigned rarity
+     */
+    public ItemRarity rarity() {
+        return rarity;
+    }
+
+    /**
      * Start animating, triggered by network + self.
      */
-    public void animate() {
+    public void animate(boolean networkAnimation) {
         isBreaking = true;
+        this.networkAnimation = networkAnimation;
     }
 
     @Override
@@ -73,10 +83,16 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
 
             // finally, remove the interaction
             if (breakingAnimation.isAnimationFinished(animationTime)) {
-                world.removeInteraction(this);
                 isBreaking = false;
 
-                broadcastDestroyed();
+                // do not remove this since we didn't execute this action
+                if (!networkAnimation) {
+                    world.removeInteraction(this);
+                    broadcastDestroyed();
+                } else {
+                    // hide since the animation is finished, on our side anyway.
+                    this.hide();
+                }
             }
         } else {
             super.render(batch, delta);
@@ -89,21 +105,35 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
 
         if (breakingAnimation != null) {
             broadcastAnimation();
-            animate();
+            animate(false);
         }
 
         GameManager.playSound(breakSound, volume, 0.88f, 0.0f);
-        final boolean isUnlucky = MathUtils.randomBoolean(UNLUCKY_CHANCE);
-        if (isUnlucky) {
-            // no item for you, still play the animation
-            unlucky = true;
-            disable();
-            return;
-        }
 
-        final int amount = MathUtils.randomBoolean(MULTIPLE_ITEM_CHANCE) ? MathUtils.random(1, 3) : 1;
-        final Item item = ItemRegistry.createRandomItemWithRarity(rarity, amount);
-        world.spawnWorldDrop(item, position.cpy().add(offset, offset));
+        // the server will decide this.
+        // if we are the local client, we can decide, which is probably dangerous.
+        if (!world.getGame().isMultiplayer()) {
+            final boolean isUnlucky = MathUtils.randomBoolean(UNLUCKY_CHANCE);
+            if (isUnlucky) {
+                // no item for you, still play the animation
+                unlucky = true;
+                disable();
+                return;
+            }
+
+            final int amount = MathUtils.randomBoolean(MULTIPLE_ITEM_CHANCE) ? MathUtils.random(1, 3) : 1;
+            final Item item = ItemRegistry.createRandomItemWithRarity(rarity, amount);
+            world.spawnWorldDrop(item, position.cpy().add(offset, offset));
+        }
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+
+        animationTime = 0.0f;
+        isBreaking = false;
+        unlucky = false;
     }
 
     /**

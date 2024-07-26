@@ -1,4 +1,4 @@
-package me.vrekt.oasis.network.server.concurrency;
+package me.vrekt.oasis.network.server.cache;
 
 import com.badlogic.gdx.math.Vector2;
 import me.vrekt.oasis.entity.GameEntity;

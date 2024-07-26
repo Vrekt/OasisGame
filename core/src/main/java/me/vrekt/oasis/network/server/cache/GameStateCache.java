@@ -1,4 +1,4 @@
-package me.vrekt.oasis.network.server.concurrency;
+package me.vrekt.oasis.network.server.cache;
 
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.GameEntity;
@@ -15,12 +15,16 @@ public final class GameStateCache {
 
     public GameStateCache capture(GameWorld world) {
         entities.clear();
-
+        // check for any new changes.
+        // TODO: Destroy entity/object should be updated here.
+        // TODO: Pool Cache
         final Iterator<GameEntity> entries = world.entities().values();
         while (entries.hasNext()) {
             final GameEntity entity = entries.next();
+
             entities.put(entity.entityId(), new EntityStateCache(entity));
         }
+
         return this;
     }
 
@@ -30,4 +34,5 @@ public final class GameStateCache {
     public IntMap<EntityStateCache> entities() {
         return entities;
     }
+
 }

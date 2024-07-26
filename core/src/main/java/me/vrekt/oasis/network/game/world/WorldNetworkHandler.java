@@ -76,7 +76,7 @@ public final class WorldNetworkHandler {
             properties.offsetY = false;
 
             final Rectangle size = new Rectangle(object.position().x, object.position().y, object.size().x, object.size().y);
-            final AbstractInteractableWorldObject worldObject = this.player.getWorldState().createInteractableObject(
+            this.player.getWorldState().createInteractableObject(
                     properties,
                     object.mapObject(),
                     size,
@@ -84,7 +84,7 @@ public final class WorldNetworkHandler {
                     game.getAsset(),
                     object.objectId()
             );
-            GameLogging.info(this, "Created network object type %s @ %f,%f", object.type(), object.position().x, object.position().y);
+            GameLogging.info(this, "Created network object type (%d) %s @ %f,%f", object.objectId(), object.type(), object.position().x, object.position().y);
         }
     }
 
@@ -94,7 +94,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void networkSpawnDroppedItem(S2CNetworkSpawnWorldDrop packet) {
-        this.player.getWorldState().spawnWorldDrop(packet.item(), packet.position());
+        this.player.getWorldState().localSpawnWorldDrop(packet.item(), packet.position(), packet.objectId());
     }
 
     /**
@@ -128,7 +128,7 @@ public final class WorldNetworkHandler {
     private void networkAnimateObject(S2CAnimateObject packet) {
         final AbstractInteractableWorldObject object = this.player.getWorldState().getWorldObjectById(packet.objectId());
         if (object instanceof BreakableObjectInteraction interaction) {
-            interaction.animate();
+            interaction.animate(true);
         }
     }
 

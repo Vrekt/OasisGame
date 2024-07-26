@@ -2,6 +2,7 @@ package me.vrekt.shared.packet.client;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 
 /**
  * Client destroys a world object.
@@ -17,6 +18,11 @@ public final class C2SDestroyWorldObject extends GamePacket {
 
     public C2SDestroyWorldObject(int objectId) {
         this.objectId = objectId;
+    }
+
+    @Override
+    public int response() {
+        return S2CDestroyWorldObjectResponse.PACKET_ID;
     }
 
     public int objectId() {

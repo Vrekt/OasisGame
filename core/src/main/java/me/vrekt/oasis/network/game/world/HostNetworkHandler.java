@@ -6,8 +6,10 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
+import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.network.game.NetworkUpdate;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -15,6 +17,7 @@ import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
@@ -151,7 +154,7 @@ public final class HostNetworkHandler {
             if (worldObject.getType() == WorldInteractionType.MAP_ITEM) {
                 // spawn world drops right away.
                 final MapItemInteraction interaction = (MapItemInteraction) worldObject;
-                player.getConnection().sendImmediately(new S2CNetworkSpawnWorldDrop(interaction.item(), interaction.getPosition()));
+                player.getConnection().sendImmediately(new S2CNetworkSpawnWorldDrop(interaction.item(), interaction.getPosition(), interaction.objectId()));
             } else if (worldObject.getType() == WorldInteractionType.CONTAINER) {
                 // spawn containers right away.
                 final OpenableContainerInteraction interaction = (OpenableContainerInteraction) worldObject;
@@ -183,6 +186,39 @@ public final class HostNetworkHandler {
 
         this.player.getWorldState().removePlayerInWorld(entityId, true);
         GameLogging.info(this, "Player (%d) left.", entityId);
+    }
+
+    /**
+     * Handle object interaction
+     *
+     * @param from   from
+     * @param object object
+     */
+    public void handleObjectInteraction(ServerPlayer from, ServerWorldObject object) {
+        final AbstractInteractableWorldObject wo = this.player.getWorldState().getWorldObjectById(object.objectId());
+        if (wo instanceof BreakableObjectInteraction interaction) {
+            interaction.animate(true);
+        }
+    }
+
+    /**
+     * Handle object destroyed
+     *
+     * @param from   from
+     * @param object object
+     */
+    public void handleObjectDestroyed(ServerPlayer from, ServerWorldObject object) {
+        this.player.getWorldState().removeObjectById(object.objectId());
+    }
+
+    /**
+     * Will automatically create a map item and spawn it in the world.
+     *
+     * @param item     item
+     * @param position position
+     */
+    public void createDroppedItemAndBroadcast(Item item, Vector2 position) {
+        player.getWorldState().spawnWorldDrop(item, position);
     }
 
 }

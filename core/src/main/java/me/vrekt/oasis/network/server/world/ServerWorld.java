@@ -3,10 +3,11 @@ package me.vrekt.oasis.network.server.world;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.IntegratedGameServer;
-import me.vrekt.oasis.network.server.concurrency.EntityStateCache;
-import me.vrekt.oasis.network.server.concurrency.GameStateCache;
+import me.vrekt.oasis.network.server.cache.EntityStateCache;
+import me.vrekt.oasis.network.server.cache.GameStateCache;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -25,6 +26,8 @@ public final class ServerWorld {
 
     private final IntMap<ServerEntity> entities = new IntMap<>();
     private final IntMap<ServerPlayer> players = new IntMap<>();
+
+    private final IntMap<ServerWorldObject> objects = new IntMap<>();
 
     private final GameWorld derived;
     private final int worldId;
@@ -152,6 +155,34 @@ public final class ServerWorld {
     }
 
     /**
+     * Add a world object
+     *
+     * @param worldObject wo
+     */
+    public void addWorldObject(ServerWorldObject worldObject) {
+        this.objects.put(worldObject.objectId(), worldObject);
+    }
+
+    /**
+     * Get a world object
+     *
+     * @param objectId ID
+     * @return the object or {@code null} if not found.
+     */
+    public ServerWorldObject getWorldObject(int objectId) {
+        return this.objects.get(objectId);
+    }
+
+    /**
+     * Destroy/remove a world object
+     *
+     * @param object object
+     */
+    public void removeWorldObject(ServerWorldObject object) {
+        this.objects.remove(object.objectId());
+    }
+
+    /**
      * Update this world from local game world state
      * For now only entity data is updated, players handle themselves.
      */
@@ -164,7 +195,6 @@ public final class ServerWorld {
                 local.updateFromCapture(entry.value);
             }
         }
-
         // notify other players of the host position
         broadcastImmediately(new S2CPacketPlayerPosition(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getX(), hostPlayer.getY()));
         broadcastImmediately(new S2CPacketPlayerVelocity(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));

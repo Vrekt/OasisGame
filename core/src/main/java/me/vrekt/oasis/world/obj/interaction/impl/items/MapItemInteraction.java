@@ -160,7 +160,7 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
             final JsonObject parent = save.data().getAsJsonObject("dropped_item");
             final Items typeOf = Items.valueOf(parent.get("type").getAsString());
             final int amount = parent.get("amount").getAsInt();
-            world.spawnWorldDrop(typeOf, amount, save.position());
+            world.localSpawnWorldDrop(typeOf, amount, save.position());
         }
     }
 

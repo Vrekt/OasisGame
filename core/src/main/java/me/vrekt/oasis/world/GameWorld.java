@@ -767,6 +767,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // assign ID if none
         id = id == -1 ? assignUniqueObjectId(worldObject) : id;
+        worldObject.setObjectId(id);
 
         // load collision for this object
         // In the future: collision body from texture?
@@ -855,10 +856,25 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // broadcast this to other players.
         if (game.isLocalMultiplayer()) {
-            game.getServer().activeWorld().broadcastImmediately(new S2CNetworkSpawnWorldDrop(item, position));
-        } else if (game.isMultiplayer()) {
-            // TODO: client spawn();
+            game.getServer().activeWorld().broadcastImmediately(new S2CNetworkSpawnWorldDrop(item, position, interaction.objectId()));
         }
+    }
+
+    /**
+     * Spawn a world drop interaction
+     * This method should not be used in cases where host multiplayer is enabled.
+     *
+     * @param item     the item
+     * @param position the position
+     * @param objectId predefined object ID.
+     */
+    public void localSpawnWorldDrop(Item item, Vector2 position, int objectId) {
+        final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
+        interaction.setObjectId(objectId);
+        interaction.load(game.getAsset());
+        interactableWorldObjects.put(objectId, interaction);
+
+        mouseListeners.put(interaction, false);
     }
 
     /**
@@ -868,7 +884,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param amount   the amount
      * @param position position
      */
-    public void spawnWorldDrop(Items type, int amount, Vector2 position) {
+    public void localSpawnWorldDrop(Items type, int amount, Vector2 position) {
         final Item item = ItemRegistry.createItem(type, amount);
         final MapItemInteraction interaction = new MapItemInteraction(this, item, position);
 
@@ -898,8 +914,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      *
      * @param interaction the interaction
      */
-    public void addInteraction(AbstractInteractableWorldObject interaction) {
-        interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
+    public void addInteraction(AbstractInteractableWorldObject interaction, int id) {
+        interactableWorldObjects.put(id == -1 ? assignUniqueObjectId(interaction) : id, interaction);
         mouseListeners.put(interaction, false);
     }
 
@@ -964,6 +980,25 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         mouseListeners.remove(object);
 
         destroyedWorldObjects.add(new DestroyedObject(object.getKey(), object.getType(), object.getPosition()));
+    }
+
+    /**
+     * Invalid an interaction, don't remove it but reset it and hide it.
+     *
+     * @param object object
+     */
+    public void invalidateWorldObject(AbstractInteractableWorldObject object) {
+        object.reset();
+        object.hide();
+    }
+
+    /**
+     * Show the world object again
+     *
+     * @param object object
+     */
+    public void reinstateWorldObject(AbstractInteractableWorldObject object) {
+        object.show();
     }
 
     /**
@@ -1277,7 +1312,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         // interactions
         for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
             if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
-            worldObject.render(batch, delta);
+            if (worldObject.render()) worldObject.render(batch, delta);
         }
 
         // render entity UI elements
@@ -1311,7 +1346,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         // render object UI elements
         for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
-            if (worldObject.isUiComponent()) {
+            if (worldObject.isUiComponent() && worldObject.render()) {
                 guiManager.renderWorldObjectComponents(worldObject, renderer.getCamera(), batch);
             }
         }

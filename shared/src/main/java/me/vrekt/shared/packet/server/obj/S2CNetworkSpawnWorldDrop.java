@@ -17,17 +17,20 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
 
     private Item item;
     private Vector2 position;
+    private int objectId;
 
     public S2CNetworkSpawnWorldDrop(ByteBuf buffer) {
         super(buffer);
     }
 
-    public S2CNetworkSpawnWorldDrop(Item item, Vector2 position) {
+    public S2CNetworkSpawnWorldDrop(Item item, Vector2 position, int objectId) {
         Preconditions.checkNotNull(item);
         Preconditions.checkNotNull(position);
+        Preconditions.checkArgument(objectId != 0);
 
         this.item = item;
         this.position = position;
+        this.objectId = objectId;
     }
 
     /**
@@ -44,6 +47,13 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
         return position;
     }
 
+    /**
+     * @return object ID
+     */
+    public int objectId() {
+        return objectId;
+    }
+
     @Override
     public int getId() {
         return PACKET_ID;
@@ -52,6 +62,7 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
     @Override
     public void encode() {
         writeId();
+        buffer.writeInt(objectId);
         writeString(item.type().name());
         buffer.writeInt(item.amount());
         writeVector2(position.x, position.y);
@@ -59,6 +70,8 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
 
     @Override
     public void decode() {
+        objectId = buffer.readInt();
+
         final String of = readString();
         final Items type = Items.valueOf(of);
         final int amount = buffer.readInt();

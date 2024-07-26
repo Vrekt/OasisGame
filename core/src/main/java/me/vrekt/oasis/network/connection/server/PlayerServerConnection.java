@@ -1,15 +1,22 @@
 package me.vrekt.oasis.network.connection.server;
 
+import com.badlogic.gdx.math.MathUtils;
 import io.netty.channel.Channel;
+import me.vrekt.oasis.item.Item;
+import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.IntegratedGameServer;
 import me.vrekt.oasis.network.connection.NetworkConnection;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
+import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.utility.logging.ServerLogging;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.client.*;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
+import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.player.*;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
@@ -50,6 +57,8 @@ public final class PlayerServerConnection extends NetworkConnection {
         attach(C2SChatMessage.PACKET_ID, packet -> handleChatMessage((C2SChatMessage) packet));
         attach(C2SPacketAuthenticate.PACKET_ID, packet -> handleAuthentication((C2SPacketAuthenticate) packet));
         attach(C2SPacketPing.PACKET_ID, packet -> handlePing((C2SPacketPing) packet));
+        attach(C2SInteractWithObject.PACKET_ID, packet -> handleInteractWithObject((C2SInteractWithObject) packet));
+        attach(C2SDestroyWorldObject.PACKET_ID, packet -> handleDestroyWorldObject((C2SDestroyWorldObject) packet));
     }
 
     /**
@@ -167,6 +176,74 @@ public final class PlayerServerConnection extends NetworkConnection {
         }
 
         player.world().broadcastImmediatelyExcluded(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
+    }
+
+    /**
+     * Handle player interact with an object, ensure its valid.
+     *
+     * @param packet object
+     */
+    private void handleInteractWithObject(C2SInteractWithObject packet) {
+        if (isValid()) {
+            final ServerWorldObject worldObject = player.world().getWorldObject(packet.objectId());
+            if (worldObject != null) {
+
+                // broadcasts the relevant packets, also notify host.
+                if (worldObject.interact(player)) server.handler().handleObjectInteraction(player, worldObject);
+            }
+        }
+    }
+
+    /**
+     * Handle destroying an object
+     * This is not decided by the client, must be validated here
+     *
+     * @param packet packet
+     */
+    private void handleDestroyWorldObject(C2SDestroyWorldObject packet) {
+        if (isValid()) {
+            final ServerWorldObject worldObject = player.world().getWorldObject(packet.objectId());
+
+            // ensure object was touched and we are the same player.
+            if (worldObject != null
+                    && worldObject.wasInteracted()
+                    && worldObject.interactedId() == player.entityId()
+                    && worldObject.hasInteractionTimeElapsed()) {
+
+                // player can break this object.
+                player.getConnection().sendImmediately(new S2CDestroyWorldObjectResponse(worldObject.objectId(), true));
+                // notify others too.
+                server.handler().handleObjectDestroyed(player, worldObject);
+                worldObject.destroy(player);
+
+                // this object will generate a random item to drop
+                if (worldObject.type() == WorldInteractionType.BREAKABLE_OBJECT) {
+                    generateRandomItem(worldObject.asBreakable());
+                }
+
+            } else {
+                player.getConnection().sendImmediately(new S2CDestroyWorldObjectResponse(packet.objectId(), false));
+            }
+        }
+    }
+
+    /**
+     * Generate a random item and spawn it in
+     * Host will see first, a bit unfair but hey lets all be nice!
+     *
+     * @param object object
+     */
+    private void generateRandomItem(ServerBreakableWorldObject object) {
+        final float unlucky = 0.1f;
+        final float multipleItemsChance = 0.2f;
+
+        final boolean isUnlucky = MathUtils.randomBoolean(unlucky);
+        if (isUnlucky) return;
+
+        final int amount = MathUtils.randomBoolean(multipleItemsChance) ? MathUtils.random(1, 3) : 1;
+        final Item item = ItemRegistry.createRandomItemWithRarity(object.assignedRarity(), amount);
+
+        server.handler().createDroppedItemAndBroadcast(item, object.position().add(0.25f, 0.25f));
     }
 
     @Override

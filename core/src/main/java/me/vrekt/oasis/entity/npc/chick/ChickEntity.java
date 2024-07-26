@@ -141,7 +141,7 @@ public final class ChickEntity extends GameEntity {
 
                 // random chance for the player to get a reward
                 if (goal != EntityGoal.DRINK && MathUtils.randomBoolean(REWARD_CHANCE) && rewardsGiven <= MAX_REWARDS) {
-                    worldIn.spawnWorldDrop(pickRandomReward(), 1, getPosition().cpy().add(0.25f, 0.25f));
+                    worldIn.localSpawnWorldDrop(pickRandomReward(), 1, getPosition().cpy().add(0.25f, 0.25f));
                     rewardsGiven++;
                 }
             }

@@ -3,7 +3,7 @@ package me.vrekt.oasis.network.server.entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.network.IntegratedGameServer;
-import me.vrekt.oasis.network.server.concurrency.EntityStateCache;
+import me.vrekt.oasis.network.server.cache.EntityStateCache;
 import me.vrekt.oasis.network.server.world.ServerWorld;
 
 /**

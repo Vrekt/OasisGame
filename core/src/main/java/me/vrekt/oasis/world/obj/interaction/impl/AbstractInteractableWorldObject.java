@@ -9,9 +9,14 @@ import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.save.Loadable;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
+import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.packet.client.C2SDestroyWorldObject;
+import me.vrekt.shared.packet.client.C2SInteractWithObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
+import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
 import org.apache.commons.lang3.StringUtils;
 
@@ -28,7 +33,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     protected final Vector2 interactionPoint;
     protected int objectId;
 
-    protected boolean wasInteractedWith, isEnabled = true, updatable = true;
+    protected boolean wasInteractedWith, isEnabled = true, updatable = true, render = true;
     protected float interactionRange = 4.5f;
 
     protected boolean isUiComponent;
@@ -145,6 +150,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         return updatable;
     }
 
+    /**
+     * @return if this object should be rendered.
+     */
+    public boolean render() {
+        return render;
+    }
+
     @Override
     public boolean ready() {
         return isEnabled && handleMouseState;
@@ -214,19 +226,42 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         if (world.getGame().isLocalMultiplayer()) {
             world.getGame().getServer().activeWorld().broadcastImmediately(new S2CAnimateObject(objectId));
         } else if (world.getGame().isMultiplayer()) {
-            // TODO: world.player().getConnection().sendImmediately(new C2SInteractWithObject(objectId));
+            world.player().getConnection().sendImmediately(new C2SInteractWithObject(objectId));
         }
     }
 
     /**
      * Broadcast this object was destroyed.
+     * TODO: Fade in spawn item, more smooth.
      */
     protected void broadcastDestroyed() {
         if (world.getGame().isLocalMultiplayer()) {
             world.getGame().getServer().activeWorld().broadcastImmediately(new S2CNetworkRemoveWorldObject(objectId));
         } else if (world.getGame().isMultiplayer()) {
-            // TODO:  world.player().getConnection().sendImmediately(new C2SDestroyWorldObject(objectId));
+            final GamePacket packet = new C2SDestroyWorldObject(objectId);
+
+            // wait for a response, go ahead and destroy this object
+            // but if the server tells us no, then take it back!
+            world.player().getConnection().sendImmediatelyWithCallback(packet, 2000, true, callback -> {
+                final S2CDestroyWorldObjectResponse authority = (S2CDestroyWorldObjectResponse) callback;
+                if (!authority.valid()) {
+                    // rollback
+                    world.reinstateWorldObject(this);
+                } else {
+                    // destroy.
+                    world.removeInteraction(this);
+                }
+
+                GameLogging.info(this, "Authority result was %b", authority.valid());
+            });
+
+            // don't destroy in-case response is no.
+            world.invalidateWorldObject(this);
         }
+    }
+
+    protected void createNetworkItem() {
+
     }
 
     /**
@@ -241,9 +276,27 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     }
 
     /**
+     * Show this object
+     */
+    public void show() {
+        isEnabled = true;
+        updatable = true;
+        render = true;
+    }
+
+    /**
+     * Hide this object
+     */
+    public void hide() {
+        isEnabled = false;
+        updatable = false;
+        render = false;
+    }
+
+    /**
      * Reset this interaction state
      */
-    protected void reset() {
+    public void reset() {
         isEnabled = true;
         wasInteractedWith = false;
         exit();

@@ -48,7 +48,7 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
         loadContainersAndObjects(worldSave);
 
         // now add preloaded objects
-        preLoadedObjects.forEach(object -> world.addInteraction(object));
+        preLoadedObjects.forEach(object -> world.addInteraction(object, -1));
         preLoadedObjects.clear();
 
         // add pre loaded containers

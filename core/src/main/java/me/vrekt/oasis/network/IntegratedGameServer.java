@@ -9,14 +9,18 @@ import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.connection.server.PlayerServerConnection;
 import me.vrekt.oasis.network.game.world.HostNetworkHandler;
 import me.vrekt.oasis.network.netty.IntegratedNettyServer;
-import me.vrekt.oasis.network.server.concurrency.GameStateCache;
+import me.vrekt.oasis.network.server.cache.GameStateCache;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
+import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.protocol.GameProtocol;
 
@@ -113,7 +117,20 @@ public final class IntegratedGameServer implements Disposable {
             entityCount++;
         }
 
-        GameLogging.info(this, "Loaded %d entities", entityCount);
+        int objectCount = 0;
+        for (AbstractInteractableWorldObject object : world.interactableWorldObjects().values()) {
+            ServerWorldObject swo;
+            if (object.getType() == WorldInteractionType.BREAKABLE_OBJECT) {
+                swo = new ServerBreakableWorldObject(activeWorld, object);
+            } else {
+                swo = new ServerWorldObject(activeWorld, object);
+            }
+
+            activeWorld.addWorldObject(swo);
+            objectCount++;
+        }
+
+        GameLogging.info(this, "Loaded %d entities and %d world objects", entityCount, objectCount);
     }
 
     /**
