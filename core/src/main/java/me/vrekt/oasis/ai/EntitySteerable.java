@@ -28,6 +28,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
     // whatever behavior the entity needs
     private SteeringBehavior<Vector2> behavior;
     private final Vector2 offsetPositionVector = new Vector2();
+    private final Vector2 linear = new Vector2();
 
     // box2d body of the entity
     private final GameEntity owner;
@@ -106,8 +107,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
     private void applyDefault() {
         boolean hasAcceleration = false;
 
-        // TODO: Do not create a new object
-        Vector2 linear = output.linear;
+        linear.set(output.linear);
         if (handleMovementTolerance && !linear.isZero()) {
 
             final float leny = linear.y * linear.y;
@@ -125,7 +125,6 @@ public final class EntitySteerable implements Steerable<Vector2> {
         if (lastVelocity.isZero()) {
             lastVelocity.set(linear);
         } else {
-            // TODO: Ok for now, fix in future EM-116;
             linear.x = Interpolation.linear.apply(lastVelocity.x, linear.x, 0.25f);
             linear.y = Interpolation.linear.apply(lastVelocity.y, linear.y, 0.25f);
         }

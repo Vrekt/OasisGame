@@ -12,19 +12,19 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.network.codec.ConnectionAuthenticationHandler;
-import me.vrekt.oasis.network.codec.ServerProtocolPacketDecoder;
-import me.vrekt.oasis.network.player.PlayerConnection;
+import me.vrekt.oasis.network.netty.codec.ConnectionAuthenticationHandler;
+import me.vrekt.oasis.network.netty.codec.ServerProtocolPacketDecoder;
+import me.vrekt.oasis.network.connection.client.PlayerConnection;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.shared.codec.ClientChannels;
 import me.vrekt.shared.codec.ProtocolPacketEncoder;
 import me.vrekt.shared.protocol.GameProtocol;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.net.ssl.SSLException;
 
 /**
- * Local game client server
- * Adapter from netty
+ * Connects to a remote server.
  */
 public final class GameClientServer implements Disposable {
 
@@ -67,7 +67,7 @@ public final class GameClientServer implements Disposable {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel channel) {
+                    protected void initChannel(@NonNull SocketChannel channel) {
                         handleSocketConnection(channel);
                     }
                 });

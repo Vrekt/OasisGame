@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Collections;
 import com.kotcrab.vis.ui.VisUI;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
@@ -17,10 +18,12 @@ import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.ItemRegistry;
+import me.vrekt.oasis.network.IntegratedGameServer;
+import me.vrekt.oasis.network.connection.client.PlayerConnection;
+import me.vrekt.oasis.network.game.world.HostNetworkHandler;
+import me.vrekt.oasis.network.game.world.WorldNetworkHandler;
 import me.vrekt.oasis.network.netty.GameClientServer;
-import me.vrekt.oasis.network.player.DummyConnection;
-import me.vrekt.oasis.network.player.PlayerConnection;
-import me.vrekt.oasis.network.server.IntegratedServer;
+import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.save.GameSave;
 import me.vrekt.oasis.save.SaveManager;
 import me.vrekt.oasis.save.player.PlayerSave;
@@ -36,9 +39,6 @@ import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.management.WorldManager;
-import me.vrekt.oasis.world.network.HostNetworkHandler;
-import me.vrekt.oasis.world.network.NetworkValidation;
-import me.vrekt.oasis.world.network.WorldNetworkHandler;
 import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
 import me.vrekt.shared.protocol.GameProtocol;
@@ -52,7 +52,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240724-1524-7622";
+    public static final String GAME_VERSION = "20240725-2205-7780";
 
     private Asset asset;
 
@@ -76,7 +76,7 @@ public final class OasisGame extends Game {
 
     private ExecutorService virtualAsyncService;
 
-    private IntegratedServer server;
+    private IntegratedGameServer server;
     // local multiplayer = we are the host
     // isMultiplayer = joined a multiplayer game
     private boolean isLocalMultiplayer, isMultiplayer;
@@ -95,6 +95,8 @@ public final class OasisGame extends Game {
         this.logoTexture = new Texture(Gdx.files.internal("ui/em_logo2.png"));
 
         NetworkValidation.mainThreadId = Thread.currentThread().threadId();
+        // TODO: Undesirable
+        Collections.allocateIterators = true;
 
         setScreen(new OasisSplashScreen(this));
         initialize();
@@ -295,8 +297,6 @@ public final class OasisGame extends Game {
         setScreen(loadingScreen);
         loadGameStructure();
 
-        player.connection(new DummyConnection());
-
         final GameWorld world = worldManager.getWorld(NewGameWorld.WORLD_ID);
         loadingScreen.setWorldLoadingIn(world);
 
@@ -385,7 +385,7 @@ public final class OasisGame extends Game {
         hostNetworkHandler = new HostNetworkHandler(player, this);
 
         protocol = new GameProtocol(ProtocolDefaults.PROTOCOL_VERSION, ProtocolDefaults.PROTOCOL_NAME);
-        server = new IntegratedServer(this, protocol, player);
+        server = new IntegratedGameServer(this, protocol, player, hostNetworkHandler);
         server.start();
 
         isLocalMultiplayer = true;
@@ -397,10 +397,6 @@ public final class OasisGame extends Game {
     public void shutdownIntegratedServer() {
         protocol.dispose();
         server.dispose();
-    }
-
-    public void tickLocalMultiplayer() {
-        server.update();
     }
 
     /**
@@ -526,7 +522,7 @@ public final class OasisGame extends Game {
         if (player != null && player.getWorldState() != null) player.getWorldState().resize(width, height);
     }
 
-    public IntegratedServer getServer() {
+    public IntegratedGameServer getServer() {
         return server;
     }
 

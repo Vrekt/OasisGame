@@ -11,6 +11,8 @@ import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
+import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -205,6 +207,27 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         interactionPoint.set(world.player().getPosition());
     }
 
+    /**
+     * Broadcast animation of this object
+     */
+    protected void broadcastAnimation() {
+        if (world.getGame().isLocalMultiplayer()) {
+            world.getGame().getServer().activeWorld().broadcastImmediately(new S2CAnimateObject(objectId));
+        } else if (world.getGame().isMultiplayer()) {
+            // TODO: world.player().getConnection().sendImmediately(new C2SInteractWithObject(objectId));
+        }
+    }
+
+    /**
+     * Broadcast this object was destroyed.
+     */
+    protected void broadcastDestroyed() {
+        if (world.getGame().isLocalMultiplayer()) {
+            world.getGame().getServer().activeWorld().broadcastImmediately(new S2CNetworkRemoveWorldObject(objectId));
+        } else if (world.getGame().isMultiplayer()) {
+            // TODO:  world.player().getConnection().sendImmediately(new C2SDestroyWorldObject(objectId));
+        }
+    }
 
     /**
      * Check if the provided values match this interaction

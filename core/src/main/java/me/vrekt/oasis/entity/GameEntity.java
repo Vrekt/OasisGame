@@ -311,8 +311,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * TODO: Cache instead of new object?
-     *
      * @return size as vector
      */
     public Vector3 getSizeVector() {
@@ -481,6 +479,9 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param networkTime time since the packet was sent
      */
     public void networkInterpolate(NetworkEntityState state, float delta, float networkTime) {
+        // if this value is 1.0, weird errors occur.
+        networkTime = networkTime <= 1.0f ? 3.0f : networkTime;
+
         velocity.set(body.getLinearVelocity());
         // attempt to predict where the entity will be
         predicted.set(body.getPosition()).add(velocity.scl(delta));
@@ -718,9 +719,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * TODO: Watch for bugs since this was changed.
-     * TODO: Just return worldIn instead of checking interior state, Fixes EM-85
-     *
      * @return the current world state of this entity
      */
     public GameWorld getWorldState() {

@@ -58,10 +58,16 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
         }
     }
 
+    /**
+     * Start animating, triggered by network + self.
+     */
+    public void animate() {
+        isBreaking = true;
+    }
+
     @Override
     public void render(SpriteBatch batch, float delta) {
         if (isBreaking || unlucky) {
-
             batch.draw(breakingAnimation.getKeyFrame(animationTime), position.x, position.y, size.x, size.y);
             animationTime += delta;
 
@@ -69,6 +75,8 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
             if (breakingAnimation.isAnimationFinished(animationTime)) {
                 world.removeInteraction(this);
                 isBreaking = false;
+
+                broadcastDestroyed();
             }
         } else {
             super.render(batch, delta);
@@ -80,7 +88,8 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
         if (isBreaking || unlucky) return;
 
         if (breakingAnimation != null) {
-            isBreaking = true;
+            broadcastAnimation();
+            animate();
         }
 
         GameManager.playSound(breakSound, volume, 0.88f, 0.0f);

@@ -2,19 +2,16 @@ package me.vrekt.shared.protocol;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import me.vrekt.oasis.network.PacketHandler;
 import me.vrekt.shared.packet.client.*;
 import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
-import me.vrekt.shared.packet.server.*;
-import me.vrekt.shared.codec.C2SPacketHandler;
-import me.vrekt.shared.codec.S2CPacketHandler;
+import me.vrekt.shared.packet.server.S2CNetworkFrame;
+import me.vrekt.shared.packet.server.S2CStartGame;
 import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
-import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
-import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
-import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
-import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
+import me.vrekt.shared.packet.server.obj.*;
 import me.vrekt.shared.packet.server.player.*;
 
 import java.util.HashMap;
@@ -34,8 +31,8 @@ public final class GameProtocol {
     private final int protocolVersion;
     private final String protocolName;
 
-    private final Map<Integer, BiConsumer<ByteBuf, S2CPacketHandler>> server = new HashMap<>();
-    private final Map<Integer, BiConsumer<ByteBuf, C2SPacketHandler>> client = new HashMap<>();
+    private final Map<Integer, BiConsumer<ByteBuf, PacketHandler>> server = new HashMap<>();
+    private final Map<Integer, BiConsumer<ByteBuf, PacketHandler>> client = new HashMap<>();
 
     /**
      * Initialize a new protocol.
@@ -81,6 +78,7 @@ public final class GameProtocol {
         server.put(S2CNetworkSpawnWorldDrop.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkSpawnWorldDrop(buf)));
         server.put(S2CNetworkPopulateContainer.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkPopulateContainer(buf)));
         server.put(S2CNetworkRemoveWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkRemoveWorldObject(buf)));
+        server.put(S2CAnimateObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CAnimateObject(buf)));
     }
 
     private void initializeClientHandlers() {
@@ -94,6 +92,8 @@ public final class GameProtocol {
         client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> handler.handle(new C2SKeepAlive(buf)));
         client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> handler.handle(new C2SEnterInteriorWorld(buf)));
         client.put(C2SChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new C2SChatMessage(buf)));
+        client.put(C2SInteractWithObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SInteractWithObject(buf)));
+        client.put(C2SDestroyWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SDestroyWorldObject(buf)));
     }
 
     /**
@@ -125,7 +125,7 @@ public final class GameProtocol {
      * @param handler the handler
      * @param context the context (allowed to be null)
      */
-    public void handleServerPacket(int pid, ByteBuf in, S2CPacketHandler handler, ChannelHandlerContext context) {
+    public void handleServerPacket(int pid, ByteBuf in, PacketHandler handler, ChannelHandlerContext context) {
         try {
             server.get(pid).accept(in, handler);
         } catch (Exception exception) {
@@ -142,10 +142,11 @@ public final class GameProtocol {
      * @param handler the handler
      * @param context the context (allowed to be null)
      */
-    public void handleClientPacket(int pid, ByteBuf in, C2SPacketHandler handler, ChannelHandlerContext context) {
+    public void handleClientPacket(int pid, ByteBuf in, PacketHandler handler, ChannelHandlerContext context) {
         try {
             client.get(pid).accept(in, handler);
         } catch (Exception exception) {
+            exception.printStackTrace();
             if (context != null) context.fireExceptionCaught(exception);
         }
     }

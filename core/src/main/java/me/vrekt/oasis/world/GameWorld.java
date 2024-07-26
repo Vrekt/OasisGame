@@ -50,6 +50,7 @@ import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
+import me.vrekt.oasis.network.game.world.WorldNetworkRenderer;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
@@ -59,7 +60,6 @@ import me.vrekt.oasis.world.effects.AreaEffectCloud;
 import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
-import me.vrekt.oasis.world.network.WorldNetworkRenderer;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.DestroyedObject;
 import me.vrekt.oasis.world.obj.SimpleWorldObject;
@@ -76,6 +76,7 @@ import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
 import me.vrekt.oasis.world.tiled.TiledMapCache;
+import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -851,6 +852,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
 
         mouseListeners.put(interaction, false);
+
+        // broadcast this to other players.
+        if (game.isLocalMultiplayer()) {
+            game.getServer().activeWorld().broadcastImmediately(new S2CNetworkSpawnWorldDrop(item, position));
+        } else if (game.isMultiplayer()) {
+            // TODO: client spawn();
+        }
     }
 
     /**
@@ -959,6 +967,16 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
+     * Get a world object by ID
+     *
+     * @param id id
+     * @return the object or {@code null} if not found.
+     */
+    public AbstractInteractableWorldObject getWorldObjectById(int id) {
+        return interactableWorldObjects.get(id);
+    }
+
+    /**
      * Remove and an object by id
      *
      * @param id id
@@ -967,6 +985,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final AbstractInteractableWorldObject object = interactableWorldObjects.get(id);
         if (object != null) {
             removeInteraction(object);
+        } else {
+            GameLogging.warn(this, "Failed to remove a network object by ID (%d)", id);
         }
     }
 
@@ -1208,7 +1228,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             lastTick = now;
             GameManager.tick++;
 
-            if (game.isLocalMultiplayer()) game.tickLocalMultiplayer();
+            if (game.isLocalMultiplayer()) {
+                game.hostNetworkHandler().build();
+                game.getServer().captureLocalStateSync(this);
+            }
         }
 
         performanceCounter.start();
@@ -1257,6 +1280,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             worldObject.render(batch, delta);
         }
 
+        // render entity UI elements
         for (GameEntity entity : entities.values()) {
             if (entity.isInView(renderer.getCamera())) {
                 entity.render(batch, delta);
@@ -1293,9 +1317,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         // render entity UI elements
-        for (GameEntity entity : entities.values()) {
+        for (GameEntity entity : entities.values())
             entity.postRender(renderer.getCamera(), guiManager.getCamera(), batch, worldDamageAnimator);
-        }
 
         // draw name tags on top of everything
         networkRenderer.postRender(this, batch, guiManager);

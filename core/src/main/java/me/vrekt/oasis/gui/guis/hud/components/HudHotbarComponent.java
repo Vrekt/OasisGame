@@ -61,7 +61,6 @@ public final class HudHotbarComponent extends HudComponent {
 
     @Override
     public void update(float tick) {
-        // TODO: Fix this nasty shit
         for (IntMap.Entry<Item> entry : player.getInventory().items()) {
             if (entry.value == null || !player.getInventory().isHotbar(entry.key)) continue;
             hotbarIconComponents.get(entry.key).replaceIfRequired(entry.value);

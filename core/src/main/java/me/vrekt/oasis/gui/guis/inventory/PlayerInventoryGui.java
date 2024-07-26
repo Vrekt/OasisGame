@@ -151,12 +151,11 @@ public final class PlayerInventoryGui extends InventoryGui {
 
             left.add(component.container()).size(48, 48);
             // line break for hotbar components
-            // TODO: Find out why cell resizing when adding longer separator
             if (i == 6) {
                 final VisTable separator = new VisTable();
                 separator.addSeparator();
-                // TODO: Unable do it any other way because first column of,
-                // TODO: slots will expand to fit the separator size.
+                // Unable do it any other way because first column of,
+                // slots will expand to fit the separator size.
                 left.row();
                 left.add(separator);
             }

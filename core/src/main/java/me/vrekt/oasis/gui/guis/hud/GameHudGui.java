@@ -102,12 +102,14 @@ public final class GameHudGui extends Gui {
                 .append(StringUtils.LF).append(Math.floor(player.getX())).append(",").append(Math.floor(player.getY()));
 
         if (GameManager.game().isMultiplayer()) {
+            builder.append(StringUtils.LF);
             builder.append(PING)
                     .append(guiManager.getGame().getConnectionHandler().getPingMs())
                     .append(StringUtils.SPACE);
         }
 
         if (guiManager.getGame().isLocalMultiplayer()) {
+            builder.append(StringUtils.LF);
             builder.append(MSPT)
                     .append(guiManager.getGame().getServer().mspt())
                     .append(MS);

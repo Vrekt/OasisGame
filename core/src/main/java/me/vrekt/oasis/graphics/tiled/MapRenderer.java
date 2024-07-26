@@ -164,8 +164,7 @@ public final class MapRenderer implements Disposable {
      */
     public void resize(int width, int height) {
         viewport.update(width, height, false);
-
-        // TODO: if needed later, camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
+        // camera.setToOrtho(false, width / 16f / 2f, height / 16f / 2f);
     }
 
     @Override

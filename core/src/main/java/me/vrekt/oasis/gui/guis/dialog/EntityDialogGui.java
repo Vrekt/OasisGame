@@ -196,7 +196,7 @@ public final class EntityDialogGui extends Gui {
      * @param option the option
      */
     private void addOption(String key, String option) {
-        if (optionTracker >= 3) return; // TODO: Later more options.
+        if (optionTracker >= 3) return;
         final DialogOptionContainer container = dialogOptionContainers.get(optionTracker);
         container.label.setText(option);
         container.listener.setKeyAndEntity(key, entity);

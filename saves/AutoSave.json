@@ -2,7 +2,7 @@
   "name": "AutoSave",
   "slot": 0,
   "progress": 0.0,
-  "date": "24-07-24 05:50 AM",
+  "date": "25-07-24 13:42 PM",
   "multiplayer": true,
   "settings": {
     "entity_update_distance": 100.0,
@@ -19,7 +19,7 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player74",
+    "name": "Player71",
     "position": {
       "x": 34.916687,
       "y": 12.072876
@@ -201,12 +201,12 @@
                 "slot": 0,
                 "name": "Lockpick",
                 "type": "LOCK_PICK",
-                "amount": 2
+                "amount": 3
               }
             }
           },
           {
-            "key": "oasis:lock_pick",
+            "key": "oasis:verdant_fungus",
             "interactable": true,
             "enabled": true,
             "interaction_type": "MAP_ITEM",
@@ -217,34 +217,28 @@
             "object_data": {
               "dropped_item": {
                 "slot": 0,
-                "name": "Lockpick",
-                "type": "LOCK_PICK",
+                "name": "Verdant Fungus",
+                "type": "VERDANT_FUNGUS",
                 "amount": 1
               }
             }
           },
           {
+            "key": "oasis:arcana_codex",
             "interactable": true,
             "enabled": true,
-            "interaction_type": "CONTAINER",
+            "interaction_type": "MAP_ITEM",
             "position": {
               "x": 53.5,
               "y": 49.0
             },
             "object_data": {
-              "container_inventory": {
-                "type": "CONTAINER",
-                "size": 16,
-                "contents": [
-                  {
-                    "slot": 0,
-                    "name": "Lockpick",
-                    "type": "LOCK_PICK",
-                    "amount": 1
-                  }
-                ]
-              },
-              "active_texture": "barrel"
+              "dropped_item": {
+                "slot": 0,
+                "name": "Arcana\u0027s Codex",
+                "type": "ARCANA_CODEX",
+                "amount": 1
+              }
             }
           }
         ],

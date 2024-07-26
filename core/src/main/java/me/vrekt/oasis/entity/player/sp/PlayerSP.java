@@ -33,7 +33,7 @@ import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.item.artifact.ItemArtifact;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
-import me.vrekt.oasis.network.player.PlayerConnection;
+import me.vrekt.oasis.network.connection.client.PlayerConnection;
 import me.vrekt.oasis.questing.PlayerQuestManager;
 import me.vrekt.oasis.questing.Quest;
 import me.vrekt.oasis.questing.QuestObjective;
@@ -642,7 +642,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     private void updateNetworkComponents() {
         updateNetworkPositionAndVelocity();
-        connection.updateSync();
+        connection.updateHandlingQueue();
     }
 
     /**
