@@ -17,6 +17,8 @@ import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
+import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
+import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
 import me.vrekt.shared.packet.server.player.*;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
@@ -57,8 +59,9 @@ public final class PlayerServerConnection extends NetworkConnection {
         attach(C2SChatMessage.PACKET_ID, packet -> handleChatMessage((C2SChatMessage) packet));
         attach(C2SPacketAuthenticate.PACKET_ID, packet -> handleAuthentication((C2SPacketAuthenticate) packet));
         attach(C2SPacketPing.PACKET_ID, packet -> handlePing((C2SPacketPing) packet));
-        attach(C2SInteractWithObject.PACKET_ID, packet -> handleInteractWithObject((C2SInteractWithObject) packet));
+        attach(C2SAnimateObject.PACKET_ID, packet -> handleAnimateWorldObject((C2SAnimateObject) packet));
         attach(C2SDestroyWorldObject.PACKET_ID, packet -> handleDestroyWorldObject((C2SDestroyWorldObject) packet));
+        attach(C2SInteractWithObject.PACKET_ID, packet -> handleInteractWorldObject((C2SInteractWithObject) packet));
     }
 
     /**
@@ -183,13 +186,13 @@ public final class PlayerServerConnection extends NetworkConnection {
      *
      * @param packet object
      */
-    private void handleInteractWithObject(C2SInteractWithObject packet) {
+    private void handleAnimateWorldObject(C2SAnimateObject packet) {
         if (isValid()) {
             final ServerWorldObject worldObject = player.world().getWorldObject(packet.objectId());
             if (worldObject != null) {
 
                 // broadcasts the relevant packets, also notify host.
-                if (worldObject.interact(player)) server.handler().handleObjectInteraction(player, worldObject);
+                if (worldObject.interact(player)) server.handler().handleObjectAnimation(player, worldObject);
             }
         }
     }
@@ -214,7 +217,7 @@ public final class PlayerServerConnection extends NetworkConnection {
                 player.getConnection().sendImmediately(new S2CDestroyWorldObjectResponse(worldObject.objectId(), true));
                 // notify others too.
                 server.handler().handleObjectDestroyed(player, worldObject);
-                worldObject.destroy(player);
+                worldObject.playerDestroyed(player);
 
                 // this object will generate a random item to drop
                 if (worldObject.type() == WorldInteractionType.BREAKABLE_OBJECT) {
@@ -244,6 +247,44 @@ public final class PlayerServerConnection extends NetworkConnection {
         final Item item = ItemRegistry.createRandomItemWithRarity(object.assignedRarity(), amount);
 
         server.handler().createDroppedItemAndBroadcast(item, object.position().add(0.25f, 0.25f));
+    }
+
+    /**
+     * Handle interacting with a world object
+     *
+     * @param packet packet
+     */
+    private void handleInteractWorldObject(C2SInteractWithObject packet) {
+        final ServerWorldObject object = player.world().getWorldObject(packet.objectId());
+        if (packet.type() == C2SInteractWithObject.InteractionType.PICK_UP) {
+            handlePickupInteraction(object, packet.objectId());
+        }
+    }
+
+    /**
+     * Picking up an item
+     *
+     * @param object          object
+     * @param packetNonNullId non null packet ID
+     */
+    private void handlePickupInteraction(ServerWorldObject object, int packetNonNullId) {
+        if (object == null) {
+            player.getConnection().sendImmediately(new S2CInteractWithObjectResponse(packetNonNullId, false));
+            return;
+        }
+
+        if (!object.wasInteracted()) {
+            // hopefully prevent other players from picking it up within a small-time frame
+            object.markOwnership(player);
+            player.getConnection().sendImmediately(new S2CInteractWithObjectResponse(object.objectId(), true));
+
+            // bye bye
+            server.handler().handleObjectDestroyed(player, object);
+            player.world().broadcastImmediatelyExcluded(player.entityId(), new S2CNetworkRemoveWorldObject(object.objectId()));
+        } else {
+            // nope
+            player.getConnection().sendImmediately(new S2CInteractWithObjectResponse(object.objectId(), false));
+        }
     }
 
     @Override

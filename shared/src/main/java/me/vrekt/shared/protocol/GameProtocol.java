@@ -80,6 +80,7 @@ public final class GameProtocol {
         server.put(S2CNetworkRemoveWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CNetworkRemoveWorldObject(buf)));
         server.put(S2CAnimateObject.PACKET_ID, (buf, handler) -> handler.handle(new S2CAnimateObject(buf)));
         server.put(S2CDestroyWorldObjectResponse.PACKET_ID, (buf, handler) -> handler.handle(new S2CDestroyWorldObjectResponse(buf)));
+        server.put(S2CInteractWithObjectResponse.PACKET_ID, (buf, handler) -> handler.handle(new S2CInteractWithObjectResponse(buf)));
     }
 
     private void initializeClientHandlers() {
@@ -93,8 +94,9 @@ public final class GameProtocol {
         client.put(C2SKeepAlive.PACKET_ID, (buf, handler) -> handler.handle(new C2SKeepAlive(buf)));
         client.put(C2SEnterInteriorWorld.ID, (buf, handler) -> handler.handle(new C2SEnterInteriorWorld(buf)));
         client.put(C2SChatMessage.PACKET_ID, (buf, handler) -> handler.handle(new C2SChatMessage(buf)));
-        client.put(C2SInteractWithObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SInteractWithObject(buf)));
+        client.put(C2SAnimateObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SAnimateObject(buf)));
         client.put(C2SDestroyWorldObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SDestroyWorldObject(buf)));
+        client.put(C2SInteractWithObject.PACKET_ID, (buf, handler) -> handler.handle(new C2SInteractWithObject(buf)));
     }
 
     /**

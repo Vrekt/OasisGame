@@ -51,6 +51,7 @@ import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.item.weapons.ItemWeapon;
 import me.vrekt.oasis.network.game.world.WorldNetworkRenderer;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.save.world.AbstractWorldSaveState;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
@@ -857,6 +858,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         // broadcast this to other players.
         if (game.isLocalMultiplayer()) {
             game.getServer().activeWorld().broadcastImmediately(new S2CNetworkSpawnWorldDrop(item, position, interaction.objectId()));
+            final ServerWorldObject object = new ServerWorldObject(game.getServer().activeWorld(), interaction);
+            game.getServer().activeWorld().addWorldObject(object);
         }
     }
 

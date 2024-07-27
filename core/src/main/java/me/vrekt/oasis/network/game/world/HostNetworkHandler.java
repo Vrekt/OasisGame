@@ -189,12 +189,12 @@ public final class HostNetworkHandler {
     }
 
     /**
-     * Handle object interaction
+     * Handle object animation from another player
      *
      * @param from   from
      * @param object object
      */
-    public void handleObjectInteraction(ServerPlayer from, ServerWorldObject object) {
+    public void handleObjectAnimation(ServerPlayer from, ServerWorldObject object) {
         final AbstractInteractableWorldObject wo = this.player.getWorldState().getWorldObjectById(object.objectId());
         if (wo instanceof BreakableObjectInteraction interaction) {
             interaction.animate(true);

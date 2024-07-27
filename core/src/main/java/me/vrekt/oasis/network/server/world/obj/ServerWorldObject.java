@@ -6,8 +6,11 @@ import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.shared.packet.client.C2SInteractWithObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
+
+import java.util.Set;
 
 /**
  * Basic wrapper for a server object.
@@ -17,6 +20,7 @@ public class ServerWorldObject {
     private final ServerWorld worldIn;
     private final int objectId;
 
+    private Set<C2SInteractWithObject.InteractionType> interactionTypes;
     private final WorldInteractionType type;
     private final Vector2 position;
 
@@ -104,15 +108,44 @@ public class ServerWorldObject {
     }
 
     /**
+     * Mark ownership of this object
+     *
+     * @param owner owner
+     */
+    public void markOwnership(ServerPlayer owner) {
+        wasInteracted = true;
+        this.interactedId = owner.entityId();
+    }
+
+    /**
      * Destroy this object
      */
-    public void destroy(ServerPlayer destroyer) {
+    public void playerDestroyed(ServerPlayer destroyer) {
         worldIn.broadcastImmediatelyExcluded(destroyer.entityId(), new S2CNetworkRemoveWorldObject(objectId));
+        worldIn.removeWorldObject(this);
+    }
+
+    /**
+     * Destroy this object
+     */
+    public void destroyed() {
+        worldIn.broadcastImmediately(new S2CNetworkRemoveWorldObject(objectId));
         worldIn.removeWorldObject(this);
     }
 
     public void update() {
 
+    }
+
+    /**
+     * Check if the provided type is a valid interaction for this object
+     * This method should be overridden for special objects
+     *
+     * @param type the type
+     * @return {@code true} if so
+     */
+    public boolean isValidInteraction(C2SInteractWithObject.InteractionType type) {
+        return true;
     }
 
 }

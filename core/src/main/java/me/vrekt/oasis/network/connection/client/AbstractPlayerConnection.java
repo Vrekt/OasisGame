@@ -2,12 +2,9 @@ package me.vrekt.oasis.network.connection.client;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
-import com.google.common.util.concurrent.Runnables;
 import io.netty.channel.Channel;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.network.connection.cb.NetworkCallback;
-import me.vrekt.oasis.network.connection.cb.NetworkResponseCallback;
 import me.vrekt.oasis.network.connection.NetworkConnection;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.shared.packet.GamePacket;
@@ -34,9 +31,9 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
     protected float lastPacketReceived;
     protected float lastPingTime;
 
-    protected final IntMap<NetworkResponseCallback<?>> callbacks = new IntMap<>();
+    protected final IntMap<NetworkCallback> callbacks = new IntMap<>();
 
-    private IntMap.Entries<NetworkResponseCallback<?>> entries;
+    private IntMap.Entries<NetworkCallback> entries;
     protected final AtomicBoolean entriesValid = new AtomicBoolean(false);
 
     public AbstractPlayerConnection(Channel channel, GameProtocol protocol, PlayerSP player) {
@@ -63,20 +60,22 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
 
         loadCallbackEntries();
         boolean wasHandled = false;
-        for (Iterator<IntMap.Entry<NetworkResponseCallback<?>>> it = entries.iterator(); it.hasNext(); ) {
-            final IntMap.Entry<NetworkResponseCallback<?>> entry = it.next();
 
-            if (entry.value.waitResponsePacketId() == packetId) {
+        final long now = System.currentTimeMillis();
+        for (Iterator<IntMap.Entry<NetworkCallback>> it = entries.iterator(); it.hasNext(); ) {
+            final IntMap.Entry<NetworkCallback> entry = it.next();
+            if (entry.value.responseId == packetId) {
                 entry.value.run(packet);
+                entry.value.free();
                 it.remove();
 
                 wasHandled = true;
                 break;
-            } else if (entry.value.isTimedOut()) {
-                entry.value.timeOut();
+            } else if (entry.value.isTimedOut(now)) {
+                entry.value.timeout();
+                entry.value.free();
                 it.remove();
             }
-
         }
 
         if (wasHandled) return;
@@ -100,57 +99,18 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
         }
     }
 
-    /**
-     * Send a packet immediately but wait for a response
-     *
-     * @param packet         packet
-     * @param callback       callback
-     * @param timeoutHandler timeout handler
-     * @param timeout        timeout duration
-     * @param <T>            type
-     */
-    public <T extends GamePacket> void sendImmediatelyWithCallback(GamePacket packet,
-                                                                   long timeout,
-                                                                   boolean synchronize,
-                                                                   Runnable timeoutHandler,
-                                                                   NetworkCallback<T> callback) {
-        final int callbackId = ThreadLocalRandom.current().nextInt(1024, 9999) + callbacks.size + 1;
-        sendImmediately(packet);
-
-        callbacks.put(callbackId,
-                new NetworkResponseCallback<>(callback,
-                        timeoutHandler,
-                        packet.response(),
-                        timeout,
-                        synchronize,
-                        System.currentTimeMillis()));
-
-        entriesValid.set(false);
-    }
 
     /**
-     * Send a packet immediately but wait for a response
+     * Send a packet immediately and wait for a response
      *
-     * @param packet   packet
-     * @param callback callback
-     * @param timeout  timeout duration
-     * @param <T>      type
+     * @param callback the callback handler
      */
-    public <T extends GamePacket> void sendImmediatelyWithCallback(GamePacket packet,
-                                                                   long timeout,
-                                                                   boolean synchronize,
-                                                                   NetworkCallback<T> callback) {
+    public void sendImmediatelyWithCallback(NetworkCallback callback) {
         final int callbackId = ThreadLocalRandom.current().nextInt(1024, 9999) + callbacks.size + 1;
-        sendImmediately(packet);
+        sendImmediately(callback.of);
 
-        callbacks.put(callbackId,
-                new NetworkResponseCallback<>(callback,
-                        Runnables.doNothing(),
-                        packet.response(),
-                        timeout,
-                        synchronize,
-                        System.currentTimeMillis()));
-
+        callback.timeCreated = System.currentTimeMillis();
+        callbacks.put(callbackId, callback);
 
         entriesValid.set(false);
     }

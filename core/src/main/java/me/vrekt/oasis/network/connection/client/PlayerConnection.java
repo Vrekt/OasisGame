@@ -166,9 +166,14 @@ public class PlayerConnection extends AbstractPlayerConnection {
      */
     public void joinWorld(int worldId, String username) {
         final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(worldId, username, 0L);
-        sendImmediatelyWithCallback(packet, 5000, true, this::joinWorldTimedOut, callback -> {
-            handleJoinWorld((S2CPacketJoinWorld) callback);
-        });
+        NetworkCallback.immediate(packet)
+                .waitFor(S2CPacketJoinWorld.PACKET_ID)
+                .timeoutAfter(5000)
+                .ifTimedOut(this::joinWorldTimedOut)
+                .sync()
+                .accept(callback -> {
+                    handleJoinWorld((S2CPacketJoinWorld) callback);
+                }).send();
     }
 
     /**

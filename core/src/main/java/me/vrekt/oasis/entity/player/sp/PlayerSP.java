@@ -503,7 +503,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     public void equipItem(ItemWeapon item) {
         this.equippedItem = item;
-        if (game.isAnyMultiplayer()) connection.updateItemEquipped(item);
     }
 
     public boolean canEquipItem() {

@@ -6,6 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.GuiManager;
+import me.vrekt.oasis.network.IntegratedGameServer;
+import me.vrekt.oasis.network.connection.client.NetworkCallback;
+import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.save.Loadable;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
@@ -14,7 +17,7 @@ import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.C2SDestroyWorldObject;
-import me.vrekt.shared.packet.client.C2SInteractWithObject;
+import me.vrekt.shared.packet.client.C2SAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
@@ -226,7 +229,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         if (world.getGame().isLocalMultiplayer()) {
             world.getGame().getServer().activeWorld().broadcastImmediately(new S2CAnimateObject(objectId));
         } else if (world.getGame().isMultiplayer()) {
-            world.player().getConnection().sendImmediately(new C2SInteractWithObject(objectId));
+            world.player().getConnection().sendImmediately(new C2SAnimateObject(objectId));
         }
     }
 
@@ -242,22 +245,54 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
             // wait for a response, go ahead and destroy this object
             // but if the server tells us no, then take it back!
-            world.player().getConnection().sendImmediatelyWithCallback(packet, 2000, true, callback -> {
-                final S2CDestroyWorldObjectResponse authority = (S2CDestroyWorldObjectResponse) callback;
-                if (!authority.valid()) {
-                    // rollback
-                    world.reinstateWorldObject(this);
-                } else {
-                    // destroy.
-                    world.removeInteraction(this);
-                }
 
-                GameLogging.info(this, "Authority result was %b", authority.valid());
-            });
+            NetworkCallback.immediate(packet)
+                    .waitFor(S2CDestroyWorldObjectResponse.PACKET_ID)
+                    .timeoutAfter(2000)
+                    .ifTimedOut(() -> GameLogging.warn(this, "S2CDestroy timed out "/* unlikely */))
+                    .sync()
+                    .accept(callback -> {
+                        final S2CDestroyWorldObjectResponse authority = (S2CDestroyWorldObjectResponse) callback;
+                        if (!authority.valid()) {
+                            // rollback
+                            world.reinstateWorldObject(this);
+                        } else {
+                            // destroy.
+                            world.removeInteraction(this);
+                        }
+                    }).send();
 
             // don't destroy in-case response is no.
             world.invalidateWorldObject(this);
         }
+    }
+
+    /**
+     * @return {@code true} if this player is a host of the server
+     */
+    protected boolean isNetworkHost() {
+        return GameManager.game().isLocalMultiplayer();
+    }
+
+    /**
+     * @return {@code true} if this player is a player in a mp server
+     */
+    protected boolean isNetworkPlayer() {
+        return GameManager.game().isMultiplayer();
+    }
+
+    /**
+     * @return active network world
+     */
+    protected ServerWorld activeNetworkWorld() {
+        return GameManager.game().getServer().activeWorld();
+    }
+
+    /**
+     * @return the server
+     */
+    protected IntegratedGameServer server() {
+        return GameManager.game().getServer();
     }
 
     protected void createNetworkItem() {

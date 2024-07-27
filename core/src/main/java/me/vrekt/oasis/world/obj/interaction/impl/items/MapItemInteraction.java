@@ -15,6 +15,8 @@ import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.oasis.network.connection.client.NetworkCallback;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.save.inventory.ItemSave;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.Pooling;
@@ -23,6 +25,8 @@ import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.shared.packet.client.C2SInteractWithObject;
+import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
 
 /**
  * An interaction that is an item that can be picked up
@@ -113,6 +117,42 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
 
     @Override
     public void interact() {
+        if (isNetworkPlayer()) {
+            // tell the server we interacted
+            final C2SInteractWithObject packet = new C2SInteractWithObject(objectId, C2SInteractWithObject.InteractionType.PICK_UP);
+
+            NetworkCallback.immediate(packet)
+                    .waitFor(S2CInteractWithObjectResponse.PACKET_ID)
+                    .timeoutAfter(2000)
+                    .ifTimedOut(() -> world.removeInteraction(this))
+                    .sync()
+                    .accept(incoming -> {
+                        final S2CInteractWithObjectResponse response = (S2CInteractWithObjectResponse) incoming;
+                        if (response.objectId() == objectId && response.valid()) {
+                            take();
+                        }
+                    })
+                    .send();
+        } else if (isNetworkHost()) {
+            // make sure the object exists
+            final ServerWorldObject serverWorldObject = activeNetworkWorld().getWorldObject(objectId);
+            if (serverWorldObject != null && !wasInteractedWith) {
+                // we can take this item ourselves.
+                // May cause issues, two players can probably take at the same time
+                // good enough for now.
+                serverWorldObject.destroyed();
+                take();
+            }
+        } else {
+            // single player game, take.
+            take();
+        }
+    }
+
+    /**
+     * Take the item
+     */
+    private void take() {
         item.addToPlayer(world.player());
         Pooling.freeHint(effect);
         effect = null;
