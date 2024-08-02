@@ -85,12 +85,12 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
             if (breakingAnimation.isAnimationFinished(animationTime)) {
                 isBreaking = false;
 
-                // do not remove this since we didn't execute this action
+                // if we ourselves executed this action, go ahead.
                 if (!networkAnimation) {
                     world.removeInteraction(this);
                     broadcastDestroyed();
                 } else {
-                    // hide since the animation is finished, on our side anyway.
+                    // we didn't so, hide since the animation is finished, on our side anyway.
                     this.hide();
                 }
             }
@@ -112,7 +112,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
 
         // the server will decide this.
         // if we are the local client, we can decide, which is probably dangerous.
-        if (!world.getGame().isMultiplayer()) {
+        if (!isNetworkPlayer()) {
             final boolean isUnlucky = MathUtils.randomBoolean(UNLUCKY_CHANCE);
             if (isUnlucky) {
                 // no item for you, still play the animation

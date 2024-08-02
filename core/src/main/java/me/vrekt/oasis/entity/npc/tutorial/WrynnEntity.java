@@ -19,7 +19,7 @@ import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
 /**
@@ -69,7 +69,7 @@ public final class WrynnEntity extends EntityInteractable {
                 .add(animationComponent);
         builder.dispose();
 
-        this.dialogue = EntityDialogueLoader.loadSync("assets/dialog_wrynn_dialog.json");
+        this.dialogue = EntityDialogueLoader.loadSync("assets/dialog/wrynn_dialog.json");
         this.dialogue.setOwner(this);
         loadDialog();
 

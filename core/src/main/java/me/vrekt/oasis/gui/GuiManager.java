@@ -70,7 +70,7 @@ public final class GuiManager implements Disposable {
     private final MagicBookGui bookGui;
 
     private Cursor cursorState;
-    private boolean wasCursorChanged;
+    private boolean drawDebug;
 
     private final GlyphLayout layout;
     private final Vector3 worldPosition = new Vector3();
@@ -87,6 +87,7 @@ public final class GuiManager implements Disposable {
         viewport.setScaling(Scaling.contain);
 
         stage = new Stage(viewport);
+        stage.setDebugAll(true);
         stack = new Stack();
 
         stack.setFillParent(true);
@@ -212,6 +213,13 @@ public final class GuiManager implements Disposable {
     }
 
     /**
+     * Will draw debug elements on every actor
+     */
+    public void toggleDrawDebug() {
+        this.drawDebug = !drawDebug;
+    }
+
+    /**
      * Set the cursor to something different
      *
      * @param cursor the cursor to use
@@ -224,8 +232,6 @@ public final class GuiManager implements Disposable {
 
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
-
-        wasCursorChanged = true;
     }
 
     /**
@@ -245,10 +251,12 @@ public final class GuiManager implements Disposable {
         }
 
         this.cursorState = Cursor.DEFAULT;
-        wasCursorChanged = false;
     }
 
-    public void updateAndDrawStage() {
+    /**
+     * Update all GUIs and render the stage.
+     */
+    public void updateAndRender() {
         stage.getViewport().apply();
         stage.act(Gdx.graphics.getDeltaTime());
 
@@ -268,11 +276,15 @@ public final class GuiManager implements Disposable {
         }
 
         stage.getViewport().getCamera().update();
-        stage.getBatch().setProjectionMatrix(stage.getCamera().combined);
-        stage.getBatch().begin();
-        stage.getRoot().draw(stage.getBatch(), 1);
-        for (Gui gui : guis.values()) if (gui.isGuiVisible()) gui.draw(stage.getBatch());
-        stage.getBatch().end();
+        if (drawDebug) {
+            stage.draw();
+        } else {
+            stage.getBatch().setProjectionMatrix(stage.getCamera().combined);
+            stage.getBatch().begin();
+            stage.getRoot().draw(stage.getBatch(), 1);
+            for (Gui gui : guis.values()) if (gui.isGuiVisible()) gui.draw(stage.getBatch());
+            stage.getBatch().end();
+        }
 
     }
 
@@ -283,8 +295,7 @@ public final class GuiManager implements Disposable {
      * @param height height
      */
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-
+        stage.getViewport().update(width, height, false);
         guis.values().forEach(gui -> gui.resize(width, height));
     }
 

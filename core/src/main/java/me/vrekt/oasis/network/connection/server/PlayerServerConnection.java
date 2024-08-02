@@ -40,8 +40,6 @@ public final class PlayerServerConnection extends NetworkConnection {
         this.isConnected = true;
 
         attachAll();
-
-        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> e.printStackTrace());
     }
 
     /**
@@ -292,7 +290,7 @@ public final class PlayerServerConnection extends NetworkConnection {
         if (ifAny != null) ServerLogging.exceptionThrown(this, "Connection closed with exception", ifAny);
         if (isValid()) {
             if (!disconnected)
-                server.disconnectPlayer(player, ifAny == null ? "Channel unregistered" : ifAny.getLocalizedMessage());
+                server.disconnectPlayer(player, ifAny == null ? null : ifAny.getLocalizedMessage());
         } else {
             if (!disconnected) disconnect();
         }

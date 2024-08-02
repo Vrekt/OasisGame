@@ -37,7 +37,7 @@ import me.vrekt.oasis.utility.Pooling;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.GlobalExceptionHandler;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.management.WorldManager;
 import me.vrekt.oasis.world.tutorial.MyceliaWorld;
 import me.vrekt.oasis.world.tutorial.NewGameWorld;
@@ -52,7 +52,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240727-1419-7854";
+    public static final String GAME_VERSION = "20240801-2042-8052";
 
     private Asset asset;
 
@@ -139,7 +139,7 @@ public final class OasisGame extends Game {
         player.load(asset);
 
         guiManager = new GuiManager(this, asset, multiplexer);
-
+        guiManager.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch = new SpriteBatch();
         worldManager = new WorldManager();
 
@@ -194,7 +194,8 @@ public final class OasisGame extends Game {
 
         final GameWorld toEnter = loadActiveWorld(worldSave);
         loadAllOtherWorlds(worldSave, toEnter);
-        toEnter.enter();
+
+        toEnter.enterWorld();
     }
 
     /**
@@ -219,13 +220,10 @@ public final class OasisGame extends Game {
             interiorIn.loadWorldTiledMap(true);
             // loads the save data for the interior
             interiorIn.loader().load(save.world(), SaveManager.LOAD_GAME_GSON);
-            // done, resume normal stuff.
-            interiorIn.setGameSave(false);
             return interiorIn;
         } else {
             // otherwise, just load the world.
             world.loader().load(save.world(), SaveManager.LOAD_GAME_GSON);
-            world.setGameSave(false);
             return world;
         }
     }
@@ -236,7 +234,7 @@ public final class OasisGame extends Game {
      * @param pws     save data
      * @param toEnter the world to enter, will be excluded.
      */
-    private void loadAllOtherWorlds(PlayerWorldSave pws, GameWorld toEnter) {
+    private void loadAllOtherWorlds(PlayerWorldSave pws, final GameWorld toEnter) {
         // list of excluded world IDs that should not be loaded
         final Bag<Integer> excluded = new Bag<>();
         if (toEnter.isInterior()) {
@@ -265,7 +263,6 @@ public final class OasisGame extends Game {
                 parent.loadWorldTiledMap(true);
                 parent.loader().load(pws.worlds().get(parentWorldId), SaveManager.LOAD_GAME_GSON);
                 // May cause issues, since we are not immediately entering this world.
-                parent.setGameSave(false);
 
                 final InteriorWorldSave asInterior = (InteriorWorldSave) entry.getValue();
 
@@ -276,14 +273,12 @@ public final class OasisGame extends Game {
                 // load all data of the interior
                 interiorIn.loadWorldTiledMap(true);
                 interiorIn.loader().load(asInterior, SaveManager.LOAD_GAME_GSON);
-                interiorIn.setGameSave(false);
             } else {
                 GameLogging.info(this, "Loading regular world %d", worldId);
                 // load normal world
                 final GameWorld world = worldManager.getWorld(worldId);
                 world.loadWorldTiledMap(true);
                 world.loader().load(entry.getValue(), SaveManager.LOAD_GAME_GSON);
-                world.setGameSave(false);
             }
         }
 
@@ -301,7 +296,7 @@ public final class OasisGame extends Game {
         loadingScreen.setWorldLoadingIn(world);
 
         world.loadWorldTiledMap(false);
-        world.enter();
+        world.enterWorld();
 
         scheduleAutoSave(OasisGameSettings.AUTO_SAVE_INTERVAL_MINUTES * 60);
     }
@@ -471,7 +466,7 @@ public final class OasisGame extends Game {
      */
     public void loadIntoWorldNetwork(GameWorld world) {
         world.loadNetworkWorld();
-        world.enter();
+        world.enterWorld();
     }
 
 
@@ -607,7 +602,7 @@ public final class OasisGame extends Game {
             }
             if (screen != null) screen.hide();
             logoTexture.dispose();
-            player.getConnection().dispose();
+            if (player != null && player.getConnection() != null) player.getConnection().dispose();
             if (isMultiplayer) clientServer.dispose();
             virtualAsyncService.shutdownNow();
             player.dispose();

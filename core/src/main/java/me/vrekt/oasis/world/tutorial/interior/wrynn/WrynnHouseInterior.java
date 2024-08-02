@@ -5,7 +5,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.container.WrynnOfficeContainerInteraction;
@@ -32,8 +32,8 @@ public final class WrynnHouseInterior extends GameWorldInterior {
     }
 
     @Override
-    public void enter() {
-        super.enter();
+    public void enterWorld() {
+        super.enterWorld();
 
         player.getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);
         guiManager.getHintComponent().clearHints();

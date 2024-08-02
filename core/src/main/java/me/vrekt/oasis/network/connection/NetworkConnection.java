@@ -5,14 +5,16 @@ import com.badlogic.gdx.utils.IntMap;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.util.internal.PlatformDependent;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.network.PacketHandler;
+import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.shared.packet.GamePacket;
 
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
@@ -24,8 +26,8 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
 
     protected final HandlerAttachment notFound;
 
-    protected final ConcurrentLinkedQueue<GamePacketAttachment> handlingQueue = new ConcurrentLinkedQueue<>();
-    protected final ConcurrentLinkedQueue<GamePacket> sendQueue = new ConcurrentLinkedQueue<>();
+    protected final Queue<GamePacketAttachment> handlingQueue = PlatformDependent.newMpscQueue();
+    protected final Queue<GamePacket> sendQueue = PlatformDependent.newSpscQueue();
     protected final IntMap<HandlerAttachment> handlers = new IntMap<>();
 
     protected final Channel channel;
@@ -106,14 +108,11 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
      * Otherwise it will be handled immediately.
      */
     public void updateHandlingQueue() {
-        if (!handlingQueue.isEmpty()) {
-            for (Iterator<GamePacketAttachment> it = handlingQueue.iterator(); it.hasNext(); ) {
-                final GamePacketAttachment result = it.next();
-                result.handler.accept(result.packet);
+        GamePacketAttachment attachment;
+        while ((attachment = handlingQueue.poll()) != null) {
+            attachment.handler.accept(attachment.packet);
 
-                it.remove();
-                GamePacketAttachment.POOL.free(result);
-            }
+            attachment.free();
         }
     }
 
@@ -123,7 +122,8 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
     public void flush() {
         if (sendQueue.isEmpty()) return;
 
-        for (GamePacket packet = sendQueue.poll(); packet != null; packet = sendQueue.poll()) {
+        GamePacket packet;
+        while ((packet = sendQueue.poll()) != null) {
             channel.write(packet);
         }
 
@@ -161,6 +161,8 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
      */
     public void sendToQueue(GamePacket packet) {
         Preconditions.checkNotNull(packet);
+        if (!NetworkValidation.ensureMainThread())
+            throw new UnsupportedOperationException("No main thread @ send queue.");
 
         packet.alloc(alloc());
         sendQueue.add(packet);
@@ -172,14 +174,15 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
      * @param packet the packet
      */
     public void sendImmediately(GamePacket packet) {
-        try {
-            Preconditions.checkNotNull(packet);
+        Preconditions.checkNotNull(packet);
 
-            packet.alloc(alloc());
-            channel.writeAndFlush(packet);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        final long now = System.nanoTime();
+
+        packet.alloc(alloc());
+        channel.writeAndFlush(packet).addListener((ChannelFutureListener) future -> {
+            final long a = System.nanoTime() - now;
+            System.err.println(a);
+        });
     }
 
     /**
@@ -230,7 +233,7 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
                 handler.accept(packet);
                 return;
             } else if (!isClient && !isServerPlayerReady) {
-                // if we are a server player and we are not in a world yet, continue.
+                // if we are a server player, and we are not in a world yet, continue.
                 handler.accept(packet);
                 return;
             }

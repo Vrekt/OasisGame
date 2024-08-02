@@ -58,7 +58,6 @@ import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
@@ -317,20 +316,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             generateLootGroves(worldMap, game.getAsset(), worldScale);
         }
 
-        updateRendererMap();
         game.getMultiplexer().addProcessor(this);
 
         addDefaultWorldSystems();
         world.setContactListener(new BasicEntityCollisionHandler());
 
-        if (isGameSave) {
-            player.createCircleBody(world, flipPlayerCollision);
-        } else {
-            player.createCircleBody(world, flipPlayerCollision);
-            player.setPosition(worldOrigin);
-        }
-
-        player.updateWorldState(this);
         finalizeWorld();
         isWorldLoaded = true;
     }
@@ -346,9 +336,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Update the tiled map renderer
+     * Update the tiled renderer to this worlds map.
      */
-    public void updateRendererMap() {
+    protected void updateRendererMap() {
         renderer.setTiledMap(map, worldOrigin.x, worldOrigin.y);
     }
 
@@ -357,24 +347,39 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      *
      * @param interior the interior
      */
-    public void enterInterior(GameWorldInterior interior) {
+    protected void enterInterior(GameWorldInterior interior) {
         if (game.isMultiplayer()) player.getConnection().updateNetworkInteriorWorldEntered(interior);
         GameManager.getWorldManager().transferIn(player, this, interior);
     }
 
     /**
-     * Enter this world
+     * Enter this world or interior
      */
-    public void enter() {
-        if (!isWorldLoaded) {
-            throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
+    public void enterWorld() {
+        if (!isWorldLoaded) throw new UnsupportedOperationException("World is not loaded.");
+        updateEnteringWorldState();
+    }
+
+    /**
+     * Update the player state + world state
+     */
+    protected void updateEnteringWorldState() {
+        player.updateWorldState(this);
+        updateRendererMap();
+
+        if (player.getTransformComponent().position.isZero()) {
+            player.getTransformComponent().position.set(worldOrigin);
         }
 
-        this.hasVisited = true;
+        player.createCircleBody(world, flipPlayerCollision);
+        // cached position of whatever it should be
+        player.setPosition(player.getTransformComponent().position);
 
-        guiManager.resetCursor();
         game.setScreen(this);
         game.setGameReady(true);
+        game.getMultiplexer().addProcessor(this);
+
+        guiManager.resetCursor();
     }
 
     public void exit() {
@@ -1364,7 +1369,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         batch.end();
 
         updateMouseListeners();
-        guiManager.updateAndDrawStage();
+        guiManager.updateAndRender();
 
         if (OasisGameSettings.DRAW_DEBUG) boxRenderer.render(world, renderer.getCamera().combined);
     }

@@ -19,7 +19,6 @@ import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
 import me.vrekt.oasis.world.obj.DestroyedObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;

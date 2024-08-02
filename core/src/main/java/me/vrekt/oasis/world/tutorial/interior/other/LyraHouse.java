@@ -6,7 +6,7 @@ import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
@@ -23,12 +23,15 @@ public final class LyraHouse extends GameWorldInterior {
     }
 
     @Override
-    public void enter() {
-        super.enter();
+    public void enterWorld() {
+        super.enterWorld();
 
+        // after we enter, bring lyra into this house to confront the player
         if (findEntity(EntityType.LYRA) == null) {
-            // after we enter, bring lyra into this house to confront the player
-            GameManager.executeTaskLater(() -> parentWorld.findInteractableEntity(EntityType.LYRA).transfer(this), 2);
+            GameManager.getTaskManager().schedule(() -> {
+                parentWorld.findInteractableEntity(EntityType.LYRA)
+                        .transfer(this);
+            }, 2);
         }
     }
 

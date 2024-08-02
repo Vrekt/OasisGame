@@ -35,6 +35,10 @@ public final class GamePacketAttachment implements Pool.Poolable {
         this.packet = packet;
     }
 
+    void free() {
+        POOL.free(this);
+    }
+
     @Override
     public void reset() {
         this.handler = null;

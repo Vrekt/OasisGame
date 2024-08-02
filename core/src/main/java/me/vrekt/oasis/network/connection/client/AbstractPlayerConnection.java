@@ -6,7 +6,6 @@ import io.netty.channel.Channel;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.connection.NetworkConnection;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.C2SPacketClientLoaded;
 import me.vrekt.shared.packet.client.C2SPacketDisconnected;
@@ -31,9 +30,14 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
     protected float lastPacketReceived;
     protected float lastPingTime;
 
+    // TODO: Perhaps in the future concurrent set + have a specific packet
+    // TODO:  That is a network callback with a special ID
+    // TODO: So we could just lookup instead of looping whole table
+    // TODO: Currently, it is not worth it since executing only takes a few milliseconds
+    // TODO: plus, the map is never big
     protected final IntMap<NetworkCallback> callbacks = new IntMap<>();
-
     private IntMap.Entries<NetworkCallback> entries;
+
     protected final AtomicBoolean entriesValid = new AtomicBoolean(false);
 
     public AbstractPlayerConnection(Channel channel, GameProtocol protocol, PlayerSP player) {
@@ -80,11 +84,8 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
 
         if (wasHandled) return;
 
-        if (handlers.containsKey(packetId)) {
-            handlers.get(packetId, notFound).handle(packet);
-        } else {
-            GameLogging.warn(this, "No registered handler for %d", packetId);
-        }
+        // post this packet to the handling queue.
+        handlers.get(packetId, notFound).handle(packet);
     }
 
     /**
@@ -170,6 +171,7 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
         if (GameManager.hasTimeElapsed(lastUpdate, 0.55f)) {
             virtual().execute(this::flush);
             lastUpdate = GameManager.getTick();
+
         }
 
         // update network ping

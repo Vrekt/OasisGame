@@ -18,7 +18,7 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.oasis.utility.collision.CollisionType;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 
 /**
  * Misc entity seen wandering around the tutorial world.

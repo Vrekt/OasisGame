@@ -67,10 +67,13 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         initializeRarityIcons();
 
+        final TextureRegionDrawable background = new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "inventory", 2));
+
+        rootTable.setBackground(background);
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
+        rootTable.setTransform(true);
 
-        rootTable.setBackground(new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "inventory", 2)));
         final VisTable left = new VisTable(true);
         final VisTable right = new VisTable(true);
 
@@ -166,6 +169,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         // Add split pane for left and right tables
         final VisSplitPane pane = new VisSplitPane(left, right, false);
+
         // only allow elements to be touched, since split pane
         // is programming choice for easier UI, the split pane should not be used
         pane.setTouchable(Touchable.enabled);

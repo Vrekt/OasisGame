@@ -1,13 +1,10 @@
 package me.vrekt.oasis.gui.guis.other;
 
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import com.kotcrab.vis.ui.widget.VisImage;
-import com.kotcrab.vis.ui.widget.VisSplitPane;
-import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -18,44 +15,79 @@ public final class ShopGui extends Gui {
     public ShopGui(GuiManager guiManager) {
         super(GuiType.SHOP, guiManager);
 
-        rootTable.setFillParent(true);
+        rootTable.top().left();
         rootTable.setVisible(false);
-        rootTable.setBackground(drawable("shop_ui"));
+        rootTable.setFillParent(true);
+        rootTable.setBackground(drawable("shop_gui"));
 
-        final VisTable left = new VisTable(true);
-        final VisTable right = new VisTable(true);
-        right.top().padTop(36).padLeft(36).left();
-        left.top().padTop(52).padLeft(24).left();
+        final VisImage tab = new VisImage(drawable("enchanted_fern_brew_item"));
+        tab.setScale(2.0f, 2.0f);
 
-        createArtifactContainer(Styles.getTheme(), left);
-        createArtifactContainer(Styles.getTheme(), left);
-        createArtifactContainer(Styles.getTheme(), left);
 
-        // Add split pane for left and right tables
-        final VisSplitPane pane = new VisSplitPane(left, right, false);
-        // only allow elements to be touched, since split pane
-        // is programming choice for easier UI, the split pane should not be used
-        pane.setTouchable(Touchable.enabled);
-        rootTable.add(pane).fill().expand();
+        final VisTable table = new VisTable();
+        table.top().left();
+        table.left().padLeft(22).padTop(8);
+
+        final String[] images = new String[6];
+        images[0] = "silver_spore_item";
+        images[1] = "staff_of_obsidian_item";
+        images[2] = "staff_of_earth_item";
+        images[3] = "pig_heart";
+        images[4] = "twilight_brew_item";
+        images[5] = "witch_hat_item";
+
+        final NinePatch patch = new NinePatch(asset("theme_transparent"), 6, 6, 6, 6);
+        final NinePatchDrawable d = new NinePatchDrawable(patch);
+
+        final VisTable content = new VisTable();
+        final VisLabel label = new VisLabel("Enchanted Fern Brew", Styles.getMediumWhiteMipMapped());
+        label.setColor(new Color(201 / 255f, 226 / 255f, 158 / 255f, 1.0f));
+        content.add(label).left();
+        content.row();
+        content.add(new VisLabel("An enchanted potion with earthly powers.", Styles.getSmallWhite())).left();
+        content.row();
+
+        final VisTable bb = new VisTable();
+
+        final VisImageTextButton button = new VisImageTextButton("Buy x1", Styles.getImageTextButtonStyle());
+        final VisImageTextButton button2 = new VisImageTextButton("Buy All", Styles.getImageTextButtonStyle());
+        bb.add(button).left().padRight(4);
+        bb.add(button2).left();
+        content.add(bb);
+
+
+        for (int i = 0; i < 6; i++) {
+            // adapter from InventoryGui class
+            final VisImage slot = new VisImage(d);
+            final VisImage item = new VisImage(drawable(images[i]));
+            item.setOrigin(16 / 2f, 16 / 2f);
+
+            final VisTable itemTable = new VisTable(false);
+            itemTable.add(item).size(32, 32);
+
+            final Stack overlay = new Stack(slot, itemTable);
+
+            slot.setColor(Color.WHITE);
+            if (i == 3) {
+                table.row().padTop(4);
+            }
+
+            final Tooltip tooltip = new Tooltip.Builder(content).style(Styles.getTooltipStyle()).target(overlay).build();
+
+            table.add(overlay).size(48, 48).padLeft(2);
+        }
+
+        final VisTable top = new VisTable();
+        top.top().left().padLeft(52).padTop(30);
+        top.add(tab).left();
+
+        final VisTable bottom = new VisTable();
+
+        rootTable.add(top).left();
+        rootTable.row();
+        rootTable.add(table);
 
         guiManager.addGui(rootTable);
-    }
-
-    /**
-     * Create separate containers for each artifact slot
-     *
-     * @param theme  the theme
-     * @param parent the parent owner
-     */
-    private void createArtifactContainer(NinePatchDrawable theme, VisTable parent) {
-        final VisImage background = new VisImage(theme);
-        final VisTable table = new VisTable(true);
-        final VisImage icon = new VisImage(asset("shop_potion_category"));
-        table.add(icon).size(32, 32);
-
-        final Stack stack = new Stack(background, new Container<Table>(table));
-        parent.add(stack).size(48, 48);
-        parent.row();
     }
 
 }

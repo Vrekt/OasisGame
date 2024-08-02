@@ -2,7 +2,7 @@
   "name": "abc",
   "slot": 1,
   "progress": 0.0,
-  "date": "21-07-24 20:46 PM",
+  "date": "01-08-24 17:48 PM",
   "multiplayer": false,
   "settings": {
     "entity_update_distance": 100.0,
@@ -21,13 +21,19 @@
   "player": {
     "name": "Player54",
     "position": {
-      "x": 11.286501,
-      "y": 10.84371
+      "x": 23.968838,
+      "y": 19.343536
     },
     "inventory": {
       "type": "PLAYER",
       "size": 18,
       "contents": [
+        {
+          "slot": 0,
+          "name": "Lockpick",
+          "type": "LOCK_PICK",
+          "amount": 1
+        },
         {
           "slot": 5,
           "name": "Verdant Fungus",
@@ -79,68 +85,245 @@
       ]
     },
     "all_worlds_and_state": {
-      "world_in_id": 4,
-      "parent_world_id": 0,
-      "is_in_interior": true,
-      "interior_type": "HOUSE2",
+      "world_in_id": 1,
+      "parent_world_id": -1,
+      "is_in_interior": false,
       "current_world_in": {
-        "type": "HOUSE2",
-        "enterable": true,
-        "entered_position": {
-          "x": 12.494488,
-          "y": 30.585049
-        },
-        "is_locked": false,
-        "lock_difficulty": "EASY",
-        "map": "world/interiors/House2.tmx",
-        "worldId": 4,
-        "interior": true,
+        "map": "world/worlds/MyceliaWorld.tmx",
+        "worldId": 1,
+        "interior": false,
         "parentWorld": -1,
-        "entities": [
+        "entities": [],
+        "deadEntities": [],
+        "interiors": [
           {
-            "type": "LYRA",
-            "name": "Lyra",
-            "key": "oasis:lyra",
-            "entityId": 1,
-            "position": {
-              "x": 13.284884,
-              "y": 6.7446504
+            "type": "MYCELIA_SHOP",
+            "enterable": true,
+            "entered_position": {
+              "x": 23.968838,
+              "y": 20.473764
             },
-            "size": {
-              "x": 12.0,
-              "y": 29.0,
-              "z": 0.0625
-            },
-            "health": 100.0,
-            "rotation": "UP",
-            "move_speed": 0.0,
-            "entity_data": {
-              "dialogue_entry_key": "lyra:dialog2_stage_1",
-              "dialogue_stage_index": 2
-            }
+            "is_locked": false,
+            "map": "world/interiors/MyceliaShop.tmx",
+            "worldId": 5,
+            "interior": true,
+            "parentWorld": -1,
+            "entities": [
+              {
+                "type": "MIRA",
+                "name": "Mira",
+                "key": "oasis:mira",
+                "entityId": 1,
+                "position": {
+                  "x": 9.515625,
+                  "y": 12.890625
+                },
+                "size": {
+                  "x": 24.0,
+                  "y": 32.0,
+                  "z": 0.0625
+                },
+                "health": 100.0,
+                "rotation": "DOWN",
+                "move_speed": 0.0,
+                "entity_data": {
+                  "dialogue_entry_key": "mira:dialog_stage_0",
+                  "dialogue_stage_index": 1
+                }
+              }
+            ],
+            "deadEntities": [],
+            "objects": [
+              {
+                "key": "oasis:crimson_cap",
+                "interactable": true,
+                "enabled": true,
+                "interaction_type": "MAP_ITEM",
+                "position": {
+                  "x": 8.25,
+                  "y": 10.25
+                },
+                "object_data": {
+                  "dropped_item": {
+                    "slot": 0,
+                    "name": "Crimson Cap",
+                    "type": "CRIMSON_CAP",
+                    "amount": 1
+                  }
+                }
+              },
+              {
+                "key": "oasis:crimson_cap",
+                "interactable": true,
+                "enabled": true,
+                "interaction_type": "MAP_ITEM",
+                "position": {
+                  "x": 8.25,
+                  "y": 8.25
+                },
+                "object_data": {
+                  "dropped_item": {
+                    "slot": 0,
+                    "name": "Crimson Cap",
+                    "type": "CRIMSON_CAP",
+                    "amount": 1
+                  }
+                }
+              },
+              {
+                "key": "oasis:verdant_fungus",
+                "interactable": true,
+                "enabled": true,
+                "interaction_type": "MAP_ITEM",
+                "position": {
+                  "x": 14.8,
+                  "y": 8.8
+                },
+                "object_data": {
+                  "dropped_item": {
+                    "slot": 0,
+                    "name": "Verdant Fungus",
+                    "type": "VERDANT_FUNGUS",
+                    "amount": 1
+                  }
+                }
+              },
+              {
+                "key": "oasis:arcana_codex",
+                "interactable": true,
+                "enabled": true,
+                "interaction_type": "MAP_ITEM",
+                "position": {
+                  "x": 8.25,
+                  "y": 9.25
+                },
+                "object_data": {
+                  "dropped_item": {
+                    "slot": 0,
+                    "name": "Arcana\u0027s Codex",
+                    "type": "ARCANA_CODEX",
+                    "amount": 2
+                  }
+                }
+              }
+            ],
+            "destroyedObjects": [
+              {
+                "type": "BREAKABLE_OBJECT",
+                "position": {
+                  "x": 15.0,
+                  "y": 9.0
+                }
+              },
+              {
+                "type": "BREAKABLE_OBJECT",
+                "position": {
+                  "x": 15.0,
+                  "y": 10.0
+                }
+              },
+              {
+                "type": "BREAKABLE_OBJECT",
+                "position": {
+                  "x": 8.0,
+                  "y": 9.0
+                }
+              },
+              {
+                "type": "BREAKABLE_OBJECT",
+                "position": {
+                  "x": 8.0,
+                  "y": 8.0
+                }
+              },
+              {
+                "type": "BREAKABLE_OBJECT",
+                "position": {
+                  "x": 8.0,
+                  "y": 10.0
+                }
+              }
+            ]
           }
         ],
-        "deadEntities": [],
         "objects": [
           {
             "interactable": true,
             "enabled": true,
-            "interaction_type": "MAP_ITEM",
+            "interaction_type": "CONTAINER",
             "position": {
-              "x": 5.5,
-              "y": 11.5
+              "x": 14.0,
+              "y": 7.0
             },
             "object_data": {
-              "dropped_item": {
-                "slot": 0,
-                "name": "Arcana\u0027s Codex",
-                "type": "ARCANA_CODEX",
-                "amount": 1
-              }
+              "container_inventory": {
+                "type": "CONTAINER",
+                "size": 16,
+                "contents": [
+                  {
+                    "slot": 0,
+                    "name": "Lockpick",
+                    "type": "LOCK_PICK",
+                    "amount": 1
+                  }
+                ]
+              },
+              "active_texture": "barrel"
+            }
+          },
+          {
+            "interactable": true,
+            "enabled": true,
+            "interaction_type": "CONTAINER",
+            "position": {
+              "x": 11.0,
+              "y": 5.0
+            },
+            "object_data": {
+              "container_inventory": {
+                "type": "CONTAINER",
+                "size": 16,
+                "contents": [
+                  {
+                    "slot": 0,
+                    "name": "Lockpick",
+                    "type": "LOCK_PICK",
+                    "amount": 1
+                  }
+                ]
+              },
+              "active_texture": "barrel"
+            }
+          },
+          {
+            "interactable": true,
+            "enabled": true,
+            "interaction_type": "CONTAINER",
+            "position": {
+              "x": 16.0,
+              "y": 5.0
+            },
+            "object_data": {
+              "container_inventory": {
+                "type": "CONTAINER",
+                "size": 16,
+                "contents": [
+                  {
+                    "slot": 0,
+                    "name": "Lockpick",
+                    "type": "LOCK_PICK",
+                    "amount": 1
+                  }
+                ]
+              },
+              "active_texture": "barrel"
             }
           }
         ],
-        "destroyedObjects": []
+        "destroyedObjects": [],
+        "lootGroveParents": [
+          "loot_grove_0"
+        ]
       },
       "visited_worlds": {
         "0": {
@@ -177,8 +360,8 @@
               "key": "oasis:chick",
               "entityId": 4,
               "position": {
-                "x": 22.814463,
-                "y": 30.417267
+                "x": 25.0,
+                "y": 31.0
               },
               "size": {
                 "x": 16.0,
@@ -186,8 +369,30 @@
                 "z": 0.0625
               },
               "health": 100.0,
-              "rotation": "LEFT",
+              "rotation": "DOWN",
               "move_speed": 0.0
+            },
+            {
+              "type": "LYRA",
+              "name": "Lyra",
+              "key": "oasis:lyra",
+              "entityId": 1,
+              "position": {
+                "x": 16.0,
+                "y": 29.0
+              },
+              "size": {
+                "x": 12.0,
+                "y": 29.0,
+                "z": 0.0625
+              },
+              "health": 100.0,
+              "rotation": "DOWN",
+              "move_speed": 0.0,
+              "entity_data": {
+                "dialogue_entry_key": "lyra:dialog_stage_0",
+                "dialogue_stage_index": 1
+              }
             },
             {
               "type": "FISH",
@@ -221,31 +426,13 @@
               }
             },
             {
-              "key": "oasis:verdant_fungus",
+              "key": "oasis:lock_pick",
               "interactable": true,
               "enabled": true,
               "interaction_type": "MAP_ITEM",
               "position": {
                 "x": 51.0,
                 "y": 53.0
-              },
-              "object_data": {
-                "dropped_item": {
-                  "slot": 0,
-                  "name": "Verdant Fungus",
-                  "type": "VERDANT_FUNGUS",
-                  "amount": 1
-                }
-              }
-            },
-            {
-              "key": "oasis:lock_pick",
-              "interactable": true,
-              "enabled": true,
-              "interaction_type": "MAP_ITEM",
-              "position": {
-                "x": 53.5,
-                "y": 49.0
               },
               "object_data": {
                 "dropped_item": {
@@ -264,6 +451,24 @@
               "position": {
                 "x": 53.5,
                 "y": 47.0
+              },
+              "object_data": {
+                "dropped_item": {
+                  "slot": 0,
+                  "name": "Lockpick",
+                  "type": "LOCK_PICK",
+                  "amount": 3
+                }
+              }
+            },
+            {
+              "key": "oasis:lock_pick",
+              "interactable": true,
+              "enabled": true,
+              "interaction_type": "MAP_ITEM",
+              "position": {
+                "x": 53.5,
+                "y": 49.0
               },
               "object_data": {
                 "dropped_item": {

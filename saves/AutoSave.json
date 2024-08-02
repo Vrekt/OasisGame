@@ -2,12 +2,12 @@
   "name": "AutoSave",
   "slot": 0,
   "progress": 0.0,
-  "date": "25-07-24 13:42 PM",
-  "multiplayer": true,
+  "date": "30-07-24 12:44 PM",
+  "multiplayer": false,
   "settings": {
     "entity_update_distance": 100.0,
     "show_fps": true,
-    "mp_lan": true,
+    "mp_lan": false,
     "v_sync": true,
     "auto_save": true,
     "auto_save_interval": 1.0,
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player71",
+    "name": "Player54",
     "position": {
-      "x": 34.916687,
-      "y": 12.072876
+      "x": 42.947937,
+      "y": 11.791626
     },
     "inventory": {
       "type": "PLAYER",
@@ -201,12 +201,12 @@
                 "slot": 0,
                 "name": "Lockpick",
                 "type": "LOCK_PICK",
-                "amount": 3
+                "amount": 1
               }
             }
           },
           {
-            "key": "oasis:verdant_fungus",
+            "key": "oasis:lock_pick",
             "interactable": true,
             "enabled": true,
             "interaction_type": "MAP_ITEM",
@@ -217,14 +217,14 @@
             "object_data": {
               "dropped_item": {
                 "slot": 0,
-                "name": "Verdant Fungus",
-                "type": "VERDANT_FUNGUS",
+                "name": "Lockpick",
+                "type": "LOCK_PICK",
                 "amount": 1
               }
             }
           },
           {
-            "key": "oasis:arcana_codex",
+            "key": "oasis:crimson_cap",
             "interactable": true,
             "enabled": true,
             "interaction_type": "MAP_ITEM",
@@ -235,9 +235,9 @@
             "object_data": {
               "dropped_item": {
                 "slot": 0,
-                "name": "Arcana\u0027s Codex",
-                "type": "ARCANA_CODEX",
-                "amount": 1
+                "name": "Crimson Cap",
+                "type": "CRIMSON_CAP",
+                "amount": 3
               }
             }
           }

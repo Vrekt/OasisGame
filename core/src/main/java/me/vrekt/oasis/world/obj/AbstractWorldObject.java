@@ -16,7 +16,7 @@ import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.gui.cursor.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 
 /**
  * Base implementation of a world object

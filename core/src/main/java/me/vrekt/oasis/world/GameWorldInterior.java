@@ -1,4 +1,4 @@
-package me.vrekt.oasis.world.interior;
+package me.vrekt.oasis.world;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -20,8 +20,7 @@ import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.WorldSaveLoader;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.lp.ActivityManager;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
@@ -32,8 +31,6 @@ import me.vrekt.oasis.world.tiled.TileMaterialType;
 public abstract class GameWorldInterior extends GameWorld implements MouseListener {
 
     private static final float ENTERING_DISTANCE = 5.0f;
-    // unload interiors after 30 seconds
-    public static final float UNLOAD_AFTER = 30.0f;
 
     protected final GameWorld parentWorld;
     protected final String interiorMap;
@@ -249,14 +246,17 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
      * Enter this interior world
      */
     @Override
-    public void enter() {
-        if (!isWorldLoaded) {
-            throw new UnsupportedOperationException("Cannot enter world without it being loaded, this is a bug. fix please!");
-        }
+    public void enterWorld() {
+        if (!isWorldLoaded) throw new UnsupportedOperationException("Interior is not loaded.");
+
+        // where we will spawn
+        player.getTransformComponent().position.set(worldOrigin);
+
+        player.removeFromWorld();
+        updateEnteringWorldState();
 
         game.getGuiManager().resetCursor();
         game.getMultiplexer().addProcessor(this);
-        game.getMultiplexer().removeProcessor(parentWorld);
         game.setScreen(this);
 
         hasVisited = true;
@@ -289,12 +289,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     @Override
     public void loadTiledMap(TiledMap worldMap, float worldScale) {
         this.map = worldMap;
-        if (isWorldLoaded) {
-            updateRendererMap();
-            player.removeFromWorld();
-            setPlayerState();
-            return;
-        }
+        if (isWorldLoaded) return;
 
         // if world was previously disposed
         if (debugRenderer == null) debugRenderer = new ShapeRenderer();
@@ -309,28 +304,13 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         buildEntityPathing(map, worldScale);
         createEntities(game.getAsset(), map, worldScale);
 
-        updateRendererMap();
-        player.removeFromWorld();
-
         world.setContactListener(new BasicEntityCollisionHandler());
-
-        setPlayerState();
         addDefaultWorldSystems();
 
         finalizeWorld();
 
         isWorldLoaded = true;
         GameLogging.info(this, "Loaded interior successfully.");
-    }
-
-    private void setPlayerState() {
-        // circle origin is flipped for interior worlds
-        player.createCircleBody(world, isFlipped);
-
-        if (!isGameSave) {
-            player.setPosition(worldOrigin);
-        }
-        player.updateWorldState(this);
     }
 
     @Override

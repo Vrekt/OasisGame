@@ -2,6 +2,7 @@ package me.vrekt.oasis.utility;
 
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.network.utility.NetworkValidation;
 
 import java.util.Iterator;
 
@@ -19,6 +20,8 @@ public final class TaskManager {
      * @param delay the delay
      */
     public int schedule(Runnable task, float delay) {
+        NetworkValidation.ensureMainThread();
+
         final int id = tasks.size + 1;
         tasks.put(id, new Task(task, delay));
         return id;

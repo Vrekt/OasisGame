@@ -23,6 +23,7 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.protocol.GameProtocol;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -192,7 +193,9 @@ public final class IntegratedGameServer implements Disposable {
      * @param reason reason
      */
     public void disconnectPlayer(ServerPlayer player, String reason) {
-        ServerLogging.info(this, "Player %s was disconnected because %s", player.name(), reason);
+        ServerLogging.info(this, "Player %s disconnected. %s",
+                player.name(),
+                reason == null ? StringUtils.EMPTY : reason);
 
         if (player.isInWorld()) player.world().removePlayerInWorld(player);
         connections.removeValue(player.getConnection(), true);

@@ -43,7 +43,7 @@ import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.effects.Effect;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 
 import java.util.HashMap;
@@ -640,7 +640,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Update network components and sending of regular packets
      */
     private void updateNetworkComponents() {
-        updateNetworkPositionAndVelocity();
+        if (isMoving()) updateNetworkPositionAndVelocity();
         connection.updateHandlingQueue();
     }
 

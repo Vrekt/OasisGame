@@ -7,7 +7,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 
 /**
  * Handles loading and unloading worlds.
@@ -54,7 +54,7 @@ public final class WorldManager implements Disposable {
 
         GameManager.transitionScreen(parent, interior, () -> {
             interior.loadWorldTiledMap(false);
-            interior.enter();
+            interior.enterWorld();
         });
     }
 
@@ -76,7 +76,7 @@ public final class WorldManager implements Disposable {
             player.removeFromWorld();
 
             to.loadWorldTiledMap(false);
-            to.enter();
+            to.enterWorld();
         });
         return to;
     }
@@ -90,16 +90,9 @@ public final class WorldManager implements Disposable {
      */
     public void transferOut(PlayerSP player, GameWorldInterior from, GameWorld parent) {
         player.removeFromInteriorWorld();
-        // FIXME:  manageInteriorMemoryState(from);
-
-        player.createCircleBody(parent.boxWorld(), false);
-        player.setPosition(parentWorldPosition);
-        player.updateWorldState(parent);
-
-        GameManager.game().getMultiplexer().addProcessor(parent);
-
-        parent.updateRendererMap();
-        parent.enter();
+        // the transform to set when entering the new world.
+        player.getTransformComponent().position.set(parentWorldPosition);
+        parent.enterWorld();
     }
 
     @Override

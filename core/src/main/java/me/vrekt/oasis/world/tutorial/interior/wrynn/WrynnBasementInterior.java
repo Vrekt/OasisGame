@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Rectangle;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.gui.cursor.Cursor;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 
 /**
@@ -22,8 +22,8 @@ public final class WrynnBasementInterior extends GameWorldInterior {
     }
 
     @Override
-    public void enter() {
-        super.enter();
+    public void enterWorld() {
+        super.enterWorld();
 
         player.scalePlayerBy(0.8f);
         getRenderer().getCamera().zoom = 0.8f;

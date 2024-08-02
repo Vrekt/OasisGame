@@ -3,7 +3,7 @@ package me.vrekt.oasis.save.world;
 import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 

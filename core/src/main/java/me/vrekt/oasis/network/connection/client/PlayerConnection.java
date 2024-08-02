@@ -10,7 +10,7 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.artifact.Artifact;
 import me.vrekt.oasis.network.utility.NetworkValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.shared.packet.client.C2SKeepAlive;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
 import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;

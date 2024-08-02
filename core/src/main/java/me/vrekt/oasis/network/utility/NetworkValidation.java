@@ -19,7 +19,7 @@ public final class NetworkValidation {
      */
     public static boolean ensureMainThread() {
         if (Thread.currentThread().threadId() != mainThreadId) {
-            GameLogging.info("NetworkValidation", "Not in main thread!");
+            GameLogging.warn("NetworkValidation", "Not in main thread!");
             return false;
         }
         return true;

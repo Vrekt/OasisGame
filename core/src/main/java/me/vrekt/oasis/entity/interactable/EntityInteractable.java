@@ -10,7 +10,7 @@ import me.vrekt.oasis.save.Loadable;
 import me.vrekt.oasis.save.Savable;
 import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.GameWorldInterior;
+import me.vrekt.oasis.world.GameWorldInterior;
 
 /**
  * Represents an NPC within the game
