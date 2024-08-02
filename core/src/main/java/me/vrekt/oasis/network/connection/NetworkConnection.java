@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.util.internal.PlatformDependent;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.network.PacketHandler;
@@ -176,13 +175,8 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
     public void sendImmediately(GamePacket packet) {
         Preconditions.checkNotNull(packet);
 
-        final long now = System.nanoTime();
-
         packet.alloc(alloc());
-        channel.writeAndFlush(packet).addListener((ChannelFutureListener) future -> {
-            final long a = System.nanoTime() - now;
-            System.err.println(a);
-        });
+        channel.writeAndFlush(packet);
     }
 
     /**

@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.*;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.asset.game.Resource;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.entity.player.sp.attribute.Attribute;
@@ -67,9 +66,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
         initializeRarityIcons();
 
-        final TextureRegionDrawable background = new TextureRegionDrawable(guiManager.getAsset().get(Resource.UI, "inventory", 2));
-
-        rootTable.setBackground(background);
+        rootTable.setBackground(new TextureRegionDrawable(asset("inventory", 2)));
         rootTable.setFillParent(true);
         rootTable.setVisible(false);
         rootTable.setTransform(true);
