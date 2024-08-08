@@ -40,7 +40,7 @@ public final class BasicFishEntity extends GameEntity {
         this.worldIn = world;
         this.key = ENTITY_KEY;
         this.type = EntityType.FISH;
-        this.player = game.getPlayer();
+        this.player = game.player();
 
         setName("Fish");
         getTransformComponent().position.set(position.x, position.y);
@@ -80,7 +80,7 @@ public final class BasicFishEntity extends GameEntity {
                 && GameManager.hasTimeElapsed(lastPlayedSplashing, 6.0f)) {
             GameManager.playSound(Sounds.FISH_SPLASHING, 0.1f, -1.0f, 0.1f);
 
-            lastPlayedSplashing = GameManager.getTick();
+            lastPlayedSplashing = GameManager.tick();
             playingSplashing = true;
         } else if (playingSplashing) {
             playingSplashing = GameManager.hasTimeElapsed(lastPlayedSplashing, 1.0f);

@@ -33,8 +33,8 @@ public final class MyceliaGatewaySpell extends MagicSpell {
 
     @Override
     public void cast(PlayerSP player) {
-        GameManager.getGuiManager().hideGui(GuiType.MAGIC_BOOK);
+        GameManager.gui().hideGui(GuiType.MAGIC_BOOK);
         GameManager.playSound(Sounds.TELEPORT, 0.1f, -3.0f, 0.0f);
-        GameManager.getWorldManager().transferTo(player, MyceliaWorld.WORLD_ID);
+        GameManager.game().worldManager().transferTo(player, MyceliaWorld.WORLD_ID);
     }
 }

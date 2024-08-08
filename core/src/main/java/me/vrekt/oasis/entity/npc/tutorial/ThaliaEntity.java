@@ -27,7 +27,7 @@ public final class ThaliaEntity extends EntityInteractable {
     private boolean drawFishing;
 
     public ThaliaEntity(GameWorld world, Vector2 position, OasisGame game) {
-        super(NAME, position, game.getPlayer(), world, game);
+        super(NAME, position, game.player(), world, game);
         this.key = ENTITY_KEY;
         this.type = EntityType.THALIA;
     }
@@ -64,7 +64,7 @@ public final class ThaliaEntity extends EntityInteractable {
 
         if (GameManager.hasTimeElapsed(lastFishFrameChange, 0.2f) && drawFishing) {
             fishingIndex++;
-            lastFishFrameChange = GameManager.getTick();
+            lastFishFrameChange = GameManager.tick();
             if (fishingIndex >= 3) fishingIndex = 3;
             activeEntityTexture = getTexturePart("fishing_" + fishingIndex);
         }

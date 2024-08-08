@@ -162,7 +162,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             activeEffect = save;
 
             // TODO: Will reset the timer on the effect.
-            activeEffect.setApplied(GameManager.getTick());
+            activeEffect.setApplied(GameManager.tick());
             activeEffect.applyPreviously(this);
         }
     }
@@ -313,7 +313,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @param seconds seconds
      */
     public void enableMovementAfter(float seconds) {
-        GameManager.getTaskManager().schedule(this::enableMovement, seconds);
+        game.tasks().schedule(this::enableMovement, seconds);
     }
 
     /**
@@ -342,8 +342,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             return;
         }
 
-        if (game.isAnyMultiplayer()) connection.updateArtifactActivated(artifact);
-        artifact.apply(this, GameManager.getTick());
+        if (game.isInMultiplayerGame()) connection.updateArtifactActivated(artifact);
+        artifact.apply(this, GameManager.tick());
         game.getGuiManager().getArtifactComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }
 
@@ -429,7 +429,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * @param effect         the effect
      */
     public void givePlayerEffect(ParticleEffect particleEffect, Effect effect) {
-        effectStarted = GameManager.getTick();
+        effectStarted = GameManager.tick();
         this.particleEffect = particleEffect;
 
         activeEffect = effect;
@@ -493,7 +493,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      */
     public void removeEquippedItem() {
         this.equippedItem = null;
-        if (game.isAnyMultiplayer()) connection.updateItemEquipped(null);
     }
 
     /**
@@ -567,10 +566,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             rotationChanged = false;
         }
 
-        if (game.isMultiplayer()) updateNetworkComponents();
+        if (game.isInMultiplayerGame()) updateNetworkComponents();
         artifacts.values().forEach(artifact -> artifact.updateIfApplied(this));
 
-        if (isMoving()) soundManager.updateWhileMoving(GameManager.getTick());
+        if (isMoving()) soundManager.updateWhileMoving(GameManager.tick());
         updateActiveEffect();
     }
 
@@ -583,8 +582,8 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
             if (!expired) {
                 if (activeEffect.ready(lastEffectApplied)) {
-                    activeEffect.apply(this, GameManager.getTick());
-                    lastEffectApplied = GameManager.getTick();
+                    activeEffect.apply(this, GameManager.tick());
+                    lastEffectApplied = GameManager.tick();
                 }
             } else {
                 activeEffect.free();
@@ -640,7 +639,10 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Update network components and sending of regular packets
      */
     private void updateNetworkComponents() {
-        if (isMoving()) updateNetworkPositionAndVelocity();
+        // ideally if we are not moving do not send
+        // however this will cause constant velocity,
+        // so it's ok for now!
+        updateNetworkPositionAndVelocity();
         connection.updateHandlingQueue();
     }
 
@@ -648,7 +650,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
      * Send updated position and velocity
      */
     private void updateNetworkPositionAndVelocity() {
-        final float now = GameManager.getTick();
+        final float now = GameManager.tick();
 
         if (GameManager.hasTimeElapsed(lastPosition, POSITION_NETWORK_SEND_RATE)) {
             getConnection().updatePosition(body.getPosition(), rotation.ordinal());
@@ -695,7 +697,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
 
         // draw all artifact effects
         for (Artifact artifact : artifacts.values()) {
-            if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, GameManager.getTick());
+            if (artifact.drawEffect()) artifact.drawArtifactEffect(batch, delta, GameManager.tick());
             if (artifact.isApplied()) artifact.drawParticleEffect(batch);
         }
 

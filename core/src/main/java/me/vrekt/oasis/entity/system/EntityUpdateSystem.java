@@ -22,7 +22,7 @@ public final class EntityUpdateSystem extends EntitySystem {
         super(0);
         this.game = game;
         this.world = world;
-        this.gameCamera = game.getRenderer().getCamera();
+        this.gameCamera = world.getRenderer().getCamera();
     }
 
     @Override
@@ -36,7 +36,7 @@ public final class EntityUpdateSystem extends EntitySystem {
             }
 
             // update entities we can see, or are within update distance
-            final float distance = entity.getPosition().dst2(game.getPlayer().getPosition());
+            final float distance = entity.getPosition().dst2(game.player().getPosition());
             entity.setDistanceToPlayer(distance);
 
             // task: EM-92.1 entities dying outside range

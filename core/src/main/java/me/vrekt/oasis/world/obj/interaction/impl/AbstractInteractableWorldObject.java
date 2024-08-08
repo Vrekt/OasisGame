@@ -215,7 +215,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         world.getGame().getGuiManager().resetCursor();
         world.player().notifyIfMoved();
 
-        lastInteraction = GameManager.getTick();
+        lastInteraction = GameManager.tick();
 
         wasInteractedWith = true;
         isEnabled = false;
@@ -226,9 +226,9 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      * Broadcast animation of this object
      */
     protected void broadcastAnimation() {
-        if (world.getGame().isLocalMultiplayer()) {
-            world.getGame().getServer().activeWorld().broadcastImmediately(new S2CAnimateObject(objectId));
-        } else if (world.getGame().isMultiplayer()) {
+        if (world.getGame().isHostingMultiplayerGame()) {
+            world.getGame().integratedServer().activeWorld().broadcastImmediately(new S2CAnimateObject(objectId));
+        } else if (world.getGame().isInMultiplayerGame()) {
             world.player().getConnection().sendImmediately(new C2SAnimateObject(objectId));
         }
     }
@@ -238,9 +238,9 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      * TODO: Fade in spawn item, more smooth.
      */
     protected void broadcastDestroyed() {
-        if (world.getGame().isLocalMultiplayer()) {
-            world.getGame().getServer().activeWorld().broadcastImmediately(new S2CNetworkRemoveWorldObject(objectId));
-        } else if (world.getGame().isMultiplayer()) {
+        if (world.getGame().isHostingMultiplayerGame()) {
+            world.getGame().integratedServer().activeWorld().broadcastImmediately(new S2CNetworkRemoveWorldObject(objectId));
+        } else if (world.getGame().isInMultiplayerGame()) {
             final GamePacket packet = new C2SDestroyWorldObject(objectId);
 
             // wait for a response, go ahead and destroy this object
@@ -271,28 +271,28 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      * @return {@code true} if this player is a host of the server
      */
     protected boolean isNetworkHost() {
-        return GameManager.game().isLocalMultiplayer();
+        return GameManager.game().isHostingMultiplayerGame();
     }
 
     /**
      * @return {@code true} if this player is a player in a mp server
      */
     protected boolean isNetworkPlayer() {
-        return GameManager.game().isMultiplayer();
+        return GameManager.game().isInMultiplayerGame();
     }
 
     /**
      * @return active network world
      */
     protected ServerWorld activeNetworkWorld() {
-        return GameManager.game().getServer().activeWorld();
+        return GameManager.game().integratedServer().activeWorld();
     }
 
     /**
      * @return the server
      */
     protected IntegratedGameServer server() {
-        return GameManager.game().getServer();
+        return GameManager.game().integratedServer();
     }
 
     protected void createNetworkItem() {

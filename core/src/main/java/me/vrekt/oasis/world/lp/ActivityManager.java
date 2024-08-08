@@ -17,8 +17,8 @@ public final class ActivityManager {
      * @param failure    failure callback
      */
     public static LockpickActivity lockpicking(LockDifficulty difficulty, Runnable success, Runnable failure) {
-        final LockpickingGui gui = GameManager.getGuiManager().getLockpickingComponent();
-        final LockpickActivity activity = new LockpickActivity(gui, GameManager.getPlayer());
+        final LockpickingGui gui = GameManager.gui().getLockpickingComponent();
+        final LockpickActivity activity = new LockpickActivity(gui, GameManager.player());
 
         gui.setActiveActivity(activity);
         activity.start(success, failure);

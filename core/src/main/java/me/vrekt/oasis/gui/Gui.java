@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Resource;
 
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public abstract class Gui implements Disposable {
         hideWhenVisible.forEach(guiManager::hideGui);
 
         if (disablePlayerMovement) {
-            GameManager.getPlayer().disableMovement();
+            guiManager.player().disableMovement();
         }
     }
 
@@ -90,7 +89,7 @@ public abstract class Gui implements Disposable {
         hideWhenVisible.forEach(guiManager::showGui);
 
         if (disablePlayerMovement) {
-            GameManager.getPlayer().enableMovement();
+            guiManager.player().enableMovement();
         }
     }
 

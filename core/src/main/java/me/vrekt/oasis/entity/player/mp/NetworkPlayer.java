@@ -86,14 +86,13 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
      */
     public void transferImmediately(InteriorWorldType type) {
         this.interiorEntering = type;
-        transfer();
+        transfer(worldIn.findInteriorByType(type));
     }
 
     /**
      * Transfer this player into the interior
      */
-    public void transfer() {
-        final GameWorldInterior interior = worldIn.findInteriorByType(interiorEntering);
+    public void transfer(GameWorldInterior interior) {
         if (interior != null) {
             // destroy our previous body and create a new one for this interior
             worldIn.removePlayerTemporarily(this);
@@ -129,13 +128,14 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
      */
     public void updateNetworkVelocity(float x, float y, int rotation) {
         incomingNetworkVelocity.set(x, y);
+
         this.rotation = EntityRotation.values()[rotation];
     }
 
     @Override
     public void setName(String name) {
         super.setName(name);
-        this.nametagRenderWidth = GameManager.getGuiManager().getStringWidth(name);
+        this.nametagRenderWidth = GameManager.gui().getStringWidth(name);
     }
 
     @Override
@@ -218,7 +218,7 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
         fadingAnimationEnteringAlpha -= Gdx.graphics.getDeltaTime() * 2f;
 
         // we are ready to be transferred since the visual animation completed
-        if (fadingAnimationEnteringAlpha <= 0.0f) transfer();
+        if (fadingAnimationEnteringAlpha <= 0.0f) transferImmediately(interiorEntering);
     }
 
     /**

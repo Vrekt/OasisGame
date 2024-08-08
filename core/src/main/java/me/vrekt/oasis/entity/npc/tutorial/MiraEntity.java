@@ -25,7 +25,7 @@ public final class MiraEntity extends EntityInteractable {
     public static final String NAME = "Mira";
 
     public MiraEntity(GameWorld world, Vector2 position, OasisGame game) {
-        super(NAME, position, game.getPlayer(), world, game);
+        super(NAME, position, game.player(), world, game);
         this.key = ENTITY_KEY;
         this.type = EntityType.MIRA;
 
@@ -78,11 +78,11 @@ public final class MiraEntity extends EntityInteractable {
      * Show the player the shop GUI
      */
     private void showPlayerItems() {
-        addStatus(new MiraObjectiveStatus(this, game.getAsset()));
+        addStatus(new MiraObjectiveStatus(this, game.asset()));
 
-        GameManager.getTaskManager().schedule(() -> {
+        game.tasks().schedule(() -> {
             this.speak(false);
-            GameManager.getGuiManager().hideGui(GuiType.DIALOG);
+            GameManager.gui().hideGui(GuiType.DIALOG);
         }, 3.55f);
     }
 

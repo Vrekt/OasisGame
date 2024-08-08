@@ -50,7 +50,7 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
      * Indicates this connection is still alive
      */
     public void alive() {
-        lastPacketReceived = GameManager.getTick();
+        lastPacketReceived = GameManager.tick();
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
         // flush any queued items.
         if (GameManager.hasTimeElapsed(lastUpdate, 0.55f)) {
             virtual().execute(this::flush);
-            lastUpdate = GameManager.getTick();
+            lastUpdate = GameManager.tick();
 
         }
 
@@ -183,8 +183,8 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
      */
     private void updatePing() {
         if (GameManager.hasTimeElapsed(lastPingTime, 2.0f)) {
-            sendToQueue(new C2SPacketPing(GameManager.getTick()));
-            lastPingTime = GameManager.getTick();
+            sendToQueue(new C2SPacketPing(GameManager.tick()));
+            lastPingTime = GameManager.tick();
         }
     }
 

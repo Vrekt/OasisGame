@@ -52,7 +52,7 @@ public class SaveManager {
             if (!Files.exists(path)) Files.createFile(path);
 
             try (FileWriter writer = new FileWriter(path.toFile(), false)) {
-                final GameSave save = new GameSave(name, slot, GameManager.getGameProgress(), GameManager.game().isLocalMultiplayer());
+                final GameSave save = new GameSave(name, slot, GameManager.getGameProgress(), GameManager.game().isHostingMultiplayerGame());
 
                 writeGameSaveProperties(slot, save);
                 SAVE_GAME_GSON.toJson(save, writer);
@@ -162,7 +162,7 @@ public class SaveManager {
         properties.delete(slot);
 
         if (Files.exists(path)) {
-            GameManager.game().executeAsync(() -> {
+            GameManager.game().executeActionAsync(() -> {
                 try {
                     Files.delete(path);
                     writeRefreshGameSaveProperties();

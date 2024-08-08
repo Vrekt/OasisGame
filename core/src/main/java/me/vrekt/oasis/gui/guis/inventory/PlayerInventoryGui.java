@@ -59,7 +59,7 @@ public final class PlayerInventoryGui extends InventoryGui {
 
     public PlayerInventoryGui(GuiManager guiManager) {
         super(GuiType.INVENTORY, guiManager);
-        this.player = guiManager.getGame().getPlayer();
+        this.player = guiManager.getGame().player();
 
         hideWhenVisible.add(GuiType.HUD);
         disablePlayerMovement = true;

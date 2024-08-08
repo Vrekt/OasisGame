@@ -15,7 +15,7 @@ import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
@@ -82,14 +82,14 @@ public final class IntegratedGameServer implements Disposable {
      * Start the integrated server
      * Will tick the server every 25ms
      */
-    public void start() {
+    public void start(GameWorld in) {
         netty.bindSync();
 
-        activeWorld = new ServerWorld(player.getWorldState(), this);
+        activeWorld = new ServerWorld(in, this);
         loadedWorlds.put(activeWorld.worldId(), activeWorld);
 
         capture.set(new GameStateCache());
-        populate(player.getWorldState());
+        populate(in);
 
         service.scheduleAtFixedRate(this::tick, 1L, 25, TimeUnit.MILLISECONDS);
         started = true;
@@ -167,7 +167,7 @@ public final class IntegratedGameServer implements Disposable {
      * @param world active world.
      */
     public void captureLocalStateSync(GameWorld world) {
-        if (!NetworkValidation.ensureMainThread())
+        if (!GameValidation.ensureMainThread())
             throw new UnsupportedOperationException("Main server thread please.");
 
         capture.updateAndGet(c -> c.capture(world));

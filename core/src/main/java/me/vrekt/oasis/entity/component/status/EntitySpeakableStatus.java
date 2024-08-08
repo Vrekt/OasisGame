@@ -46,10 +46,10 @@ public final class EntitySpeakableStatus extends EntityStatus {
         entity.asInteractable().setSpeakable(entity.getDistanceFromPlayer() <= SPEAKING_DISTANCE);
         // rendering
         drawDialogFrames = entity.getDistanceFromPlayer() <= ANIMATION_DISTANCE;
-        if (dialogAnimationTime == 0.0f) dialogAnimationTime = GameManager.getTick();
+        if (dialogAnimationTime == 0.0f) dialogAnimationTime = GameManager.tick();
 
         if (GameManager.hasTimeElapsed(dialogAnimationTime, 0.33f)) {
-            dialogAnimationTime = GameManager.getTick();
+            dialogAnimationTime = GameManager.tick();
             currentDialogFrame = currentDialogFrame >= 3 ? 1 : currentDialogFrame + 1;
         }
     }

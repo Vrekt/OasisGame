@@ -70,7 +70,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
         this.effect = effect;
         this.duration = duration;
         this.bounds.set(position.x, position.y, 6, 6);
-        this.tickApplied = GameManager.getTick();
+        this.tickApplied = GameManager.tick();
         this.immune = immune;
     }
 
@@ -111,7 +111,7 @@ public final class AreaEffectCloud implements Pool.Poolable {
      * @return {@code true} if this cloud is expired/done.
      */
     public boolean update() {
-        float now = GameManager.getTick();
+        float now = GameManager.tick();
         for (EntityAreaTracker entity : affected.values()) {
             if (effect.ready(entity.lastApplied)) {
                 entity.lastApplied = now;

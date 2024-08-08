@@ -7,7 +7,6 @@ import com.github.tommyettinger.textra.TypingLabel;
 import com.kotcrab.vis.ui.widget.VisImage;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTable;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.Gui;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
@@ -64,7 +63,10 @@ public final class PauseWindowGui extends Gui {
 
     private void handleResumeGameComponentAction() {
         hide();
-        GameManager.resumeGame();
+
+        if (guiManager.getGame().isSingleplayerGame()) {
+            guiManager.getGame().player().getWorldState().resume();
+        }
     }
 
     private void handleSettingsComponentAction() {
@@ -76,7 +78,7 @@ public final class PauseWindowGui extends Gui {
     }
 
     private void handleBackToMenuComponent() {
-        guiManager.getGame().returnToMenu();
+        guiManager.getGame().showMainMenu();
     }
 
     @Override

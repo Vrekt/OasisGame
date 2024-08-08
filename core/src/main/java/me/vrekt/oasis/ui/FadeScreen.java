@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.world.GameWorld;
 
 /**
  * Helper class for fading between two locations
@@ -16,7 +17,7 @@ import me.vrekt.oasis.GameManager;
  */
 public final class FadeScreen extends ScreenAdapter {
 
-    private final Screen primary;
+    private final GameWorld primary;
     private final Screen secondaryFader;
     private final ShapeRenderer shapeRenderer;
     private final Camera camera;
@@ -24,7 +25,7 @@ public final class FadeScreen extends ScreenAdapter {
     private float elapsed;
     private final boolean fadeIn;
 
-    public FadeScreen(Screen primary, Screen next, Runnable completed, boolean fadeIn) {
+    public FadeScreen(GameWorld primary, Screen next, Runnable completed, boolean fadeIn) {
         this.primary = primary;
         this.completed = completed;
         this.secondaryFader = next;
@@ -34,6 +35,10 @@ public final class FadeScreen extends ScreenAdapter {
         camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camera.viewportWidth / 2.0f, camera.viewportHeight / 2.0f, 0.0f);
         camera.update();
+    }
+
+    public FadeScreen(GameWorld primary, boolean fadeIn) {
+        this(primary, null, null, fadeIn);
     }
 
     private void renderFade() {
@@ -59,7 +64,8 @@ public final class FadeScreen extends ScreenAdapter {
                     GameManager.game().setScreen(secondaryFader);
                     if (completed != null) Gdx.app.postRunnable(completed);
                 } else {
-                    GameManager.game().setScreen(primary);
+                    GameManager.game().worldManager().setActiveWorld(primary);
+                    GameManager.game().resetScreen();
                 }
             }
         }

@@ -94,7 +94,7 @@ public class Projectile implements Drawable, Pool.Poolable {
         this.position.set(origin);
         this.target.set(target);
         this.isActive = true;
-        this.activated = GameManager.getTick();
+        this.activated = GameManager.tick();
     }
 
     /**
@@ -122,7 +122,7 @@ public class Projectile implements Drawable, Pool.Poolable {
         bounds.setPosition(position.x, position.y);
 
         // TODO: Fine tuning, overlaps = too accurate, contains = maybe not enough accurate
-        final boolean hitPlayer = GameManager.getPlayer().isProjectileInBounds(bounds);
+        final boolean hitPlayer = GameManager.player().isProjectileInBounds(bounds);
         if (hitPlayer) {
             if (result != null) result.result(true);
             expire();

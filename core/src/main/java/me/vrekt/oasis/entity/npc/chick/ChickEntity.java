@@ -46,7 +46,7 @@ public final class ChickEntity extends GameEntity {
         this.worldIn = world;
         this.key = ENTITY_KEY;
         this.type = EntityType.CHICK;
-        this.player = game.getPlayer();
+        this.player = game.player();
         this.stateMachine = new EntityStateMachine(this);
 
         setName(NAME);

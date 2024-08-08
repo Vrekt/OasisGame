@@ -85,7 +85,7 @@ public abstract class AbstractWorldSaveState implements Disposable {
         writeEntities(world);
         writeInteriors(world);
         writeObjects(world);
-        if (GameManager.game().isLocalMultiplayer()) {
+        if (GameManager.game().isHostingMultiplayerGame()) {
             writePlayers(world);
         }
 

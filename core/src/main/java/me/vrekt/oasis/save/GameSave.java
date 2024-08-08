@@ -48,7 +48,7 @@ public final class GameSave implements Disposable {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm a");
         this.date = LocalDateTime.now().format(formatter);
         this.settings = new GameSettingsSave();
-        this.player = new PlayerSave(GameManager.game(), GameManager.getPlayer());
+        this.player = new PlayerSave(GameManager.game(), GameManager.player());
     }
 
     /**

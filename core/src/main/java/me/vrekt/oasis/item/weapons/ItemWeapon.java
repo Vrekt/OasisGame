@@ -79,7 +79,7 @@ public abstract class ItemWeapon extends ItemEquippable {
      */
     public void swingItem() {
         isSwinging = true;
-        lastSwing = GameManager.getTick();
+        lastSwing = GameManager.tick();
     }
 
     public Rectangle getBounds() {

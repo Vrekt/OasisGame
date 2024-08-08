@@ -65,9 +65,9 @@ public final class LockpickActivity {
         if (isFinished) return;
 
         if (updateTime == 0.0f) {
-            updateTime = GameManager.getTick();
+            updateTime = GameManager.tick();
         } else if (GameManager.hasTimeElapsed(updateTime, difficulty)) {
-            updateTime = GameManager.getTick();
+            updateTime = GameManager.tick();
             circleWidth += WIDTH_MODIFIER;
             circleHeight += HEIGHT_MODIFIER;
 
@@ -90,7 +90,7 @@ public final class LockpickActivity {
 
             gui.showPressDownHint(activeKey);
             // player only has X time to press before failing
-            lateness = GameManager.getTick();
+            lateness = GameManager.tick();
         }
 
         if (!isKeyPressed && circleWidth >= END_PROGRESS && GameManager.hasTimeElapsed(lateness, latenessDifficulty)) {
@@ -130,7 +130,7 @@ public final class LockpickActivity {
             isFinished = true;
 
             // player finished
-            GameManager.getTaskManager().schedule(() -> {
+            GameManager.game().tasks().schedule(() -> {
                 gui.hide();
                 success.run();
             }, .5f);
@@ -161,7 +161,7 @@ public final class LockpickActivity {
 
         // if the player has no more lockpicks, then stop this activity
         if (!player.getInventory().containsItem(Items.LOCK_PICK)) {
-            GameManager.getGuiManager().getHintComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
+            GameManager.gui().getHintComponent().showPlayerHint(PlayerHints.NO_MORE_LOCKPICKS, 3.5f, 10.0f);
             failure.run();
             gui.hide();
         } else {

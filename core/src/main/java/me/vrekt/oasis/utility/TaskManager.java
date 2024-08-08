@@ -2,7 +2,7 @@ package me.vrekt.oasis.utility;
 
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 
 import java.util.Iterator;
 
@@ -20,7 +20,7 @@ public final class TaskManager {
      * @param delay the delay
      */
     public int schedule(Runnable task, float delay) {
-        NetworkValidation.ensureMainThread();
+        GameValidation.ensureMainThread();
 
         final int id = tasks.size + 1;
         tasks.put(id, new Task(task, delay));
@@ -44,7 +44,7 @@ public final class TaskManager {
         for (Iterator<IntMap.Entry<Task>> it = tasks.iterator(); it.hasNext(); ) {
             final IntMap.Entry<Task> task = it.next();
             if (GameManager.hasTimeElapsed(task.value.timeScheduled, task.value.delay)) {
-                GameManager.executeOnMainThread(task.value.runnable);
+                task.value.runnable.run();
                 it.remove();
             }
         }
@@ -58,7 +58,7 @@ public final class TaskManager {
         public Task(Runnable runnable, float delay) {
             this.runnable = runnable;
             this.delay = delay;
-            this.timeScheduled = GameManager.getTick() == 0 ? 1 : GameManager.getTick();
+            this.timeScheduled = GameManager.tick() == 0 ? 1 : GameManager.tick();
         }
     }
 

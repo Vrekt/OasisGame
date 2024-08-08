@@ -122,7 +122,7 @@ public final class NetworkCallback implements Pool.Poolable {
      */
     public void send() {
         if (immediate) {
-            GameManager.getPlayer().getConnection().sendImmediatelyWithCallback(this);
+            GameManager.player().getConnection().sendImmediatelyWithCallback(this);
         } else {
             GameLogging.warn(this, "Not implemented yet!");
         }
@@ -143,7 +143,7 @@ public final class NetworkCallback implements Pool.Poolable {
         if (timeoutAction == null) return;
 
         if (sync) {
-            GameManager.executeOnMainThread(timeoutAction);
+            GameManager.runOnMainThread(timeoutAction);
         } else {
             timeoutAction.run();
         }
@@ -156,7 +156,7 @@ public final class NetworkCallback implements Pool.Poolable {
      */
     public void run(GamePacket packet) {
         if (sync) {
-            GameManager.executeOnMainThread(() -> acceptor.accept(packet));
+            GameManager.runOnMainThread(() -> acceptor.accept(packet));
         } else {
             acceptor.accept(packet);
         }

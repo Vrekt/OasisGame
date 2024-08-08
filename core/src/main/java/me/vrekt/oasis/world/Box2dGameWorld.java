@@ -131,12 +131,21 @@ public abstract class Box2dGameWorld {
     }
 
     /**
+     * Internal ticking
+     *
+     * @param delta delta
+     */
+    protected void tick(float delta) {
+
+    }
+
+    /**
      * Update the physics and entity engines
      *
      * @param delta delta
      * @return the capped frame time delta
      */
-    public float update(float delta) {
+    public float tickWorldPhysicsSim(float delta) {
         final float capped = Math.min(delta, MAX_FRAME_TIME);
 
         stepPhysicsSimulation(capped);

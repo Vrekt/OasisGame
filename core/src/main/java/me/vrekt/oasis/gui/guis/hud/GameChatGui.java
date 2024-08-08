@@ -45,7 +45,7 @@ public final class GameChatGui extends Gui {
     public GameChatGui(GuiManager guiManager) {
         super(GuiType.CHAT, guiManager);
 
-        this.player = guiManager.getGame().getPlayer();
+        this.player = guiManager.getGame().player();
 
         rootTable.setVisible(false);
         rootTable.bottom().left();
@@ -218,7 +218,7 @@ public final class GameChatGui extends Gui {
 
         void add(VisTable parent) {
             visible = true;
-            added = GameManager.getTick();
+            added = GameManager.tick();
             parent.add(label).left();
         }
 

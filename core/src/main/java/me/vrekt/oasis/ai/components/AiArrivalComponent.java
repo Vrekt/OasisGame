@@ -41,7 +41,7 @@ public final class AiArrivalComponent extends AiComponent {
      */
     public void ignoreLastPath() {
         isWalkingToPath = false;
-        lastPointTick = GameManager.getTick();
+        lastPointTick = GameManager.tick();
     }
 
     /**
@@ -84,14 +84,14 @@ public final class AiArrivalComponent extends AiComponent {
     @Override
     public void update(float delta) {
         if (!isWalkingToPath && (lastPointTick == 0
-                || (GameManager.getTick() - lastPointTick) >= pathingInterval)) {
+                || (GameManager.tick() - lastPointTick) >= pathingInterval)) {
             isWalkingToPath = true;
             assignRandomPoint();
         } else if (isWalkingToPath) {
             if (isWithinArrivalTarget()) {
                 isWalkingToPath = false;
                 // only update this point once we arrive to ignore the time it took to get there.
-                lastPointTick = GameManager.getTick();
+                lastPointTick = GameManager.tick();
             }
         }
 

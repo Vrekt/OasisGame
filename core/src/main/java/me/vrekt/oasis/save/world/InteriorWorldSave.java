@@ -41,7 +41,7 @@ public final class InteriorWorldSave extends AbstractWorldSaveState {
         this.interiorType = world.type();
         this.interior = true;
         this.enterable = world.isEnterable();
-        this.enteredPosition = world.getGame().getWorldManager().parentWorldPosition();
+        this.enteredPosition = world.getGame().worldManager().parentWorldPosition();
         this.locked = world.locked();
         this.difficulty = world.lockDifficulty();
 

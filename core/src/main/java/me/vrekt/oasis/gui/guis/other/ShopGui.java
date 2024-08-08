@@ -23,7 +23,6 @@ public final class ShopGui extends Gui {
         final VisImage tab = new VisImage(drawable("enchanted_fern_brew_item"));
         tab.setScale(2.0f, 2.0f);
 
-
         final VisTable table = new VisTable();
         table.top().left();
         table.left().padLeft(22).padTop(8);

@@ -18,7 +18,7 @@ public abstract class ReadableSignInteraction extends AbstractInteractableWorldO
     public ReadableSignInteraction(String key, String content) {
         super(WorldInteractionType.READABLE_SIGN, key);
         this.content = content;
-        this.guiManager = GameManager.getGuiManager();
+        this.guiManager = GameManager.gui();
     }
 
     @Override

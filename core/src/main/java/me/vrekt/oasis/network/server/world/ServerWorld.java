@@ -8,7 +8,7 @@ import me.vrekt.oasis.network.server.cache.GameStateCache;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.shared.network.state.NetworkState;
@@ -187,7 +187,7 @@ public final class ServerWorld {
      * For now only entity data is updated, players handle themselves.
      */
     public void updateFromCapture(GameStateCache capture, PlayerSP hostPlayer) {
-        NetworkValidation.ensureOnThread(IntegratedGameServer.threadId);
+        GameValidation.ensureOnThread(IntegratedGameServer.threadId);
 
         for (IntMap.Entry<EntityStateCache> entry : capture.entities()) {
             final ServerEntity local = this.entities.get(entry.key);
@@ -204,7 +204,7 @@ public final class ServerWorld {
      * Tick this world.
      */
     public void tick() {
-        NetworkValidation.ensureOnThread(IntegratedGameServer.threadId);
+        GameValidation.ensureOnThread(IntegratedGameServer.threadId);
 
         final long now = System.currentTimeMillis();
         for (ServerPlayer player : players.values()) {

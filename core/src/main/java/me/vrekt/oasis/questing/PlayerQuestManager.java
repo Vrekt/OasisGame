@@ -56,8 +56,8 @@ public final class PlayerQuestManager {
     public void completeQuest(QuestType type) {
         final Quest quest = activeQuests.remove(type);
         if (quest != null) {
-            GameManager.getGuiManager().hideGui(GuiType.DIALOG);
-            GameManager.getGuiManager().getCompletedQuestComponent().showQuestCompleted(quest);
+            GameManager.gui().hideGui(GuiType.DIALOG);
+            GameManager.gui().getCompletedQuestComponent().showQuestCompleted(quest);
             GameManager.playSound(Sounds.QUEST_COMPLETED, 0.2f, 1.0f, 0.0f);
         }
 

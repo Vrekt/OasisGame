@@ -90,7 +90,7 @@ public final class HudPlayerHintComponent extends HudComponent {
         // do not show this hint if the cooldown has not been met yet.
         if (hintTimes.containsKey(hint) && !GameManager.hasTimeElapsed(hintTimes.get(hint), cooldown)) return;
 
-        hintTimes.put(hint, GameManager.getTick());
+        hintTimes.put(hint, GameManager.tick());
 
         if (!rootTable.isVisible()) {
             rootTable.getColor().a = 0.0f;
@@ -99,7 +99,7 @@ public final class HudPlayerHintComponent extends HudComponent {
             hintPaused = false;
         }
 
-        final float now = GameManager.getTick();
+        final float now = GameManager.tick();
         // don't show the hint if one is already active
         // TODO: Maybe in the future some method to check if any hints, if so expire?
         if (lastHintTime != 0.0f && now - lastHintTime < 32 /* 1.5ish seconds */) {

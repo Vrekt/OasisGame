@@ -39,7 +39,7 @@ public abstract class AiFollowPathComponent extends AiComponent {
 
         // offset the position so the character more closely is in the middle of the line segment (in theory)
         steering.setOffsetPosition(true);
-        startTime = GameManager.getTick();
+        startTime = GameManager.tick();
     }
 
     /**

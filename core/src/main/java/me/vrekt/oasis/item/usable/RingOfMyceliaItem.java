@@ -44,6 +44,6 @@ public final class RingOfMyceliaItem extends ItemUsable {
 
     @Override
     public void use(PlayerSP player) {
-        GameManager.getGuiManager().hideGui(GuiType.INVENTORY);
+        GameManager.gui().hideGui(GuiType.INVENTORY);
     }
 }

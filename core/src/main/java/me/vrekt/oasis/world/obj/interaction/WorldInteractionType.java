@@ -7,6 +7,7 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.PickableMushroomInteraction;
 
 /**
  * A registry of all interactions within the game
@@ -37,6 +38,13 @@ public enum WorldInteractionType {
     },
 
     WRYNN_LEVER("wrynn_lever"),
+
+    PICKABLE_MUSHROOM("pickable_mushroom") {
+        @Override
+        public AbstractInteractableWorldObject create(GameWorld world, MapObject object) {
+            return new PickableMushroomInteraction();
+        }
+    },
     NONE("none");
 
     private final String type;

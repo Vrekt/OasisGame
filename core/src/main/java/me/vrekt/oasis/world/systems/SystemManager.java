@@ -36,7 +36,7 @@ public final class SystemManager implements Disposable {
      * @param delta delta
      */
     public void update(float delta) {
-        final float tick = GameManager.getTick();
+        final float tick = GameManager.tick();
         for (WorldSystem system : systems.values()) {
             if (system.readyToUpdate()) {
                 system.update(delta, tick);

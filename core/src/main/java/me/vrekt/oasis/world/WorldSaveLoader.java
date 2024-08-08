@@ -63,7 +63,7 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
             interior.setEnterable(save.enterable());
             interior.setLocked(save.locked());
             interior.setLockDifficulty(save.difficulty());
-            world.getGame().getWorldManager().setParentWorldPosition(save.enteredPosition());
+            world.getGame().worldManager().setParentWorldPosition(save.enteredPosition());
         } else {
             for (InteriorWorldSave interior : worldSave.interiors()) {
                 loadInterior(interior);
@@ -93,7 +93,7 @@ public final class WorldSaveLoader implements Loadable<AbstractWorldSaveState>, 
                     // no entity, create it.
                     interactable = Entities.interactable(save.key(), world, save.position(), world.game);
                     // load data first!
-                    interactable.load(world.game.getAsset());
+                    interactable.load(world.game.asset());
                     interactable.load(save, SaveManager.LOAD_GAME_GSON);
 
                     world.populateEntity(interactable);

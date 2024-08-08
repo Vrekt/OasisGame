@@ -8,7 +8,7 @@ import io.netty.channel.Channel;
 import io.netty.util.internal.PlatformDependent;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.network.PacketHandler;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.shared.packet.GamePacket;
@@ -160,7 +160,7 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
      */
     public void sendToQueue(GamePacket packet) {
         Preconditions.checkNotNull(packet);
-        if (!NetworkValidation.ensureMainThread())
+        if (!GameValidation.ensureMainThread())
             throw new UnsupportedOperationException("No main thread @ send queue.");
 
         packet.alloc(alloc());
@@ -223,7 +223,7 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
 
         public void handle(GamePacket packet) {
             // if we are the client and the game is not ready, continue on.
-            if (isClient && !GameManager.game().isGameReady()) {
+            if (isClient && !GameManager.game().ready()) {
                 handler.accept(packet);
                 return;
             } else if (!isClient && !isServerPlayerReady) {

@@ -27,6 +27,7 @@ public final class GameHudGui extends Gui {
     private static final String FPS = "FPS: ";
     private static final String PING = "Ping: ";
     private static final String MSPT = "MSPT: ";
+    private static final String MSPT_SERVER = "S-MSPT: ";
     private static final String MS = "ms";
     private final StringBuilder builder;
 
@@ -38,7 +39,7 @@ public final class GameHudGui extends Gui {
     public GameHudGui(GuiManager guiManager) {
         super(GuiType.HUD, guiManager);
 
-        this.player = guiManager.getGame().getPlayer();
+        this.player = guiManager.getGame().player();
         this.isShowing = true;
 
         performanceMetricsContext = new MathContext(2, RoundingMode.FLOOR);
@@ -74,7 +75,7 @@ public final class GameHudGui extends Gui {
 
     @Override
     public void update() {
-        final float now = GameManager.getTick();
+        final float now = GameManager.tick();
         for (HudComponent component : components.values()) {
             component.update(now);
         }
@@ -98,22 +99,23 @@ public final class GameHudGui extends Gui {
                 .append(Gdx.graphics.getFramesPerSecond())
                 .append(StringUtils.LF)
                 .append(MSPT)
-                .append(BigDecimal.valueOf(player.getWorldState().getPerformanceCounter().time.average).round(performanceMetricsContext))
+                .append(BigDecimal.valueOf(player.getWorldState().averageTickingTime()).round(performanceMetricsContext))
                 .append(StringUtils.LF).append(Math.floor(player.getX())).append(",").append(Math.floor(player.getY()));
 
-        if (GameManager.game().isMultiplayer()) {
+        // if in a multiplayer game display ping.
+        if (guiManager.getGame().isInMultiplayerGame()) {
             builder.append(StringUtils.LF);
             builder.append(PING)
-                    .append(guiManager.getGame().getConnectionHandler().getPingMs())
+                    .append(player.getConnection().getPingMs())
                     .append(StringUtils.SPACE);
-        }
-
-        if (guiManager.getGame().isLocalMultiplayer()) {
+        } else if (guiManager.getGame().isHostingMultiplayerGame()) {
+            // otherwise display average MSPT.
             builder.append(StringUtils.LF);
-            builder.append(MSPT)
-                    .append(guiManager.getGame().getServer().mspt())
+            builder.append(MSPT_SERVER)
+                    .append(guiManager.getGame().integratedServer().mspt())
                     .append(MS);
         }
+
         debugComponentText.setText(builder.toString());
     }
 

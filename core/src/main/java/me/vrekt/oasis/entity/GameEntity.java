@@ -823,7 +823,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     protected void pauseFor(float seconds) {
         isPaused = true;
-        pauseTime = GameManager.getTick();
+        pauseTime = GameManager.tick();
         pauseForTime = seconds;
     }
 

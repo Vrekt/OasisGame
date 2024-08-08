@@ -70,7 +70,7 @@ public final class HudItemAcquiredComponent extends HudComponent {
     }
 
     public void showItemAcquired(Item item) {
-        itemAppearanceQueue.add(new ItemAppearanceContainer(item, GameManager.getTick()));
+        itemAppearanceQueue.add(new ItemAppearanceContainer(item, GameManager.tick()));
     }
 
     private record ItemAppearanceContainer(Item item, float tickAdded) {
@@ -93,7 +93,7 @@ public final class HudItemAcquiredComponent extends HudComponent {
 
         void show(float delay) {
             isShowing = true;
-            timeAdded = GameManager.getTick();
+            timeAdded = GameManager.tick();
 
             container.getColor().a = 0.0f;
             container.addAction(Actions.sequence(Actions.visible(true), Actions.fadeIn(1.0f)));

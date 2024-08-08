@@ -10,11 +10,15 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 public final class TiledMapCache {
 
     private final StaticSoundMapTile[][] tiles;
+    private final int width, height;
 
     public TiledMapCache(TiledMap map) {
         final long now = System.currentTimeMillis();
         final TiledMapTileLayer theGround = (TiledMapTileLayer) map.getLayers().get("TheGround");
         tiles = new StaticSoundMapTile[theGround.getWidth()][theGround.getHeight()];
+
+        width = theGround.getWidth();
+        height = theGround.getHeight();
 
         int tracking = 0;
         for (int x = 0; x < theGround.getWidth(); x++) {
@@ -38,6 +42,10 @@ public final class TiledMapCache {
      * @return the sound
      */
     public TileMaterialType getMaterialAt(int x, int y) {
+        if (x >= width || y >= height) {
+            return TileMaterialType.NONE;
+        }
+
         return get(tiles[x][y]);
     }
 

@@ -10,7 +10,7 @@ import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.TiledWorldObjectProperties;
@@ -36,7 +36,7 @@ public final class WorldNetworkHandler {
 
     public WorldNetworkHandler(OasisGame game) {
         this.game = game;
-        this.player = game.getPlayer();
+        this.player = game.player();
     }
 
     /**
@@ -81,7 +81,7 @@ public final class WorldNetworkHandler {
                     object.mapObject(),
                     size,
                     OasisGameSettings.SCALE,
-                    game.getAsset(),
+                    game.asset(),
                     object.objectId()
             );
             GameLogging.info(this, "Created network object type (%d) %s @ %f,%f", object.objectId(), object.type(), object.position().x, object.position().y);
@@ -178,7 +178,7 @@ public final class WorldNetworkHandler {
      */
     private void createLocalNetworkPlayer(String name, int entityId, Vector2 origin) {
         final NetworkPlayer networkPlayer = new NetworkPlayer(this.player.getWorldState());
-        networkPlayer.load(game.getAsset());
+        networkPlayer.load(game.asset());
 
         networkPlayer.setProperties(name, entityId);
         networkPlayer.createCircleBody(this.player.getWorldState().boxWorld(), false);
@@ -221,7 +221,7 @@ public final class WorldNetworkHandler {
             GameLogging.info(this, "Starting network game with %d players to create", packet.players().length);
 
             for (S2CNetworkPlayer networkPlayer : packet.players()) {
-                if (!NetworkValidation.ensureValidEntityId(player, networkPlayer.entityId)) continue;
+                if (!GameValidation.ensureValidEntityId(player, networkPlayer.entityId)) continue;
                 createPlayerInActiveWorld(networkPlayer.username, networkPlayer.entityId, networkPlayer.x, networkPlayer.y);
             }
         }
@@ -234,8 +234,8 @@ public final class WorldNetworkHandler {
      * @param packet the packet
      */
     private void handleNetworkCreatePlayer(S2CPacketCreatePlayer packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
-        if (!NetworkValidation.ensureValidEntityId(player, packet.getEntityId())) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureValidEntityId(player, packet.getEntityId())) return;
 
         createPlayerInActiveWorld(packet.getUsername(), packet.getEntityId(), packet.getX(), packet.getY());
     }
@@ -247,7 +247,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handleRemovePlayer(S2CPacketRemovePlayer packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
 
         player.getConnection().removeNetworkPlayer(packet.entityId());
         player.getWorldState().removePlayerInWorld(packet.entityId(), true);
@@ -261,7 +261,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handlePlayerPosition(S2CPacketPlayerPosition packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
 
         player.getWorldState().updatePlayerPositionInWorld(packet.getEntityId(), packet.getX(), packet.getY(), packet.getRotation());
     }
@@ -272,7 +272,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handlePlayerVelocity(S2CPacketPlayerVelocity packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
 
         player.getWorldState().updatePlayerVelocityInWorld(packet.entityId(), packet.x(), packet.y(), packet.rotation());
     }
@@ -283,7 +283,7 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handleSelfTeleport(S2CTeleport packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
         player.setPosition(packet.x(), packet.y());
     }
 
@@ -293,8 +293,8 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handlePlayerTeleport(S2CTeleportPlayer packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
-        if (!NetworkValidation.ensureValidEntityId(player, packet.entityId())) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureValidEntityId(player, packet.entityId())) return;
         this.player.getWorldState().player(packet.entityId()).ifPresent(player -> player.teleport(packet.x(), packet.y()));
     }
 
@@ -304,8 +304,8 @@ public final class WorldNetworkHandler {
      * @param packet packet
      */
     private void handlePlayerEnteredInterior(S2CPlayerEnteredInterior packet) {
-        if (!NetworkValidation.ensureInWorld(player, packet)) return;
-        if (!NetworkValidation.ensureValidEntityId(player, packet.entityId())) return;
+        if (!GameValidation.ensureInWorld(player, packet)) return;
+        if (!GameValidation.ensureValidEntityId(player, packet.entityId())) return;
         if (packet.type() == InteriorWorldType.NONE) return;
 
         final NetworkPlayer mp = player.getConnection().getPlayer(packet.entityId());

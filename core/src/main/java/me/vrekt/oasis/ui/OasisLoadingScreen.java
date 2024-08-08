@@ -98,7 +98,11 @@ public final class OasisLoadingScreen extends ScreenAdapter {
 
             if (progressBar.getValue() >= 100.0f && world != null && world.isWorldLoaded()) {
                 render = false;
-                GameManager.executeTaskLater(() -> world.getGame().setScreen(world), 1);
+                GameManager.executeTaskLater(() -> {
+                    //world.getGame().setScreen(world)
+                    GameManager.game().resetScreen();
+                    GameManager.game().worldManager().setActiveWorld(world);
+                }, 1);
             }
         }
 

@@ -35,7 +35,7 @@ public final class OasisSplashScreen extends ScreenAdapter {
         // fade in, back out and finally set screen to main menu
         root.addAction(Actions.sequence(Actions.fadeIn(1.55f),
                 Actions.fadeOut(1.55f),
-                Actions.run(() -> game.setScreen(new OasisMainMenu(game)))));
+                Actions.run(game::showMainMenu)));
         stage.addActor(root);
     }
 

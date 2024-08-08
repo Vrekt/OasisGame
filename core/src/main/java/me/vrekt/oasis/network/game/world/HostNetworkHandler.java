@@ -10,10 +10,12 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.network.game.NetworkUpdate;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
-import me.vrekt.oasis.network.utility.NetworkValidation;
+import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.GameWorldInterior;
+import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
@@ -58,7 +60,7 @@ public final class HostNetworkHandler {
      * Build a network state from the active world
      */
     public void build() {
-        if (!NetworkValidation.ensureMainThread()) return;
+        if (!GameValidation.ensureMainThread()) return;
 
         final GameWorld world = player.getWorldState();
 
@@ -78,8 +80,8 @@ public final class HostNetworkHandler {
      * Update and process all queue entries
      */
     public void update() {
-        if (!NetworkValidation.ensureInWorld(this.player)) return;
-        if (!NetworkValidation.ensureMainThread()) return;
+        if (!GameValidation.ensureInWorld(this.player)) return;
+        if (!GameValidation.ensureMainThread()) return;
 
         for (Iterator<NetworkUpdate> it = networkUpdateQueue.iterator(); it.hasNext(); ) {
             final NetworkUpdate update = it.next();
@@ -103,6 +105,7 @@ public final class HostNetworkHandler {
      * @param velocity velocity
      */
     public void queueHostPlayerNetworkUpdate(int entityId, Vector2 position, Vector2 velocity, int rotation) {
+        System.err.println(velocity);
         networkUpdateQueue.add(new NetworkUpdate(entityId, position.x, position.y, velocity.x, velocity.y, rotation));
     }
 
@@ -128,7 +131,7 @@ public final class HostNetworkHandler {
         player.teleport(origin);
 
         final NetworkPlayer networkPlayer = new NetworkPlayer(this.player.getWorldState());
-        networkPlayer.load(game.getAsset());
+        networkPlayer.load(game.asset());
 
         networkPlayer.setProperties(player.name(), player.entityId());
         networkPlayer.createCircleBody(this.player.getWorldState().boxWorld(), false);
@@ -182,7 +185,7 @@ public final class HostNetworkHandler {
      * @param entityId entity ID of the player
      */
     public void handlePlayerDisconnected(int entityId) {
-        if (!NetworkValidation.ensureInWorld(this.player)) return;
+        if (!GameValidation.ensureInWorld(this.player)) return;
 
         this.player.getWorldState().removePlayerInWorld(entityId, true);
         GameLogging.info(this, "Player (%d) left.", entityId);
@@ -219,6 +222,39 @@ public final class HostNetworkHandler {
      */
     public void createDroppedItemAndBroadcast(Item item, Vector2 position) {
         player.getWorldState().spawnWorldDrop(item, position);
+    }
+
+    /**
+     * Handle when a player enters an interior
+     * Will transfer them and then also start ticking that interior.
+     *
+     * @param who     who
+     * @param entered interior entered
+     */
+    public void handlePlayerEnteredInterior(ServerPlayer who, InteriorWorldType entered) {
+        if (player.getWorldState().isInterior()) {
+            // interiors are not within interiors
+            who.kick("Invalid interior.");
+        } else {
+            final GameWorldInterior interior = player.getWorldState().findInteriorByType(entered);
+            if (interior == null) {
+                who.kick("Invalid interior entered.");
+            } else {
+                final NetworkPlayer local = player.getWorldState().getPlayer(who.entityId());
+                if (local == null) {
+                    GameLogging.warn(this, "Network player ID mis-match! id=%d", who.entityId());
+                } else {
+                    // tick this world while we are not inside
+                    interior.enableTicking();
+
+                    if (player.getWorldState().isPlayerVisible(local)) {
+                        local.transferPlayerToWorldVisible(entered);
+                    } else {
+                        local.transfer(interior);
+                    }
+                }
+            }
+        }
     }
 
 }

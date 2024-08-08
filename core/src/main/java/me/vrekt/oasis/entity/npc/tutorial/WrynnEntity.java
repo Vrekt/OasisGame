@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.ai.goals.EntityFollowPathGoal;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
@@ -37,7 +36,7 @@ public final class WrynnEntity extends EntityInteractable {
     private boolean completeQuest;
 
     public WrynnEntity(GameWorld world, Vector2 position, OasisGame game) {
-        super(NAME, position, game.getPlayer(), world, game);
+        super(NAME, position, game.player(), world, game);
         this.key = ENTITY_KEY;
         this.type = EntityType.WRYNN;
     }
@@ -111,7 +110,7 @@ public final class WrynnEntity extends EntityInteractable {
         // once the player leaves, complete the quest a few seconds later.
         if (completeQuest) {
             completeQuest = false;
-            GameManager.getTaskManager().schedule(() -> player.getQuestManager().completeQuest(QuestType.A_NEW_HORIZON), 2.2f);
+            game.tasks().schedule(() -> player.getQuestManager().completeQuest(QuestType.A_NEW_HORIZON), 2.2f);
         }
     }
 

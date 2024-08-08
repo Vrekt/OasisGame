@@ -63,8 +63,8 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
 
     @Override
     public void enter() {
-        entered = GameManager.getTick();
-        last = GameManager.getTick();
+        entered = GameManager.tick();
+        last = GameManager.tick();
         entity.setVelocity(0, 0);
     }
 
@@ -81,7 +81,7 @@ public final class ChickDrinkAndPeckState extends ProcessingState {
             animate = false;
 
             animation.reset();
-            last = GameManager.getTick();
+            last = GameManager.tick();
         } else if (!animate) {
             animate = GameManager.hasTimeElapsed(last, 1.25f);
         }

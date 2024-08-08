@@ -87,7 +87,7 @@ public final class GameClientServer implements Disposable {
     private void handleSocketConnection(SocketChannel channel) {
         GameLogging.info(this, "Socket connection establish to remote server.");
 
-        connection = new PlayerConnection(channel, protocol, GameManager.game(), GameManager.getPlayer());
+        connection = new PlayerConnection(channel, protocol, GameManager.game(), GameManager.player());
         channel.pipeline().addLast(ssl.newHandler(channel.alloc(), ip, port));
         channel.pipeline().addLast(new ServerProtocolPacketDecoder(connection, protocol));
         channel.pipeline().addLast(new ProtocolPacketEncoder());

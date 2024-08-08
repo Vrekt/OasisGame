@@ -1,131 +1,27 @@
 package me.vrekt.oasis;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.asset.settings.OasisKeybindings;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiManager;
-import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.ui.FadeScreen;
-import me.vrekt.oasis.utility.TaskManager;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.management.WorldManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class GameManager {
 
-    private static final Map<Integer, Runnable> KEY_ACTIONS = new HashMap<>();
     private static OasisGame oasis;
     private static GuiManager guiManager;
 
-    private static String gameProgress = "10% complete";
-
-    // tick
     public static float tick;
-    private static final TaskManager TASK_MANAGER = new TaskManager();
-    private static int autoSaveTaskId;
-
     private static long timerTick;
-
-    public static OasisGame game() {
-        return oasis;
-    }
 
     public static void initialize(OasisGame game) {
         guiManager = game.guiManager;
-        registerGlobalKeyActions();
     }
 
     public static void setOasis(OasisGame oasis) {
         GameManager.oasis = oasis;
-    }
-
-    private static void registerGlobalKeyAction(int key, GuiType gui, boolean override) {
-        KEY_ACTIONS.put(key, () -> {
-            if (!guiManager.isGuiVisible(GuiType.CHAT) && !override) {
-                // do not open this GUI if the chat is open
-                GameManager.guiManager.toggleGui(gui);
-            } else if (override) {
-                GameManager.guiManager.toggleGui(gui);
-            }
-        });
-    }
-
-    private static void registerHotBarKeys() {
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_1, () -> guiManager.getHotbarComponent().hotbarItemSelected(0));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_2, () -> guiManager.getHotbarComponent().hotbarItemSelected(1));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_3, () -> guiManager.getHotbarComponent().hotbarItemSelected(2));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_4, () -> guiManager.getHotbarComponent().hotbarItemSelected(3));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_5, () -> guiManager.getHotbarComponent().hotbarItemSelected(4));
-        KEY_ACTIONS.put(OasisKeybindings.SLOT_6, () -> guiManager.getHotbarComponent().hotbarItemSelected(5));
-    }
-
-    private static void registerGlobalKeyActions() {
-        registerGlobalKeyAction(OasisKeybindings.INVENTORY_KEY, GuiType.INVENTORY, false);
-        registerGlobalKeyAction(OasisKeybindings.QUEST_KEY, GuiType.QUEST, false);
-        registerGlobalKeyAction(OasisKeybindings.MAP, GuiType.WORLD_MAP, true);
-
-        KEY_ACTIONS.put(OasisKeybindings.DEBUG_MENU_KEY, () -> {
-            OasisGameSettings.DRAW_DEBUG = !OasisGameSettings.DRAW_DEBUG;
-            GameManager.getGuiManager().toggleDrawDebug();
-        });
-
-        KEY_ACTIONS.put(Input.Keys.F4, () -> {
-            Gdx.app.exit();
-        });
-
-        KEY_ACTIONS.put(OasisKeybindings.CHAT, () -> {
-            if (game().isMultiplayer()) {
-                guiManager.showGui(GuiType.CHAT);
-            }
-        });
-        registerHotBarKeys();
-
-        KEY_ACTIONS.put(OasisKeybindings.SKIP_DIALOG_KEY, () -> oasis.getPlayer().handleDialogKeyPress());
-        KEY_ACTIONS.put(OasisKeybindings.ARTIFACT_ONE, () -> oasis.getPlayer().activateArtifact(0));
-    }
-
-    public static boolean handleGuiKeyPress(int key) {
-        if (KEY_ACTIONS.containsKey(key)) {
-            KEY_ACTIONS.get(key).run();
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean handleWorldKeyPress(GameWorld world, int keycode) {
-        // FIXME  if (isSaving) return false;
-
-        if (keycode == OasisKeybindings.ESCAPE) {
-            if (world.isPaused() && guiManager.isGuiVisible(GuiType.PAUSE)) {
-                guiManager.hideGui(GuiType.PAUSE);
-                world.resume();
-                return true;
-            } else if (!world.isPaused() && !guiManager.isAnyGuiVisible(GuiType.HUD)) {
-                // world is not paused, escape was pressed, and NO gui open, obviously pause
-                guiManager.showGui(GuiType.PAUSE);
-                world.pause();
-                return true;
-            }
-
-            // next, check escape key press for exiting GUIs and child GUIs
-            if (!guiManager.hideOrShowParentGuis()) {
-                GameLogging.warn("GameManagerKeyPress", "Unhandled escape key press, what were you doing?");
-                return true;
-            }
-        }
-
-        // handle individual key presses now
-        handleGuiKeyPress(keycode);
-        return true;
     }
 
     /**
@@ -134,12 +30,8 @@ public class GameManager {
      * @param current          current screen
      * @param runWhenCompleted the task to complete afterwards
      */
-    public static void transitionScreen(Screen current, Screen next, Runnable runWhenCompleted) {
-        GameManager.game().setScreen(new FadeScreen(current, new FadeScreen(next, null, null, true), runWhenCompleted, false));
-    }
-
-    public static void resumeGame() {
-        getPlayer().getWorldState().resume();
+    public static void transitionWorlds(GameWorld current, GameWorld next, Runnable runWhenCompleted) {
+        GameManager.game().setScreen(new FadeScreen(current, new FadeScreen(next, true), runWhenCompleted, false));
     }
 
     /**
@@ -147,12 +39,12 @@ public class GameManager {
      *
      * @param action the action
      */
-    public static void executeOnMainThread(Runnable action) {
-        oasis.executeMain(action);
+    public static void runOnMainThread(Runnable action) {
+        oasis.runOnMainThread(action);
     }
 
     /**
-     * Execute a task later
+     * Execute a task later, used for instances where game skeleton is not initialized.
      *
      * @param action the action
      * @param delay  the delay
@@ -166,61 +58,120 @@ public class GameManager {
         }, delay);
     }
 
-    public static float getTick() {
+    /**
+     * @return Current tick of the game
+     */
+    public static float tick() {
         return tick;
     }
 
+    /**
+     * Convert seconds to basic ticks.
+     * 20 ticks in a second
+     * <p>
+     * Used for timing certain actions, ideally in the future main game will be 'tick rated'
+     *
+     * @param seconds seconds
+     * @return the time.
+     */
     public static float secondsToTicks(float seconds) {
-        return seconds * 20; // 20 ticks in a second
+        return seconds * 20;
     }
 
+    /**
+     * Check if a certain amount of time has passed.
+     *
+     * @param last    the last interval
+     * @param seconds how many seconds, <1 supported.
+     * @return {@code true} if the time has elapsed.
+     */
     public static boolean hasTimeElapsed(float last, float seconds) {
         return last == 0 || tick - last >= secondsToTicks(seconds);
     }
 
+    /**
+     * Check if a certain amount of time has passed.
+     *
+     * @param last       the last interval
+     * @param seconds    how many seconds, <1 supported.
+     * @param handleZero if {@code true} and last interval was 0.0f, return {@code false}
+     * @return {@code true} if the time has elapsed.
+     */
     public static boolean hasTimeElapsed(float last, float seconds, boolean handleZero) {
         if (handleZero && last == 0.0) return false;
         return last == 0 || tick - last >= secondsToTicks(seconds);
     }
 
-    public static void startTimer() {
+    /**
+     * Begin timing a certain action
+     * Will not work with multiple tasks.
+     */
+    public static void beginTiming() {
         timerTick = System.currentTimeMillis();
     }
 
-    public static long stopTimer() {
+    /**
+     * Stop timing the action
+     *
+     * @return the time it took in ms.
+     */
+    public static long stopTiming() {
         return System.currentTimeMillis() - timerTick;
     }
 
+    /**
+     * Play a sound.
+     *
+     * @param sound  the sound type
+     * @param volume the volume
+     */
     public static void playSound(Sounds sound, float volume, boolean again) {
         oasis.sounds().play(sound, volume, again);
     }
 
+    /**
+     * Play a sound.
+     *
+     * @param sound  the sound type
+     * @param volume the volume
+     * @param pitch  the pitch
+     * @param pan    the panning
+     */
     public static void playSound(Sounds sound, float volume, float pitch, float pan) {
         oasis.sounds().play(sound, volume, pitch, pan);
     }
 
+    /**
+     * In the future expand upon this, include side activities, interiors, other things.
+     *
+     * @return rough game progression
+     */
     public static float getGameProgress() {
-        // In the future expand upon this, include side activities, interiors, other things.
-        return getPlayer().getQuestManager().completedQuestsAmount() * 10;
+        return player().getQuestManager().completedQuestsAmount() * 10;
     }
 
-    public static GuiManager getGuiManager() {
+    public static OasisGame game() {
+        return oasis;
+    }
+
+    /**
+     * @return global GUI manager
+     */
+    public static GuiManager gui() {
         return guiManager;
     }
 
+    /**
+     * @return game assets
+     */
     public static Asset asset() {
-        return oasis.getAsset();
+        return oasis.asset();
     }
 
-    public static PlayerSP getPlayer() {
-        return oasis.getPlayer();
-    }
-
-    public static WorldManager getWorldManager() {
-        return oasis.getWorldManager();
-    }
-
-    public static TaskManager getTaskManager() {
-        return TASK_MANAGER;
+    /**
+     * @return the local player.
+     */
+    public static PlayerSP player() {
+        return oasis.player();
     }
 }

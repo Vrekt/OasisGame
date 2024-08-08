@@ -30,7 +30,7 @@ public final class MyceliaWorld extends GameWorld {
         player.scalePlayerBy(0.8f);
         super.loadWorldTiledMap(isGameSave);
         if (!isWorldLoaded) {
-            loadTiledMap(game.getAsset().getWorldMap(worldMap), OasisGameSettings.SCALE);
+            loadTiledMap(game.asset().getWorldMap(worldMap), OasisGameSettings.SCALE);
         }
 
         renderer.getCamera().zoom = 0.8f;

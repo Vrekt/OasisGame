@@ -34,11 +34,11 @@ public final class WrynnLeverInteraction extends AbstractInteractableWorldObject
     @Override
     public void interact() {
         GameManager.playSound(Sounds.LEVER_CLICK, 1.0f, 1.0f, 0.0f);
-        lastInteraction = GameManager.getTick();
+        lastInteraction = GameManager.tick();
 
         state = !state;
         activeTexture = state ? "lever_on" : "lever_off";
-        final TextureRegion region = world.getGame().getAsset().get(activeTexture);
+        final TextureRegion region = world.getGame().asset().get(activeTexture);
         setTextureAndSize(activeTexture, region);
 
         if (!pressed && parentWorld.hasSimpleObject("oasis:basement_gate")) {

@@ -148,7 +148,7 @@ public final class GrungyRoachEnemy extends EntityEnemy {
      * Handle attack state entering/exiting
      */
     private void handleAttackState() {
-        lastAttack = GameManager.getTick();
+        lastAttack = GameManager.tick();
         isAttacking = true;
 
         worldIn.spawnAnimatedProjectile(ProjectileType.ROACH_ACID,

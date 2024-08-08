@@ -55,7 +55,7 @@ public final class PlayerWorldSave implements Disposable {
 
         this.worlds = new HashMap<>();
         // will only return normal worlds and not interior worlds 
-        for (GameWorld gameWorld : game.getWorldManager().worlds().values()) {
+        for (GameWorld gameWorld : game.worldManager().worlds().values()) {
             // only save this world if visited, and it's not already set as the active world
             if (gameWorld.hasVisited() && worldIn != gameWorld.worldId()) {
                 this.worlds.put(gameWorld.worldId(), new DefaultWorldSave(gameWorld, inInterior ? worldIn : -1));

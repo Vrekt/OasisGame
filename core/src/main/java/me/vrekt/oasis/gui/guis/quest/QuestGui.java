@@ -26,7 +26,7 @@ public final class QuestGui extends Gui {
 
     public QuestGui(GuiManager guiManager) {
         super(GuiType.QUEST, guiManager);
-        this.manager = guiManager.getGame().getPlayer().getQuestManager();
+        this.manager = guiManager.getGame().player().getQuestManager();
 
         hideWhenVisible.add(GuiType.HUD);
         disablePlayerMovement = true;

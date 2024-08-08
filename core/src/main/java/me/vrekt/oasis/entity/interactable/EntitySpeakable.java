@@ -76,8 +76,8 @@ public abstract class EntitySpeakable extends GameEntity {
         // stop speaking to this entity if the player moves away
         if (speakingTo) {
             if (player.getPosition().dst(interactionPoint) >= 0.1f) {
-                GameManager.getGuiManager().hideGui(GuiType.DIALOG);
-                GameManager.getGuiManager().resetCursor();
+                GameManager.gui().hideGui(GuiType.DIALOG);
+                GameManager.gui().resetCursor();
                 speakingTo = false;
 
                 stoppedSpeaking();

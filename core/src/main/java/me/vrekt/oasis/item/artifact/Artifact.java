@@ -94,7 +94,7 @@ public abstract class Artifact implements ResourceLoader{
      * @param player the player
      */
     protected void createEffect(PlayerSP player) {
-        effectTickActivated = GameManager.getTick();
+        effectTickActivated = GameManager.tick();
         effectPosition.set(player.getInterpolatedPosition());
         effectAlpha = 1.0f;
         drawEffect = true;
@@ -163,7 +163,7 @@ public abstract class Artifact implements ResourceLoader{
      */
     public void updateIfApplied(PlayerSP player) {
         if (isApplied) {
-            this.update(player, GameManager.getTick());
+            this.update(player, GameManager.tick());
         }
     }
 

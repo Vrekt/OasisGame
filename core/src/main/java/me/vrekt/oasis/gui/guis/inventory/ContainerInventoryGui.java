@@ -41,7 +41,7 @@ public final class ContainerInventoryGui extends InventoryGui {
 
     public ContainerInventoryGui(GuiManager guiManager) {
         super(GuiType.CONTAINER, guiManager);
-        this.player = guiManager.getGame().getPlayer();
+        this.player = guiManager.getGame().player();
 
         hideWhenVisible.add(GuiType.HUD);
         disablePlayerMovement = true;

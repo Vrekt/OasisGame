@@ -72,7 +72,7 @@ public final class OasisMainMenu extends ScreenAdapter {
 
     @Override
     public void show() {
-        game.getMultiplexer().addProcessor(stage);
+        game.multiplexer().addProcessor(stage);
     }
 
     @Override
@@ -82,7 +82,7 @@ public final class OasisMainMenu extends ScreenAdapter {
 
     @Override
     public void hide() {
-        game.getMultiplexer().removeProcessor(stage);
+        game.multiplexer().removeProcessor(stage);
         dispose();
     }
 
@@ -105,8 +105,8 @@ public final class OasisMainMenu extends ScreenAdapter {
         rootTable.row();
         rootTable.add(new VisLabel("MP: " + System.getProperty("mp"), Styles.getMediumWhiteMipMapped()));
 
-        assignClickAction(newGameButton, game::loadNewGame);
-        assignClickAction(joinServerButton, game::joinLocalServer);
+        assignClickAction(newGameButton, game::enterNewGame);
+        assignClickAction(joinServerButton, game::joinLanGame);
 
         // show load game UI
         assignClickAction(loadGameButton, () -> {
@@ -126,7 +126,7 @@ public final class OasisMainMenu extends ScreenAdapter {
     private void initializeLoadGameComponents(NinePatchDrawable theme, VisImageTextButton.VisImageTextButtonStyle style) {
         SaveManager.readSaveGameProperties(); // read if we haven't already
 
-        final Label.LabelStyle labelStyle = new Label.LabelStyle(game.getAsset().getMedium(), Color.WHITE);
+        final Label.LabelStyle labelStyle = new Label.LabelStyle(game.asset().getMedium(), Color.WHITE);
         final GameSaveProperties properties = SaveManager.getProperties();
 
         if (properties.hasSaveSlot(1)) addSlotTableComponent(properties.getSaveSlotProperty(1), theme, labelStyle);
@@ -135,7 +135,7 @@ public final class OasisMainMenu extends ScreenAdapter {
 
         // if no saves just display that.
         if (!properties.hasAnySaveSlots()) {
-            loadGameTable.add(new VisLabel("No Save Games Available!", new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE)));
+            loadGameTable.add(new VisLabel("No Save Games Available!", new Label.LabelStyle(game.asset().getLarge(), Color.WHITE)));
             loadGameTable.row();
         }
 
@@ -158,7 +158,7 @@ public final class OasisMainMenu extends ScreenAdapter {
      */
     private void addSlotTableComponent(GameSaveSlotProperty properties, NinePatchDrawable theme, Label.LabelStyle style) {
         final VisTable root = new VisTable();
-        final VisImage saveImage = new VisImage(game.getAsset().get("secondwind_artifact"));
+        final VisImage saveImage = new VisImage(game.asset().get("secondwind_artifact"));
         final VisLabel saveName = new VisLabel(properties.name(), style);
         final VisLabel progress = new VisLabel(properties.progress() + "", style);
         final VisLabel dateSaved = new VisLabel(properties.date(), style);

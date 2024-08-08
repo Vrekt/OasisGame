@@ -38,7 +38,7 @@ public final class LyraEntity extends EntityInteractable {
     private boolean isFinished;
 
     public LyraEntity(GameWorld world, Vector2 position, OasisGame game) {
-        super(NAME, position, game.getPlayer(), world, game);
+        super(NAME, position, game.player(), world, game);
         this.key = ENTITY_KEY;
         this.type = EntityType.LYRA;
     }
@@ -111,7 +111,7 @@ public final class LyraEntity extends EntityInteractable {
         resetPathingPursuePlayer(interior);
         setRotation(EntityRotation.UP);
         // lyra is alerted because we are in her house
-        addStatus(new EntityAlertedStatus(this, game.getAsset()));
+        addStatus(new EntityAlertedStatus(this, game.asset()));
 
         activeEntry = dialogue.getEntry("lyra:dialog2_stage_1").getEntry();
         transferred = true;

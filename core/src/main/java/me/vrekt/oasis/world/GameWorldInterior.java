@@ -51,7 +51,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     protected boolean lockpickHint, lockpickUsed;
 
     protected boolean requiresNearUpdating = true;
-    protected boolean isFlipped;
+    protected boolean doTicking;
 
     public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
@@ -194,6 +194,20 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     }
 
     /**
+     * Tick this world while the player is not inside
+     */
+    public void enableTicking() {
+        doTicking = true;
+    }
+
+    /**
+     * @return {@code true} if this world should be ticked.
+     */
+    public boolean doTicking() {
+        return doTicking;
+    }
+
+    /**
      * When the player walks away, invalidate anything we may have done
      */
     public void invalidatePlayerNearbyState() {
@@ -223,21 +237,25 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     }
 
     @Override
-    public float update(float delta) {
+    public void tick(float delta) {
         // check if the player entered the exit bounds
         if (!isExiting && exit.overlaps(player.bb())) {
             isExiting = true;
             exit();
         }
+    }
 
+    @Override
+    public float tickWorldPhysicsSim(float delta) {
+        // do not tick physics while we are exiting
         if (isExiting) return delta;
-        return super.update(delta);
+        return super.tickWorldPhysicsSim(delta);
     }
 
     @Override
     public void loadWorldTiledMap(boolean isGameSave) {
         this.isGameSave = isGameSave;
-        loadTiledMap(game.getAsset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
+        loadTiledMap(game.asset().getWorldMap(interiorMap), OasisGameSettings.SCALE);
 
         if (isGameSave) hasVisited = true;
     }
@@ -256,15 +274,13 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         updateEnteringWorldState();
 
         game.getGuiManager().resetCursor();
-        game.getMultiplexer().addProcessor(this);
-        game.setScreen(this);
+        game.multiplexer().addProcessor(this);
+        game.worldManager().setActiveWorld(this);
 
         hasVisited = true;
         isExiting = false;
         isWorldActive = true;
         isWorldLoaded = true;
-
-        if (game.isMultiplayer()) player.getConnection().updateInteriorHasLoaded();
     }
 
     /**
@@ -275,8 +291,9 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
         GameLogging.info(this, "Exiting interior");
 
         isWorldActive = false;
-        game.getMultiplexer().removeProcessor(this);
-        GameManager.transitionScreen(this, parentWorld, () -> GameManager.getWorldManager().transferOut(player, this, parentWorld));
+        game.multiplexer().removeProcessor(this);
+
+        GameManager.transitionWorlds(this, parentWorld, () -> game.worldManager().transferOut(player, this, parentWorld));
     }
 
     /**
@@ -300,9 +317,9 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
 
         TiledMapLoader.loadMapCollision(map, worldScale, world);
         TiledMapLoader.loadMapActions(map, worldScale, worldOrigin, exit);
-        createWorldObjects(map, game.getAsset(), worldScale);
+        createWorldObjects(map, game.asset(), worldScale);
         buildEntityPathing(map, worldScale);
-        createEntities(game.getAsset(), map, worldScale);
+        createEntities(game.asset(), map, worldScale);
 
         world.setContactListener(new BasicEntityCollisionHandler());
         addDefaultWorldSystems();

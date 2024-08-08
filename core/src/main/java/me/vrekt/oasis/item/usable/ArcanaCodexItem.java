@@ -38,7 +38,7 @@ public final class ArcanaCodexItem extends MagicBookItem {
 
     @Override
     public void use(PlayerSP player) {
-        GameManager.getGuiManager().getMagicBookComponent().showItem(this);
+        GameManager.gui().getMagicBookComponent().showItem(this);
     }
 
 }

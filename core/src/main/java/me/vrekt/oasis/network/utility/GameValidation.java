@@ -7,7 +7,7 @@ import me.vrekt.shared.packet.GamePacket;
 /**
  * Handles validation of packets
  */
-public final class NetworkValidation {
+public final class GameValidation {
 
     private static final String TAG = "NetworkUtility";
     public static long mainThreadId;
@@ -23,6 +23,15 @@ public final class NetworkValidation {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Ensure whatever is calling is on the main thread
+     */
+    public static void ensureMainThreadOrThrow() {
+        if (Thread.currentThread().threadId() != mainThreadId) {
+            throw new UnsupportedOperationException("Main thread bugcheck.");
+        }
     }
 
     /**

@@ -160,7 +160,7 @@ public final class EntitySteerable implements Steerable<Vector2> {
 
             if (GameManager.hasTimeElapsed(last, 0.1f)) {
                 direction = AiVectorUtility.velocityToDirection(body.getLinearVelocity());
-                last = GameManager.getTick();
+                last = GameManager.tick();
             }
         }
     }

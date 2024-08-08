@@ -76,7 +76,7 @@ public final class AiWalkToGoalsComponent extends AiComponent {
 
     @Override
     public void update(float delta) {
-        if (!isAnyGoalActive && (lastPathMet == 0 || GameManager.getTick() - lastPathMet >= pathingInterval)) {
+        if (!isAnyGoalActive && (lastPathMet == 0 || GameManager.tick() - lastPathMet >= pathingInterval)) {
             isAnyGoalActive = true;
             goalExecuted = false;
             assignRandomGoal();
@@ -88,7 +88,7 @@ public final class AiWalkToGoalsComponent extends AiComponent {
                 }
 
                 isAnyGoalActive = false;
-                lastPathMet = GameManager.getTick();
+                lastPathMet = GameManager.tick();
             }
         }
 

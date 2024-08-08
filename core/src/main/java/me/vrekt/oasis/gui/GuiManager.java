@@ -79,7 +79,7 @@ public final class GuiManager implements Disposable {
     public GuiManager(OasisGame game, Asset asset, InputMultiplexer multiplexer) {
         this.game = game;
         this.asset = asset;
-        this.player = game.getPlayer();
+        this.player = game.player();
         this.layout = new GlyphLayout();
 
         // fit this stage to always respect the general constraints we want
@@ -270,7 +270,7 @@ public final class GuiManager implements Disposable {
             value.update();
             if (value.timedUpdateInterval != 0
                     && GameManager.hasTimeElapsed(value.lastUpdate, value.timedUpdateInterval)) {
-                value.lastUpdate = GameManager.getTick();
+                value.lastUpdate = GameManager.tick();
                 value.timedUpdate(value.lastUpdate);
             }
         }
@@ -343,10 +343,11 @@ public final class GuiManager implements Disposable {
      * @param camera      world camera
      * @param batch       world batch
      */
-    public void renderWorldObjectComponents(AbstractInteractableWorldObject worldObject, Camera camera, SpriteBatch batch) {
+    public void renderWorldObjectComponents(AbstractInteractableWorldObject worldObject, Camera camera, Vector3 cursor, SpriteBatch batch) {
         worldPosition.set(camera.project(worldPosition.set(worldObject.getPosition().x, worldObject.getPosition().y + 0.55f, 0)));
         screenPosition.set(getCamera().project(worldPosition));
-        worldObject.renderUiComponents(batch, this, asset.getMediumMipMapped(), screenPosition);
+        if (worldObject.isMouseOver(cursor))
+            worldObject.renderUiComponents(batch, this, asset.getMediumMipMapped(), screenPosition);
     }
 
     /**

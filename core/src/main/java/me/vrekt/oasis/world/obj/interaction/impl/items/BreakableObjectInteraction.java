@@ -54,7 +54,7 @@ public final class BreakableObjectInteraction extends AbstractInteractableWorldO
             final float animationTime = TiledMapLoader.ofFloat(object, "animation_time", 0.1335f);
             final TextureRegion[] frames = new TextureRegion[TiledMapLoader.ofInt(object, "animation_frames", 3)];
             for (int i = 0; i < frames.length; i++) {
-                frames[i] = world.getGame().getAsset().get(anim, i + 1);
+                frames[i] = world.getGame().asset().get(anim, i + 1);
             }
             breakingAnimation = new Animation<>(animationTime, frames);
         }

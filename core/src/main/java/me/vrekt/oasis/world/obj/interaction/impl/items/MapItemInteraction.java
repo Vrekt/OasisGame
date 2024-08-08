@@ -176,16 +176,14 @@ public final class MapItemInteraction extends AbstractInteractableWorldObject {
     public void renderUiComponents(SpriteBatch batch, GuiManager manager, BitmapFont font, Vector3 position) {
         if (this.item == null) return;
 
-        if (isMouseOver(world.getCursorInWorld())) {
-            final float width = manager.getStringWidth(item.name()) + PATCH_PADDING_X;
-            final float height = manager.getStringHeight(item.name()) + PATCH_PADDING_Y;
+        final float width = manager.getStringWidth(item.name()) + PATCH_PADDING_X;
+        final float height = manager.getStringHeight(item.name()) + PATCH_PADDING_Y;
 
-            oldColor.set(font.getColor());
-            font.setColor(Color.SKY);
-            Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING_Y + size.x), position.y - (height + size.y * PATCH_PADDING_Y), width, height);
-            font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING_Y + size.x * 6f), position.y - (height + size.y * PATCH_PADDING_Y) / 2f);
-            font.setColor(oldColor);
-        }
+        oldColor.set(font.getColor());
+        font.setColor(Color.SKY);
+        Styles.paddedTheme().draw(batch, position.x - width / 2f + (PATCH_PADDING_Y + size.x), position.y - (height + size.y * PATCH_PADDING_Y), width, height);
+        font.draw(batch, item.name(), position.x - width / 2f + (PATCH_PADDING_Y + size.x * 6f), position.y - (height + size.y * PATCH_PADDING_Y) / 2f);
+        font.setColor(oldColor);
     }
 
     @Override

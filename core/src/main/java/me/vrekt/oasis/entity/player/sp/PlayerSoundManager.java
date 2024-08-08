@@ -24,9 +24,9 @@ public final class PlayerSoundManager {
     public PlayerSoundManager(PlayerSP player) {
         this.player = player;
 
-        GameManager.startTimer();
-        this.sounds = GameManager.game().soundManager().loadSounds();
-        GameLogging.info(this, "Loaded %d sounds in %d ms", sounds.size(), GameManager.stopTimer());
+        GameManager.beginTiming();
+        sounds = GameManager.game().sounds().loadSounds();
+        GameLogging.info(this, "Loaded %d sounds in %d ms", sounds.size(), GameManager.stopTiming());
     }
 
     /**

@@ -92,7 +92,7 @@ public abstract class Attribute {
      * @return {@code true} if this attribute has expired
      */
     public boolean isExpired() {
-        return (GameManager.getTick() - tickApplied >= duration);
+        return (GameManager.tick() - tickApplied >= duration);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class Attribute {
      * @param player the player
      */
     public void apply(PlayerSP player) {
-        tickApplied = GameManager.getTick();
+        tickApplied = GameManager.tick();
     }
 
 }

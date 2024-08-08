@@ -68,7 +68,7 @@ public final class HudNewQuestComponent extends HudComponent {
         difficultyIcon.setDrawable(new TextureRegionDrawable(asset(quest.difficulty().getAsset())));
         fadeIn(rootTable, 1.55f);
 
-        GameManager.getTaskManager().schedule(() -> fadeOut(rootTable, 1.55f), 4);
+        GameManager.game().tasks().schedule(() -> fadeOut(rootTable, 1.55f), 4);
     }
 
 }

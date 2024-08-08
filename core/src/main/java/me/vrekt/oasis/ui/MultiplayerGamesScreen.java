@@ -23,11 +23,11 @@ public final class MultiplayerGamesScreen extends ScreenAdapter {
         this.stage = new Stage();
 
         VisTable rootTable = new VisTable(true);
-        rootTable.setBackground(new TextureRegionDrawable(game.getAsset().get("pause")));
+        rootTable.setBackground(new TextureRegionDrawable(game.asset().get("pause")));
         rootTable.setFillParent(true);
         stage.addActor(rootTable);
 
-        final Label.LabelStyle style = new Label.LabelStyle(game.getAsset().getLarge(), Color.WHITE);
+        final Label.LabelStyle style = new Label.LabelStyle(game.asset().getLarge(), Color.WHITE);
         final VisList<VisLabel> list = new VisList<>();
         final VisLabel header = new VisLabel("LAN multiplayer games", style);
     }

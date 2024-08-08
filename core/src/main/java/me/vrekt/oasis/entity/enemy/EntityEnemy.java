@@ -44,7 +44,7 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EntitySa
     public EntityEnemy(String key, GameWorld world, OasisGame game) {
         this.key = key;
         this.worldIn = world;
-        this.player = game.getPlayer();
+        this.player = game.player();
         this.stateMachine = new EntityStateMachine(this);
     }
 
@@ -123,7 +123,7 @@ public abstract class EntityEnemy extends GameEntity implements Savable<EntitySa
         super.damage(amount, type);
 
         this.hurt = true;
-        this.hurtTime = GameManager.getTick();
+        this.hurtTime = GameManager.tick();
     }
 
     @Override

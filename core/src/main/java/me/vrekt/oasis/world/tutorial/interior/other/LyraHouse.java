@@ -1,7 +1,6 @@
 package me.vrekt.oasis.world.tutorial.interior.other;
 
 import com.badlogic.gdx.math.Rectangle;
-import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.gui.cursor.Cursor;
@@ -28,7 +27,7 @@ public final class LyraHouse extends GameWorldInterior {
 
         // after we enter, bring lyra into this house to confront the player
         if (findEntity(EntityType.LYRA) == null) {
-            GameManager.getTaskManager().schedule(() -> {
+            game.tasks().schedule(() -> {
                 parentWorld.findInteractableEntity(EntityType.LYRA)
                         .transfer(this);
             }, 2);
@@ -36,7 +35,7 @@ public final class LyraHouse extends GameWorldInterior {
     }
 
     @Override
-    public float update(float delta) {
-        return super.update(delta);
+    public float tickWorldPhysicsSim(float delta) {
+        return super.tickWorldPhysicsSim(delta);
     }
 }

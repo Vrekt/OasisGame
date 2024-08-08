@@ -66,7 +66,7 @@ public final class SettingsWindowGui extends Gui {
         volumeSliderContainer.setBackground(Styles.getTheme());
 
         final VisCheckBox multiplayerGameCheck = new VisCheckBox("Enable Multiplayer LAN", Styles.getCheckBoxStyle());
-        multiplayerGameCheck.setChecked(guiManager.getGame().isLocalMultiplayer());
+        multiplayerGameCheck.setChecked(guiManager.getGame().isHostingMultiplayerGame());
         multiplayerGameContainer.add(multiplayerGameCheck).left();
 
         final VisCheckBox vsyncCheck = new VisCheckBox("Enable VSync", Styles.getCheckBoxStyle());
@@ -160,13 +160,10 @@ public final class SettingsWindowGui extends Gui {
                     return;
                 }
 
+                // start or stop the integrated server.
                 if (!OasisGameSettings.ENABLE_MP_LAN) {
-                    // start the server.
-                    GameManager.executeOnMainThread(() -> {
-                        GameManager.game().startIntegratedServerBlocking();
-                    });
+                    GameManager.game().startIntegratedServerBlocking(guiManager.player().getWorldState());
                 } else {
-                    // stop the server.
                     GameManager.game().shutdownIntegratedServer();
                 }
 

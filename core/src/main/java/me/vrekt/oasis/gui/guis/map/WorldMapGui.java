@@ -57,7 +57,7 @@ public final class WorldMapGui extends Gui {
 
         calculateBounds();
 
-        guiManager.getGame().getMultiplexer().addProcessor(detector);
+        guiManager.getGame().multiplexer().addProcessor(detector);
         rootTable.setVisible(true);
     }
 
@@ -65,7 +65,7 @@ public final class WorldMapGui extends Gui {
     public void hide() {
         super.hide();
         ((OrthographicCamera) guiManager.getStage().getCamera()).zoom = 1.0f;
-        guiManager.getGame().getMultiplexer().removeProcessor(detector);
+        guiManager.getGame().multiplexer().removeProcessor(detector);
         rootTable.setVisible(false);
     }
 
