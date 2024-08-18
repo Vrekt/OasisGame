@@ -1,6 +1,10 @@
 package me.vrekt.oasis.world.obj.interaction;
 
+import me.vrekt.oasis.GameManager;
+import me.vrekt.oasis.entity.GameEntity;
+import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.utility.Interaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +16,11 @@ import java.util.function.Supplier;
 public final class InteractionManager {
 
     private final Map<WorldInteractionType, ChildInteractionRegistry> interactionRegistry = new HashMap<>();
+
+    // keybinding interactions
+    private GameEntity entityToInteractWith;
+    private GameWorldInterior interiorToEnter;
+    private Interaction active;
 
     /**
      * Register an interaction that has a base type but differing implementation
@@ -44,6 +53,69 @@ public final class InteractionManager {
      */
     public AbstractInteractableWorldObject getInteraction(WorldInteractionType type, String key) {
         return interactionRegistry.get(type).registry.get(key).get();
+    }
+
+    /**
+     * Show the enter interaction
+     */
+    public void showEnterInteraction(GameWorldInterior into) {
+        GameManager.game().getGuiManager().getInteractionsComponent().showEnterInteraction();
+        active = Interaction.ENTER;
+        interiorToEnter = into;
+    }
+
+    /**
+     * Show the speaking interaction
+     */
+    public void showSpeakingInteraction(GameEntity entity) {
+        GameManager.game().getGuiManager().getInteractionsComponent().showSpeakingInteraction();
+        active = Interaction.SPEAK;
+        entityToInteractWith = entity;
+    }
+
+    /**
+     * Show the lockpicking interaction
+     */
+    public void showLockpickingInteraction() {
+        GameManager.game().getGuiManager().getInteractionsComponent().showLockpickInteraction();
+        active = Interaction.LOCKPICK;
+    }
+
+    /**
+     * Hide all.
+     */
+    public void hideInteractions() {
+        GameManager.game().getGuiManager().getInteractionsComponent().hide();
+        active = null;
+    }
+
+    public boolean is(Interaction interaction) {
+        return active != null && active == interaction;
+    }
+
+    public boolean any() {
+        return active() != null;
+    }
+
+    /**
+     * @return the active interaction
+     */
+    public Interaction active() {
+        return active;
+    }
+
+    /**
+     * @return the entity that provided the interaction prompt
+     */
+    public GameEntity entityToInteractWith() {
+        return entityToInteractWith;
+    }
+
+    /**
+     * @return the interior that provided the interaction prompt
+     */
+    public GameWorldInterior interiorToEnter() {
+        return interiorToEnter;
     }
 
     private static final class ChildInteractionRegistry {

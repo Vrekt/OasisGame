@@ -12,10 +12,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.sound.Sounds;
-import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.gui.cursor.MouseListener;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.item.Items;
-import me.vrekt.oasis.item.misc.LockpickItem;
+import me.vrekt.oasis.network.connection.client.NetworkCallback;
 import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -24,11 +23,14 @@ import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.lp.ActivityManager;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
+import me.vrekt.oasis.world.utility.Interaction;
+import me.vrekt.shared.packet.client.interior.C2STryEnterInteriorWorld;
+import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
 
 /**
  * Represents an interior within the parent world;
  */
-public abstract class GameWorldInterior extends GameWorld implements MouseListener {
+public abstract class GameWorldInterior extends GameWorld {
 
     private static final float ENTERING_DISTANCE = 5.0f;
 
@@ -48,7 +50,7 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
 
     // lockpick hint for this interior
     protected boolean isNear;
-    protected boolean lockpickHint, lockpickUsed;
+    protected boolean lockpickUsed;
 
     protected boolean requiresNearUpdating = true;
     protected boolean doTicking;
@@ -179,17 +181,25 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
 
     /**
      * Update this interior if the player is near
+     * We use parent interaction manager here because we are not actively within this interior.
      */
-    public void updateWhilePlayerIsNear() {
-        if (locked() && !lockpickHint && player.getInventory().containsItem(Items.LOCK_PICK)) {
-            // show the hint the player can use a lockpick on this interior
-            guiManager.getItemHintComponent().showItemHint(LockpickItem.DESCRIPTOR);
-            lockpickHint = true;
-        } else if (lockpickHint && !lockpickUsed && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+    public void updateWhilePlayerIsNear(GameWorld parent) {
+        if (locked()
+                && !lockpickUsed
+                && !parent.interactionManager.is(Interaction.LOCKPICK)
+                && player.getInventory().containsItem(Items.LOCK_PICK)) {
+            parent.interactionManager.showLockpickingInteraction();
+        } else if (parent.interactionManager.active() == Interaction.LOCKPICK
+                && !lockpickUsed
+                && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
             // use the lockpick
             ActivityManager.lockpicking(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
-            guiManager.getItemHintComponent().removeItemHint();
+            parent.interactionManager.hideInteractions();
             lockpickUsed = true;
+        } else if (!locked()) {
+            if (!parent.interactionManager.is(Interaction.ENTER)) {
+                parent.interactionManager.showEnterInteraction(this);
+            }
         }
     }
 
@@ -211,17 +221,15 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
      * When the player walks away, invalidate anything we may have done
      */
     public void invalidatePlayerNearbyState() {
-        lockpickHint = false;
         lockpickUsed = false;
 
-        guiManager.getItemHintComponent().removeItemHint();
+        parentWorld.interactionManager.hideInteractions();
     }
 
     /**
      * Player cancelled or failed this lockpick
      */
     private void handleCancelOrFailLockpick() {
-        lockpickHint = false;
         lockpickUsed = false;
     }
 
@@ -230,7 +238,8 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
      */
     private void handleLockpickSuccess() {
         setLocked(false);
-        invalidatePlayerNearbyState();
+
+        lockpickUsed = false;
 
         GameManager.playSound(Sounds.LOCKPICK_UNLOCK, 0.5f, 1.0f, 0.0f);
         player.getInventory().removeFirst(Items.LOCK_PICK);
@@ -338,37 +347,39 @@ public abstract class GameWorldInterior extends GameWorld implements MouseListen
     }
 
     @Override
-    public Cursor enter(Vector3 mouse) {
-        return cursor;
+    public boolean keyDown(int keycode) {
+        return super.keyDown(keycode);
     }
 
-    @Override
-    public boolean within(Vector3 mouse) {
-        return isMouseWithinBounds(mouse);
-    }
-
-    @Override
-    public boolean clicked(Vector3 mouse) {
+    /**
+     * Attempt to enter this interior
+     */
+    protected void attemptEnter() {
         if (isWithinEnteringDistance(player.getPosition()) && enterable) {
             if (locked()) {
                 game.guiManager.getHintComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
                 GameManager.playSound(Sounds.DOOR_LOCKED, 0.45f, 1.0f, 0.0f);
             } else {
-                parentWorld.enterInterior(this);
+                // check with the server if we can actually enter this interior
+                if (game.isInMultiplayerGame()) {
+                    NetworkCallback.immediate(new C2STryEnterInteriorWorld(type))
+                            .waitFor(S2CEnterInteriorWorld.ID)
+                            .timeoutAfter(2000)
+                            .sync()
+                            .accept(packet -> {
+                                final S2CEnterInteriorWorld response = (S2CEnterInteriorWorld) packet;
+                                if (response.isEnterable()) {
+                                    parentWorld.enterInterior(this);
+                                }
+                            }).send();
+                } else if (game.isHostingMultiplayerGame()) {
+                    // TODO:
+                } else {
+                    // singleplayer game
+                    parentWorld.enterInterior(this);
+                }
             }
         }
-
-        return true;
-    }
-
-    @Override
-    public void exit(Vector3 mouse) {
-
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return super.keyDown(keycode);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package me.vrekt.shared.packet.server.interior;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.server.player.S2CNetworkPlayer;
 
@@ -14,10 +13,6 @@ public final class S2CPlayersInInterior extends GamePacket {
 
     // list of all players within the server
     private S2CNetworkPlayer[] players;
-
-    public static void handle(S2CPacketHandler handler, ByteBuf buffer) {
-        handler.handle(new S2CPlayersInInterior(buffer));
-    }
 
     public S2CPlayersInInterior(S2CNetworkPlayer... players) {
         this.players = players;

@@ -29,13 +29,11 @@ public final class HudHotbarComponent extends HudComponent {
         super(HudComponentType.HOT_BAR, manager);
 
         rootTable.bottom().padBottom(8);
-
         // 6 hotbar slots
-        final Label.LabelStyle style = new Label.LabelStyle(guiManager.getSmallFont(), Color.LIGHT_GRAY);
-
+        final Label.LabelStyle style = new Label.LabelStyle(guiManager.getSmallFont(), Color.WHITE);
         for (int i = 0; i < 6; i++) {
             // adapter from InventoryGui class
-            final VisImage slot = new VisImage(Styles.getTheme());
+            final VisImage slot = new VisImage(Styles.getThemePadded());
             final VisImage item = new VisImage();
             item.setOrigin(16 / 2f, 16 / 2f);
 
@@ -47,12 +45,11 @@ public final class HudHotbarComponent extends HudComponent {
             final VisTable slotNumber = new VisTable(true);
             final VisLabel slotNumberLabel = new VisLabel(Integer.toString(i + 1), style);
             slotNumber.top().left();
-            slotNumber.add(slotNumberLabel).top().left().padLeft(2);
+            slotNumber.add(slotNumberLabel).top().left().padLeft(3.5f);
             overlay.add(slotNumber);
 
             hotbarIconComponents.add(new HotbarComponentSlot(slot, item));
 
-            slot.setColor(Color.WHITE);
             rootTable.add(overlay).size(48, 48).padLeft(2);
         }
 

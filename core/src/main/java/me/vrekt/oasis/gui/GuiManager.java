@@ -21,7 +21,7 @@ import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
@@ -202,6 +202,10 @@ public final class GuiManager implements Disposable {
 
     public HudItemHintComponent getItemHintComponent() {
         return hudGui.getComponent(HudComponentType.ITEM_HINT);
+    }
+
+    public HudInteractionsComponent getInteractionsComponent() {
+        return hudGui.getComponent(HudComponentType.INTERACTIONS);
     }
 
     public HudPlayerHintComponent getHintComponent() {
@@ -416,8 +420,7 @@ public final class GuiManager implements Disposable {
      */
     public boolean hideOrShowParentGuis() {
         for (Gui gui : guis.values()) {
-            if (gui.isGuiVisible()
-                    && gui.type != GuiType.HUD) {
+            if (gui.isGuiVisible() && gui.type != GuiType.HUD) {
                 if (gui.hasParent) {
                     showParentGui(gui);
                 } else {

@@ -10,12 +10,12 @@ import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.MouseableAbstractInteractableWorldObject;
 
 /**
  * Unlocks the basement
  */
-public final class WrynnLeverInteraction extends AbstractInteractableWorldObject {
+public final class WrynnLeverInteraction extends MouseableAbstractInteractableWorldObject {
 
     private static final String KEY = "wrynn:lever";
     private boolean state;

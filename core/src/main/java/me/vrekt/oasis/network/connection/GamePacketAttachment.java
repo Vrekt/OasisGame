@@ -20,6 +20,8 @@ public final class GamePacketAttachment implements Pool.Poolable {
     public Consumer<GamePacket> handler;
     public GamePacket packet;
 
+    public int debug;
+
     private GamePacketAttachment() {
 
     }
@@ -41,6 +43,8 @@ public final class GamePacketAttachment implements Pool.Poolable {
 
     @Override
     public void reset() {
+        debug = packet.getId();
+
         this.handler = null;
         this.packet = null;
     }

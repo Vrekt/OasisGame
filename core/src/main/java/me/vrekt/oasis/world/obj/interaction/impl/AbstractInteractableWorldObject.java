@@ -16,8 +16,8 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.client.C2SDestroyWorldObject;
 import me.vrekt.shared.packet.client.C2SAnimateObject;
+import me.vrekt.shared.packet.client.C2SDestroyWorldObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
@@ -160,11 +160,6 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
         return render;
     }
 
-    @Override
-    public boolean ready() {
-        return isEnabled && handleMouseState;
-    }
-
     /**
      * Update this object
      */
@@ -193,19 +188,6 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      */
     public void renderUiComponents(SpriteBatch batch, GuiManager manager, BitmapFont font, Vector3 position) {
 
-    }
-
-    @Override
-    public boolean clicked(Vector3 mouse) {
-        if (isEnabled
-                && isInInteractionRange()
-                && !wasInteractedWith
-                && !isCombatInteraction
-                && (lastInteraction == 0.0f || GameManager.hasTimeElapsed(lastInteraction, interactionDelay))) {
-            interact();
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -293,10 +275,6 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
      */
     protected IntegratedGameServer server() {
         return GameManager.game().integratedServer();
-    }
-
-    protected void createNetworkItem() {
-
     }
 
     /**

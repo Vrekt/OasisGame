@@ -8,5 +8,4 @@ import me.vrekt.oasis.entity.GameEntity;
 public abstract class AbstractPlayer extends GameEntity {
 
 
-
 }

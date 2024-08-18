@@ -3,6 +3,7 @@ package me.vrekt.oasis.world;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.ashley.utils.Bag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -42,8 +43,9 @@ import me.vrekt.oasis.entity.system.EntityUpdateSystem;
 import me.vrekt.oasis.graphics.tiled.MapRenderer;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.gui.cursor.MouseListener;
+import me.vrekt.oasis.gui.input.Cursor;
+import me.vrekt.oasis.gui.input.InteractKeyListener;
+import me.vrekt.oasis.gui.input.MouseListener;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRarity;
 import me.vrekt.oasis.item.ItemRegistry;
@@ -75,7 +77,9 @@ import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
 import me.vrekt.oasis.world.systems.SystemManager;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
 import me.vrekt.oasis.world.tiled.TiledMapCache;
+import me.vrekt.oasis.world.utility.Interaction;
 import me.vrekt.oasis.world.utility.Keybindings;
+import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
 
 import java.util.Collection;
@@ -126,7 +130,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
 
     // all mouse listeners
-    protected final HashMap<MouseListener, Boolean> mouseListeners = new HashMap<>();
+    protected final Array<MouseListener> mouseListeners = new Array<>();
+    protected final Array<InteractKeyListener> keyListeners = new Array<>();
 
     protected final InteractionManager interactionManager;
     // last tick update, 50ms = 1 tick
@@ -576,7 +581,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         entities.put(entity.entityId(), entity);
         engine.addEntity(entity.getEntity());
 
-        mouseListeners.put(entity, false);
+        mouseListeners.add(entity);
     }
 
     /**
@@ -605,7 +610,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         deadEnemiesByKey.add(entity.key());
-        mouseListeners.remove(entity);
+        mouseListeners.removeValue(entity, true);
         entity.dispose();
     }
 
@@ -619,7 +624,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         entities.remove(entity.entityId());
-        mouseListeners.remove(entity);
+        mouseListeners.removeValue(entity, true);
 
         if (destroy) entity.dispose();
     }
@@ -792,7 +797,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         // In the future: collision body from texture?
         if (properties.hasCollision) createObjectCollisionBody(worldObject, rectangle);
         interactableWorldObjects.put(id, worldObject);
-        mouseListeners.put(worldObject, false);
+
+        if (worldObject.isMouseable()) {
+            mouseListeners.add(worldObject.mouse());
+        } else if (worldObject.isKeyable()) {
+            keyListeners.add(worldObject.keys());
+        }
 
         GameLogging.info(this, "Loaded interaction object %s", properties.interactionType);
         return worldObject;
@@ -871,7 +881,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         interaction.load(game.asset());
         interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
 
-        mouseListeners.put(interaction, false);
+        // generally will always be a mouseable interaction
+        mouseListeners.add(interaction.mouse());
 
         // broadcast this to other players.
         if (game.isHostingMultiplayerGame()) {
@@ -895,7 +906,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         interaction.load(game.asset());
         interactableWorldObjects.put(objectId, interaction);
 
-        mouseListeners.put(interaction, false);
+        // generally will always be a mouseable interaction
+        mouseListeners.add(interaction.mouse());
     }
 
     /**
@@ -912,7 +924,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         interaction.load(game.asset());
         interactableWorldObjects.put(assignUniqueObjectId(interaction), interaction);
 
-        mouseListeners.put(interaction, false);
+        // generally will always be a mouseable interaction
+        mouseListeners.add(interaction.mouse());
     }
 
     /**
@@ -937,7 +950,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public void addInteraction(AbstractInteractableWorldObject interaction, int id) {
         interactableWorldObjects.put(id == -1 ? assignUniqueObjectId(interaction) : id, interaction);
-        mouseListeners.put(interaction, false);
+
+        if (interaction.isKeyable()) {
+            keyListeners.add(interaction.keys());
+        } else if (interaction.isMouseable()) {
+            mouseListeners.add(interaction.mouse());
+        }
     }
 
     /**
@@ -964,7 +982,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         object.destroyCollision();
         object.dispose();
 
-        mouseListeners.remove(object);
         worldObjects.remove(key);
     }
 
@@ -998,7 +1015,10 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         object.dispose();
 
         interactableWorldObjects.remove(object.objectId());
-        mouseListeners.remove(object);
+
+        // just catch all here.
+        keyListeners.removeValue(object.keys(), true);
+        mouseListeners.removeValue(object.mouse(), true);
 
         destroyedWorldObjects.add(new DestroyedObject(object.getKey(), object.getType(), object.getPosition()));
     }
@@ -1073,9 +1093,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         object.load(game.asset());
-
         interactableWorldObjects.put(assignUniqueObjectId(object), object);
-        mouseListeners.put(object, false);
+
+        if (object.isKeyable()) {
+            keyListeners.add(object.keys());
+        } else if (object.isMouseable()) {
+            mouseListeners.add(object.mouse());
+        }
     }
 
     /**
@@ -1171,7 +1195,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 interior.setLockDifficulty(difficulty);
 
                 interiorWorlds.put(type, interior);
-                mouseListeners.put(interior, false);
                 GameLogging.info(this, "Loaded interior: %s", type);
             }
         });
@@ -1194,6 +1217,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     public EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds() {
         return interiorWorlds;
+    }
+
+    /**
+     * @return the interaction manager for this world.
+     */
+    public InteractionManager interactionManager() {
+        return interactionManager;
     }
 
     /**
@@ -1272,6 +1302,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         } else {
             //render+update normally
             tickWorld(delta);
+            renderWorld(delta);
         }
     }
 
@@ -1284,15 +1315,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         final long now = System.nanoTime();
         final long elapsed = TimeUnit.NANOSECONDS.toMillis(now - lastTick);
 
+        boolean capture = false;
         if (elapsed >= 50) {
             lastTick = now;
             GameManager.tick++;
-
-            // will relay the active world state to all other players.
-            if (game.isHostingMultiplayerGame()) {
-                game.hostNetwork().build();
-                game.integratedServer().captureLocalStateSync(this);
-            }
+            capture = true;
         }
 
         performanceCounter.start();
@@ -1310,10 +1337,17 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         player.interpolatePosition();
         player.update(delta);
 
-        networkRenderer.update(this, delta);
-        if (game.isHostingMultiplayerGame()) game.hostNetwork().update();
+        if (capture && game.isHostingMultiplayerGame()) {
+            // captures the game state of this world to be broadcast ASAP.
+            final NetworkState state = game.hostNetwork().captureNetworkState(this);
+            game.integratedServer().storeNetworkState(this, state);
+            game.integratedServer().captureSnapshotSync(this);
+        }
 
-        renderWorld(delta);
+        // update host network tasks like player position
+        if (game.isHostingMultiplayerGame()) game.hostNetwork().update();
+        // interpolate player positions
+        if (!game.isSingleplayerGame()) networkRenderer.update(this, delta);
 
         performanceCounter.stop();
         performanceCounter.tick(delta);
@@ -1392,25 +1426,22 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         if (OasisGameSettings.DRAW_DEBUG) boxRenderer.render(world, renderer.getCamera().combined);
     }
 
+    /**
+     * Update the mouse position within the world and fire all valid mouse events.
+     */
     protected void updateMouseListeners() {
         // do not update cursor state if any GUI is visible besides the HUD
         if (guiManager.isAnyGuiVisible(GuiType.HUD)) return;
 
         renderer.getCamera().unproject(cursorInWorld.set(Gdx.input.getX(), Gdx.input.getY(), 0));
 
-        // update all mouse listeners, if found one then break
-        // later: task: (TODO-28) priority
-        for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
-            if (!entry.getValue() && entry.getKey().ready() && entry.getKey().within(cursorInWorld)) {
-                guiManager.setCursorInGame(entry.getKey().enter(cursorInWorld));
-                entry.setValue(true);
-                break;
-            } else if (entry.getValue() && entry.getKey().ready() && !entry.getKey().within(cursorInWorld)) {
-                entry.getKey().exit(cursorInWorld);
-
+        // update all mouse listeners, only fire events if the event is not entered yet.
+        for (MouseListener listener : mouseListeners) {
+            if (listener.acceptsMouse() && !listener.hasEntered() && listener.within(cursorInWorld)) {
+                guiManager.setCursorInGame(listener.enter(cursorInWorld));
+            } else if (listener.acceptsMouse() && listener.hasEntered() && !listener.within(cursorInWorld)) {
+                listener.exit(cursorInWorld);
                 guiManager.resetCursor();
-                entry.setValue(false);
-                break;
             }
         }
     }
@@ -1570,7 +1601,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
                 interior.tickWorld(Gdx.graphics.getDeltaTime());
             } else {
                 if (interior.isWithinEnteringDistance(player.getPosition())) {
-                    interior.updateWhilePlayerIsNear();
+                    interior.updateWhilePlayerIsNear(this);
                     interior.setNear(true);
                 } else if (interior.isNear()) {
                     interior.invalidatePlayerNearbyState();
@@ -1608,6 +1639,18 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
     @Override
     public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.E) {
+            if (interactionManager.is(Interaction.ENTER)) {
+                if (interactionManager.interiorToEnter() != null) {
+                    interactionManager.interiorToEnter().attemptEnter();
+                }
+            } else if (interactionManager.is(Interaction.SPEAK)) {
+                if (interactionManager.entityToInteractWith() != null) {
+                    interactionManager.entityToInteractWith().clicked(null);
+                }
+            }
+        }
+
         Keybindings.handleKeyInWorld(this, keycode);
         return true;
     }
@@ -1616,13 +1659,11 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (guiManager.isAnyGuiVisible(GuiType.HUD)) return true;
 
-        for (Map.Entry<MouseListener, Boolean> entry : mouseListeners.entrySet()) {
-            if (entry.getKey().within(cursorInWorld)) {
-                // mouse is within, we clicked it.
-                return entry.getKey().clicked(cursorInWorld);
+        for (MouseListener listener : mouseListeners) {
+            if (listener.acceptsMouse() && listener.within(cursorInWorld)) {
+                return listener.clicked(cursorInWorld);
             }
         }
-
         return false;
     }
 
@@ -1631,6 +1672,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         entities.forEach(entity -> entity.value.dispose());
         worldObjects.values().forEach(Disposable::dispose);
         interactableWorldObjects.values().forEach(Disposable::dispose);
+
+        mouseListeners.clear();
+        keyListeners.clear();
 
         game.multiplexer().removeProcessor(this);
 

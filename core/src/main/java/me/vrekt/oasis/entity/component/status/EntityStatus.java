@@ -49,4 +49,11 @@ public abstract class EntityStatus implements Drawable {
 
     }
 
+    /**
+     * Exit the status of this state.
+     */
+    public void exitStatus() {
+
+    }
+
 }

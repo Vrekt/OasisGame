@@ -1,4 +1,4 @@
-package me.vrekt.oasis.gui.cursor;
+package me.vrekt.oasis.gui.input;
 
 import com.badlogic.gdx.math.Vector3;
 
@@ -24,11 +24,16 @@ public interface MouseListener {
     boolean clicked(Vector3 mouse);
 
     /**
+     * @return if the mouse has already entered this listener
+     */
+    boolean hasEntered();
+
+    /**
      * If this mouse listener is ready to accept input or changes
      *
      * @return {@code true} if so
      */
-    default boolean ready() {
+    default boolean acceptsMouse() {
         return true;
     }
 

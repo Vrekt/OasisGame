@@ -13,7 +13,7 @@ import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisImageTextButton;
 import com.kotcrab.vis.ui.widget.VisTextField;
 import me.vrekt.oasis.asset.game.Asset;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.gui.guis.inventory.style.ItemSlotStyles;
 import me.vrekt.oasis.utility.EmptyDrawable;
 

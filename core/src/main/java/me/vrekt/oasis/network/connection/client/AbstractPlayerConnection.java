@@ -171,7 +171,6 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
         if (GameManager.hasTimeElapsed(lastUpdate, 0.55f)) {
             virtual().execute(this::flush);
             lastUpdate = GameManager.tick();
-
         }
 
         // update network ping

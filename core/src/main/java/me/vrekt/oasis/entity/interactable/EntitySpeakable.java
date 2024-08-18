@@ -1,6 +1,5 @@
 package me.vrekt.oasis.entity.interactable;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -15,7 +14,7 @@ import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 
 /**
  * Represents an entity that can be spoken to.
@@ -89,10 +88,6 @@ public abstract class EntitySpeakable extends GameEntity {
      * When the player stops speaking to this entity
      */
     protected void stoppedSpeaking() {
-
-    }
-
-    public void mapRender(SpriteBatch batch, float delta) {
 
     }
 

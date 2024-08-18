@@ -24,14 +24,14 @@ import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.MouseableAbstractInteractableWorldObject;
 import me.vrekt.shared.packet.client.C2SInteractWithObject;
 import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
 
 /**
  * An interaction that is an item that can be picked up
  */
-public final class MapItemInteraction extends AbstractInteractableWorldObject {
+public final class MapItemInteraction extends MouseableAbstractInteractableWorldObject {
 
     private static final float PATCH_PADDING_Y = 12f;
     private static final float PATCH_PADDING_X = 30f;

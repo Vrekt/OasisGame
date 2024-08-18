@@ -42,6 +42,10 @@ public final class LockpickActivity {
         this.player = player;
     }
 
+    public boolean isFinished() {
+        return isFinished;
+    }
+
     /**
      * Start the activity
      *
@@ -171,6 +175,13 @@ public final class LockpickActivity {
     }
 
     /**
+     * cancelled due to escape key press.
+     */
+    public void cancelled() {
+        if (failure != null) failure.run();
+    }
+
+    /**
      * Reset the activity, will also re-randomize again.
      */
     private void reset() {
@@ -188,7 +199,7 @@ public final class LockpickActivity {
      * Play the hit sound (in range)
      */
     public void click() {
-        GameManager.playSound(Sounds.LOCK_CLICK, 0.15f, 1.0f, 0.0f);
+        GameManager.playSound(Sounds.LOCK_CLICK, 0.15f, MathUtils.random(0.88f, 1.5f), 0.0f);
     }
 
     /**

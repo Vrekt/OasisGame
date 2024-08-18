@@ -12,6 +12,8 @@ public final class NetworkState {
 
     private final long timeSent;
 
+    private boolean wasSent;
+
     public NetworkState(NetworkWorldState world,
                         NetworkEntityState[] entities,
                         long now) {
@@ -48,4 +50,19 @@ public final class NetworkState {
         return TimeUtils.nanoTime() - timeSent;
     }
 
+    /**
+     * @return {@code true} if this state was already sent.
+     */
+    public boolean wasSent() {
+        return wasSent;
+    }
+
+    /**
+     * Set
+     *
+     * @param wasSent state
+     */
+    public void setWasSent(boolean wasSent) {
+        this.wasSent = wasSent;
+    }
 }

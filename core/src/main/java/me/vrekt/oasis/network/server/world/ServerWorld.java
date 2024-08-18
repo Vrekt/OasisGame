@@ -3,8 +3,9 @@ package me.vrekt.oasis.network.server.world;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.IntegratedGameServer;
+import me.vrekt.oasis.network.game.HostNetworkHandler;
 import me.vrekt.oasis.network.server.cache.EntityStateCache;
-import me.vrekt.oasis.network.server.cache.GameStateCache;
+import me.vrekt.oasis.network.server.cache.GameStateSnapshot;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
@@ -38,6 +39,20 @@ public final class ServerWorld {
         this.gameServer = server;
         this.derived = from;
         this.worldId = derived.worldId();
+    }
+
+    private HostNetworkHandler host() {
+        return gameServer.handler();
+    }
+
+    /**
+     * Notify the host of an action to run
+     * Will run on the main game thread instead of network thread.
+     *
+     * @param action the action
+     */
+    private void notifyHost(Runnable action) {
+        host().postNetworkUpdate(action);
     }
 
     /**
@@ -94,12 +109,32 @@ public final class ServerWorld {
      *
      * @param player the player
      */
-    public void removePlayerInWorld(ServerPlayer player) {
+    public void removePlayer(ServerPlayer player) {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
 
-        gameServer.handler().handlePlayerDisconnected(player.entityId());
+        notifyHost(() -> host().handlePlayerDisconnected(player.entityId()));
+
         broadcastImmediatelyExcluded(player.entityId(), new S2CPacketRemovePlayer(player.entityId(), player.name()));
+    }
+
+    /**
+     * Remove a player from this world
+     *
+     * @param player player
+     */
+    public void removePlayerFromWorld(ServerPlayer player) {
+        if (!hasPlayer(player.entityId())) return;
+        players.remove(player.entityId());
+    }
+
+    /**
+     * Transfer a player into this world.
+     *
+     * @param player the player
+     */
+    public void transferPlayerInto(ServerPlayer player) {
+        players.put(player.entityId(), player);
     }
 
     /**
@@ -119,7 +154,7 @@ public final class ServerWorld {
                 gameServer.hostPlayer().getY());
 
         // ideally, this will set the right origin point of the player
-        gameServer.handler().handlePlayerConnected(player);
+        notifyHost(() -> host().handlePlayerConnected(player));
 
         if (players.isEmpty()) {
             // no players besides the host.
@@ -186,7 +221,7 @@ public final class ServerWorld {
      * Update this world from local game world state
      * For now only entity data is updated, players handle themselves.
      */
-    public void updateFromCapture(GameStateCache capture, PlayerSP hostPlayer) {
+    public void updateFromCapture(GameStateSnapshot capture, PlayerSP hostPlayer) {
         GameValidation.ensureOnThread(IntegratedGameServer.threadId);
 
         for (IntMap.Entry<EntityStateCache> entry : capture.entities()) {
@@ -217,6 +252,7 @@ public final class ServerWorld {
                 queuePlayerVelocity(player);
 
                 // host player send network update
+                // will post to a queue for sync handling on main game thread
                 gameServer.handler().queueHostPlayerNetworkUpdate(
                         player.entityId(),
                         player.getPosition(),

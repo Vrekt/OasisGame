@@ -19,7 +19,6 @@ import me.vrekt.oasis.entity.component.facing.EntityRotation;
 import me.vrekt.oasis.entity.player.AbstractPlayer;
 import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.utility.ResourceLoader;
-import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
@@ -93,18 +92,14 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
      * Transfer this player into the interior
      */
     public void transfer(GameWorldInterior interior) {
-        if (interior != null) {
-            // destroy our previous body and create a new one for this interior
-            worldIn.removePlayerTemporarily(this);
+        // destroy our previous body and create a new one for this interior
+        worldIn.removePlayerTemporarily(this);
 
-            createCircleBody(interior.boxWorld(), true);
-            setPosition(interior.worldOrigin().x, interior.worldOrigin().y);
+        createCircleBody(interior.boxWorld(), true);
+        setPosition(interior.worldOrigin().x, interior.worldOrigin().y);
 
-            interior.spawnPlayerInWorld(this);
-            this.worldIn = interior;
-        } else {
-            GameLogging.warn(this, "Failed to find the interior a player joined! type=%s", type);
-        }
+        interior.spawnPlayerInWorld(this);
+        this.worldIn = interior;
     }
 
     /**

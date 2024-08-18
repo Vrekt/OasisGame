@@ -1,25 +1,26 @@
 package me.vrekt.shared.packet.client.interior;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.world.interior.InteriorWorldType;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
 
 /**
- * Client is requesting to enter an interior
+ * Enter an interior
  */
-public final class C2SEnterInteriorWorld extends GamePacket {
+public class C2SEnteredInteriorWorld extends GamePacket {
 
-    public static final int ID = 2001_7;
+    public static final int ID = 2001_11;
 
     private InteriorWorldType interiorWorldType;
-    private int entityId;
 
-    public C2SEnterInteriorWorld(int entityId, InteriorWorldType type) {
-        this.entityId = entityId;
+    public C2SEnteredInteriorWorld(InteriorWorldType type) {
+        Preconditions.checkNotNull(type);
         this.interiorWorldType = type;
     }
 
-    public C2SEnterInteriorWorld(ByteBuf buffer) {
+    public C2SEnteredInteriorWorld(ByteBuf buffer) {
         super(buffer);
     }
 
@@ -27,20 +28,19 @@ public final class C2SEnterInteriorWorld extends GamePacket {
         return interiorWorldType;
     }
 
-    public int entityId() {
-        return entityId;
+    @Override
+    public int response() {
+        return S2CEnterInteriorWorld.ID;
     }
 
     @Override
     public void encode() {
         writeId();
-        buffer.writeInt(entityId);
         buffer.writeInt(interiorWorldType.ordinal());
     }
 
     @Override
     public void decode() {
-        this.entityId = buffer.readInt();
         this.interiorWorldType = InteriorWorldType.values()[buffer.readInt()];
     }
 
@@ -48,4 +48,5 @@ public final class C2SEnterInteriorWorld extends GamePacket {
     public int getId() {
         return ID;
     }
+
 }

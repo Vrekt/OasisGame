@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
@@ -14,13 +14,13 @@ import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.KeyableAbstractInteractableMouseObject;
 
 /**
  * Container interaction
  * chests, boxes, etc.
  */
-public class OpenableContainerInteraction extends AbstractInteractableWorldObject {
+public class OpenableContainerInteraction extends KeyableAbstractInteractableMouseObject {
 
     protected ContainerInventory inventory;
     protected String activeTexture;

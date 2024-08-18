@@ -48,7 +48,8 @@ public final class GameHudGui extends Gui {
         debugComponentText.setStyle(Styles.getSmallWhite());
 
         components.put(HudComponentType.ATTRIBUTE, new HudAttributeComponent(guiManager));
-        components.put(HudComponentType.ARTIFACT, new HudArtifactComponent(guiManager));
+        // components.put(HudComponentType.ARTIFACT, new HudArtifactComponent(guiManager));
+        components.put(HudComponentType.INTERACTIONS, new HudInteractionsComponent(guiManager));
         components.put(HudComponentType.HINT, new HudPlayerHintComponent(guiManager));
         components.put(HudComponentType.HOT_BAR, new HudHotbarComponent(guiManager));
         components.put(HudComponentType.ITEM_HINT, new HudItemHintComponent(guiManager));
@@ -139,7 +140,8 @@ public final class GameHudGui extends Gui {
         debugComponentText.setVisible(false);
         for (HudComponent component : components.values()) {
             if (component.componentType != HudComponentType.HINT
-                    && component.componentType != HudComponentType.NEW_QUEST) {
+                    && component.componentType != HudComponentType.NEW_QUEST
+                    && component.componentType != HudComponentType.INTERACTIONS) {
                 component.hide();
             }
         }

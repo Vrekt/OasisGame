@@ -2,14 +2,13 @@ package me.vrekt.oasis.network;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.connection.server.PlayerServerConnection;
-import me.vrekt.oasis.network.game.world.HostNetworkHandler;
+import me.vrekt.oasis.network.game.HostNetworkHandler;
 import me.vrekt.oasis.network.netty.IntegratedNettyServer;
-import me.vrekt.oasis.network.server.cache.GameStateCache;
+import me.vrekt.oasis.network.server.cache.GameStateSnapshot;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
@@ -25,10 +24,11 @@ import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.protocol.GameProtocol;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Integrated co-op multiplayer server
@@ -43,14 +43,15 @@ public final class IntegratedGameServer implements Disposable {
     private final IntegratedNettyServer netty;
 
     // for updating all worlds
-    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService service;
     public static long threadId;
 
-    private final Array<PlayerServerConnection> connections = new Array<>();
+    private final Array<ServerPlayer> allPlayers = new Array<>();
 
-    // the current capture to use when ticking the server worlds.
-    private final AtomicReference<GameStateCache> capture = new AtomicReference<>();
-    private final IntMap<ServerWorld> loadedWorlds = new IntMap<>();
+    private final Map<Integer, ServerWorld> loadedWorlds = new ConcurrentHashMap<>();
+    private final Map<Integer, GameStateSnapshot> snapshots = new ConcurrentHashMap<>();
+    private final Map<Integer, NetworkState> states = new ConcurrentHashMap<>();
+
     private ServerWorld activeWorld;
 
     private boolean started;
@@ -61,6 +62,7 @@ public final class IntegratedGameServer implements Disposable {
         this.player = player;
         this.handler = handler;
 
+        this.service = Executors.newSingleThreadScheduledExecutor();
         this.netty = new IntegratedNettyServer("localhost", 6969, protocol, this);
     }
 
@@ -79,6 +81,21 @@ public final class IntegratedGameServer implements Disposable {
     }
 
     /**
+     * @return {@code true} if this server is started.
+     */
+    public boolean started() {
+        return started;
+    }
+
+    /**
+     * Stop the integrated server
+     */
+    public void stop() {
+        service.shutdown();
+        netty.shutdown();
+    }
+
+    /**
      * Start the integrated server
      * Will tick the server every 25ms
      */
@@ -88,24 +105,18 @@ public final class IntegratedGameServer implements Disposable {
         activeWorld = new ServerWorld(in, this);
         loadedWorlds.put(activeWorld.worldId(), activeWorld);
 
-        capture.set(new GameStateCache());
-        populate(in);
+        populateServerWorld(in);
 
-        service.scheduleAtFixedRate(this::tick, 1L, 25, TimeUnit.MILLISECONDS);
+        service.scheduleAtFixedRate(this::tick, 0L, 25, TimeUnit.MILLISECONDS);
         started = true;
     }
 
     /**
-     * @return {@code true} if this server is started.
+     * Populate the corresponding {@link ServerWorld} with all the objects and entities of the provided {@link GameWorld}
+     *
+     * @param world the game world
      */
-    public boolean started() {
-        return started;
-    }
-
-    /**
-     * Populate the server with all the objects and entities already loaded.
-     */
-    private void populate(GameWorld world) {
+    private void populateServerWorld(GameWorld world) {
         int entityCount = 0;
         for (GameEntity ge : world.entities().values()) {
             final ServerEntity entity = new ServerEntity(this);
@@ -131,57 +142,101 @@ public final class IntegratedGameServer implements Disposable {
             objectCount++;
         }
 
-        GameLogging.info(this, "Loaded %d entities and %d world objects", entityCount, objectCount);
+        ServerLogging.info(this, "Loaded %d entities and %d world objects", entityCount, objectCount);
     }
 
     /**
-     * Stop the integrated server
+     * Add a world to the loaded worlds list
+     *
+     * @param ticking the world
      */
-    public void stop() {
-        service.shutdown();
-        netty.shutdown();
+    public void addLoadedWorld(GameWorld ticking) {
+        if (!loadedWorlds.containsKey(ticking.worldId())) {
+            loadedWorlds.put(ticking.worldId(), new ServerWorld(ticking, this));
+        } else {
+            GameLogging.warn(this, "Failed to add a ticking world: %s", ticking.getWorldName());
+        }
+    }
+
+    /**
+     * @param from from
+     * @return the corresponding server world
+     */
+    public ServerWorld getLoadedWorld(GameWorld from) {
+        return loadedWorlds.get(from.worldId());
     }
 
     /**
      * Tick the server
      */
     private void tick() {
+        assignThread();
+
+        // capture state of all active loaded worlds.
+        for (ServerWorld world : loadedWorlds.values()) {
+            final GameStateSnapshot snapshot = snapshots.get(world.worldId());
+            if (snapshot != null) {
+                world.updateFromCapture(snapshot, player);
+                snapshot.free();
+            }
+
+            final NetworkState state = states.get(world.worldId());
+            if (state != null && !state.wasSent()) {
+                world.broadcastNetworkState(state);
+                state.setWasSent(true);
+            }
+
+            world.tick();
+        }
+    }
+
+    /**
+     * Assign name and get ID for the server thread.
+     */
+    private void assignThread() {
         if (threadId == 0) {
             threadId = Thread.currentThread().threadId();
             Thread.currentThread().setName("ServerTickThread");
         }
-
-        final GameStateCache captureOf = capture.get();
-        activeWorld.updateFromCapture(captureOf, player);
-
-        final NetworkState state = handler.latestState();
-        activeWorld.broadcastNetworkState(state);
-
-        // update active world
-        activeWorld.tick();
     }
 
     /**
-     * Capture the current world state to be broadcast on the main server thread.
+     * Capture a snapshot of the provided world.
+     * Will be broadcast at the next interval.
      *
-     * @param world active world.
+     * @param world the world to capture
      */
-    public void captureLocalStateSync(GameWorld world) {
-        if (!GameValidation.ensureMainThread())
-            throw new UnsupportedOperationException("Main server thread please.");
+    public void captureSnapshotSync(GameWorld world) {
+        GameValidation.ensureMainThreadOrThrow();
 
-        capture.updateAndGet(c -> c.capture(world));
+        final GameStateSnapshot snapshot = GameStateSnapshot.of(world);
+        snapshots.put(world.worldId(), snapshot);
+    }
+
+    /**
+     * Store a network state for a world.
+     *
+     * @param world the world
+     * @param state the state
+     */
+    public void storeNetworkState(GameWorld world, NetworkState state) {
+        final NetworkState old = states.put(world.worldId(), state);
+
+        // ensure an old value was not skipped
+        if (old != null && !old.wasSent()) {
+            ServerLogging.warn(this, "A network state was skipped.");
+        }
     }
 
     /**
      * A player connected
      *
-     * @param connection connection
+     * @param player the player
      * @return the players new entity ID
      */
-    public int playerConnected(PlayerServerConnection connection) {
-        this.connections.add(connection);
-        return connections.size + loadedWorlds.size + 1;
+    public int playerConnected(ServerPlayer player) {
+        this.allPlayers.add(player);
+        return allPlayers.size + loadedWorlds.size() + 1;
     }
 
     /**
@@ -197,8 +252,8 @@ public final class IntegratedGameServer implements Disposable {
                 player.name(),
                 reason == null ? StringUtils.EMPTY : reason);
 
-        if (player.isInWorld()) player.world().removePlayerInWorld(player);
-        connections.removeValue(player.getConnection(), true);
+        if (player.isInWorld()) player.world().removePlayer(player);
+        allPlayers.removeValue(player, true);
         player.getConnection().disconnect();
         player.dispose();
     }

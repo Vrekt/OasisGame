@@ -40,8 +40,8 @@ public final class EntityUpdateSystem extends EntitySystem {
             entity.setDistanceToPlayer(distance);
 
             // task: EM-92.1 entities dying outside range
-            if (distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE
-                    || entity.isInView(gameCamera)) {
+            // EM-182: Update entities regardless of distance if the game is hosted multiplayer
+            if (game.isHostingMultiplayerGame() || distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE || entity.isInView(gameCamera)) {
 
                 entity.update(deltaTime);
                 if (!entity.isDead()) entity.checkAreaEffects();

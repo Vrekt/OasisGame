@@ -12,8 +12,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
-import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.gui.cursor.MouseListener;
+import me.vrekt.oasis.gui.input.Cursor;
+import me.vrekt.oasis.gui.input.InteractKeyListener;
+import me.vrekt.oasis.gui.input.MouseListener;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;
@@ -21,7 +22,7 @@ import me.vrekt.oasis.world.GameWorldInterior;
 /**
  * Base implementation of a world object
  */
-public abstract class AbstractWorldObject implements MouseListener, ResourceLoader, Disposable {
+public abstract class AbstractWorldObject implements ResourceLoader, Disposable {
 
     protected final Array<ParticleEffect> effects = new Array<>();
 
@@ -39,6 +40,39 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
     protected Body body;
 
     protected MapObject object;
+
+    // if this object can use the mouse to interact
+    protected boolean isMouseable;
+    // if this object can use the keyboard to interact
+    protected boolean isKeyable;
+
+    /**
+     * @return {@code true} if this object uses the mouse
+     */
+    public boolean isMouseable() {
+        return isMouseable;
+    }
+
+    /**
+     * @return {@code true} if this object uses the keyboard
+     */
+    public boolean isKeyable() {
+        return isKeyable;
+    }
+
+    /**
+     * @return the mouse listener for this object.
+     */
+    public MouseListener mouse() {
+        return null;
+    }
+
+    /**
+     * @return the key listener for this object
+     */
+    public InteractKeyListener keys() {
+        return null;
+    }
 
     /**
      * @return the key of this object
@@ -190,26 +224,6 @@ public abstract class AbstractWorldObject implements MouseListener, ResourceLoad
      */
     public Cursor getCursor() {
         return Cursor.DEFAULT;
-    }
-
-    @Override
-    public Cursor enter(Vector3 mouse) {
-        return getCursor();
-    }
-
-    @Override
-    public boolean within(Vector3 mouse) {
-        return isMouseOver(mouse);
-    }
-
-    @Override
-    public boolean clicked(Vector3 mouse) {
-        return false;
-    }
-
-    @Override
-    public void exit(Vector3 mouse) {
-
     }
 
     /**

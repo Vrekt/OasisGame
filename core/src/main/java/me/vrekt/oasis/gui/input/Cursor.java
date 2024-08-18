@@ -1,4 +1,4 @@
-package me.vrekt.oasis.gui.cursor;
+package me.vrekt.oasis.gui.input;
 
 /**
  * Map of all cursors used within the game

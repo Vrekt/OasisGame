@@ -1,14 +1,16 @@
-package me.vrekt.oasis.network.game.world;
+package me.vrekt.oasis.network.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import io.netty.util.internal.PlatformDependent;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.network.game.NetworkUpdate;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
+import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
@@ -24,25 +26,24 @@ import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.network.state.NetworkWorldState;
+import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
 import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
 import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
 import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
 import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
 
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Queue;
 
 /**
  * The host network handler, handles incoming player updates to this host client
  */
 public final class HostNetworkHandler {
 
-    private final ConcurrentLinkedQueue<NetworkUpdate> networkUpdateQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<PlayerNetworkUpdate> playerNetworkUpdates = PlatformDependent.newMpscQueue();
+    private final Queue<Runnable> networkUpdates = PlatformDependent.newMpscQueue();
+
     private final PlayerSP player;
     private final OasisGame game;
-
-    private final AtomicReference<NetworkState> reference = new AtomicReference<>();
 
     public HostNetworkHandler(PlayerSP player, OasisGame game) {
         this.player = player;
@@ -50,19 +51,13 @@ public final class HostNetworkHandler {
     }
 
     /**
-     * @return latest network state
+     * Build a network state from the provided world.
+     * Will capture the most current entity state and other world properties.
+     *
+     * @param world the world to capture
      */
-    public NetworkState latestState() {
-        return reference.get();
-    }
-
-    /**
-     * Build a network state from the active world
-     */
-    public void build() {
-        if (!GameValidation.ensureMainThread()) return;
-
-        final GameWorld world = player.getWorldState();
+    public NetworkState captureNetworkState(GameWorld world) {
+        GameValidation.ensureMainThreadOrThrow();
 
         final NetworkEntityState[] entities = new NetworkEntityState[world.entities().size];
         int e = 0;
@@ -72,8 +67,7 @@ public final class HostNetworkHandler {
         }
 
         final NetworkWorldState ws = new NetworkWorldState(world);
-        final NetworkState state = new NetworkState(ws, entities, TimeUtils.nanoTime());
-        reference.set(state);
+        return new NetworkState(ws, entities, TimeUtils.nanoTime());
     }
 
     /**
@@ -83,17 +77,21 @@ public final class HostNetworkHandler {
         if (!GameValidation.ensureInWorld(this.player)) return;
         if (!GameValidation.ensureMainThread()) return;
 
-        for (Iterator<NetworkUpdate> it = networkUpdateQueue.iterator(); it.hasNext(); ) {
-            final NetworkUpdate update = it.next();
-            if (update != null) {
-                final NetworkPlayer player = this.player.getWorldState().getPlayer(update.entityId());
-                if (player != null) {
-                    player.updateNetworkPosition(update.x(), update.y(), update.rotation());
-                    player.updateNetworkVelocity(update.vx(), update.vy(), update.rotation());
-                }
-                it.remove();
+        PlayerNetworkUpdate pn;
+        while ((pn = playerNetworkUpdates.poll()) != null) {
+            final NetworkPlayer player = this.player.getWorldState().getPlayer(pn.entityId());
+            if (player != null) {
+                player.updateNetworkPosition(pn.x(), pn.y(), pn.rotation());
+                player.updateNetworkVelocity(pn.vx(), pn.vy(), pn.rotation());
             }
         }
+
+        Runnable hn;
+        // execute all runnable tasks
+        while ((hn = networkUpdates.poll()) != null) {
+            hn.run();
+        }
+
     }
 
     /**
@@ -105,8 +103,17 @@ public final class HostNetworkHandler {
      * @param velocity velocity
      */
     public void queueHostPlayerNetworkUpdate(int entityId, Vector2 position, Vector2 velocity, int rotation) {
-        System.err.println(velocity);
-        networkUpdateQueue.add(new NetworkUpdate(entityId, position.x, position.y, velocity.x, velocity.y, rotation));
+        playerNetworkUpdates.add(new PlayerNetworkUpdate(entityId, position.x, position.y, velocity.x, velocity.y, rotation));
+    }
+
+    /**
+     * Post a network update
+     * Will typically call a function within this class
+     *
+     * @param toRun action
+     */
+    public void postNetworkUpdate(Runnable toRun) {
+        networkUpdates.add(toRun);
     }
 
     /**
@@ -125,10 +132,10 @@ public final class HostNetworkHandler {
             origin.set(save.position());
             GameLogging.info(this, "Loaded player %s from network storage at %s", player.name(), save.position());
         } else {
-            origin.set(this.player.getPosition().cpy().add(1, 1));
+            origin.set(this.player.getPosition()).add(1, 1);
         }
 
-        player.teleport(origin);
+        player.teleportSilent(origin);
 
         final NetworkPlayer networkPlayer = new NetworkPlayer(this.player.getWorldState());
         networkPlayer.load(game.asset());
@@ -136,6 +143,7 @@ public final class HostNetworkHandler {
         networkPlayer.setProperties(player.name(), player.entityId());
         networkPlayer.createCircleBody(this.player.getWorldState().boxWorld(), false);
         networkPlayer.setPosition(origin);
+        player.setLocal(networkPlayer);
 
         this.player.getWorldState().spawnPlayerInWorld(networkPlayer);
 
@@ -150,8 +158,8 @@ public final class HostNetworkHandler {
      */
     private void syncNetworkWorldObjects(ServerPlayer player) {
         // not all populated entries will be valid, since some objects have their own packet.
-        final WorldNetworkObject[] objects = new WorldNetworkObject[this.player.getWorldState().interactableWorldObjects().size];
-        int o = 0;
+        // TODO: In the future, maybe just keep this list around and not have to rebuild it for every player.
+        final Array<WorldNetworkObject> objects = new Array<>();
 
         for (AbstractInteractableWorldObject worldObject : this.player.getWorldState().interactableWorldObjects().values()) {
             if (worldObject.getType() == WorldInteractionType.MAP_ITEM) {
@@ -164,19 +172,14 @@ public final class HostNetworkHandler {
                 player.getConnection().sendImmediately(new S2CNetworkPopulateContainer(interaction.inventory(), interaction.textureAsset(), interaction.getPosition()));
             } else {
                 // otherwise, create and add to the list.
-                objects[o] = new WorldNetworkObject(worldObject.getType(), worldObject.getKey(), worldObject.getPosition(), worldObject.getSize(), worldObject.objectId(), worldObject.object());
-                o++;
+                objects.add(new WorldNetworkObject(worldObject.getType(), worldObject.getKey(), worldObject.getPosition(), worldObject.getSize(), worldObject.objectId(), worldObject.object()));
             }
         }
 
-        for (WorldNetworkObject object : objects) {
-            // some objects will be null.
-            if (object != null) {
-                player.getConnection().sendImmediately(new S2CNetworkAddWorldObject(object));
-            }
-        }
+        for (WorldNetworkObject object : objects)
+            player.getConnection().sendImmediately(new S2CNetworkAddWorldObject(object));
 
-        GameLogging.info(this, "Synced %d total world objects to player %s", objects.length, player.name());
+        GameLogging.info(this, "Synced %d total world objects to player %s", objects.size, player.name());
     }
 
     /**
@@ -225,6 +228,41 @@ public final class HostNetworkHandler {
     }
 
     /**
+     * Handle when a player wants to enter an interior
+     * Ideally, don't kick the player for bad behaviour, ignore it instead.
+     *
+     * @param who     who wants to enter
+     * @param request the interior to enter
+     */
+    public void handlePlayerTryEnterInterior(ServerPlayer who, InteriorWorldType request) {
+        final GameWorld in = who.isInWorld() ? who.world().derived() : null;
+        if (in != null) {
+            if (in.isInterior()) {
+                who.kick("Interiors cannot be within interiors");
+            } else {
+                final GameWorldInterior interior = player.getWorldState().findInteriorByType(request);
+                if (interior != null) {
+                    // notify the server of a new loaded world and start ticking
+                    // TODO: Will possibly not work with saving.
+                    if (!interior.isWorldLoaded()) {
+                        game.runOnMainThread(() -> {
+                            interior.loadNetworkWorld();
+                            game.integratedServer().addLoadedWorld(interior);
+                            interior.enableTicking();
+                        });
+                    }
+                    who.setAllowedToEnter(request);
+                    who.getConnection().sendImmediately(new S2CEnterInteriorWorld(request, true));
+                } else {
+                    who.getConnection().sendImmediately(new S2CEnterInteriorWorld(request, false));
+                }
+            }
+        } else {
+            who.kick("No active world.");
+        }
+    }
+
+    /**
      * Handle when a player enters an interior
      * Will transfer them and then also start ticking that interior.
      *
@@ -232,28 +270,24 @@ public final class HostNetworkHandler {
      * @param entered interior entered
      */
     public void handlePlayerEnteredInterior(ServerPlayer who, InteriorWorldType entered) {
-        if (player.getWorldState().isInterior()) {
-            // interiors are not within interiors
-            who.kick("Invalid interior.");
-        } else {
-            final GameWorldInterior interior = player.getWorldState().findInteriorByType(entered);
-            if (interior == null) {
-                who.kick("Invalid interior entered.");
-            } else {
-                final NetworkPlayer local = player.getWorldState().getPlayer(who.entityId());
-                if (local == null) {
-                    GameLogging.warn(this, "Network player ID mis-match! id=%d", who.entityId());
+        final GameWorldInterior interior = player.getWorldState().findInteriorByType(entered);
+        if (interior != null) {
+            final NetworkPlayer local = who.local();
+            if (local != null) {
+                if (player.getWorldState().isPlayerVisible(local)) {
+                    local.transferPlayerToWorldVisible(entered);
                 } else {
-                    // tick this world while we are not inside
-                    interior.enableTicking();
-
-                    if (player.getWorldState().isPlayerVisible(local)) {
-                        local.transferPlayerToWorldVisible(entered);
-                    } else {
-                        local.transfer(interior);
-                    }
+                    local.transfer(interior);
                 }
+
+                final ServerWorld world = game.integratedServer().getLoadedWorld(interior);
+                who.transfer(world);
+            } else {
+                who.kick("Failed to find corresponding network player");
             }
+        } else {
+            // not helpful :)
+            who.kick("Internal network interior error");
         }
     }
 

@@ -20,7 +20,7 @@ import me.vrekt.oasis.gui.Styles;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.IntegratedGameServer;
 import me.vrekt.oasis.network.connection.client.PlayerConnection;
-import me.vrekt.oasis.network.game.world.HostNetworkHandler;
+import me.vrekt.oasis.network.game.HostNetworkHandler;
 import me.vrekt.oasis.network.game.world.WorldNetworkHandler;
 import me.vrekt.oasis.network.netty.GameClientServer;
 import me.vrekt.oasis.network.utility.GameValidation;
@@ -54,7 +54,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240808-1257-8088";
+    public static final String GAME_VERSION = "20240817-2014-8232";
 
     // default task manager.
     private final TaskManager taskManager = new TaskManager();

@@ -35,8 +35,8 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
-import me.vrekt.oasis.gui.cursor.Cursor;
-import me.vrekt.oasis.gui.cursor.MouseListener;
+import me.vrekt.oasis.gui.input.Cursor;
+import me.vrekt.oasis.gui.input.MouseListener;
 import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.collision.CollisionType;
@@ -94,6 +94,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected String renderAfterLayer;
 
     protected boolean isNetworked;
+    protected boolean hasEnteredMouse;
 
     // networking interpolation
     // TODO: NET-2 less messy
@@ -479,18 +480,20 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      * @param networkTime time since the packet was sent
      */
     public void networkInterpolate(NetworkEntityState state, float delta, float networkTime) {
-        // if this value is 1.0, weird errors occur.
-        networkTime = networkTime <= 1.0f ? 3.0f : networkTime;
+        // A network frame is sent every 50ms, compensate for that
+        networkTime = (networkTime / 50f);
 
         velocity.set(body.getLinearVelocity());
         // attempt to predict where the entity will be
-        predicted.set(body.getPosition()).add(velocity.scl(delta));
-        // lerp between that position and actual server position
+        predicted.set(body.getPosition()).mulAdd(velocity, delta * networkTime);
         incomingNetworkPosition.set(state.x(), state.y());
-        lerped.set(predicted).lerp(incomingNetworkPosition, 1.0f);
-        trajectory.set(lerped).sub(body.getPosition()).scl(1f / (networkTime * delta));
-        // final smoothing of the velocity
-        smoothed.set(trajectory).add(velocity).scl(0.25f);
+
+        final float factor = Math.min(0.5f * delta / networkTime, 1.0f);
+        // lerp between that position and actual server position
+        lerped.set(predicted).lerp(incomingNetworkPosition, factor);
+        // final smoothing and trajectory calculation
+        trajectory.set(lerped).sub(body.getPosition()).scl(1f / delta);
+        smoothed.set(velocity).lerp(trajectory, 0.25f);
         setVelocity(smoothed);
     }
 
@@ -751,12 +754,18 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     @Override
     public Cursor enter(Vector3 mouse) {
+        hasEnteredMouse = true;
         return Cursor.DEFAULT;
     }
 
     @Override
-    public void exit(Vector3 mouse) {
+    public boolean hasEntered() {
+        return hasEnteredMouse;
+    }
 
+    @Override
+    public void exit(Vector3 mouse) {
+        hasEnteredMouse = false;
     }
 
     /**
@@ -773,7 +782,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     @Override
     public void render(SpriteBatch batch, float delta) {
         for (EntityStatus status : statuses.values()) {
-            if (!status.isPostRender()) status.update(delta);
+            if (!status.isPostRender()) status.render(batch, delta);
         }
     }
 
@@ -944,6 +953,10 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
 
     public void setNearby(boolean nearby) {
         isNearby = nearby;
+
+        if (!isNearby) {
+            statuses.values().forEach(EntityStatus::exitStatus);
+        }
     }
 
     public void setDistanceToPlayer(float distance) {

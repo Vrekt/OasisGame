@@ -1,7 +1,7 @@
 package me.vrekt.oasis.world.interior;
 
 import com.badlogic.gdx.math.Rectangle;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;

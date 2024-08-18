@@ -92,6 +92,11 @@ public final class LockpickingGui extends Gui {
     public void hide() {
         super.hide();
 
+        // indicates this was called due to escape key press.
+        if (!activity.isFinished()) {
+            activity.cancelled();
+        }
+
         guiManager.player().enableMovementAfter(0.55f);
         rootTable.setVisible(false);
     }

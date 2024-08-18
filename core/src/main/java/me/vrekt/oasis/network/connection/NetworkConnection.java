@@ -109,7 +109,11 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
     public void updateHandlingQueue() {
         GamePacketAttachment attachment;
         while ((attachment = handlingQueue.poll()) != null) {
-            attachment.handler.accept(attachment.packet);
+            if (attachment.handler != null && attachment.packet != null) {
+                attachment.handler.accept(attachment.packet);
+            } else {
+                GameLogging.warn(this, "No handler in queue for %d", attachment.debug);
+            }
 
             attachment.free();
         }
@@ -233,7 +237,7 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
             }
 
             if (isSync) {
-                handlingQueue.offer(get(handler, packet));
+                handlingQueue.add(get(handler, packet));
             } else {
                 virtual().execute(() -> handler.accept(packet));
             }

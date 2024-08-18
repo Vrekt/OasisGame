@@ -26,6 +26,8 @@ public final class EntitySpeakableStatus extends EntityStatus {
     private float dialogAnimationTime;
     private int currentDialogFrame = 1;
 
+    private boolean showingSpeaking;
+
     public EntitySpeakableStatus(GameEntity entity, Asset asset) {
         super(entity, STATUS_ID);
 
@@ -41,6 +43,11 @@ public final class EntitySpeakableStatus extends EntityStatus {
     }
 
     @Override
+    public void exitStatus() {
+        if (showingSpeaking) entity.getWorldState().interactionManager().hideInteractions();
+    }
+
+    @Override
     public void update(float delta) {
         // speakable
         entity.asInteractable().setSpeakable(entity.getDistanceFromPlayer() <= SPEAKING_DISTANCE);
@@ -51,6 +58,19 @@ public final class EntitySpeakableStatus extends EntityStatus {
         if (GameManager.hasTimeElapsed(dialogAnimationTime, 0.33f)) {
             dialogAnimationTime = GameManager.tick();
             currentDialogFrame = currentDialogFrame >= 3 ? 1 : currentDialogFrame + 1;
+        }
+
+        // speaking distance is usually 5.0f
+        if (entity.getDistanceFromPlayer() <= 4.0f) {
+            if (!showingSpeaking) {
+                showingSpeaking = true;
+                entity.getWorldState().interactionManager().showSpeakingInteraction(entity);
+            }
+        } else {
+            if (showingSpeaking) {
+                showingSpeaking = false;
+                entity.getWorldState().interactionManager().hideInteractions();
+            }
         }
     }
 

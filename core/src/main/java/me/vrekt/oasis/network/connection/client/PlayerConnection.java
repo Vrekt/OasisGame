@@ -14,7 +14,7 @@ import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.shared.packet.client.C2SKeepAlive;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
 import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;
-import me.vrekt.shared.packet.client.interior.C2SEnterInteriorWorld;
+import me.vrekt.shared.packet.client.interior.C2SEnteredInteriorWorld;
 import me.vrekt.shared.packet.client.item.C2SEquipItem;
 import me.vrekt.shared.packet.client.item.C2SResetEquippedItem;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
@@ -77,8 +77,13 @@ public class PlayerConnection extends AbstractPlayerConnection {
         return allPlayers.get(entityId);
     }
 
+    /**
+     * Notify the network we entered this interior
+     *
+     * @param interior interior
+     */
     public void updateNetworkInteriorWorldEntered(GameWorldInterior interior) {
-        sendImmediately(new C2SEnterInteriorWorld(player.entityId(), interior.type()));
+        sendImmediately(new C2SEnteredInteriorWorld(interior.type()));
     }
 
     /**

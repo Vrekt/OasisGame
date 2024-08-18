@@ -6,6 +6,7 @@ import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.network.IntegratedGameServer;
 import me.vrekt.oasis.network.connection.NetworkConnection;
+import me.vrekt.oasis.network.game.HostNetworkHandler;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
@@ -13,9 +14,12 @@ import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.client.*;
+import me.vrekt.shared.packet.client.interior.C2SEnteredInteriorWorld;
+import me.vrekt.shared.packet.client.interior.C2STryEnterInteriorWorld;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
+import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
@@ -42,6 +46,21 @@ public final class PlayerServerConnection extends NetworkConnection {
         attachAll();
     }
 
+    private HostNetworkHandler host() {
+        return server.handler();
+    }
+
+    private void toHost(Runnable action) {
+        host().postNetworkUpdate(action);
+    }
+
+    /**
+     * @return the player
+     */
+    public ServerPlayer player() {
+        return player;
+    }
+
     /**
      * Attach all relevant packet handlers
      */
@@ -60,6 +79,8 @@ public final class PlayerServerConnection extends NetworkConnection {
         attach(C2SAnimateObject.PACKET_ID, packet -> handleAnimateWorldObject((C2SAnimateObject) packet));
         attach(C2SDestroyWorldObject.PACKET_ID, packet -> handleDestroyWorldObject((C2SDestroyWorldObject) packet));
         attach(C2SInteractWithObject.PACKET_ID, packet -> handleInteractWorldObject((C2SInteractWithObject) packet));
+        attach(C2STryEnterInteriorWorld.ID, packet -> handleTryEnterInterior((C2STryEnterInteriorWorld) packet));
+        attach(C2SEnteredInteriorWorld.ID, packet -> handleEnteredInterior((C2SEnteredInteriorWorld) packet));
     }
 
     /**
@@ -118,11 +139,11 @@ public final class PlayerServerConnection extends NetworkConnection {
             return;
         }
 
-        final int entityId = server.playerConnected(this);
-
         final int worldId = packet.worldId();
         final ServerWorld world = server.getWorld(worldId);
         player = new ServerPlayer(this, server);
+        final int entityId = server.playerConnected(player);
+
         player.setName(packet.username());
         player.setWorldIn(world);
         player.setEntityId(entityId);
@@ -176,6 +197,7 @@ public final class PlayerServerConnection extends NetworkConnection {
             return;
         }
 
+        // TODO: EM-178 to host
         player.world().broadcastImmediatelyExcluded(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
     }
 
@@ -188,9 +210,11 @@ public final class PlayerServerConnection extends NetworkConnection {
         if (isValid()) {
             final ServerWorldObject worldObject = player.world().getWorldObject(packet.objectId());
             if (worldObject != null) {
-
                 // broadcasts the relevant packets, also notify host.
-                if (worldObject.interact(player)) server.handler().handleObjectAnimation(player, worldObject);
+                if (worldObject.interact(player)) {
+                    toHost(() -> host().handleObjectAnimation(player, worldObject));
+                    player.world().broadcastImmediatelyExcluded(player.entityId(), new S2CAnimateObject(worldObject.objectId()));
+                }
             }
         }
     }
@@ -214,7 +238,8 @@ public final class PlayerServerConnection extends NetworkConnection {
                 // player can break this object.
                 player.getConnection().sendImmediately(new S2CDestroyWorldObjectResponse(worldObject.objectId(), true));
                 // notify others too.
-                server.handler().handleObjectDestroyed(player, worldObject);
+                host().postNetworkUpdate(() -> host().handleObjectDestroyed(player, worldObject));
+                // TODO EM-179
                 worldObject.playerDestroyed(player);
 
                 // this object will generate a random item to drop
@@ -282,6 +307,29 @@ public final class PlayerServerConnection extends NetworkConnection {
         } else {
             // nope
             player.getConnection().sendImmediately(new S2CInteractWithObjectResponse(object.objectId(), false));
+        }
+    }
+
+    /**
+     * Player wants to enter an interior, delegate to host
+     *
+     * @param packet packet
+     */
+    private void handleTryEnterInterior(C2STryEnterInteriorWorld packet) {
+        server.handler().handlePlayerTryEnterInterior(player, packet.type());
+    }
+
+    /**
+     * Player entered an interior
+     *
+     * @param packet packet
+     */
+    private void handleEnteredInterior(C2SEnteredInteriorWorld packet) {
+        // kick the player if they were not given permission
+        if (player.allowedToEnter() != packet.type()) {
+            player.kick("Cannot enter this interior");
+        } else {
+            server.handler().handlePlayerEnteredInterior(player, packet.type());
         }
     }
 

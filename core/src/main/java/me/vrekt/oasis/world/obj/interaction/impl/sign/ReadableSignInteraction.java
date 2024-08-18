@@ -3,14 +3,14 @@ package me.vrekt.oasis.world.obj.interaction.impl.sign;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.cursor.Cursor;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
-import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.KeyableAbstractInteractableMouseObject;
 
 /**
  * Base implementation of a sign interaction that you can read
  */
-public abstract class ReadableSignInteraction extends AbstractInteractableWorldObject {
+public abstract class ReadableSignInteraction extends KeyableAbstractInteractableMouseObject {
 
     protected final String content;
     protected final GuiManager guiManager;

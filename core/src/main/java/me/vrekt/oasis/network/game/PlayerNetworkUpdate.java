@@ -10,5 +10,5 @@ package me.vrekt.oasis.network.game;
  * @param vy       velocity y
  * @param rotation rotation ordinal
  */
-public record NetworkUpdate(int entityId, float x, float y, float vx, float vy, int rotation) {
+public record PlayerNetworkUpdate(int entityId, float x, float y, float vx, float vy, int rotation) {
 }
