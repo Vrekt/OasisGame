@@ -3,13 +3,12 @@ package me.vrekt.shared.packet.server.player;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Notify clients to construct a new player within their game instance
  */
-public final class S2CPacketCreatePlayer extends GamePacket {
-
-    public static final int PACKET_ID = 1117;
+public final class S2CNetworkCreatePlayer extends GamePacket {
 
     private String username;
     private int entityId;
@@ -24,7 +23,7 @@ public final class S2CPacketCreatePlayer extends GamePacket {
      * @param x        starting X
      * @param y        starting Y
      */
-    public S2CPacketCreatePlayer(String username, int entityId, float x, float y) {
+    public S2CNetworkCreatePlayer(String username, int entityId, float x, float y) {
         // empty string if no username!
         this.username = (username == null ? StringUtil.EMPTY_STRING : username);
         this.entityId = entityId;
@@ -32,7 +31,7 @@ public final class S2CPacketCreatePlayer extends GamePacket {
         this.y = y;
     }
 
-    public S2CPacketCreatePlayer(ByteBuf buffer) {
+    public S2CNetworkCreatePlayer(ByteBuf buffer) {
         super(buffer);
     }
 
@@ -66,7 +65,7 @@ public final class S2CPacketCreatePlayer extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_CREATE_PLAYER;
     }
 
     @Override

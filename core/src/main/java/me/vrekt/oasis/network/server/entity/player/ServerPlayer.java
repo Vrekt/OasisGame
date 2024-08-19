@@ -6,7 +6,8 @@ import me.vrekt.oasis.network.IntegratedGameServer;
 import me.vrekt.oasis.network.connection.server.PlayerServerConnection;
 import me.vrekt.oasis.network.server.entity.AbstractServerEntity;
 import me.vrekt.oasis.network.server.world.ServerWorld;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.shared.packet.server.player.S2CTeleport;
 import me.vrekt.shared.packet.server.player.S2CTeleportPlayer;
 
@@ -19,7 +20,7 @@ public final class ServerPlayer extends AbstractServerEntity {
     private boolean loading, loaded;
 
     // the interior allowed to enter
-    private InteriorWorldType allowedToEnter;
+    private Interior allowedToEnter;
     private NetworkPlayer local;
 
     public ServerPlayer(PlayerServerConnection connection, IntegratedGameServer server) {
@@ -55,14 +56,14 @@ public final class ServerPlayer extends AbstractServerEntity {
      *
      * @param allowedToEnter interior type
      */
-    public void setAllowedToEnter(InteriorWorldType allowedToEnter) {
+    public void setAllowedToEnter(Interior allowedToEnter) {
         this.allowedToEnter = allowedToEnter;
     }
 
     /**
      * @return the interior allowed to enter
      */
-    public InteriorWorldType allowedToEnter() {
+    public Interior allowedToEnter() {
         return allowedToEnter;
     }
 
@@ -120,7 +121,10 @@ public final class ServerPlayer extends AbstractServerEntity {
      */
     public void teleportSilent(Vector2 where) {
         setPosition(where);
-        if (inWorld) world.broadcastImmediatelyExcluded(entityId, new S2CTeleportPlayer(entityId, where.x, where.y));
+        if (inWorld) {
+            GameLogging.info(this, "Debug: player teleported actually in world.");
+            world.broadcastImmediatelyExcluded(entityId, new S2CTeleportPlayer(entityId, where.x, where.y));
+        }
     }
 
     /**

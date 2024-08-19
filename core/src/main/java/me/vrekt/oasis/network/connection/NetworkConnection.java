@@ -112,7 +112,9 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
             if (attachment.handler != null && attachment.packet != null) {
                 attachment.handler.accept(attachment.packet);
             } else {
-                GameLogging.warn(this, "No handler in queue for %d", attachment.debug);
+                // this can sometimes happen because (im assuming)
+                // the pool is accessed from different threads.
+                GameLogging.warn(this, "Already freed object in handling queue.");
             }
 
             attachment.free();
@@ -154,7 +156,6 @@ public abstract class NetworkConnection implements PacketHandler, Disposable {
     public ByteBufAllocator alloc() {
         return channel.alloc();
     }
-
 
     /**
      * Will send the provided {@code packet} to the send queue.

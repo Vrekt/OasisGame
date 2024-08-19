@@ -9,7 +9,7 @@ import me.vrekt.shared.packet.GamePacket;
  */
 public final class GameValidation {
 
-    private static final String TAG = "NetworkUtility";
+    private static final String TAG = "GameValidation";
     public static long mainThreadId;
 
     /**

@@ -2,14 +2,13 @@ package me.vrekt.shared.packet.client;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Ping request from the client to -> server
  * Adapted from LunarGdx
  */
 public final class C2SPacketPing extends GamePacket {
-
-    public static final int PACKET_ID = 2223;
     private float gameTick;
 
     public C2SPacketPing(ByteBuf buffer) {
@@ -26,7 +25,7 @@ public final class C2SPacketPing extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_PING;
     }
 
     @Override
@@ -37,6 +36,6 @@ public final class C2SPacketPing extends GamePacket {
 
     @Override
     public void decode() {
-        gameTick = buffer.readFloat();
+        if (buffer.isReadable(4)) gameTick = buffer.readFloat();
     }
 }

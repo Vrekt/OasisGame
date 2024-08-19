@@ -19,13 +19,14 @@ import me.vrekt.oasis.utility.collision.BasicEntityCollisionHandler;
 import me.vrekt.oasis.utility.hints.PlayerHints;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.lp.ActivityManager;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
 import me.vrekt.oasis.world.utility.Interaction;
 import me.vrekt.shared.packet.client.interior.C2STryEnterInteriorWorld;
 import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Represents an interior within the parent world;
@@ -37,7 +38,7 @@ public abstract class GameWorldInterior extends GameWorld {
     protected final GameWorld parentWorld;
     protected final String interiorMap;
     protected final Cursor cursor;
-    protected final InteriorWorldType type;
+    protected final Interior type;
 
     protected boolean enterable;
     protected final Rectangle entrance, exit;
@@ -55,7 +56,7 @@ public abstract class GameWorldInterior extends GameWorld {
     protected boolean requiresNearUpdating = true;
     protected boolean doTicking;
 
-    public GameWorldInterior(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
+    public GameWorldInterior(GameWorld parentWorld, String interiorMap, Interior type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld.getGame(), parentWorld.player(), new World(Vector2.Zero, true));
 
         this.parentWorld = parentWorld;
@@ -69,7 +70,7 @@ public abstract class GameWorldInterior extends GameWorld {
         this.saveLoader = new WorldSaveLoader(this);
     }
 
-    public InteriorWorldType type() {
+    public Interior type() {
         return type;
     }
 
@@ -197,7 +198,7 @@ public abstract class GameWorldInterior extends GameWorld {
             parent.interactionManager.hideInteractions();
             lockpickUsed = true;
         } else if (!locked()) {
-            if (!parent.interactionManager.is(Interaction.ENTER)) {
+            if (!parent.interactionManager.is(Interaction.ENTER) && !player.isEnteringNewWorld()) {
                 parent.interactionManager.showEnterInteraction(this);
             }
         }
@@ -339,18 +340,6 @@ public abstract class GameWorldInterior extends GameWorld {
         GameLogging.info(this, "Loaded interior successfully.");
     }
 
-    @Override
-    public void dispose() {
-        GameLogging.info(this, "Unloading interior: " + type);
-        isWorldLoaded = false;
-        super.dispose();
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return super.keyDown(keycode);
-    }
-
     /**
      * Attempt to enter this interior
      */
@@ -363,10 +352,13 @@ public abstract class GameWorldInterior extends GameWorld {
                 // check with the server if we can actually enter this interior
                 if (game.isInMultiplayerGame()) {
                     NetworkCallback.immediate(new C2STryEnterInteriorWorld(type))
-                            .waitFor(S2CEnterInteriorWorld.ID)
+                            .waitFor(Packets.S2C_TRY_ENTER_INTERIOR)
                             .timeoutAfter(2000)
+                            .ifTimedOut(() -> GameLogging.warn(this, "Join interior world timed out!"))
                             .sync()
                             .accept(packet -> {
+                                // ensure this world is networked
+                                this.isNetworked = true;
                                 final S2CEnterInteriorWorld response = (S2CEnterInteriorWorld) packet;
                                 if (response.isEnterable()) {
                                     parentWorld.enterInterior(this);
@@ -390,6 +382,13 @@ public abstract class GameWorldInterior extends GameWorld {
         }
 
         return anyAction;
+    }
+
+    @Override
+    public void dispose() {
+        GameLogging.info(this, "Unloading interior: " + type);
+        isWorldLoaded = false;
+        super.dispose();
     }
 
 }

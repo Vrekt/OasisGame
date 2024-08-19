@@ -2,6 +2,7 @@ package me.vrekt.shared.packet.server.obj;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
+import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 
 /**
@@ -41,6 +42,15 @@ public final class WorldNetworkObject {
         this.size = size;
         this.objectId = objectId;
         this.object = object;
+    }
+
+    public WorldNetworkObject(ServerWorldObject object) {
+        this.type = object.type();
+        this.key = object.key();
+        this.position = object.position();
+        this.size = object.size();
+        this.objectId = object.objectId();
+        this.object = object.mapData();
     }
 
     /**

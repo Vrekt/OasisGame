@@ -2,26 +2,25 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Sent from the server to authenticate a new client
  */
-public final class S2CPacketAuthenticate extends GamePacket {
-
-    public static final int PACKET_ID = 1111;
+public final class S2CAuthenticate extends GamePacket {
 
     // if the authentication was successful
     private boolean authenticationSuccessful;
     private String gameVersion;
     private int protocolVersion;
 
-    public S2CPacketAuthenticate(boolean authenticationSuccessful, String gameVersion, int protocolVersion) {
+    public S2CAuthenticate(boolean authenticationSuccessful, String gameVersion, int protocolVersion) {
         this.authenticationSuccessful = authenticationSuccessful;
         this.gameVersion = gameVersion;
         this.protocolVersion = protocolVersion;
     }
 
-    public S2CPacketAuthenticate(ByteBuf buffer) {
+    public S2CAuthenticate(ByteBuf buffer) {
         super(buffer);
     }
 
@@ -41,6 +40,11 @@ public final class S2CPacketAuthenticate extends GamePacket {
     }
 
     @Override
+    public int getId() {
+        return Packets.S2C_AUTHENTICATE;
+    }
+
+    @Override
     public void encode() {
         writeId();
         buffer.writeBoolean(authenticationSuccessful);
@@ -53,10 +57,5 @@ public final class S2CPacketAuthenticate extends GamePacket {
         authenticationSuccessful = buffer.readBoolean();
         gameVersion = readString();
         protocolVersion = buffer.readInt();
-    }
-
-    @Override
-    public int getId() {
-        return PACKET_ID;
     }
 }

@@ -2,10 +2,9 @@ package me.vrekt.shared.packet.client.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 public final class C2SPacketPlayerVelocity extends GamePacket {
-
-    public static final int PACKET_ID = 2227;
 
     private float velocityX, velocityY;
     private int rotation;
@@ -43,7 +42,7 @@ public final class C2SPacketPlayerVelocity extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_VELOCITY;
     }
 
     @Override

@@ -38,13 +38,7 @@ public class ServerProtocolPacketDecoder extends LengthFieldBasedFrameDecoder {
                 buf.readInt();
                 // retrieve packet from PID
                 final int pid = buf.readInt();
-
-                if (protocol.isServerPacket(pid)) {
-                    handler.alive();
-                    protocol.handleServerPacket(pid, buf, handler, ctx);
-                } else {
-                    GameLogging.info(this, "Failed to decode unknown packet! pid=%d", pid);
-                }
+                protocol.handle(pid, buf, handler, ctx);
             }
         } catch (Exception any) {
             GameLogging.exceptionThrown(this, "Failed to decode a packet", any);

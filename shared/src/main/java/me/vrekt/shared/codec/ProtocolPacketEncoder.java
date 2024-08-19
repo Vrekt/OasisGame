@@ -24,6 +24,10 @@ public class ProtocolPacketEncoder extends MessageToByteEncoder<GamePacket> {
             packet.release();
         } catch (Exception any) {
             ctx.fireExceptionCaught(any);
+        } finally {
+            if (packet.getBuffer().refCnt() > 0) {
+                packet.release();
+            }
         }
     }
 

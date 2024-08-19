@@ -2,13 +2,13 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Tell the client to teleport to a position
  */
 public final class S2CTeleport extends GamePacket {
 
-    public static final int PACKET_ID = 1124;
     private float x, y;
 
     public S2CTeleport(ByteBuf buffer) {
@@ -30,7 +30,7 @@ public final class S2CTeleport extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_TELEPORT;
     }
 
     @Override

@@ -12,18 +12,25 @@ import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.utility.logging.ServerLogging;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.client.*;
-import me.vrekt.shared.packet.client.interior.C2SEnteredInteriorWorld;
+import me.vrekt.shared.packet.client.interior.C2SInteriorLoaded;
 import me.vrekt.shared.packet.client.interior.C2STryEnterInteriorWorld;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
+import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
+import me.vrekt.shared.packet.server.interior.S2CPlayerEnteredInterior;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
-import me.vrekt.shared.packet.server.player.*;
+import me.vrekt.shared.packet.server.player.S2CAuthenticate;
+import me.vrekt.shared.packet.server.player.S2CJoinWorld;
+import me.vrekt.shared.packet.server.player.S2CPing;
+import me.vrekt.shared.packet.server.player.S2CWorldInvalid;
+import me.vrekt.shared.protocol.Packets;
 import me.vrekt.shared.protocol.ProtocolDefaults;
 
 /**
@@ -65,22 +72,21 @@ public final class PlayerServerConnection extends NetworkConnection {
      * Attach all relevant packet handlers
      */
     private void attachAll() {
-        attach(C2SPacketAuthenticate.PACKET_ID, packet -> handleAuthentication((C2SPacketAuthenticate) packet));
-        attach(C2SPacketPing.PACKET_ID, packet -> handlePing((C2SPacketPing) packet));
-        attach(C2SPacketJoinWorld.PACKET_ID, packet -> handleJoinWorld((C2SPacketJoinWorld) packet));
-        attach(C2SPacketClientLoaded.PACKET_ID, packet -> handlePlayerClientLoaded((C2SPacketClientLoaded) packet));
-        attach(C2SPacketDisconnected.PACKET_ID, packet -> handleDisconnected((C2SPacketDisconnected) packet));
-        attach(C2SPacketPlayerPosition.PACKET_ID, packet -> handlePlayerPosition((C2SPacketPlayerPosition) packet));
-        attach(C2SPacketPlayerVelocity.PACKET_ID, packet -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet));
-        attach(C2SKeepAlive.PACKET_ID, packet -> handleKeepAlive((C2SKeepAlive) packet));
-        attach(C2SChatMessage.PACKET_ID, packet -> handleChatMessage((C2SChatMessage) packet));
-        attach(C2SPacketAuthenticate.PACKET_ID, packet -> handleAuthentication((C2SPacketAuthenticate) packet));
-        attach(C2SPacketPing.PACKET_ID, packet -> handlePing((C2SPacketPing) packet));
-        attach(C2SAnimateObject.PACKET_ID, packet -> handleAnimateWorldObject((C2SAnimateObject) packet));
-        attach(C2SDestroyWorldObject.PACKET_ID, packet -> handleDestroyWorldObject((C2SDestroyWorldObject) packet));
-        attach(C2SInteractWithObject.PACKET_ID, packet -> handleInteractWorldObject((C2SInteractWithObject) packet));
-        attach(C2STryEnterInteriorWorld.ID, packet -> handleTryEnterInterior((C2STryEnterInteriorWorld) packet));
-        attach(C2SEnteredInteriorWorld.ID, packet -> handleEnteredInterior((C2SEnteredInteriorWorld) packet));
+        attach(Packets.C2S_AUTHENTICATE, packet -> handleAuthentication((C2SPacketAuthenticate) packet));
+        attach(Packets.C2S_PING, packet -> handlePing((C2SPacketPing) packet));
+        attach(Packets.C2S_JOIN_WORLD, packet -> handleJoinWorld((C2SPacketJoinWorld) packet));
+        attach(Packets.C2S_WORLD_LOADED, packet -> handlePlayerWorldLoaded((C2SWorldLoaded) packet));
+        attach(Packets.C2S_DISCONNECTED, packet -> handleDisconnected((C2SPacketDisconnected) packet));
+        attach(Packets.C2S_POSITION, packet -> handlePlayerPosition((C2SPacketPlayerPosition) packet));
+        attach(Packets.C2S_VELOCITY, packet -> handlePlayerVelocity((C2SPacketPlayerVelocity) packet));
+        attach(Packets.C2S_KEEP_ALIVE, packet -> handleKeepAlive((C2SKeepAlive) packet));
+        attach(Packets.C2S_CHAT, packet -> handleChatMessage((C2SChatMessage) packet));
+        attach(Packets.C2S_PING, packet -> handlePing((C2SPacketPing) packet));
+        attach(Packets.C2S_ANIMATE_OBJECT, packet -> handleAnimateWorldObject((C2SAnimateObject) packet));
+        attach(Packets.C2S_DESTROY_OBJECT, packet -> handleDestroyWorldObject((C2SDestroyWorldObject) packet));
+        attach(Packets.C2S_INTERACT_WITH_OBJECT, packet -> handleInteractWorldObject((C2SInteractWithObject) packet));
+        attach(Packets.C2S_TRY_ENTER_INTERIOR, packet -> handleTryEnterInterior((C2STryEnterInteriorWorld) packet));
+        attach(Packets.C2S_INTERIOR_LOADED, packet -> handleInteriorLoaded((C2SInteriorLoaded) packet));
     }
 
     /**
@@ -97,7 +103,7 @@ public final class PlayerServerConnection extends NetworkConnection {
      * @param packet the packet
      */
     private void handleAuthentication(C2SPacketAuthenticate packet) {
-        sendImmediately(new S2CPacketAuthenticate(true, ProtocolDefaults.PROTOCOL_NAME, ProtocolDefaults.PROTOCOL_VERSION));
+        sendImmediately(new S2CAuthenticate(true, ProtocolDefaults.PROTOCOL_NAME, ProtocolDefaults.PROTOCOL_VERSION));
     }
 
     /**
@@ -115,7 +121,7 @@ public final class PlayerServerConnection extends NetworkConnection {
      * @param packet packet
      */
     private void handlePing(C2SPacketPing packet) {
-        sendImmediately(new S2CPacketPing(packet.tick()));
+        sendImmediately(new S2CPing(packet.tick()));
     }
 
     /**
@@ -135,36 +141,46 @@ public final class PlayerServerConnection extends NetworkConnection {
     private void handleJoinWorld(C2SPacketJoinWorld packet) {
         // prevent loaded worlds from being joined or if the player is already joining one.
         if (!server.isWorldReady() || (player != null && joiningWorld)) {
-            sendImmediately(new S2CPacketWorldInvalid(packet.worldId(), "World not found."));
+            sendImmediately(new S2CWorldInvalid(packet.worldId(), "World is not ready."));
             return;
         }
 
         final int worldId = packet.worldId();
         final ServerWorld world = server.getWorld(worldId);
+        if (world == null) {
+            sendImmediately(new S2CWorldInvalid(packet.worldId(), "World not found. worldId=" + worldId));
+            return;
+        }
+
         player = new ServerPlayer(this, server);
         final int entityId = server.playerConnected(player);
 
         player.setName(packet.username());
         player.setWorldIn(world);
         player.setEntityId(entityId);
-        sendImmediately(new S2CPacketJoinWorld(worldId, player.entityId(), world.mspt()));
+
+        sendImmediately(new S2CJoinWorld(worldId, player.entityId(), world.mspt()));
 
         joiningWorld = true;
         ServerLogging.info(this, "Player: %s connected", player.name());
     }
 
     /**
-     * Handle when the player has loaded their world
-     * TODO: Ensure correct world ID.
+     * Handle when the player loads their world.
      *
-     * @param packet packet
+     * @param packet the packet
      */
-    private void handlePlayerClientLoaded(C2SPacketClientLoaded packet) {
-        if (joiningWorld) {
-            joiningWorld = false;
-
-            player.world().spawnPlayerInWorld(player);
-            isServerPlayerReady = true;
+    private void handlePlayerWorldLoaded(C2SWorldLoaded packet) {
+        if (!joiningWorld) {
+            ServerLogging.info(this, "Out of order join packet");
+        } else {
+            if (player.world().worldId() != packet.worldId()) {
+                player.kick("Invalid world loaded ID. id=" + packet.worldId() + ", w=" + player.world().worldId());
+            } else {
+                joiningWorld = false;
+                player.world().spawnPlayerInWorld(player);
+                isServerPlayerReady = true;
+            }
         }
     }
 
@@ -198,7 +214,7 @@ public final class PlayerServerConnection extends NetworkConnection {
         }
 
         // TODO: EM-178 to host
-        player.world().broadcastImmediatelyExcluded(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
+        // player.world().broadcastImmediatelyExcluded(packet.from(), new S2CChatMessage(packet.from(), packet.message()));
     }
 
     /**
@@ -316,20 +332,37 @@ public final class PlayerServerConnection extends NetworkConnection {
      * @param packet packet
      */
     private void handleTryEnterInterior(C2STryEnterInteriorWorld packet) {
-        server.handler().handlePlayerTryEnterInterior(player, packet.type());
+        toHost(() -> host().validateAndLoadPlayerEnteredInterior(player, packet.type()));
     }
 
     /**
-     * Player entered an interior
+     * Will handle additional tasks after the host player has the interior loaded.
+     * TODO: Do not access from main game thread - host
+     *
+     * @param interior interior
+     * @param result   result
+     */
+    public void handleTryInteriorRequestResult(Interior interior, ServerWorld world, boolean result) {
+        if (result) {
+            player.world().broadcastImmediatelyExcluded(player.entityId(), new S2CPlayerEnteredInterior(interior, player.entityId()));
+
+            player.setAllowedToEnter(interior);
+            sendImmediately(new S2CEnterInteriorWorld(interior, true));
+            player.transfer(world);
+        }
+    }
+
+    /**
+     * Player finished loading an interior
      *
      * @param packet packet
      */
-    private void handleEnteredInterior(C2SEnteredInteriorWorld packet) {
+    private void handleInteriorLoaded(C2SInteriorLoaded packet) {
         // kick the player if they were not given permission
         if (player.allowedToEnter() != packet.type()) {
             player.kick("Cannot enter this interior");
         } else {
-            server.handler().handlePlayerEnteredInterior(player, packet.type());
+            toHost(() -> server.handler().handlePlayerInteriorLoaded(player, packet.type()));
         }
     }
 

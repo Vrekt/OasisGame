@@ -8,7 +8,7 @@ import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.sound.Sounds;
 import me.vrekt.oasis.questing.quests.QuestType;
 import me.vrekt.oasis.save.world.obj.WorldObjectSaveState;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.MouseableAbstractInteractableWorldObject;
 
@@ -42,7 +42,7 @@ public final class WrynnLeverInteraction extends MouseableAbstractInteractableWo
         setTextureAndSize(activeTexture, region);
 
         if (!pressed && parentWorld.hasSimpleObject("oasis:basement_gate")) {
-            parentWorld.findInteriorByType(InteriorWorldType.WRYNN_BASEMENT).setEnterable(true);
+            parentWorld.findInteriorByType(Interior.WRYNN_BASEMENT).setEnterable(true);
             parentWorld.removeSimpleObject("oasis:basement_gate");
 
             world.player().getQuestManager().advanceQuest(QuestType.A_NEW_HORIZON);

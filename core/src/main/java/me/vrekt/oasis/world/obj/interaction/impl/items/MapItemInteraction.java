@@ -27,6 +27,7 @@ import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.MouseableAbstractInteractableWorldObject;
 import me.vrekt.shared.packet.client.C2SInteractWithObject;
 import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * An interaction that is an item that can be picked up
@@ -122,7 +123,7 @@ public final class MapItemInteraction extends MouseableAbstractInteractableWorld
             final C2SInteractWithObject packet = new C2SInteractWithObject(objectId, C2SInteractWithObject.InteractionType.PICK_UP);
 
             NetworkCallback.immediate(packet)
-                    .waitFor(S2CInteractWithObjectResponse.PACKET_ID)
+                    .waitFor(Packets.S2C_INTERACT_OBJECT_RESPONSE)
                     .timeoutAfter(2000)
                     .ifTimedOut(() -> world.removeInteraction(this))
                     .sync()

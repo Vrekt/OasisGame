@@ -1,5 +1,6 @@
 package me.vrekt.oasis.network.server.world.obj;
 
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Preconditions;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
@@ -10,8 +11,6 @@ import me.vrekt.shared.packet.client.C2SInteractWithObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
 
-import java.util.Set;
-
 /**
  * Basic wrapper for a server object.
  */
@@ -20,13 +19,16 @@ public class ServerWorldObject {
     private final ServerWorld worldIn;
     private final int objectId;
 
-    private Set<C2SInteractWithObject.InteractionType> interactionTypes;
     private final WorldInteractionType type;
     private final Vector2 position;
+    private final Vector2 size;
+    private final String key;
 
     private int interactedId;
     private long lastInteractionTime;
     private boolean wasInteracted;
+
+    private MapObject mapData;
 
     public ServerWorldObject(ServerWorld worldIn, AbstractInteractableWorldObject object) {
         Preconditions.checkNotNull(worldIn);
@@ -35,7 +37,10 @@ public class ServerWorldObject {
         this.worldIn = worldIn;
         this.type = object.getType();
         this.position = object.getPosition();
+        this.size = object.getSize();
+        this.key = object.getKey();
         this.objectId = object.objectId();
+        this.mapData = object.object();
     }
 
     /**
@@ -59,6 +64,7 @@ public class ServerWorldObject {
         return type;
     }
 
+
     /**
      * @return position of this object
      */
@@ -67,10 +73,31 @@ public class ServerWorldObject {
     }
 
     /**
+     * @return the size
+     */
+    public Vector2 size() {
+        return size;
+    }
+
+    /**
+     * @return the key
+     */
+    public String key() {
+        return key;
+    }
+
+    /**
      * @return if this object was interacted with
      */
     public boolean wasInteracted() {
         return wasInteracted;
+    }
+
+    /**
+     * @return the map object data
+     */
+    public MapObject mapData() {
+        return mapData;
     }
 
     /**

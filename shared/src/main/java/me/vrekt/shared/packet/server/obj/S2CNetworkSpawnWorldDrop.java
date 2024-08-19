@@ -4,18 +4,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Spawn a world drop.
  */
 public final class S2CNetworkSpawnWorldDrop extends GamePacket {
 
-    public static final int PACKET_ID = 3000_11;
-
-    private Item item;
+    private Items item;
+    private int amount;
     private Vector2 position;
     private int objectId;
 
@@ -23,21 +22,40 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
         super(buffer);
     }
 
+    public S2CNetworkSpawnWorldDrop(Items item, int amount, Vector2 position, int objectId) {
+        Preconditions.checkNotNull(item);
+        Preconditions.checkNotNull(position);
+        Preconditions.checkArgument(objectId != -1);
+
+        this.item = item;
+        this.amount = amount;
+        this.position = position;
+        this.objectId = objectId;
+    }
+
     public S2CNetworkSpawnWorldDrop(Item item, Vector2 position, int objectId) {
         Preconditions.checkNotNull(item);
         Preconditions.checkNotNull(position);
-        Preconditions.checkArgument(objectId != 0);
+        Preconditions.checkArgument(objectId != -1);
 
-        this.item = item;
+        this.item = item.type();
+        this.amount = item.amount();
         this.position = position;
         this.objectId = objectId;
     }
 
     /**
-     * @return item
+     * @return the item type
      */
-    public Item item() {
+    public Items item() {
         return item;
+    }
+
+    /**
+     * @return the amount of the item
+     */
+    public int amount() {
+        return amount;
     }
 
     /**
@@ -56,15 +74,15 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_CREATE_WORLD_DROP;
     }
 
     @Override
     public void encode() {
         writeId();
         buffer.writeInt(objectId);
-        writeString(item.type().name());
-        buffer.writeInt(item.amount());
+        buffer.writeInt(item.ordinal());
+        buffer.writeInt(amount);
         writeVector2(position.x, position.y);
     }
 
@@ -72,13 +90,12 @@ public final class S2CNetworkSpawnWorldDrop extends GamePacket {
     public void decode() {
         objectId = buffer.readInt();
 
-        final String of = readString();
-        final Items type = Items.valueOf(of);
-        final int amount = buffer.readInt();
+        final int ordinal = buffer.readInt();
+        this.item = Items.values()[ordinal];
+        this.amount = buffer.readInt();
+
         final float x = buffer.readFloat();
         final float y = buffer.readFloat();
-
         this.position = new Vector2(x, y);
-        this.item = ItemRegistry.createItem(type, amount);
     }
 }

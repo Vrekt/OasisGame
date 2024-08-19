@@ -5,25 +5,21 @@ import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.protocol.Packets;
 
 /**
- * Check client status
+ * Send all players in the world or interior to the player
  */
-public final class S2CKeepAlive extends GamePacket {
+public final class S2CNetworkPlayerSync extends GamePacket {
 
-    public S2CKeepAlive(ByteBuf buffer) {
+    public S2CNetworkPlayerSync(ByteBuf buffer) {
         super(buffer);
-    }
-
-    public S2CKeepAlive() {
     }
 
     @Override
     public int getId() {
-        return Packets.S2C_KEEP_ALIVE;
+        return Packets.S2C_PLAYER_SYNC;
     }
 
     @Override
     public void encode() {
-        writeId();
-    }
 
+    }
 }

@@ -2,9 +2,11 @@ package me.vrekt.shared.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.oasis.item.ItemRegistry;
 import me.vrekt.oasis.item.Items;
+import me.vrekt.shared.network.state.NetworkEntityState;
 
 import java.nio.charset.StandardCharsets;
 
@@ -15,8 +17,6 @@ import java.nio.charset.StandardCharsets;
 public abstract class GamePacket {
 
     protected ByteBuf buffer;
-    // response for this packet
-    protected int response;
 
     public GamePacket(ByteBuf buffer) {
         this.buffer = buffer;
@@ -36,22 +36,6 @@ public abstract class GamePacket {
      * Encode
      */
     public abstract void encode();
-
-    /**
-     * Set the response for this packet
-     *
-     * @param response response
-     */
-    protected void response(int response) {
-        this.response = response;
-    }
-
-    /**
-     * @return get response
-     */
-    public int response() {
-        return response;
-    }
 
     /**
      * Write the ID of this packet to the buffer
@@ -132,6 +116,37 @@ public abstract class GamePacket {
         final Items type = Items.valueOf(of);
         final int amount = buffer.readInt();
         return ItemRegistry.createItem(type, amount);
+    }
+
+    /**
+     * Write a single entity state
+     *
+     * @param entity entity
+     */
+    protected void writeSingleEntityState(NetworkEntityState entity) {
+        buffer.writeInt(entity.entityId());
+        writeVector2(entity.x(), entity.y());
+        writeVector2(entity.vx(), entity.vy());
+        writeString(entity.name());
+        writeString(entity.key());
+        buffer.writeInt(entity.type().ordinal());
+    }
+
+    /**
+     * Read a single entity state
+     *
+     * @return the entity state
+     */
+    protected NetworkEntityState readSingleEntityState() {
+        final int entityId = buffer.readInt();
+        final float x = buffer.readFloat();
+        final float y = buffer.readFloat();
+        final float vx = buffer.readFloat();
+        final float vy = buffer.readFloat();
+        final String name = readString();
+        final String key = readString();
+        final int ordinal = buffer.readInt();
+        return new NetworkEntityState(entityId, name, key, x, y, vx, vy, EntityType.values()[ordinal]);
     }
 
 }

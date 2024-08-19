@@ -1,19 +1,20 @@
 package me.vrekt.shared.packet.client;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Attempt to authenticate with a server
  */
 public final class C2SPacketAuthenticate extends GamePacket {
 
-    public static final int PACKET_ID = 2221;
-
     private String gameVersion;
     private int protocolVersion;
 
     public C2SPacketAuthenticate(String gameVersion, int protocolVersion) {
+        Preconditions.checkNotNull(gameVersion);
         this.gameVersion = gameVersion;
         this.protocolVersion = protocolVersion;
     }
@@ -38,7 +39,7 @@ public final class C2SPacketAuthenticate extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_AUTHENTICATE;
     }
 
     @Override
@@ -51,6 +52,6 @@ public final class C2SPacketAuthenticate extends GamePacket {
     @Override
     public void decode() {
         gameVersion = readString();
-        protocolVersion = buffer.readInt();
+        if (buffer.isReadable(4)) protocolVersion = buffer.readInt();
     }
 }

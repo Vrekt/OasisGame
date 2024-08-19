@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.world.GameWorld;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public final class PlayerWorldSave implements Disposable {
 
     @Expose
     @SerializedName("interior_type")
-    private InteriorWorldType interiorType;
+    private Interior interiorType;
 
     @Expose
     @SerializedName("current_world_in")
@@ -87,7 +87,7 @@ public final class PlayerWorldSave implements Disposable {
     /**
      * @return the interior type if any
      */
-    public InteriorWorldType interiorType() {
+    public Interior interiorType() {
         return interiorType;
     }
 

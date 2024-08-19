@@ -12,4 +12,9 @@ public class ContainerInventory extends AbstractInventory {
         super(inventorySize, InventoryType.CONTAINER);
     }
 
+    public ContainerInventory(ContainerInventory other) {
+        super(other.getSize(), InventoryType.CONTAINER);
+        transferFrom(other);
+    }
+
 }

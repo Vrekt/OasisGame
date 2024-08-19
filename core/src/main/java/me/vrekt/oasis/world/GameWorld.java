@@ -59,7 +59,7 @@ import me.vrekt.oasis.utility.collision.CollisionShapeCreator;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.obj.AbstractWorldObject;
 import me.vrekt.oasis.world.obj.DestroyedObject;
@@ -127,7 +127,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     protected final IntMap<AbstractInteractableWorldObject> interactableWorldObjects = new IntMap<>();
     protected final Array<Vector2> paths = new Array<>();
 
-    protected final EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds = new EnumMap<>(InteriorWorldType.class);
+    protected final EnumMap<Interior, GameWorldInterior> interiorWorlds = new EnumMap<>(Interior.class);
 
     // all mouse listeners
     protected final Array<MouseListener> mouseListeners = new Array<>();
@@ -314,7 +314,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
         buildEntityPathing(worldMap, worldScale);
-        createEntities(game.asset(), worldMap, worldScale);
+        if (!game.isInMultiplayerGame()) createEntities(game.asset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.asset(), worldScale);
 
         // only generate this if the game is not a remote multiplayer server
@@ -357,8 +357,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param interior the interior
      */
     protected void enterInterior(GameWorldInterior interior) {
-        // notify other server players we entered this interior
-        if (game.isInMultiplayerGame()) player.getConnection().updateNetworkInteriorWorldEntered(interior);
+        player.setEnteringNewWorld(true);
+        interactionManager.hideInteractions();
         game.worldManager().transferIn(player, this, interior);
     }
 
@@ -393,11 +393,13 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
 
         if (game.isInMultiplayerGame()) {
             if (isInterior()) {
-                player.getConnection().updateInteriorHasLoaded();
+                player.getConnection().updateInteriorHasLoaded(((GameWorldInterior) this).type);
             } else {
-                player.getConnection().updateWorldHasLoaded();
+                player.getConnection().updateWorldHasLoaded(worldId);
             }
         }
+
+        player.setEnteringNewWorld(false);
     }
 
     public void exit() {
@@ -582,6 +584,22 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.addEntity(entity.getEntity());
 
         mouseListeners.add(entity);
+    }
+
+    /**
+     * Add a networked entity
+     *
+     * @param entity the entity
+     */
+    public void addNetworkedEntity(GameEntity entity) {
+        entities.put(entity.entityId(), entity);
+        engine.addEntity(entity.getEntity());
+
+        mouseListeners.add(entity);
+
+        if (entity.renderWithMap()) {
+            specialRenderingEntities.add(entity);
+        }
     }
 
     /**
@@ -1178,7 +1196,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             final boolean enterable = object.getProperties().get("enterable", false, Boolean.class);
             final String asset = object.getProperties().get("interior_asset", null, String.class);
             final String typeString = object.getProperties().get("interior_type", null, String.class);
-            final InteriorWorldType type = InteriorWorldType.of(typeString);
+            final Interior type = Interior.of(typeString);
 
             if (asset != null) {
                 final String cursorType = object.getProperties().get("cursor", "default", String.class).toUpperCase();
@@ -1208,14 +1226,14 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param type the type
      * @return the interior or {@code null} if none
      */
-    public GameWorldInterior findInteriorByType(InteriorWorldType type) {
+    public GameWorldInterior findInteriorByType(Interior type) {
         return interiorWorlds.get(type);
     }
 
     /**
      * @return map of all interior worlds
      */
-    public EnumMap<InteriorWorldType, GameWorldInterior> interiorWorlds() {
+    public EnumMap<Interior, GameWorldInterior> interiorWorlds() {
         return interiorWorlds;
     }
 

@@ -1,17 +1,16 @@
 package me.vrekt.shared.packet.client;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.server.obj.S2CInteractWithObjectResponse;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Client interacts with an object.
  */
 public final class C2SInteractWithObject extends GamePacket {
 
-    public static final int PACKET_ID = 2222_33;
-
-    private int objectId;
+    private int objectId = -1;
     private InteractionType type;
 
     public C2SInteractWithObject(ByteBuf buffer) {
@@ -19,6 +18,7 @@ public final class C2SInteractWithObject extends GamePacket {
     }
 
     public C2SInteractWithObject(int objectId, InteractionType type) {
+        Preconditions.checkNotNull(type);
         this.objectId = objectId;
         this.type = type;
     }
@@ -32,13 +32,8 @@ public final class C2SInteractWithObject extends GamePacket {
     }
 
     @Override
-    public int response() {
-        return S2CInteractWithObjectResponse.PACKET_ID;
-    }
-
-    @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_INTERACT_WITH_OBJECT;
     }
 
     @Override
@@ -51,12 +46,14 @@ public final class C2SInteractWithObject extends GamePacket {
 
     @Override
     public void decode() {
-        objectId = buffer.readInt();
-        int ord = buffer.readInt();
-        if (ord >= InteractionType.values().length || ord <= 0) {
-            ord = 0;
+        if (buffer.isReadable(4)) objectId = buffer.readInt();
+        if (buffer.isReadable(4)) {
+            int ord = buffer.readInt();
+            if (ord >= InteractionType.values().length || ord <= 0) {
+                ord = 0;
+            }
+            type = InteractionType.values()[ord];
         }
-        type = InteractionType.values()[ord];
     }
 
 
@@ -64,7 +61,7 @@ public final class C2SInteractWithObject extends GamePacket {
      * Various interaction types
      */
     public enum InteractionType {
-         PICK_UP
+        PICK_UP
     }
 
 }

@@ -7,6 +7,7 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.settings.OasisGameSettings;
 import me.vrekt.oasis.asset.settings.OasisKeybindings;
+import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.gui.GuiManager;
 import me.vrekt.oasis.gui.GuiType;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -50,6 +51,7 @@ public final class Keybindings {
         registerKeyActionTask(OasisKeybindings.DEBUG_MENU_KEY, () -> {
             OasisGameSettings.DRAW_DEBUG = !OasisGameSettings.DRAW_DEBUG;
             gui().toggleDrawDebug();
+            game().player().getWorldState().entities().values().forEach(GameEntity::debug);
         });
 
         registerKeyActionTask(OasisKeybindings.SKIP_DIALOG_KEY, () -> GameManager.player().handleDialogKeyPress());

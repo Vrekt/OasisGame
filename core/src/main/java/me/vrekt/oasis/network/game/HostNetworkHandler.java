@@ -1,7 +1,6 @@
 package me.vrekt.oasis.network.game;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import io.netty.util.internal.PlatformDependent;
 import me.vrekt.oasis.OasisGame;
@@ -17,20 +16,12 @@ import me.vrekt.oasis.save.world.mp.NetworkPlayerSave;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
-import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
-import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
-import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.network.state.NetworkWorldState;
-import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
-import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
-import me.vrekt.shared.packet.server.obj.S2CNetworkPopulateContainer;
-import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
-import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
 
 import java.util.Queue;
 
@@ -117,14 +108,13 @@ public final class HostNetworkHandler {
     }
 
     /**
-     * Handle a player connected
+     * Find the origin point for the player
+     * Ideally, move this to server later.
      *
      * @param player player
+     * @return the origin
      */
-    public void handlePlayerConnected(ServerPlayer player) {
-        if (this.player.getWorldState().hasPlayer(player.entityId())) return;
-        GameLogging.info(this, "Creating local player %s", player.name());
-
+    public Vector2 findOriginForPlayer(ServerPlayer player) {
         final Vector2 origin = new Vector2();
         final NetworkPlayerSave save = this.player.getWorldState().playerStorage().get(player.name());
         if (save != null) {
@@ -134,52 +124,27 @@ public final class HostNetworkHandler {
         } else {
             origin.set(this.player.getPosition()).add(1, 1);
         }
+        return origin;
+    }
 
-        player.teleportSilent(origin);
+    /**
+     * Create a new connected player
+     *
+     * @param player player
+     */
+    public void createConnectedPlayer(ServerPlayer player) {
+        if (this.player.getWorldState().hasPlayer(player.entityId())) return;
+        GameLogging.info(this, "Creating local player %s", player.name());
 
         final NetworkPlayer networkPlayer = new NetworkPlayer(this.player.getWorldState());
         networkPlayer.load(game.asset());
 
         networkPlayer.setProperties(player.name(), player.entityId());
         networkPlayer.createCircleBody(this.player.getWorldState().boxWorld(), false);
-        networkPlayer.setPosition(origin);
+        networkPlayer.setPosition(player.getPosition());
         player.setLocal(networkPlayer);
 
         this.player.getWorldState().spawnPlayerInWorld(networkPlayer);
-
-        // sync world objects to the connecting player
-        syncNetworkWorldObjects(player);
-    }
-
-    /**
-     * Sync active world objects
-     *
-     * @param player player
-     */
-    private void syncNetworkWorldObjects(ServerPlayer player) {
-        // not all populated entries will be valid, since some objects have their own packet.
-        // TODO: In the future, maybe just keep this list around and not have to rebuild it for every player.
-        final Array<WorldNetworkObject> objects = new Array<>();
-
-        for (AbstractInteractableWorldObject worldObject : this.player.getWorldState().interactableWorldObjects().values()) {
-            if (worldObject.getType() == WorldInteractionType.MAP_ITEM) {
-                // spawn world drops right away.
-                final MapItemInteraction interaction = (MapItemInteraction) worldObject;
-                player.getConnection().sendImmediately(new S2CNetworkSpawnWorldDrop(interaction.item(), interaction.getPosition(), interaction.objectId()));
-            } else if (worldObject.getType() == WorldInteractionType.CONTAINER) {
-                // spawn containers right away.
-                final OpenableContainerInteraction interaction = (OpenableContainerInteraction) worldObject;
-                player.getConnection().sendImmediately(new S2CNetworkPopulateContainer(interaction.inventory(), interaction.textureAsset(), interaction.getPosition()));
-            } else {
-                // otherwise, create and add to the list.
-                objects.add(new WorldNetworkObject(worldObject.getType(), worldObject.getKey(), worldObject.getPosition(), worldObject.getSize(), worldObject.objectId(), worldObject.object()));
-            }
-        }
-
-        for (WorldNetworkObject object : objects)
-            player.getConnection().sendImmediately(new S2CNetworkAddWorldObject(object));
-
-        GameLogging.info(this, "Synced %d total world objects to player %s", objects.size, player.name());
     }
 
     /**
@@ -228,37 +193,45 @@ public final class HostNetworkHandler {
     }
 
     /**
-     * Handle when a player wants to enter an interior
-     * Ideally, don't kick the player for bad behaviour, ignore it instead.
+     * Validate the interior is valid and load it if required.
      *
-     * @param who     who wants to enter
-     * @param request the interior to enter
+     * @param who  the player
+     * @param type the type
      */
-    public void handlePlayerTryEnterInterior(ServerPlayer who, InteriorWorldType request) {
-        final GameWorld in = who.isInWorld() ? who.world().derived() : null;
-        if (in != null) {
-            if (in.isInterior()) {
-                who.kick("Interiors cannot be within interiors");
+    public void validateAndLoadPlayerEnteredInterior(ServerPlayer who, Interior type) {
+        // TODO: Will not work if in different worlds
+        final GameWorld in = who.isInWorld() ? game.worldManager().getWorld(who.world().worldId()) : null;
+        if (in == null || in.isInterior()) {
+            who.getConnection().handleTryInteriorRequestResult(type, null, false);
+        } else {
+            final GameWorldInterior interior = player.getWorldState().findInteriorByType(type);
+            if (interior == null) {
+                who.getConnection().handleTryInteriorRequestResult(type, null, false);
             } else {
-                final GameWorldInterior interior = player.getWorldState().findInteriorByType(request);
-                if (interior != null) {
-                    // notify the server of a new loaded world and start ticking
-                    // TODO: Will possibly not work with saving.
-                    if (!interior.isWorldLoaded()) {
-                        game.runOnMainThread(() -> {
-                            interior.loadNetworkWorld();
-                            game.integratedServer().addLoadedWorld(interior);
-                            interior.enableTicking();
-                        });
-                    }
-                    who.setAllowedToEnter(request);
-                    who.getConnection().sendImmediately(new S2CEnterInteriorWorld(request, true));
+                final ServerWorld world = loadNetworkedInterior(interior);
+                who.getConnection().handleTryInteriorRequestResult(type, world, true);
+
+                final NetworkPlayer local = who.local();
+                if (player.getWorldState().isPlayerVisible(local)) {
+                    local.transferPlayerToWorldVisible(type);
                 } else {
-                    who.getConnection().sendImmediately(new S2CEnterInteriorWorld(request, false));
+                    local.transferImmediately(type);
                 }
             }
+        }
+    }
+
+    /**
+     * Load networked interior if not already loaded.
+     *
+     * @param interior the interior
+     */
+    private ServerWorld loadNetworkedInterior(GameWorldInterior interior) {
+        if (!interior.isWorldLoaded()) {
+            interior.loadWorldTiledMap(false);
+            return game.integratedServer().addAndPrePopulateWorld(interior);
         } else {
-            who.kick("No active world.");
+            return game.integratedServer().getWorld(interior.worldId());
         }
     }
 
@@ -269,21 +242,12 @@ public final class HostNetworkHandler {
      * @param who     who
      * @param entered interior entered
      */
-    public void handlePlayerEnteredInterior(ServerPlayer who, InteriorWorldType entered) {
+    public void handlePlayerInteriorLoaded(ServerPlayer who, Interior entered) {
         final GameWorldInterior interior = player.getWorldState().findInteriorByType(entered);
         if (interior != null) {
-            final NetworkPlayer local = who.local();
-            if (local != null) {
-                if (player.getWorldState().isPlayerVisible(local)) {
-                    local.transferPlayerToWorldVisible(entered);
-                } else {
-                    local.transfer(interior);
-                }
-
-                final ServerWorld world = game.integratedServer().getLoadedWorld(interior);
-                who.transfer(world);
-            } else {
-                who.kick("Failed to find corresponding network player");
+            if (!interior.doTicking()) {
+                interior.enableTicking();
+                game.integratedServer().getWorld(interior.worldId()).setDoTicking(true);
             }
         } else {
             // not helpful :)

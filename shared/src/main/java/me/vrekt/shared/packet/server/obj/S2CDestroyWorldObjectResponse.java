@@ -2,13 +2,12 @@ package me.vrekt.shared.packet.server.obj;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * A response to {@link me.vrekt.shared.packet.client.C2SDestroyWorldObject}
  */
 public final class S2CDestroyWorldObjectResponse extends GamePacket {
-
-    public static final int PACKET_ID = 3000_14;
 
     private int objectId;
     private boolean valid;
@@ -35,7 +34,7 @@ public final class S2CDestroyWorldObjectResponse extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_DESTROY_OBJECT_RESPONSE;
     }
 
     @Override

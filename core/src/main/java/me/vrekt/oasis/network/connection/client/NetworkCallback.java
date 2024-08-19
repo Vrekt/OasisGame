@@ -41,6 +41,7 @@ public final class NetworkCallback implements Pool.Poolable {
     private long timeoutMs;
     long timeCreated;
     private boolean sync;
+    boolean handled;
 
     private Runnable timeoutAction;
     private Consumer<GamePacket> acceptor;
@@ -155,6 +156,8 @@ public final class NetworkCallback implements Pool.Poolable {
      * @param packet packet
      */
     public void run(GamePacket packet) {
+        handled = true;
+
         if (sync) {
             GameManager.runOnMainThread(() -> acceptor.accept(packet));
         } else {
@@ -174,6 +177,8 @@ public final class NetworkCallback implements Pool.Poolable {
     public void reset() {
         of = null;
         immediate = false;
+        handled = false;
+        responseId = 0;
         timeoutMs = 0;
         sync = false;
     }

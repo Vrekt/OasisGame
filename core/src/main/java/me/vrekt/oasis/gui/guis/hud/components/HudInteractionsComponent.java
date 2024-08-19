@@ -90,6 +90,12 @@ public final class HudInteractionsComponent extends HudComponent {
     }
 
     @Override
+    public void show() {
+        fadeIn(rootTable, 0.5f);
+        isShowing = true;
+    }
+
+    @Override
     public void hide() {
         fadeOut(rootTable, 0.5f);
         isShowing = false;

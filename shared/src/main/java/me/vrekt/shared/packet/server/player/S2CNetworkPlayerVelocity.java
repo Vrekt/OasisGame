@@ -3,29 +3,28 @@ package me.vrekt.shared.packet.server.player;
 import com.badlogic.gdx.math.Vector2;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Update clients on a players velocity
  */
-public final class S2CPacketPlayerVelocity extends GamePacket {
-
-    public static final int PACKET_ID = 1120;
+public final class S2CNetworkPlayerVelocity extends GamePacket {
 
     private int entityId, rotation;
     private float x, y;
 
-    public S2CPacketPlayerVelocity(int entityId, int rotation, float x, float y) {
+    public S2CNetworkPlayerVelocity(int entityId, int rotation, float x, float y) {
         this.entityId = entityId;
         this.rotation = rotation;
         this.x = x;
         this.y = y;
     }
 
-    public S2CPacketPlayerVelocity(int entityId, int rotation, Vector2 velocity) {
+    public S2CNetworkPlayerVelocity(int entityId, int rotation, Vector2 velocity) {
         this(entityId, rotation, velocity.x, velocity.y);
     }
 
-    public S2CPacketPlayerVelocity(ByteBuf buffer) {
+    public S2CNetworkPlayerVelocity(ByteBuf buffer) {
         super(buffer);
     }
 
@@ -59,7 +58,7 @@ public final class S2CPacketPlayerVelocity extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_PLAYER_VELOCITY;
     }
 
     @Override

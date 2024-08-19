@@ -21,6 +21,7 @@ import me.vrekt.shared.packet.client.C2SDestroyWorldObject;
 import me.vrekt.shared.packet.server.obj.S2CAnimateObject;
 import me.vrekt.shared.packet.server.obj.S2CDestroyWorldObjectResponse;
 import me.vrekt.shared.packet.server.obj.S2CNetworkRemoveWorldObject;
+import me.vrekt.shared.protocol.Packets;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -229,7 +230,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
             // but if the server tells us no, then take it back!
 
             NetworkCallback.immediate(packet)
-                    .waitFor(S2CDestroyWorldObjectResponse.PACKET_ID)
+                    .waitFor(Packets.S2C_DESTROY_OBJECT_RESPONSE)
                     .timeoutAfter(2000)
                     .ifTimedOut(() -> GameLogging.warn(this, "S2CDestroy timed out "/* unlikely */))
                     .sync()

@@ -1,20 +1,17 @@
 package me.vrekt.shared.packet.server;
 
 import io.netty.buffer.ByteBuf;
-import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.shared.codec.S2CPacketHandler;
 import me.vrekt.shared.network.state.NetworkEntityState;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.network.state.NetworkWorldState;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Single network frame
- * TODO: Validation
  */
 public final class S2CNetworkFrame extends GamePacket {
-
-    public static final int ID = 3000_7;
 
     private NetworkState state;
 
@@ -36,7 +33,7 @@ public final class S2CNetworkFrame extends GamePacket {
 
     @Override
     public int getId() {
-        return ID;
+        return Packets.S2C_NETWORK_FRAME;
     }
 
     @Override
@@ -52,12 +49,7 @@ public final class S2CNetworkFrame extends GamePacket {
         // write entity data
         buffer.writeInt(state.entities().length);
         for (int i = 0; i < state.entities().length; i++) {
-            final NetworkEntityState entity = state.entities()[i];
-            buffer.writeInt(entity.entityId());
-            writeVector2(entity.x(), entity.y());
-            writeVector2(entity.vx(), entity.vy());
-            writeString(entity.name());
-            buffer.writeInt(entity.type().ordinal());
+            writeSingleEntityState(state.entities()[i]);
         }
     }
 
@@ -72,14 +64,7 @@ public final class S2CNetworkFrame extends GamePacket {
         final int length = buffer.readInt();
         final NetworkEntityState[] entities = new NetworkEntityState[length];
         for (int i = 0; i < length; i++) {
-            final int entityId = buffer.readInt();
-            final float x = buffer.readFloat();
-            final float y = buffer.readFloat();
-            final float vx = buffer.readFloat();
-            final float vy = buffer.readFloat();
-            final String name = readString();
-            final int ordinal = buffer.readInt();
-            entities[i] = new NetworkEntityState(entityId, name, x, y, vx, vy, EntityType.values()[ordinal]);
+            entities[i] = readSingleEntityState();
         }
 
         this.state = new NetworkState(world, entities, timeSent);

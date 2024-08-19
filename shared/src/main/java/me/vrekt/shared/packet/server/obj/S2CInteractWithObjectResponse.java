@@ -3,13 +3,12 @@ package me.vrekt.shared.packet.server.obj;
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.client.C2SInteractWithObject;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * A response for {@link C2SInteractWithObject}
  */
 public final class S2CInteractWithObjectResponse extends GamePacket {
-
-    public static final int PACKET_ID = 3000_15;
 
     private int objectId;
     private boolean valid;
@@ -27,13 +26,16 @@ public final class S2CInteractWithObjectResponse extends GamePacket {
         return objectId;
     }
 
+    /**
+     * @return {@code true} if the interaction was valid.
+     */
     public boolean valid() {
         return valid;
     }
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_INTERACT_OBJECT_RESPONSE;
     }
 
     @Override

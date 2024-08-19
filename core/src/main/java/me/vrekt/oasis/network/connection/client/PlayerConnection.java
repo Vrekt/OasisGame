@@ -6,25 +6,23 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.item.Item;
-import me.vrekt.oasis.item.artifact.Artifact;
-import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
-import me.vrekt.oasis.world.GameWorldInterior;
 import me.vrekt.shared.packet.client.C2SKeepAlive;
 import me.vrekt.shared.packet.client.C2SPacketJoinWorld;
-import me.vrekt.shared.packet.client.abilities.C2SArtifactActivated;
-import me.vrekt.shared.packet.client.interior.C2SEnteredInteriorWorld;
-import me.vrekt.shared.packet.client.item.C2SEquipItem;
-import me.vrekt.shared.packet.client.item.C2SResetEquippedItem;
 import me.vrekt.shared.packet.client.player.C2SChatMessage;
-import me.vrekt.shared.packet.server.player.*;
+import me.vrekt.shared.packet.server.player.S2CAuthenticate;
+import me.vrekt.shared.packet.server.player.S2CDisconnected;
+import me.vrekt.shared.packet.server.player.S2CJoinWorld;
+import me.vrekt.shared.packet.server.player.S2CPing;
 import me.vrekt.shared.protocol.GameProtocol;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Represents our local players connection
+ * <p>
+ * Will handle basic tasks.
  */
-public class PlayerConnection extends AbstractPlayerConnection {
+public final class PlayerConnection extends AbstractPlayerConnection {
 
     private static final C2SKeepAlive KEEP_ALIVE = new C2SKeepAlive();
 
@@ -42,11 +40,10 @@ public class PlayerConnection extends AbstractPlayerConnection {
         this.game = game;
         this.player = player;
 
-        attach(S2CKeepAlive.PACKET_ID, packet -> sendImmediately(KEEP_ALIVE));
-        attach(S2CPacketPing.PACKET_ID, packet -> updatePingMs((S2CPacketPing) packet));
-        attach(S2CPacketAuthenticate.PACKET_ID, packet -> handleAuthenticationResult((S2CPacketAuthenticate) packet));
-        attach(S2CPacketDisconnected.PACKET_ID, packet -> handleServerDisconnect((S2CPacketDisconnected) packet));
-        attach(S2CChatMessage.PACKET_ID, packet -> handleChatMessage((S2CChatMessage) packet));
+        attach(Packets.S2C_KEEP_ALIVE, packet -> sendImmediately(KEEP_ALIVE));
+        attach(Packets.S2C_PING, packet -> updatePingMs((S2CPing) packet));
+        attach(Packets.S2C_AUTHENTICATE, packet -> handleAuthenticationResult((S2CAuthenticate) packet));
+        attach(Packets.S2C_DISCONNECTED, packet -> handleServerDisconnect((S2CDisconnected) packet));
     }
 
     /**
@@ -54,7 +51,7 @@ public class PlayerConnection extends AbstractPlayerConnection {
      *
      * @param player player
      */
-    public void addNetworkPlayer(NetworkPlayer player) {
+    public void registerGlobalNetworkPlayer(NetworkPlayer player) {
         allPlayers.put(player.entityId(), player);
     }
 
@@ -63,7 +60,7 @@ public class PlayerConnection extends AbstractPlayerConnection {
      *
      * @param entityId entity ID
      */
-    public void removeNetworkPlayer(int entityId) {
+    public void removeGlobalNetworkPlayer(int entityId) {
         allPlayers.remove(entityId);
     }
 
@@ -73,26 +70,19 @@ public class PlayerConnection extends AbstractPlayerConnection {
      * @param entityId ID
      * @return the player or {@code null} if not found.
      */
-    public NetworkPlayer getPlayer(int entityId) {
+    public NetworkPlayer getGlobalPlayer(int entityId) {
         return allPlayers.get(entityId);
     }
 
     /**
-     * Notify the network we entered this interior
-     *
-     * @param interior interior
-     */
-    public void updateNetworkInteriorWorldEntered(GameWorldInterior interior) {
-        sendImmediately(new C2SEnteredInteriorWorld(interior.type()));
-    }
-
-    /**
-     * Send a chat message, should be validated
+     * Send a chat message.
      *
      * @param text text
      */
     public void sendChatMessage(String text) {
-        sendImmediately(new C2SChatMessage(player.entityId(), text));
+        if (text == null || text.isEmpty() || text.length() >= 150) return;
+
+        sendImmediately(new C2SChatMessage(text));
     }
 
     /**
@@ -107,7 +97,7 @@ public class PlayerConnection extends AbstractPlayerConnection {
      *
      * @param packet packet
      */
-    private void updatePingMs(S2CPacketPing packet) {
+    private void updatePingMs(S2CPing packet) {
         pingMs = (GameManager.tick() - packet.tick()) / 20;
     }
 
@@ -117,20 +107,8 @@ public class PlayerConnection extends AbstractPlayerConnection {
      *
      * @param packet packet
      */
-    private void handleAuthenticationResult(S2CPacketAuthenticate packet) {
+    private void handleAuthenticationResult(S2CAuthenticate packet) {
         GameLogging.info(this, "Authentication result is %s", packet.isAuthenticationSuccessful());
-    }
-
-    /**
-     * Handle loading into the game world
-     *
-     * @param packet packet
-     */
-    private void handleJoinWorld(S2CPacketJoinWorld packet) {
-        GameLogging.info(this, "Loading into network world %s with ID %d", packet.worldId(), packet.getEntityId());
-
-        player.setEntityId(packet.getEntityId());
-        game.loadIntoNetworkWorld(packet.worldId());
     }
 
     /**
@@ -138,33 +116,14 @@ public class PlayerConnection extends AbstractPlayerConnection {
      *
      * @param packet packet
      */
-    private void handleServerDisconnect(S2CPacketDisconnected packet) {
+    private void handleServerDisconnect(S2CDisconnected packet) {
         GameLogging.warn(this, "Disconnected from remote server for %s", packet.getDisconnectReason());
         game.exitNetworkWorld(packet.getDisconnectReason());
     }
 
     /**
-     * Handle chat messages
-     *
-     * @param packet packet
-     */
-    private void handleChatMessage(S2CChatMessage packet) {
-        if (!GameValidation.ensureInWorld(player, packet)) return;
-
-        if (packet.message() == null || packet.message().length() > 150) {
-            GameLogging.warn(this, "Received invalid message packet! n=, m=",
-                    packet.message() == null, packet.message() == null ? "0" : packet.message().length());
-            return;
-        }
-
-        player.getWorldState()
-                .player(packet.from())
-                .ifPresent(f -> game.guiManager.getChatComponent().addNetworkMessage(f.name(), packet.message()));
-    }
-
-    /**
-     * Attempt to join a world.
-     * unlike {@code joinWorld(world, username, time)} this method substitutes time for {@code System.currentTimeMillis}
+     * Send a join world request to the server and wait for a response
+     * This function will time out after 5 seconds if no response has been received.
      *
      * @param worldId  world ID
      * @param username the username of this player
@@ -172,13 +131,24 @@ public class PlayerConnection extends AbstractPlayerConnection {
     public void joinWorld(int worldId, String username) {
         final C2SPacketJoinWorld packet = new C2SPacketJoinWorld(worldId, username, 0L);
         NetworkCallback.immediate(packet)
-                .waitFor(S2CPacketJoinWorld.PACKET_ID)
+                .waitFor(Packets.S2C_JOIN_WORLD)
                 .timeoutAfter(5000)
                 .ifTimedOut(this::joinWorldTimedOut)
                 .sync()
-                .accept(callback -> {
-                    handleJoinWorld((S2CPacketJoinWorld) callback);
-                }).send();
+                .accept(callback -> handleJoinWorld((S2CJoinWorld) callback))
+                .send();
+    }
+
+    /**
+     * Handle loading into the game world
+     *
+     * @param packet packet
+     */
+    private void handleJoinWorld(S2CJoinWorld packet) {
+        GameLogging.info(this, "Loading into network world %s with ID %d", packet.worldId(), packet.entityId());
+
+        player.setEntityId(packet.entityId());
+        game.loadIntoNetworkWorld(packet.worldId());
     }
 
     /**
@@ -186,28 +156,6 @@ public class PlayerConnection extends AbstractPlayerConnection {
      */
     private void joinWorldTimedOut() {
         GameLogging.error(this, "Join world timed out!");
-    }
-
-    /**
-     * Update item equip status
-     *
-     * @param item the item or {@code null} if no item is currently equipped anymore.
-     */
-    public void updateItemEquipped(Item item) {
-        if (item == null) {
-            sendImmediately(new C2SResetEquippedItem());
-        } else {
-            sendImmediately(new C2SEquipItem(player.entityId(), item.key()));
-        }
-    }
-
-    /**
-     * Update artifact activation
-     *
-     * @param artifact the artifact
-     */
-    public void updateArtifactActivated(Artifact artifact) {
-        sendImmediately(new C2SArtifactActivated(artifact));
     }
 
 }

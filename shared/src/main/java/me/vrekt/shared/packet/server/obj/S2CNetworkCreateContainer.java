@@ -6,24 +6,23 @@ import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.entity.inventory.container.ContainerInventory;
 import me.vrekt.oasis.item.Item;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Spawn and populate a container.
  */
-public class S2CNetworkPopulateContainer extends GamePacket {
-
-    public static final int PACKET_ID = 3000_12;
+public class S2CNetworkCreateContainer extends GamePacket {
 
     private int size;
     private Item[] contents;
     private String containerType;
     private Vector2 position;
 
-    public S2CNetworkPopulateContainer(ByteBuf buffer) {
+    public S2CNetworkCreateContainer(ByteBuf buffer) {
         super(buffer);
     }
 
-    public S2CNetworkPopulateContainer(ContainerInventory inventory, String containerType, Vector2 position) {
+    public S2CNetworkCreateContainer(ContainerInventory inventory, String containerType, Vector2 position) {
         Preconditions.checkNotNull(inventory);
         Preconditions.checkNotNull(position);
         Preconditions.checkNotNull(containerType);
@@ -36,10 +35,6 @@ public class S2CNetworkPopulateContainer extends GamePacket {
         for (int i = 0; i < inventory.getSize(); i++) {
             contents[i] = inventory.get(i);
         }
-    }
-
-    public S2CNetworkPopulateContainer(Item[] contents) {
-        this.contents = contents;
     }
 
     /**
@@ -72,7 +67,7 @@ public class S2CNetworkPopulateContainer extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_CREATE_CONTAINER;
     }
 
     @Override

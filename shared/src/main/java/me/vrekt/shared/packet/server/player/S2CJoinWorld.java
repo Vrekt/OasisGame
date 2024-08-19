@@ -2,44 +2,51 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.codec.S2CPacketHandler;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Sent from the server to initialize joining a new world or sub-server.
  */
-public final class S2CPacketJoinWorld extends GamePacket {
-
-    public static final int PACKET_ID = 1114;
+public final class S2CJoinWorld extends GamePacket {
 
     private int worldId;
     private int entityId;
     private long serverTime;
 
-    public S2CPacketJoinWorld(int worldId, int entityId, long serverTime) {
+    public S2CJoinWorld(int worldId, int entityId, long serverTime) {
         this.worldId = worldId;
         this.entityId = entityId;
         this.serverTime = serverTime;
     }
 
-    public S2CPacketJoinWorld(ByteBuf buffer) {
+    public S2CJoinWorld(ByteBuf buffer) {
         super(buffer);
     }
 
+    /**
+     * @return the world ID
+     */
     public int worldId() {
         return worldId;
     }
 
-    public int getEntityId() {
+    /**
+     * @return the entity ID to assign to the joining player client side
+     */
+    public int entityId() {
         return entityId;
     }
 
+    /**
+     * @return unused
+     */
     public long getServerTime() {
         return serverTime;
     }
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_JOIN_WORLD;
     }
 
     @Override

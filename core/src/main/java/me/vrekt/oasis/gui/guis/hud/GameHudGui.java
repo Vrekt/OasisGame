@@ -140,8 +140,7 @@ public final class GameHudGui extends Gui {
         debugComponentText.setVisible(false);
         for (HudComponent component : components.values()) {
             if (component.componentType != HudComponentType.HINT
-                    && component.componentType != HudComponentType.NEW_QUEST
-                    && component.componentType != HudComponentType.INTERACTIONS) {
+                    && component.componentType != HudComponentType.NEW_QUEST) {
                 component.hide();
             }
         }

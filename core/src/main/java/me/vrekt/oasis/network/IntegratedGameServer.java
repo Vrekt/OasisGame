@@ -13,6 +13,8 @@ import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
 import me.vrekt.oasis.network.server.world.ServerWorld;
 import me.vrekt.oasis.network.server.world.obj.ServerBreakableWorldObject;
+import me.vrekt.oasis.network.server.world.obj.ServerContainerWorldObject;
+import me.vrekt.oasis.network.server.world.obj.ServerMapItemWorldObject;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.GameLogging;
@@ -20,7 +22,11 @@ import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject;
+import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
+import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
 import me.vrekt.shared.network.state.NetworkState;
+import me.vrekt.shared.packet.server.player.S2CDisconnected;
 import me.vrekt.shared.protocol.GameProtocol;
 import org.apache.commons.lang3.StringUtils;
 
@@ -105,7 +111,7 @@ public final class IntegratedGameServer implements Disposable {
         activeWorld = new ServerWorld(in, this);
         loadedWorlds.put(activeWorld.worldId(), activeWorld);
 
-        populateServerWorld(in);
+        populateServerWorld(activeWorld, in);
 
         service.scheduleAtFixedRate(this::tick, 0L, 25, TimeUnit.MILLISECONDS);
         started = true;
@@ -114,17 +120,13 @@ public final class IntegratedGameServer implements Disposable {
     /**
      * Populate the corresponding {@link ServerWorld} with all the objects and entities of the provided {@link GameWorld}
      *
-     * @param world the game world
+     * @param activeWorld the active world to populate into
+     * @param world       the game world
      */
-    private void populateServerWorld(GameWorld world) {
+    private void populateServerWorld(ServerWorld activeWorld, GameWorld world) {
         int entityCount = 0;
         for (GameEntity ge : world.entities().values()) {
-            final ServerEntity entity = new ServerEntity(this);
-            entity.setName(ge.name());
-            entity.setEntityId(ge.entityId());
-            entity.setPosition(ge.getPosition().x, ge.getPosition().y);
-            entity.setWorldIn(activeWorld);
-
+            final ServerEntity entity = new ServerEntity(this, activeWorld, ge);
             activeWorld.spawnEntityInWorld(entity);
             entityCount++;
         }
@@ -133,7 +135,11 @@ public final class IntegratedGameServer implements Disposable {
         for (AbstractInteractableWorldObject object : world.interactableWorldObjects().values()) {
             ServerWorldObject swo;
             if (object.getType() == WorldInteractionType.BREAKABLE_OBJECT) {
-                swo = new ServerBreakableWorldObject(activeWorld, object);
+                swo = new ServerBreakableWorldObject(activeWorld, (BreakableObjectInteraction) object);
+            } else if (object.getType() == WorldInteractionType.MAP_ITEM) {
+                swo = new ServerMapItemWorldObject(activeWorld, (MapItemInteraction) object);
+            } else if (object.getType() == WorldInteractionType.CONTAINER) {
+                swo = new ServerContainerWorldObject(activeWorld, (OpenableContainerInteraction) object);
             } else {
                 swo = new ServerWorldObject(activeWorld, object);
             }
@@ -143,6 +149,25 @@ public final class IntegratedGameServer implements Disposable {
         }
 
         ServerLogging.info(this, "Loaded %d entities and %d world objects", entityCount, objectCount);
+    }
+
+    /**
+     * pre-populate a world to be ticked later.
+     *
+     * @param world the world
+     */
+    public ServerWorld addAndPrePopulateWorld(GameWorld world) {
+        final ServerWorld serverWorld = new ServerWorld(world, this);
+        // wait until the player(s) is loaded.
+        serverWorld.setDoTicking(false);
+        populateServerWorld(serverWorld, world);
+        if (!loadedWorlds.containsKey(world.worldId())) {
+            loadedWorlds.put(world.worldId(), serverWorld);
+            return serverWorld;
+        } else {
+            GameLogging.warn(this, "Failed to add a ticking world: %s", world.getWorldName());
+        }
+        return null;
     }
 
     /**
@@ -252,7 +277,14 @@ public final class IntegratedGameServer implements Disposable {
                 player.name(),
                 reason == null ? StringUtils.EMPTY : reason);
 
+        player.getConnection().sendImmediately(new S2CDisconnected(reason));
+
+        // gets disposed before executing sync on main host thread.
+        final int entityId = player.entityId();
+
         if (player.isInWorld()) player.world().removePlayer(player);
+        handler.handlePlayerDisconnected(entityId);
+
         allPlayers.removeValue(player, true);
         player.getConnection().disconnect();
         player.dispose();

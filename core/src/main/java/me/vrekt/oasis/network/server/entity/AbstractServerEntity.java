@@ -2,6 +2,7 @@ package me.vrekt.oasis.network.server.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.network.IntegratedGameServer;
 import me.vrekt.oasis.network.server.cache.EntityStateCache;
 import me.vrekt.oasis.network.server.world.ServerWorld;
@@ -17,8 +18,10 @@ public abstract class AbstractServerEntity implements Disposable {
 
     protected int entityId;
     protected String name;
+    protected String key;
 
     protected Vector2 position, velocity;
+    protected EntityType type;
     protected int rotation;
 
     public AbstractServerEntity(IntegratedGameServer server) {
@@ -90,6 +93,38 @@ public abstract class AbstractServerEntity implements Disposable {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * @return the key
+     */
+    public String key() {
+        return key;
+    }
+
+    /**
+     * Set key of this entity
+     *
+     * @param key key
+     */
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    /**
+     * @return the entity type
+     */
+    public EntityType type() {
+        return type;
+    }
+
+    /**
+     * Assign entity type
+     *
+     * @param type type
+     */
+    public void setType(EntityType type) {
+        this.type = type;
     }
 
     /**

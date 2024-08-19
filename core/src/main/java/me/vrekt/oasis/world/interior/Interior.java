@@ -13,7 +13,7 @@ import me.vrekt.oasis.world.tutorial.interior.wrynn.WrynnHouseInterior;
 /**
  * List of all interior types
  */
-public enum InteriorWorldType {
+public enum Interior {
 
     NONE {
         @Override
@@ -57,13 +57,18 @@ public enum InteriorWorldType {
      */
     public abstract GameWorldInterior createInterior(GameWorld world, String asset, Cursor cursor, Rectangle bounds);
 
+    public static Interior of(int index) {
+        if (index >= values().length) return Interior.NONE;
+        return values()[index];
+    }
+
     /**
      * Find the type
      *
      * @param key the key
      * @return the type
      */
-    public static InteriorWorldType of(String key) {
+    public static Interior of(String key) {
         try {
             return valueOf(key.toUpperCase());
         } catch (IllegalArgumentException exception) {

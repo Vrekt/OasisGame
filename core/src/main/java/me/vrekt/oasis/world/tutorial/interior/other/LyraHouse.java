@@ -6,7 +6,7 @@ import me.vrekt.oasis.entity.EntityType;
 import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 
 /**
  * Lyra house
@@ -15,7 +15,7 @@ public final class LyraHouse extends GameWorldInterior {
 
     public static final int WORLD_ID = 4;
 
-    public LyraHouse(GameWorld parentWorld, String interiorMap, InteriorWorldType type, Cursor cursor, Rectangle entranceBounds) {
+    public LyraHouse(GameWorld parentWorld, String interiorMap, Interior type, Cursor cursor, Rectangle entranceBounds) {
         super(parentWorld, interiorMap, type, cursor, entranceBounds);
         this.worldMap = Asset.HOUSE_2;
         this.worldId = WORLD_ID;

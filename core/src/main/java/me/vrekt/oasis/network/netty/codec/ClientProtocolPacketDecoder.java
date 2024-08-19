@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import me.vrekt.oasis.network.connection.NetworkConnection;
-import me.vrekt.oasis.utility.logging.GameLogging;
+import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.shared.protocol.GameProtocol;
 
 /**
@@ -34,12 +34,10 @@ public final class ClientProtocolPacketDecoder extends LengthFieldBasedFrameDeco
                 buf.readInt();
                 // retrieve packet from PID
                 final int pid = buf.readInt();
-                if (protocol.isClientPacket(pid)) {
-                    protocol.handleClientPacket(pid, buf, handler, ctx);
-                }
+                protocol.handle(pid, buf, handler, ctx);
             }
         } catch (Exception any) {
-            GameLogging.info(this, "Failed to decode packet from client!");
+            ServerLogging.info(this, "Failed to decode packet from client!");
         } finally {
             if (buf != null) {
                 buf.release();

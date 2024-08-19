@@ -21,7 +21,7 @@ import me.vrekt.oasis.entity.player.sp.inventory.PlayerInventory;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.world.GameWorld;
 import me.vrekt.oasis.world.GameWorldInterior;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 
 /**
  * Represents any player over the network
@@ -33,7 +33,7 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
     private final Vector2 incomingNetworkVelocity = new Vector2();
 
     private boolean enteringInterior;
-    private InteriorWorldType interiorEntering;
+    private Interior interiorEntering;
     private float fadingAnimationEnteringAlpha = 1.0f;
 
     private EntityAnimationComponent animationComponent;
@@ -73,7 +73,7 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
      *
      * @param into into interior
      */
-    public void transferPlayerToWorldVisible(InteriorWorldType into) {
+    public void transferPlayerToWorldVisible(Interior into) {
         enteringInterior = true;
         interiorEntering = into;
     }
@@ -83,7 +83,7 @@ public final class NetworkPlayer extends AbstractPlayer implements ResourceLoade
      *
      * @param type type
      */
-    public void transferImmediately(InteriorWorldType type) {
+    public void transferImmediately(Interior type) {
         this.interiorEntering = type;
         transfer(worldIn.findInteriorByType(type));
     }

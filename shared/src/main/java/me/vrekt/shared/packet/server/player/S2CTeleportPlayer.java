@@ -2,13 +2,13 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Notify players that a player teleported.
  */
 public final class S2CTeleportPlayer extends GamePacket {
 
-    public static final int PACKET_ID = 1125;
     private int entityId;
     private float x, y;
 
@@ -36,7 +36,7 @@ public final class S2CTeleportPlayer extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_PLAYER_TELEPORTED;
     }
 
     @Override

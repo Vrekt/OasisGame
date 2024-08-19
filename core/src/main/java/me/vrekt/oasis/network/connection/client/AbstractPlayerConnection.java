@@ -6,10 +6,12 @@ import io.netty.channel.Channel;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.connection.NetworkConnection;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.shared.packet.GamePacket;
-import me.vrekt.shared.packet.client.C2SPacketClientLoaded;
 import me.vrekt.shared.packet.client.C2SPacketDisconnected;
 import me.vrekt.shared.packet.client.C2SPacketPing;
+import me.vrekt.shared.packet.client.C2SWorldLoaded;
+import me.vrekt.shared.packet.client.interior.C2SInteriorLoaded;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerPosition;
 import me.vrekt.shared.packet.client.player.C2SPacketPlayerVelocity;
 import me.vrekt.shared.protocol.GameProtocol;
@@ -31,7 +33,7 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
     protected float lastPingTime;
 
     // TODO: Perhaps in the future concurrent set + have a specific packet
-    // TODO:  That is a network callback with a special ID
+    // TODO: That is a network callback with a special ID
     // TODO: So we could just lookup instead of looping whole table
     // TODO: Currently, it is not worth it since executing only takes a few milliseconds
     // TODO: plus, the map is never big
@@ -75,10 +77,18 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
 
                 wasHandled = true;
                 break;
-            } else if (entry.value.isTimedOut(now)) {
+            } else if (entry.value.isTimedOut(now) && !entry.value.handled) {
                 entry.value.timeout();
                 entry.value.free();
                 it.remove();
+
+                wasHandled = true;
+            } else if (entry.value.handled) {
+                entry.value.free();
+                it.remove();
+
+                wasHandled = true;
+
             }
         }
 
@@ -147,16 +157,20 @@ public abstract class AbstractPlayerConnection extends NetworkConnection {
 
     /**
      * Notify the server this clients world has loaded
+     *
+     * @param worldId the world ID loaded.
      */
-    public void updateWorldHasLoaded() {
-        sendImmediately(new C2SPacketClientLoaded(C2SPacketClientLoaded.ClientLoadedType.WORLD));
+    public void updateWorldHasLoaded(int worldId) {
+        sendImmediately(new C2SWorldLoaded(worldId));
     }
 
     /**
      * Notify the server interior as loaded
+     *
+     * @param interior the interior loaded.
      */
-    public void updateInteriorHasLoaded() {
-        sendImmediately(new C2SPacketClientLoaded(C2SPacketClientLoaded.ClientLoadedType.INTERIOR));
+    public void updateInteriorHasLoaded(Interior interior) {
+        sendImmediately(new C2SInteriorLoaded(interior));
     }
 
     /**

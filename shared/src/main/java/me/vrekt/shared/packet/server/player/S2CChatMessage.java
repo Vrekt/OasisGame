@@ -2,13 +2,12 @@ package me.vrekt.shared.packet.server.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Server -> client chat message
  */
 public final class S2CChatMessage extends GamePacket {
-
-    public static final int PACKET_ID = 3000_6;
 
     private int from;
     private String message;
@@ -22,17 +21,23 @@ public final class S2CChatMessage extends GamePacket {
         this.message = message;
     }
 
+    /**
+     * @return player ID from
+     */
     public int from() {
         return from;
     }
 
+    /**
+     * @return msg contents
+     */
     public String message() {
         return message;
     }
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_CHAT_MESSAGE;
     }
 
     @Override

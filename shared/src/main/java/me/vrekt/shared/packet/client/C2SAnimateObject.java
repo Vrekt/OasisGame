@@ -2,6 +2,7 @@ package me.vrekt.shared.packet.client;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Client animation interacts with an object.
@@ -12,9 +13,7 @@ import me.vrekt.shared.packet.GamePacket;
  */
 public final class C2SAnimateObject extends GamePacket {
 
-    public static final int PACKET_ID = 2222_31;
-
-    private int objectId;
+    private int objectId = -1;
 
     public C2SAnimateObject(ByteBuf buffer) {
         super(buffer);
@@ -30,7 +29,7 @@ public final class C2SAnimateObject extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_ANIMATE_OBJECT;
     }
 
     @Override
@@ -42,8 +41,7 @@ public final class C2SAnimateObject extends GamePacket {
 
     @Override
     public void decode() {
-        objectId = buffer.readInt();
+        if (buffer.isReadable(4)) objectId = buffer.readInt();
     }
-
 
 }

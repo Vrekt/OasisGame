@@ -147,6 +147,8 @@ public final class WorldManager implements Disposable {
             return null;
         }
 
+        player.setEnteringNewWorld(true);
+
         GameManager.transitionWorlds(player.getWorldState(), to, () -> {
             player.getWorldState().exit();
             player.removeFromWorld();
@@ -167,6 +169,8 @@ public final class WorldManager implements Disposable {
      * @param parent the parent world
      */
     public void transferOut(PlayerSP player, GameWorldInterior from, GameWorld parent) {
+        player.setEnteringNewWorld(true);
+
         player.removeFromInteriorWorld();
         // the transform to set when entering the new world.
         player.getTransformComponent().position.set(parentWorldPosition);

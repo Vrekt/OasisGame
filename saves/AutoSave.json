@@ -2,12 +2,12 @@
   "name": "AutoSave",
   "slot": 0,
   "progress": 0.0,
-  "date": "30-07-24 12:44 PM",
-  "multiplayer": false,
+  "date": "19-08-24 01:57 AM",
+  "multiplayer": true,
   "settings": {
     "entity_update_distance": 100.0,
     "show_fps": true,
-    "mp_lan": false,
+    "mp_lan": true,
     "v_sync": true,
     "auto_save": true,
     "auto_save_interval": 1.0,
@@ -19,10 +19,10 @@
     "sfx_volume": 1.0
   },
   "player": {
-    "name": "Player54",
+    "name": "Player85",
     "position": {
-      "x": 42.947937,
-      "y": 11.791626
+      "x": 42.541687,
+      "y": 31.135376
     },
     "inventory": {
       "type": "PLAYER",
@@ -122,8 +122,8 @@
             "key": "oasis:chick",
             "entityId": 4,
             "position": {
-              "x": 25.0,
-              "y": 31.0
+              "x": 23.421919,
+              "y": 19.412113
             },
             "size": {
               "x": 16.0,
@@ -140,8 +140,8 @@
             "key": "oasis:lyra",
             "entityId": 1,
             "position": {
-              "x": 16.0,
-              "y": 29.0
+              "x": 9.037578,
+              "y": 44.721813
             },
             "size": {
               "x": 12.0,
@@ -149,7 +149,7 @@
               "z": 0.0625
             },
             "health": 100.0,
-            "rotation": "DOWN",
+            "rotation": "UP",
             "move_speed": 0.0,
             "entity_data": {
               "dialogue_entry_key": "lyra:dialog_stage_0",
@@ -162,8 +162,8 @@
             "key": "oasis:fish",
             "entityId": 3,
             "position": {
-              "x": 15.333312,
-              "y": 57.625
+              "x": 10.605887,
+              "y": 55.59508
             },
             "size": {
               "x": 16.0,
@@ -201,7 +201,7 @@
                 "slot": 0,
                 "name": "Lockpick",
                 "type": "LOCK_PICK",
-                "amount": 1
+                "amount": 2
               }
             }
           },
@@ -224,21 +224,27 @@
             }
           },
           {
-            "key": "oasis:crimson_cap",
             "interactable": true,
             "enabled": true,
-            "interaction_type": "MAP_ITEM",
+            "interaction_type": "CONTAINER",
             "position": {
               "x": 53.5,
               "y": 49.0
             },
             "object_data": {
-              "dropped_item": {
-                "slot": 0,
-                "name": "Crimson Cap",
-                "type": "CRIMSON_CAP",
-                "amount": 3
-              }
+              "container_inventory": {
+                "type": "CONTAINER",
+                "size": 16,
+                "contents": [
+                  {
+                    "slot": 0,
+                    "name": "Lockpick",
+                    "type": "LOCK_PICK",
+                    "amount": 1
+                  }
+                ]
+              },
+              "active_texture": "barrel"
             }
           }
         ],

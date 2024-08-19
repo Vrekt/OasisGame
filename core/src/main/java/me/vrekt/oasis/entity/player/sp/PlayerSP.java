@@ -83,6 +83,7 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     private boolean canMove = true;
     // if the player has moved since some class requested it to be set.
     private boolean hasMoved = true;
+    private boolean isEnteringNewWorld;
 
     private ParticleEffect particleEffect;
     private float lastEffectApplied, effectStarted;
@@ -317,6 +318,17 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
     }
 
     /**
+     * @return {@code true} if the player is entering a new world.
+     */
+    public boolean isEnteringNewWorld() {
+        return isEnteringNewWorld;
+    }
+
+    public void setEnteringNewWorld(boolean enteringNewWorld) {
+        isEnteringNewWorld = enteringNewWorld;
+    }
+
+    /**
      * Scale up or down this player
      *
      * @param scale scale
@@ -342,7 +354,6 @@ public final class PlayerSP extends AbstractPlayer implements ResourceLoader, Dr
             return;
         }
 
-        if (game.isInMultiplayerGame()) connection.updateArtifactActivated(artifact);
         artifact.apply(this, GameManager.tick());
         game.getGuiManager().getArtifactComponent().showArtifactAbilityUsed(slotNumber, artifact.getArtifactCooldown());
     }

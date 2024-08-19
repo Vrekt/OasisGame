@@ -1,5 +1,6 @@
 package me.vrekt.oasis.network.server.world;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.network.IntegratedGameServer;
@@ -8,14 +9,21 @@ import me.vrekt.oasis.network.server.cache.EntityStateCache;
 import me.vrekt.oasis.network.server.cache.GameStateSnapshot;
 import me.vrekt.oasis.network.server.entity.ServerEntity;
 import me.vrekt.oasis.network.server.entity.player.ServerPlayer;
+import me.vrekt.oasis.network.server.world.obj.ServerContainerWorldObject;
+import me.vrekt.oasis.network.server.world.obj.ServerMapItemWorldObject;
 import me.vrekt.oasis.network.server.world.obj.ServerWorldObject;
 import me.vrekt.oasis.network.utility.GameValidation;
 import me.vrekt.oasis.utility.logging.ServerLogging;
 import me.vrekt.oasis.world.GameWorld;
+import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.GamePacket;
 import me.vrekt.shared.packet.server.S2CNetworkFrame;
-import me.vrekt.shared.packet.server.S2CStartGame;
+import me.vrekt.shared.packet.server.entity.S2CNetworkCreateEntity;
+import me.vrekt.shared.packet.server.obj.S2CNetworkAddWorldObject;
+import me.vrekt.shared.packet.server.obj.S2CNetworkCreateContainer;
+import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
+import me.vrekt.shared.packet.server.obj.WorldNetworkObject;
 import me.vrekt.shared.packet.server.player.*;
 
 /**
@@ -30,15 +38,30 @@ public final class ServerWorld {
 
     private final IntMap<ServerWorldObject> objects = new IntMap<>();
 
-    private final GameWorld derived;
     private final int worldId;
 
     private long mspt;
+    private boolean doTicking = true;
 
     public ServerWorld(GameWorld from, IntegratedGameServer server) {
         this.gameServer = server;
-        this.derived = from;
-        this.worldId = derived.worldId();
+        this.worldId = from.worldId();
+    }
+
+    /**
+     * Set if this world should be ticked
+     *
+     * @param doTicking state
+     */
+    public void setDoTicking(boolean doTicking) {
+        this.doTicking = doTicking;
+    }
+
+    /**
+     * @return {@code true} if this world should be ticked.
+     */
+    public boolean doTicking() {
+        return doTicking;
     }
 
     private HostNetworkHandler host() {
@@ -53,13 +76,6 @@ public final class ServerWorld {
      */
     private void notifyHost(Runnable action) {
         host().postNetworkUpdate(action);
-    }
-
-    /**
-     * @return the world this world was derived from.
-     */
-    public GameWorld derived() {
-        return derived;
     }
 
     /**
@@ -113,9 +129,7 @@ public final class ServerWorld {
         if (!hasPlayer(player.entityId())) return;
         players.remove(player.entityId());
 
-        notifyHost(() -> host().handlePlayerDisconnected(player.entityId()));
-
-        broadcastImmediatelyExcluded(player.entityId(), new S2CPacketRemovePlayer(player.entityId(), player.name()));
+        broadcastImmediatelyExcluded(player.entityId(), new S2CNetworkRemovePlayer(player.entityId(), player.name()));
     }
 
     /**
@@ -147,37 +161,61 @@ public final class ServerWorld {
 
         ServerLogging.info(this, "Spawning a new player: %s", player.name());
 
+        final Vector2 origin = host().findOriginForPlayer(player);
+        player.setPosition(origin);
+
+        notifyHost(() -> host().createConnectedPlayer(player));
+
+        beginNetworkPlayerSync(player);
+        this.players.put(player.entityId(), player);
+    }
+
+    /**
+     * Start syncing entities, players and objects.
+     *
+     * @param player the player
+     */
+    public void beginNetworkPlayerSync(ServerPlayer player) {
+        // sync server entities
+        for (ServerEntity serverEntity : entities.values()) {
+            player.getConnection().sendImmediately(new S2CNetworkCreateEntity(serverEntity));
+        }
+
+        // sync server objects
+        for (ServerWorldObject object : objects.values()) {
+            if (object.type() == WorldInteractionType.MAP_ITEM) {
+                final ServerMapItemWorldObject obj = (ServerMapItemWorldObject) object;
+                player.getConnection().sendImmediately(new S2CNetworkSpawnWorldDrop(obj.item(), obj.amount(), obj.position(), obj.objectId()));
+            } else if (object.type() == WorldInteractionType.CONTAINER) {
+                final ServerContainerWorldObject obj = (ServerContainerWorldObject) object;
+                player.getConnection().sendImmediately(new S2CNetworkCreateContainer(obj.inventory(), obj.textureAsset(), obj.position()));
+            } else {
+                player.getConnection().sendImmediately(new S2CNetworkAddWorldObject(new WorldNetworkObject(object)));
+            }
+        }
+
+        // sync players
         final S2CNetworkPlayer hostPlayer = new S2CNetworkPlayer(
                 gameServer.hostPlayer().entityId(),
                 gameServer.hostPlayer().name(),
                 gameServer.hostPlayer().getX(),
                 gameServer.hostPlayer().getY());
 
-        // ideally, this will set the right origin point of the player
-        notifyHost(() -> host().handlePlayerConnected(player));
+        player.getConnection().sendImmediately(new S2CNetworkCreatePlayer(hostPlayer.username, hostPlayer.entityId, hostPlayer.x, hostPlayer.y));
 
-        if (players.isEmpty()) {
-            // no players besides the host.
-            player.getConnection().sendImmediately(new S2CStartGame(worldId, hostPlayer));
-        } else {
-            final S2CNetworkPlayer[] networkPlayers = new S2CNetworkPlayer[players.size + 1];
-            // tell host we have a player
-            // notify other players that a new player has joined
-            broadcastImmediatelyExcluded(player.entityId(), new S2CPacketCreatePlayer(player.name(), player.entityId(), player.getPosition().x, player.getPosition().y));
-            // now we can send the player that joined all other players
-            // add the host to this list
-            networkPlayers[0] = hostPlayer;
-
-            int index = 1;
-            for (ServerPlayer other : players.values()) {
-                networkPlayers[index] = new S2CNetworkPlayer(other.entityId(), other.name(), other.getPosition().x, other.getPosition().y);
-                index++;
+        if (!players.isEmpty()) {
+            // notify other players this one joined
+            broadcastImmediatelyExcluded(player.entityId(), new S2CNetworkCreatePlayer(player.name(), player.entityId(), player.getPosition().x, player.getPosition().y));
+            // sync players to the joining player
+            for (ServerPlayer serverPlayer : players.values()) {
+                player.getConnection().sendImmediately(new S2CNetworkCreatePlayer(
+                        serverPlayer.name(),
+                        serverPlayer.entityId(),
+                        serverPlayer.getPosition().x,
+                        serverPlayer.getPosition().y));
             }
-            player.getConnection().sendImmediately(new S2CStartGame(worldId, networkPlayers));
         }
 
-        // add this new player to the list
-        players.put(player.entityId(), player);
     }
 
     /**
@@ -231,8 +269,8 @@ public final class ServerWorld {
             }
         }
         // notify other players of the host position
-        broadcastImmediately(new S2CPacketPlayerPosition(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getX(), hostPlayer.getY()));
-        broadcastImmediately(new S2CPacketPlayerVelocity(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));
+        broadcastImmediately(new S2CNetworkPlayerPosition(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getX(), hostPlayer.getY()));
+        broadcastImmediately(new S2CNetworkPlayerVelocity(hostPlayer.entityId(), hostPlayer.rotation().ordinal(), hostPlayer.getVelocity().x, hostPlayer.getVelocity().y));
     }
 
     /**
@@ -241,29 +279,37 @@ public final class ServerWorld {
     public void tick() {
         GameValidation.ensureOnThread(IntegratedGameServer.threadId);
 
-        final long now = System.currentTimeMillis();
-        for (ServerPlayer player : players.values()) {
-            player.getConnection().flush();
-            player.getConnection().updateHandlingQueue();
-
-            // notify everybody of their position.
-            if (!isPlayerTimedOut(player, now)) {
-                queuePlayerPosition(player);
-                queuePlayerVelocity(player);
-
-                // host player send network update
-                // will post to a queue for sync handling on main game thread
-                gameServer.handler().queueHostPlayerNetworkUpdate(
-                        player.entityId(),
-                        player.getPosition(),
-                        player.getVelocity(),
-                        player.getRotation());
-            } else {
-                player.kick("Timed out");
+        // player connections should still be handled
+        if (!doTicking) {
+            for (ServerPlayer player : players.values()) {
+                player.getConnection().flush();
+                player.getConnection().updateHandlingQueue();
             }
-        }
+        } else {
+            final long now = System.currentTimeMillis();
+            for (ServerPlayer player : players.values()) {
+                player.getConnection().flush();
+                player.getConnection().updateHandlingQueue();
 
-        mspt = System.currentTimeMillis() - now;
+                // notify everybody of their position.
+                if (!isPlayerTimedOut(player, now)) {
+                    queuePlayerPosition(player);
+                    queuePlayerVelocity(player);
+
+                    // host player send network update
+                    // will post to a queue for sync handling on main game thread
+                    gameServer.handler().queueHostPlayerNetworkUpdate(
+                            player.entityId(),
+                            player.getPosition(),
+                            player.getVelocity(),
+                            player.getRotation());
+                } else {
+                    player.kick("Timed out");
+                }
+            }
+
+            mspt = System.currentTimeMillis() - now;
+        }
     }
 
     /**
@@ -272,7 +318,7 @@ public final class ServerWorld {
      * @param player the player
      */
     private void queuePlayerPosition(ServerPlayer player) {
-        broadcastImmediatelyExcluded(player.entityId(), new S2CPacketPlayerPosition(player.entityId(), player.getRotation(), player.getPosition()));
+        broadcastImmediatelyExcluded(player.entityId(), new S2CNetworkPlayerPosition(player.entityId(), player.getRotation(), player.getPosition()));
     }
 
     /**
@@ -281,7 +327,7 @@ public final class ServerWorld {
      * @param player the player
      */
     private void queuePlayerVelocity(ServerPlayer player) {
-        broadcastImmediatelyExcluded(player.entityId(), new S2CPacketPlayerVelocity(player.entityId(), player.getRotation(), player.getVelocity()));
+        broadcastImmediatelyExcluded(player.entityId(), new S2CNetworkPlayerVelocity(player.entityId(), player.getRotation(), player.getVelocity()));
     }
 
     /**

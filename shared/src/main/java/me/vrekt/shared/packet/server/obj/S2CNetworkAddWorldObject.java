@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import me.vrekt.oasis.utility.logging.GameLogging;
 import me.vrekt.oasis.world.obj.interaction.WorldInteractionType;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +17,6 @@ import java.util.Map;
  * A network object that should be added.
  */
 public final class S2CNetworkAddWorldObject extends GamePacket {
-
-    public static final int PACKET_ID = 3000_10;
 
     private WorldNetworkObject object;
 
@@ -30,13 +29,16 @@ public final class S2CNetworkAddWorldObject extends GamePacket {
         this.object = object;
     }
 
+    /**
+     * @return the new object to add
+     */
     public WorldNetworkObject object() {
         return object;
     }
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.S2C_CREATE_OBJECT;
     }
 
     @Override

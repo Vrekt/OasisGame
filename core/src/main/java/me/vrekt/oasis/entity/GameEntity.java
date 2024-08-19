@@ -28,6 +28,7 @@ import me.vrekt.oasis.entity.component.EntityTextureComponent;
 import me.vrekt.oasis.entity.component.EntityTransformComponent;
 import me.vrekt.oasis.entity.component.GlobalEntityMapper;
 import me.vrekt.oasis.entity.component.facing.EntityRotation;
+import me.vrekt.oasis.entity.component.status.EntityDebugStatus;
 import me.vrekt.oasis.entity.component.status.EntityStatus;
 import me.vrekt.oasis.entity.enemy.EntityEnemy;
 import me.vrekt.oasis.entity.enemy.fsm.EntityStateMachine;
@@ -900,6 +901,15 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     protected void addStatus(EntityStatus status) {
         statuses.put(status.id(), status);
+    }
+
+    /**
+     * Debug drawing for this entity
+     */
+    public void debug() {
+        // clear so the debug stats can be seen
+        statuses.clear();
+        addStatus(new EntityDebugStatus(this));
     }
 
     protected <T extends EntityStatus> T getStatus(int id) {

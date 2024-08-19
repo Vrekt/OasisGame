@@ -7,7 +7,6 @@ import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.GameEntity;
-import me.vrekt.oasis.entity.component.status.EntityDebugStatus;
 import me.vrekt.oasis.entity.component.status.EntitySpeakableStatus;
 import me.vrekt.oasis.entity.dialog.Dialogue;
 import me.vrekt.oasis.entity.dialog.DialogueEntry;
@@ -51,6 +50,7 @@ public abstract class EntitySpeakable extends GameEntity {
 
     @Override
     public Cursor enter(Vector3 mouse) {
+        hasEnteredMouse = true;
         return Cursor.DIALOG;
     }
 
@@ -65,7 +65,6 @@ public abstract class EntitySpeakable extends GameEntity {
     @Override
     public void load(Asset asset) {
         addStatus(new EntitySpeakableStatus(this, asset));
-        addStatus(new EntityDebugStatus(this));
     }
 
     @Override

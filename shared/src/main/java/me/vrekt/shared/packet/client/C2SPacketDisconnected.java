@@ -3,13 +3,12 @@ package me.vrekt.shared.packet.client;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.StringUtil;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * Inform the server the client has disconnected.
  */
 public final class C2SPacketDisconnected extends GamePacket {
-
-    public static final int PACKET_ID = 2222;
 
     // given reason, if any.
     private String givenReason;
@@ -34,7 +33,7 @@ public final class C2SPacketDisconnected extends GamePacket {
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_DISCONNECTED;
     }
 
     @Override

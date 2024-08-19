@@ -2,13 +2,12 @@ package me.vrekt.shared.packet.client.player;
 
 import io.netty.buffer.ByteBuf;
 import me.vrekt.shared.packet.GamePacket;
+import me.vrekt.shared.protocol.Packets;
 
 /**
  * A players position
  */
 public final class C2SPacketPlayerPosition extends GamePacket {
-
-    public static final int PACKET_ID = 2226;
 
     private int rotation;
     private float x, y;
@@ -23,21 +22,31 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         super(buffer);
     }
 
+
+    /**
+     * @return x position
+     */
     public float x() {
         return x;
     }
 
+    /**
+     * @return y position
+     */
     public float y() {
         return y;
     }
 
+    /**
+     * @return {@link me.vrekt.oasis.entity.component.facing.EntityRotation} ordinal.
+     */
     public int rotation() {
         return rotation;
     }
 
     @Override
     public int getId() {
-        return PACKET_ID;
+        return Packets.C2S_POSITION;
     }
 
     @Override
@@ -54,4 +63,5 @@ public final class C2SPacketPlayerPosition extends GamePacket {
         y = buffer.readFloat();
         rotation = buffer.readInt();
     }
+
 }

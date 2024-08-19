@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import me.vrekt.oasis.world.GameWorldInterior;
-import me.vrekt.oasis.world.interior.InteriorWorldType;
+import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 
 /**
@@ -14,7 +14,7 @@ public final class InteriorWorldSave extends AbstractWorldSaveState {
 
     @Expose
     @SerializedName("type")
-    private InteriorWorldType interiorType;
+    private Interior interiorType;
 
     @Expose
     private boolean enterable;
@@ -52,7 +52,7 @@ public final class InteriorWorldSave extends AbstractWorldSaveState {
     /**
      * @return type of
      */
-    public InteriorWorldType interiorType() {
+    public Interior interiorType() {
         return interiorType;
     }
 
