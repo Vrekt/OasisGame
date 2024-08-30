@@ -47,7 +47,7 @@ public class GameManager {
      * Execute a task later, used for instances where game skeleton is not initialized.
      *
      * @param action the action
-     * @param delay  the delay
+     * @param delay  the delay in seconds
      */
     public static void executeTaskLater(Runnable action, float delay) {
         Timer.schedule(new Timer.Task() {

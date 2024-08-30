@@ -95,7 +95,7 @@ public final class LyraEntity extends EntityInteractable {
         super.speak(speakingTo);
         if (speakingTo) {
             // stop the player moving since this a critical dialog
-            if (!isFinished) player.disableMovement();
+            if (!isFinished && transferred) player.disableMovement();
         }
     }
 

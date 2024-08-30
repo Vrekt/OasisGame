@@ -39,6 +39,7 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
 
     protected boolean wasInteractedWith, isEnabled = true, updatable = true, render = true;
     protected float interactionRange = 4.5f;
+    protected float distanceToPlayer;
 
     protected boolean isUiComponent;
     protected boolean handleMouseState = true;
@@ -111,6 +112,13 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     }
 
     /**
+     * @ the interact text used in GUIs
+     */
+    public String getInteractionText() {
+        return "Interact";
+    }
+
+    /**
      * Set the interaction range
      *
      * @param interactionRange the range
@@ -120,10 +128,19 @@ public abstract class AbstractInteractableWorldObject extends AbstractWorldObjec
     }
 
     /**
-     * @return interaction range of this object
+     * @return the dst2 to the player
      */
-    public float interactionRange() {
-        return interactionRange;
+    public float distanceToPlayer() {
+        return distanceToPlayer;
+    }
+
+    /**
+     * Set the distance to the player
+     *
+     * @param distanceToPlayer player
+     */
+    public void setDistanceToPlayer(float distanceToPlayer) {
+        this.distanceToPlayer = distanceToPlayer;
     }
 
     /**

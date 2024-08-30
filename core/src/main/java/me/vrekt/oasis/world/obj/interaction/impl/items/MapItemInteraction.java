@@ -53,7 +53,7 @@ public final class MapItemInteraction extends MouseableAbstractInteractableWorld
         enable();
 
         this.isMapObject = false;
-        this.handleMouseState = false;
+        this.handleMouseState = true;
         this.isUiComponent = true;
         this.item = item;
         this.saveSerializer = true;
@@ -63,7 +63,7 @@ public final class MapItemInteraction extends MouseableAbstractInteractableWorld
         super(WorldInteractionType.MAP_ITEM);
 
         this.isMapObject = true;
-        this.handleMouseState = false;
+        this.handleMouseState = true;
         this.isUiComponent = true;
         this.saveSerializer = true;
     }

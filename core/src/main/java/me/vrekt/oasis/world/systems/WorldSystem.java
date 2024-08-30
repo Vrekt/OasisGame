@@ -1,12 +1,12 @@
 package me.vrekt.oasis.world.systems;
 
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.GameManager;
-import me.vrekt.oasis.entity.GameEntity;
 
 /**
  * Represents a world system that updates something
  */
-public abstract class WorldSystem {
+public abstract class WorldSystem implements Disposable {
 
     protected int systemId;
     protected float updateInterval;
@@ -21,7 +21,7 @@ public abstract class WorldSystem {
      * @return {@code true} if this system is ready to update
      */
     public boolean readyToUpdate() {
-        return GameManager.hasTimeElapsed(lastUpdateInterval, updateInterval);
+        return updateInterval == 0 || GameManager.hasTimeElapsed(lastUpdateInterval, updateInterval);
     }
 
     /**
@@ -33,15 +33,6 @@ public abstract class WorldSystem {
     public void update(float delta, float tick) {
         lastUpdateInterval = tick;
         process(delta, tick);
-    }
-
-    /**
-     * receive an entity
-     *
-     * @param entity the entity
-     */
-    protected void receive(GameEntity entity) {
-
     }
 
     protected abstract void process(float delta, float tick);

@@ -12,7 +12,7 @@ public abstract class EntityStatus implements Drawable {
 
     protected final GameEntity entity;
     protected final int id;
-    protected boolean isPostRender;
+    protected boolean isPostRenderer;
 
     public EntityStatus(GameEntity entity, int id) {
         this.entity = entity;
@@ -29,8 +29,8 @@ public abstract class EntityStatus implements Drawable {
     /**
      * @return {@code true} if this should be post rendered.
      */
-    public boolean isPostRender() {
-        return isPostRender;
+    public boolean isPostRenderer() {
+        return isPostRenderer;
     }
 
     /**

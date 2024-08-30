@@ -5,7 +5,8 @@ import me.vrekt.oasis.save.settings.GameSettingsSave;
 public final class OasisGameSettings {
 
     public static final float SCALE = 1 / 16.0f;
-    public static float ENTITY_UPDATE_DISTANCE = 100;
+    public static float ENTITY_UPDATE_DISTANCE = 100.0f;
+    public static float ENTITY_NEARBY_DISTANCE = 30.0f;
     public static boolean SHOW_FPS = true;
     public static boolean ENABLE_MP_LAN = false;
 

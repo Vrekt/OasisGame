@@ -42,7 +42,7 @@ public final class ThaliaEntity extends EntityInteractable {
         parentWorld = worldIn;
 
         addTexturePart("face", asset.get("thalia_face"));
-        addTexturePart("fishing_1", asset.get("thalia_fishing", 1), true);
+        addTexturePartInitial("fishing_1", asset.get("thalia_fishing", 1));
         addTexturePart("fishing_2", asset.get("thalia_fishing", 2));
         addTexturePart("fishing_3", asset.get("thalia_fishing", 3));
 

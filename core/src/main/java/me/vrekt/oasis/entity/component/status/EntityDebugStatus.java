@@ -23,7 +23,7 @@ public final class EntityDebugStatus extends EntityStatus {
         super(entity, STATUS_ID);
 
         this.font = GameManager.asset().getMediumMipMapped();
-        this.isPostRender = true;
+        this.isPostRenderer = true;
     }
 
     @Override

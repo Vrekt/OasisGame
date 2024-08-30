@@ -36,8 +36,6 @@ import me.vrekt.oasis.entity.interactable.EntityInteractable;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.graphics.Drawable;
 import me.vrekt.oasis.graphics.Viewable;
-import me.vrekt.oasis.gui.input.Cursor;
-import me.vrekt.oasis.gui.input.MouseListener;
 import me.vrekt.oasis.save.world.entity.EntitySaveState;
 import me.vrekt.oasis.utility.ResourceLoader;
 import me.vrekt.oasis.utility.collision.CollisionType;
@@ -48,7 +46,7 @@ import me.vrekt.shared.network.state.NetworkEntityState;
 /**
  * Represents a basic entity within Oasis
  */
-public abstract class GameEntity implements MouseListener, Viewable, Drawable, ResourceLoader, Disposable {
+public abstract class GameEntity implements Viewable, Drawable, ResourceLoader, Disposable {
 
     protected String key;
     protected EntityType type;
@@ -95,7 +93,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     protected String renderAfterLayer;
 
     protected boolean isNetworked;
-    protected boolean hasEnteredMouse;
 
     // networking interpolation
     // TODO: NET-2 less messy
@@ -389,7 +386,7 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public void postRender(Camera worldCamera, Camera guiCamera, SpriteBatch batch, EntityDamageAnimator animator) {
         for (EntityStatus status : statuses.values()) {
-            if (status.isPostRender()) status.postRender(batch, worldCamera, guiCamera);
+            if (status.isPostRenderer()) status.postRender(batch, worldCamera, guiCamera);
         }
     }
 
@@ -743,32 +740,6 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         return !getVelocity().isZero(0.01f);
     }
 
-    @Override
-    public boolean within(Vector3 mouse) {
-        return isMouseInEntityBounds(mouse);
-    }
-
-    @Override
-    public boolean clicked(Vector3 mouse) {
-        return false;
-    }
-
-    @Override
-    public Cursor enter(Vector3 mouse) {
-        hasEnteredMouse = true;
-        return Cursor.DEFAULT;
-    }
-
-    @Override
-    public boolean hasEntered() {
-        return hasEnteredMouse;
-    }
-
-    @Override
-    public void exit(Vector3 mouse) {
-        hasEnteredMouse = false;
-    }
-
     /**
      * Update this game entity
      *
@@ -776,14 +747,14 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
      */
     public void update(float delta) {
         for (EntityStatus status : statuses.values()) {
-            if (!status.isPostRender()) status.update(delta);
+            if (!status.isPostRenderer()) status.update(delta);
         }
     }
 
     @Override
     public void render(SpriteBatch batch, float delta) {
         for (EntityStatus status : statuses.values()) {
-            if (!status.isPostRender()) status.render(batch, delta);
+            if (!status.isPostRenderer()) status.render(batch, delta);
         }
     }
 
@@ -859,14 +830,14 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     }
 
     /**
-     * Add a texture part
+     * Add a texture part, will set the current active texture to the one provided.
      *
      * @param name    the name
      * @param texture the texture
      */
-    protected void addTexturePart(String name, TextureRegion texture, boolean initial) {
+    protected void addTexturePartInitial(String name, TextureRegion texture) {
         entity.getComponent(EntityTextureComponent.class).textureRegions.put(name, texture);
-        if (initial) activeEntityTexture = texture;
+        activeEntityTexture = texture;
     }
 
     /**
@@ -946,10 +917,16 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
         return null;
     }
 
+    /**
+     * @return {@code true} if this entity is an interactable one.
+     */
     public boolean isInteractableEntity() {
-        return this instanceof EntityInteractable;
+        return type.interactable();
     }
 
+    /**
+     * @return this entity as an enemy.
+     */
     public EntityEnemy asEnemy() {
         return null;
     }
@@ -964,15 +941,14 @@ public abstract class GameEntity implements MouseListener, Viewable, Drawable, R
     public void setNearby(boolean nearby) {
         isNearby = nearby;
 
+        // exit all statuses
         if (!isNearby) {
             statuses.values().forEach(EntityStatus::exitStatus);
         }
     }
 
     public void setDistanceToPlayer(float distance) {
-        if (this instanceof EntityInteractable) {
-            this.distanceFromPlayer = distance;
-        }
+        this.distanceFromPlayer = distance;
     }
 
     public float getDistanceFromPlayer() {

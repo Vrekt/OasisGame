@@ -22,8 +22,8 @@ import me.vrekt.oasis.utility.tiled.TiledMapLoader;
 import me.vrekt.oasis.world.interior.Interior;
 import me.vrekt.oasis.world.interior.misc.LockDifficulty;
 import me.vrekt.oasis.world.lp.ActivityManager;
+import me.vrekt.oasis.world.obj.interaction.Interaction;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
-import me.vrekt.oasis.world.utility.Interaction;
 import me.vrekt.shared.packet.client.interior.C2STryEnterInteriorWorld;
 import me.vrekt.shared.packet.server.interior.S2CEnterInteriorWorld;
 import me.vrekt.shared.protocol.Packets;
@@ -187,19 +187,20 @@ public abstract class GameWorldInterior extends GameWorld {
     public void updateWhilePlayerIsNear(GameWorld parent) {
         if (locked()
                 && !lockpickUsed
-                && !parent.interactionManager.is(Interaction.LOCKPICK)
+                && !parent.interactionManager.isStateVisible(Interaction.LOCKPICK)
                 && player.getInventory().containsItem(Items.LOCK_PICK)) {
-            parent.interactionManager.showLockpickingInteraction();
-        } else if (parent.interactionManager.active() == Interaction.LOCKPICK
+            parent.interactionManager.populateLockpickInteraction();
+        } else if (locked()
+                && parent.interactionManager.isStateVisible(Interaction.LOCKPICK)
                 && !lockpickUsed
-                && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                && Gdx.input.isKeyPressed(Input.Keys.E)) {
             // use the lockpick
             ActivityManager.lockpicking(lockDifficulty, this::handleLockpickSuccess, this::handleCancelOrFailLockpick);
-            parent.interactionManager.hideInteractions();
+            parent.interactionManager.hideActiveStateIf(Interaction.LOCKPICK);
             lockpickUsed = true;
         } else if (!locked()) {
-            if (!parent.interactionManager.is(Interaction.ENTER) && !player.isEnteringNewWorld()) {
-                parent.interactionManager.showEnterInteraction(this);
+            if (!parent.interactionManager.isStateVisible(Interaction.INTERIOR) && !player.isEnteringNewWorld()) {
+                parent.interactionManager.populateEnterInteraction(this);
             }
         }
     }
@@ -224,7 +225,8 @@ public abstract class GameWorldInterior extends GameWorld {
     public void invalidatePlayerNearbyState() {
         lockpickUsed = false;
 
-        parentWorld.interactionManager.hideInteractions();
+        parentWorld.interactionManager.hideActiveStateIf(Interaction.INTERIOR);
+        parentWorld.interactionManager.hideActiveStateIf(Interaction.LOCKPICK);
     }
 
     /**
@@ -343,7 +345,7 @@ public abstract class GameWorldInterior extends GameWorld {
     /**
      * Attempt to enter this interior
      */
-    protected void attemptEnter() {
+    public void attemptEnter() {
         if (isWithinEnteringDistance(player.getPosition()) && enterable) {
             if (locked()) {
                 game.guiManager.getHintComponent().showPlayerHint(PlayerHints.DOOR_LOCKED_HINT, 4.5f, 5.0f);
@@ -382,6 +384,11 @@ public abstract class GameWorldInterior extends GameWorld {
         }
 
         return anyAction;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return super.keyDown(keycode);
     }
 
     @Override

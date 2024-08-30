@@ -13,15 +13,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.kotcrab.vis.ui.widget.VisTable;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.OasisGame;
 import me.vrekt.oasis.asset.game.Asset;
 import me.vrekt.oasis.entity.player.mp.NetworkPlayer;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
-import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.gui.guis.dialog.EntityDialogGui;
 import me.vrekt.oasis.gui.guis.hud.GameChatGui;
 import me.vrekt.oasis.gui.guis.hud.GameHudGui;
@@ -37,6 +35,7 @@ import me.vrekt.oasis.gui.guis.quest.QuestCompletedGui;
 import me.vrekt.oasis.gui.guis.quest.QuestEntryGui;
 import me.vrekt.oasis.gui.guis.quest.QuestGui;
 import me.vrekt.oasis.gui.guis.sign.ReadableSignGui;
+import me.vrekt.oasis.gui.input.Cursor;
 import me.vrekt.oasis.gui.windows.PauseWindowGui;
 import me.vrekt.oasis.gui.windows.SaveGameWindowGui;
 import me.vrekt.oasis.gui.windows.SettingsWindowGui;
@@ -83,8 +82,7 @@ public final class GuiManager implements Disposable {
         this.layout = new GlyphLayout();
 
         // fit this stage to always respect the general constraints we want
-        final FitViewport viewport = new FitViewport(640, 480);
-        viewport.setScaling(Scaling.contain);
+        final ScreenViewport viewport = new ScreenViewport();
 
         stage = new Stage(viewport);
         stage.setDebugAll(true);
@@ -299,7 +297,7 @@ public final class GuiManager implements Disposable {
      * @param height height
      */
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, false);
+        stage.getViewport().update(width, height, true);
         guis.values().forEach(gui -> gui.resize(width, height));
     }
 

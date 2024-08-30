@@ -72,12 +72,9 @@ import me.vrekt.oasis.world.obj.interaction.impl.AbstractInteractableWorldObject
 import me.vrekt.oasis.world.obj.interaction.impl.container.OpenableContainerInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.BreakableObjectInteraction;
 import me.vrekt.oasis.world.obj.interaction.impl.items.MapItemInteraction;
-import me.vrekt.oasis.world.systems.AreaEffectCloudManager;
-import me.vrekt.oasis.world.systems.AreaEffectUpdateSystem;
-import me.vrekt.oasis.world.systems.SystemManager;
+import me.vrekt.oasis.world.systems.*;
 import me.vrekt.oasis.world.tiled.TileMaterialType;
 import me.vrekt.oasis.world.tiled.TiledMapCache;
-import me.vrekt.oasis.world.utility.Interaction;
 import me.vrekt.oasis.world.utility.Keybindings;
 import me.vrekt.shared.network.state.NetworkState;
 import me.vrekt.shared.packet.server.obj.S2CNetworkSpawnWorldDrop;
@@ -313,14 +310,15 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         world.setContactListener(new BasicEntityCollisionHandler());
         TiledMapLoader.loadMapActions(worldMap, worldScale, worldOrigin, new Rectangle());
         TiledMapLoader.loadMapCollision(worldMap, worldScale, world);
-        buildEntityPathing(worldMap, worldScale);
+        if (!game.isInMultiplayerGame()) buildEntityPathing(worldMap, worldScale);
+        // only create entities if this world is hosted or singleplayer.
         if (!game.isInMultiplayerGame()) createEntities(game.asset(), worldMap, worldScale);
         loadParticleEffects(worldMap, game.asset(), worldScale);
 
-        // only generate this if the game is not a remote multiplayer server
+        // only create objects if this world is hosted or singleplayer.
         if (!game.isInMultiplayerGame()) createWorldObjects(worldMap, game.asset(), worldScale);
         createInteriors(worldMap, worldScale);
-        createEntityGoals(worldMap, worldScale);
+        if (!game.isInMultiplayerGame()) createEntityGoals(worldMap, worldScale);
 
         if (!isGameSave) {
             // do not generate yet if we are a save.
@@ -341,7 +339,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.addSystem(new EntityUpdateSystem(game, this));
 
         effectCloudManager = new AreaEffectCloudManager();
+
         systemManager.add(effectUpdateSystem = new AreaEffectUpdateSystem(effectCloudManager));
+        if (!isInterior())
+            systemManager.add(new NearbyInteriorUpdateSystem(this));
+
+        systemManager.add(new WorldObjectUpdateSystem(this));
     }
 
     /**
@@ -358,7 +361,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      */
     protected void enterInterior(GameWorldInterior interior) {
         player.setEnteringNewWorld(true);
-        interactionManager.hideInteractions();
         game.worldManager().transferIn(player, this, interior);
     }
 
@@ -582,8 +584,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         entity.setEntityId(entities.size + 1);
         entities.put(entity.entityId(), entity);
         engine.addEntity(entity.getEntity());
-
-        mouseListeners.add(entity);
     }
 
     /**
@@ -594,8 +594,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     public void addNetworkedEntity(GameEntity entity) {
         entities.put(entity.entityId(), entity);
         engine.addEntity(entity.getEntity());
-
-        mouseListeners.add(entity);
 
         if (entity.renderWithMap()) {
             specialRenderingEntities.add(entity);
@@ -628,7 +626,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         deadEnemiesByKey.add(entity.key());
-        mouseListeners.removeValue(entity, true);
         entity.dispose();
     }
 
@@ -642,7 +639,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         engine.removeEntity(entity.getEntity());
         nearbyEntities.remove(entity.entityId());
         entities.remove(entity.entityId());
-        mouseListeners.removeValue(entity, true);
 
         if (destroy) entity.dispose();
     }
@@ -779,12 +775,12 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      * @param asset      asset
      */
-    public AbstractInteractableWorldObject createInteractableObject(TiledWorldObjectProperties properties,
-                                                                    MapObject object,
-                                                                    Rectangle rectangle,
-                                                                    float worldScale,
-                                                                    Asset asset,
-                                                                    int id) {
+    public void createInteractableObject(TiledWorldObjectProperties properties,
+                                         MapObject object,
+                                         Rectangle rectangle,
+                                         float worldScale,
+                                         Asset asset,
+                                         int id) {
         final boolean isKeyed = properties.key != null;
         final AbstractInteractableWorldObject worldObject = isKeyed
                 ? properties.interactionType.getKeyed(properties.key, interactionManager)
@@ -823,7 +819,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         }
 
         GameLogging.info(this, "Loaded interaction object %s", properties.interactionType);
-        return worldObject;
     }
 
     /**
@@ -1251,9 +1246,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      */
     protected void createEntityGoals(TiledMap worldMap, float worldScale) {
-        // do not load goals if networked
-        if (isNetworked) return;
-
         final boolean result = TiledMapLoader.loadMapObjects(worldMap, worldScale, "EntityGoals", (object, bounds) -> {
             final String e = TiledMapLoader.ofString(object, "entity");
             if (e != null) {
@@ -1280,9 +1272,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      * @param worldScale scale
      */
     protected void buildEntityPathing(TiledMap worldMap, float worldScale) {
-        // do not load pathing if networked
-        if (isNetworked) return;
-
         final MapLayer layer = worldMap.getLayers().get("Paths");
         if (layer == null) return;
 
@@ -1355,6 +1344,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
         player.interpolatePosition();
         player.update(delta);
 
+        interactionManager.updateNearestInteractions(this);
+
         if (capture && game.isHostingMultiplayerGame()) {
             // captures the game state of this world to be broadcast ASAP.
             final NetworkState state = game.hostNetwork().captureNetworkState(this);
@@ -1384,14 +1375,9 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             networkRenderer.render(this, batch, delta);
         }
 
-        // general world objects
-        for (AbstractWorldObject object : worldObjects.values()) object.render(batch, delta);
-
-        // interactions
-        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values()) {
-            if (worldObject.isUpdatable() && worldObject.wasInteractedWith()) worldObject.update();
+        for (AbstractWorldObject object : this.worldObjects.values()) object.render(batch, delta);
+        for (AbstractInteractableWorldObject worldObject : interactableWorldObjects.values())
             if (worldObject.render()) worldObject.render(batch, delta);
-        }
 
         // render entity UI elements
         for (GameEntity entity : entities.values()) {
@@ -1407,7 +1393,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
             effect.draw(batch);
         }
 
-        if (!isInterior()) updateNearbyInteriors();
         projectileManager.render(batch, delta);
 
         // render local player next
@@ -1419,7 +1404,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     /**
      * End world rendering and render GUI(s)
      */
-    protected void endRender() {
+    private void endRender() {
         batch.setProjectionMatrix(guiManager.getCamera().combined);
 
         // render object UI elements
@@ -1518,7 +1503,7 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      *
      * @param entity the entity
      */
-    public void addNearbyEntity(EntityInteractable entity) {
+    public void addNearbyEntity(GameEntity entity) {
         nearbyEntities.put(entity.entityId(), entity);
     }
 
@@ -1527,8 +1512,15 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
      *
      * @param entity the entity
      */
-    public void removeNearbyEntity(EntityInteractable entity) {
+    public void removeNearbyEntity(GameEntity entity) {
         nearbyEntities.remove(entity.entityId());
+    }
+
+    /**
+     * @return map of all nearby entities
+     */
+    public IntMap<GameEntity> nearbyEntities() {
+        return nearbyEntities;
     }
 
     /**
@@ -1609,27 +1601,6 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     }
 
     /**
-     * Update interiors the player is near
-     */
-    protected void updateNearbyInteriors() {
-        for (GameWorldInterior interior : interiorWorlds.values()) {
-            if (!interior.requiresNearUpdating() && !interior.doTicking()) continue;
-
-            if (interior.doTicking) {
-                interior.tickWorld(Gdx.graphics.getDeltaTime());
-            } else {
-                if (interior.isWithinEnteringDistance(player.getPosition())) {
-                    interior.updateWhilePlayerIsNear(this);
-                    interior.setNear(true);
-                } else if (interior.isNear()) {
-                    interior.invalidatePlayerNearbyState();
-                    interior.setNear(false);
-                }
-            }
-        }
-    }
-
-    /**
      * Resize this world
      *
      * @param width  width
@@ -1658,14 +1629,8 @@ public abstract class GameWorld extends Box2dGameWorld implements WorldInputAdap
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.E) {
-            if (interactionManager.is(Interaction.ENTER)) {
-                if (interactionManager.interiorToEnter() != null) {
-                    interactionManager.interiorToEnter().attemptEnter();
-                }
-            } else if (interactionManager.is(Interaction.SPEAK)) {
-                if (interactionManager.entityToInteractWith() != null) {
-                    interactionManager.entityToInteractWith().clicked(null);
-                }
+            if (interactionManager.handleInteractionKeyPress(this)) {
+                return true;
             }
         }
 

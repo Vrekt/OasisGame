@@ -2,7 +2,6 @@ package me.vrekt.oasis.entity.interactable;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import me.vrekt.oasis.GameManager;
 import me.vrekt.oasis.ai.utility.AiVectorUtility;
 import me.vrekt.oasis.asset.game.Asset;
@@ -13,7 +12,6 @@ import me.vrekt.oasis.entity.dialog.DialogueEntry;
 import me.vrekt.oasis.entity.dialog.utility.DialogueResult;
 import me.vrekt.oasis.entity.player.sp.PlayerSP;
 import me.vrekt.oasis.gui.GuiType;
-import me.vrekt.oasis.gui.input.Cursor;
 
 /**
  * Represents an entity that can be spoken to.
@@ -25,6 +23,8 @@ public abstract class EntitySpeakable extends GameEntity {
 
     protected boolean speakingTo, speakable;
     protected final Vector2 interactionPoint = new Vector2();
+
+    private boolean showingSpeaking;
 
     public EntitySpeakable(PlayerSP player) {
         this.player = player;
@@ -49,20 +49,6 @@ public abstract class EntitySpeakable extends GameEntity {
     public abstract TextureRegion getDialogFace();
 
     @Override
-    public Cursor enter(Vector3 mouse) {
-        hasEnteredMouse = true;
-        return Cursor.DIALOG;
-    }
-
-    @Override
-    public boolean clicked(Vector3 mouse) {
-        if (!speakingTo && speakable) {
-            speak(true);
-        }
-        return true;
-    }
-
-    @Override
     public void load(Asset asset) {
         addStatus(new EntitySpeakableStatus(this, asset));
     }
@@ -70,6 +56,19 @@ public abstract class EntitySpeakable extends GameEntity {
     @Override
     public void update(float v) {
         super.update(v);
+
+        if (getDistanceFromPlayer() <= 4.0f) {
+            if (!showingSpeaking) {
+                showingSpeaking = true;
+                //  getWorldState().interactionManager().showSpeakingInteraction(this);
+            }
+        } else {
+            if (showingSpeaking) {
+                showingSpeaking = false;
+                //  getWorldState().interactionManager().hideInteractions();
+            }
+        }
+
 
         // stop speaking to this entity if the player moves away
         if (speakingTo) {
@@ -107,6 +106,12 @@ public abstract class EntitySpeakable extends GameEntity {
 
     public boolean isSpeakingTo() {
         return speakingTo;
+    }
+
+    public void speak() {
+        if (!speakingTo && speakable) {
+            speak(true);
+        }
     }
 
     /**

@@ -73,6 +73,11 @@ public class OpenableContainerInteraction extends KeyableAbstractInteractableMou
         this.saveSerializer = true;
     }
 
+    @Override
+    public String getInteractionText() {
+        return "Open";
+    }
+
     public ContainerInventory inventory() {
         return inventory;
     }

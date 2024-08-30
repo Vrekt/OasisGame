@@ -44,7 +44,7 @@ public final class MiraEntity extends EntityInteractable {
         parentWorld = worldIn;
 
         addTexturePart("face", asset.get("mira_face"));
-        addTexturePart("idle", asset.get("mira_idle"), true);
+        addTexturePartInitial("idle", asset.get("mira_idle"));
         createBB(activeEntityTexture.getRegionWidth(), activeEntityTexture.getRegionHeight());
         createRectangleBody(worldIn.boxWorld(), new Vector2(0.55f, 0.88f));
 
@@ -67,11 +67,6 @@ public final class MiraEntity extends EntityInteractable {
     @Override
     public TextureRegion getDialogFace() {
         return getTexturePart("face");
-    }
-
-    @Override
-    public void speak(boolean speakingTo) {
-        super.speak(speakingTo);
     }
 
     /**

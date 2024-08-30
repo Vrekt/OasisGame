@@ -39,24 +39,20 @@ public final class EntityUpdateSystem extends EntitySystem {
             final float distance = entity.getPosition().dst2(game.player().getPosition());
             entity.setDistanceToPlayer(distance);
 
-            // task: EM-92.1 entities dying outside range
-            // EM-182,196: Update entities regardless of distance if the game is hosted multiplayer
-            if (!game.isSingleplayerGame() || distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE || entity.isInView(gameCamera)) {
-
+            if (!game.isSingleplayerGame() || distance <= OasisGameSettings.ENTITY_UPDATE_DISTANCE) {
                 entity.update(deltaTime);
+
                 if (!entity.isDead()) entity.checkAreaEffects();
-
-                if (entity.type().interactable() && !entity.nearby()) {
-                    entity.setNearby(true);
-                    world.addNearbyEntity(entity.asInteractable());
-                }
-            } else {
+            } else if (distance > OasisGameSettings.ENTITY_UPDATE_DISTANCE) {
                 entity.stopUpdating();
+            }
 
-                if (entity.type().interactable() && entity.nearby()) {
-                    entity.setNearby(false);
-                    world.removeNearbyEntity(entity.asInteractable());
-                }
+            if (distance <= OasisGameSettings.ENTITY_NEARBY_DISTANCE && !entity.nearby()) {
+                entity.setNearby(true);
+                world.addNearbyEntity(entity);
+            } else if (distance > OasisGameSettings.ENTITY_NEARBY_DISTANCE && entity.nearby()) {
+                entity.setNearby(false);
+                world.removeNearbyEntity(entity);
             }
         }
     }

@@ -50,7 +50,7 @@ public final class HudInteractionsComponent extends HudComponent {
     /**
      * Show the enter interaction for interiors.
      */
-    public void showEnterInteraction() {
+    public void populateEnterInteraction() {
         if (activeKeyImage != Input.Keys.E) {
             keyImage.setDrawable(new TextureRegionDrawable(asset("ekey")));
         }
@@ -65,7 +65,7 @@ public final class HudInteractionsComponent extends HudComponent {
     /**
      * Show lockpicking interaction
      */
-    public void showLockpickInteraction() {
+    public void populateLockpickInteraction() {
         if (activeKeyImage != Input.Keys.E) {
             keyImage.setDrawable(new TextureRegionDrawable(asset("ekey")));
         }
@@ -78,7 +78,7 @@ public final class HudInteractionsComponent extends HudComponent {
     /**
      * Show the speaking interaction for an entity.
      */
-    public void showSpeakingInteraction() {
+    public void populateSpeakingComponent() {
         if (activeKeyImage != Input.Keys.E) {
             keyImage.setDrawable(new TextureRegionDrawable(asset("ekey")));
         }
@@ -87,6 +87,19 @@ public final class HudInteractionsComponent extends HudComponent {
         interaction.setText("Talk");
         fadeIn(rootTable, 0.5f);
         isShowing = true;
+    }
+
+    public void populateWorldObjectComponent(String text) {
+        if (activeKeyImage != Input.Keys.E) {
+            keyImage.setDrawable(new TextureRegionDrawable(asset("ekey")));
+        }
+
+        activeKeyImage = Input.Keys.E;
+        interaction.setText(text);
+        if (!isShowing) {
+            fadeIn(rootTable, 0.5f);
+            isShowing = true;
+        }
     }
 
     @Override

@@ -129,6 +129,8 @@ public final class WorldManager implements Disposable {
         parentWorldPosition.set(player.getPosition());
 
         GameManager.transitionWorlds(parent, interior, () -> {
+            parent.exit();
+
             interior.loadWorldTiledMap(false);
             interior.enterWorld();
         });

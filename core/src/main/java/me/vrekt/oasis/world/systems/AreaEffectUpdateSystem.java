@@ -8,7 +8,7 @@ import me.vrekt.oasis.world.effects.AreaEffectCloud;
 public final class AreaEffectUpdateSystem extends WorldSystem {
 
     public static final int SYSTEM_ID = 0;
-    private final AreaEffectCloudManager manager;
+    private AreaEffectCloudManager manager;
 
     public AreaEffectUpdateSystem(AreaEffectCloudManager manager) {
         super(SYSTEM_ID, 0.25f);
@@ -23,5 +23,10 @@ public final class AreaEffectUpdateSystem extends WorldSystem {
                 manager.areaEffects.remove(i).dispose();
             }
         }
+    }
+
+    @Override
+    public void dispose() {
+        manager.dispose();
     }
 }

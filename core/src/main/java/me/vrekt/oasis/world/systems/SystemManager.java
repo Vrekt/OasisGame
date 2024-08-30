@@ -46,6 +46,7 @@ public final class SystemManager implements Disposable {
 
     @Override
     public void dispose() {
+        systems.forEach(entry -> entry.value.dispose());
         systems.clear();
     }
 }

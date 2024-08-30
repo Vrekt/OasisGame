@@ -1,6 +1,7 @@
 package me.vrekt.oasis.world.systems;
 
 import com.badlogic.ashley.utils.Bag;
+import com.badlogic.gdx.utils.Disposable;
 import me.vrekt.oasis.entity.GameEntity;
 import me.vrekt.oasis.world.effects.AreaEffectCloud;
 
@@ -8,7 +9,7 @@ import me.vrekt.oasis.world.effects.AreaEffectCloud;
  * Manages area effect clouds
  * Clouds of different effects like poison
  */
-public final class AreaEffectCloudManager {
+public final class AreaEffectCloudManager implements Disposable {
 
     final Bag<AreaEffectCloud> areaEffects = new Bag<>();
 
@@ -46,4 +47,8 @@ public final class AreaEffectCloudManager {
         }
     }
 
+    @Override
+    public void dispose() {
+        areaEffects.clear();
+    }
 }

@@ -54,7 +54,7 @@ public final class OasisGame extends Game {
 
     // automatically incremented everytime the game is built/ran
     // Format: {YEAR}{MONTH}{DAY}-{HOUR:MINUTE}-{BUILD NUMBER}
-    public static final String GAME_VERSION = "20240819-0621-8463";
+    public static final String GAME_VERSION = "20240830-1802-8549";
 
     // default task manager.
     private final TaskManager taskManager = new TaskManager();

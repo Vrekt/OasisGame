@@ -79,6 +79,10 @@ public enum WorldInteractionType {
         return manager.getInteraction(this, key);
     }
 
+    public AbstractInteractableWorldObject create(GameWorld world, MapObject object) {
+        return null;
+    }
+
     /**
      * Parse the interaction type string
      *
@@ -94,8 +98,6 @@ public enum WorldInteractionType {
         }
     }
 
-    public AbstractInteractableWorldObject create(GameWorld world, MapObject object) {
-        return null;
-    }
+
 
 }
